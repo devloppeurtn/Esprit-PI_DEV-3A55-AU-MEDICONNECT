@@ -1,0 +1,159 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Mon Profil - MediConnect{% endblock %}
+
+{% block body_class %}{% endblock %}
+
+{% block stylesheets %}
+    <link href="{{ asset('assets/css/profile.css') }}" rel="stylesheet">
+{% endblock %}
+
+{% block body %}
+<section class="profile-section">
+    <div class="container py-5">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <div class="card shadow-sm">
+                    <div class="card-header bg-primary text-white">
+                        <h3 class="mb-0">
+                            <i class="bi bi-person-circle me-2"></i>Mon Profil
+                        </h3>
+                    </div>
+                    <div class="card-body p-4">
+                        {% for message in app.flashes('success') %}
+                            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                                {{ message }}
+                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                            </div>
+                        {% endfor %}
+
+                        {% for message in app.flashes('error') %}
+                            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                                {{ message }}
+                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                            </div>
+                        {% endfor %}
+
+                        <div class="row mb-4">
+                            <div class="col-md-4 text-center">
+                                <div class="profile-avatar mb-3">
+                                    <img src="{{ asset('assets/img/logomed.png') }}" alt="Avatar" class="rounded-circle" style="width: 150px; height: 150px; object-fit: cover;">
+                                </div>
+                                <div class="role-badge">
+                                    {% if user.role == constant('App\\Entity\\RoleUtilisateur::ADMIN') %}
+                                        <span class="badge bg-danger fs-6">Administrateur</span>
+                                    {% elseif user.role == constant('App\\Entity\\RoleUtilisateur::MEDECIN') %}
+                                        <span class="badge bg-info fs-6">Médecin</span>
+                                    {% elseif user.role == constant('App\\Entity\\RoleUtilisateur::PATIENT') %}
+                                        <span class="badge bg-success fs-6">Patient</span>
+                                    {% elseif user.role == constant('App\\Entity\\RoleUtilisateur::SECRETAIRE') %}
+                                        <span class="badge bg-warning text-dark fs-6">Secrétaire</span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="col-md-8">
+                                <h4 class="mb-3">{{ user.nomComplet }}</h4>
+                                
+                                <div class="info-item mb-3">
+                                    <strong><i class="bi bi-envelope me-2"></i>Email :</strong>
+                                    <span class="ms-2">{{ user.email }}</span>
+                                </div>
+
+                                <div class="info-item mb-3">
+                                    <strong><i class="bi bi-shield-check me-2"></i>Statut :</strong>
+                                    {% if user.statut == constant('App\\Entity\\StatutCompte::ACTIF') %}
+                                        <span class="badge bg-success ms-2">Actif</span>
+                                    {% elseif user.statut == constant('App\\Entity\\StatutCompte::BANNI') %}
+                                        <span class="badge bg-danger ms-2">Banni</span>
+                                    {% elseif user.statut == constant('App\\Entity\\StatutCompte::SUSPENDU') %}
+                                        <span class="badge bg-warning text-dark ms-2">Suspendu</span>
+                                    {% endif %}
+                                </div>
+
+                                <div class="info-item mb-3">
+                                    <strong><i class="bi bi-calendar-event me-2"></i>Date de création :</strong>
+                                    <span class="ms-2">{{ user.dateCreation|date('d/m/Y à H:i') }}</span>
+                                </div>
+
+                                {% if user.derniereConnexion %}
+                                <div class="info-item mb-3">
+                                    <strong><i class="bi bi-clock-history me-2"></i>Dernière connexion :</strong>
+                                    <span class="ms-2">{{ user.derniereConnexion|date('d/m/Y à H:i') }}</span>
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <hr class="my-4">
+
+                        {% if user.role.value == 'PATIENT' %}
+                            <h5 class="mb-3"><i class="bi bi-person-vcard me-2"></i>Informations Patient</h5>
+                            <div class="row">
+                                {% if user.telephone %}
+                                <div class="col-md-6 mb-3">
+                                    <strong><i class="bi bi-telephone me-2"></i>Téléphone :</strong>
+                                    <span class="ms-2">{{ user.telephone }}</span>
+                                </div>
+                                {% endif %}
+                                {% if user.dateNaissance %}
+                                <div class="col-md-6 mb-3">
+                                    <strong><i class="bi bi-calendar3 me-2"></i>Date de naissance :</strong>
+                                    <span class="ms-2">{{ user.dateNaissance|date('d/m/Y') }}</span>
+                                </div>
+                                {% endif %}
+                                {% if user.adresse %}
+                                <div class="col-12 mb-3">
+                                    <strong><i class="bi bi-geo-alt me-2"></i>Adresse :</strong>
+                                    <span class="ms-2">{{ user.adresse }}</span>
+                                </div>
+                                {% endif %}
+                            </div>
+                        {% elseif user.role.value == 'MEDECIN' %}
+                            <h5 class="mb-3"><i class="bi bi-heart-pulse me-2"></i>Informations Professionnelles</h5>
+                            <div class="row">
+                                {% if user.specialite %}
+                                <div class="col-md-6 mb-3">
+                                    <strong><i class="bi bi-briefcase me-2"></i>Spécialité :</strong>
+                                    <span class="ms-2">{{ user.specialite }}</span>
+                                </div>
+                                {% endif %}
+                                {% if user.numeroLicence %}
+                                <div class="col-md-6 mb-3">
+                                    <strong><i class="bi bi-card-checklist me-2"></i>Numéro de licence :</strong>
+                                    <span class="ms-2">{{ user.numeroLicence }}</span>
+                                </div>
+                                {% endif %}
+                                {% if user.adresseCabinet %}
+                                <div class="col-12 mb-3">
+                                    <strong><i class="bi bi-building me-2"></i>Adresse du cabinet :</strong>
+                                    <span class="ms-2">{{ user.adresseCabinet }}</span>
+                                </div>
+                                {% endif %}
+                            </div>
+                        {% elseif user.role.value == 'SECRETAIRE' %}
+                            <h5 class="mb-3"><i class="bi bi-person-badge me-2"></i>Informations Secrétaire</h5>
+                            <div class="row">
+                                {% if user.telephone %}
+                                <div class="col-md-6 mb-3">
+                                    <strong><i class="bi bi-telephone me-2"></i>Téléphone :</strong>
+                                    <span class="ms-2">{{ user.telephone }}</span>
+                                </div>
+                                {% endif %}
+                            </div>
+                        {% endif %}
+
+                        <div class="mt-4 text-center">
+                            <a href="{{ path('app_home') }}" class="btn btn-outline-primary me-2">
+                                <i class="bi bi-house me-2"></i>Retour à l'accueil
+                            </a>
+                            <a href="{{ path('app_logout') }}" class="btn btn-danger">
+                                <i class="bi bi-box-arrow-right me-2"></i>Déconnexion
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

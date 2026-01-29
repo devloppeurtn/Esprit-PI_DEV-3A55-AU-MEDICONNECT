@@ -1,0 +1,266 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Inscription - MediConnect{% endblock %}
+
+{% block body_class %}{% endblock %}
+
+{% block stylesheets %}
+    <link href="{{ asset('assets/css/auth.css') }}" rel="stylesheet">
+{% endblock %}
+
+{% block body %}
+<section class="vh-100 auth-section" style="background-color: #ffffff;">
+  <div class="container py-5 h-100">
+    <div class="row d-flex justify-content-center align-items-center h-100">
+      <div class="col col-xl-10">
+        <div class="card auth-card" style="border-radius: 1rem;">
+          <div class="row g-0">
+            <div class="col-md-6 col-lg-5 d-none d-md-block auth-image-col">
+              <div class="auth-image-wrapper">
+                <img src="{{ asset('assets/img/logomed.png') }}"
+                  alt="MediConnect" class="auth-background-logo" />
+                <div class="auth-overlay-text">
+                  <h2 class="text-white mb-3">
+                    {% if role %}
+                      Inscription {{ role.value }}
+                    {% else %}
+                      Rejoignez-nous
+                    {% endif %}
+                  </h2>
+                  <p class="text-white">Créez votre compte et commencez à utiliser MediConnect</p>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-6 col-lg-7 d-flex align-items-center">
+              <div class="card-body p-4 p-lg-5 text-black auth-form-body">
+
+                {% if not role %}
+                  <div class="d-flex align-items-center mb-3 pb-1">
+                    <img src="{{ asset('assets/img/logomed.png') }}" alt="Logo MediConnect" class="auth-form-logo me-3">
+                    <span class="h1 fw-bold mb-0" style="color: #112344;">MediConnect</span>
+                  </div>
+                  <h5 class="fw-normal mb-3 pb-3" style="letter-spacing: 1px; color: #112344;">Choisissez votre type de compte</h5>
+                  
+                  <div class="role-selection-buttons mb-4">
+                    <a href="{{ path('app_signup', {role: 'PATIENT'}) }}" class="btn btn-outline-primary btn-lg w-100 mb-3" style="border-color: #175cdd; color: #175cdd;">
+                      <i class="bi bi-person-fill me-2"></i>Patient
+                    </a>
+                    <a href="{{ path('app_signup', {role: 'MEDECIN'}) }}" class="btn btn-outline-primary btn-lg w-100 mb-3" style="border-color: #175cdd; color: #175cdd;">
+                      <i class="bi bi-heart-pulse-fill me-2"></i>Médecin
+                    </a>
+                    <a href="{{ path('app_signup', {role: 'SECRETAIRE'}) }}" class="btn btn-outline-primary btn-lg w-100 mb-3" style="border-color: #175cdd; color: #175cdd;">
+                      <i class="bi bi-person-badge-fill me-2"></i>Secrétaire
+                    </a>
+                  </div>
+                  
+                  <p class="mb-0 text-center">
+                    <a href="{{ path('app_login') }}" style="color: #175cdd;">Vous avez déjà un compte ? Se connecter</a>
+                  </p>
+                {% else %}
+                  {{ form_start(form, {'attr': {'class': 'signup-form', 'id': 'signupForm'}}) }}
+                    <div class="d-flex align-items-center mb-3 pb-1">
+                      <img src="{{ asset('assets/img/logomed.png') }}" alt="Logo MediConnect" class="auth-form-logo me-3">
+                      <span class="h1 fw-bold mb-0" style="color: #112344;">MediConnect</span>
+                    </div>
+
+                    <h5 class="fw-normal mb-3 pb-3" style="letter-spacing: 1px; color: #112344;">
+                      Inscription {{ role.value }}
+                    </h5>
+
+                    {% for message in app.flashes('error') %}
+                      <div class="alert alert-danger mb-4">
+                        {{ message }}
+                      </div>
+                    {% endfor %}
+
+                    {% for message in app.flashes('success') %}
+                      <div class="alert alert-success mb-4">
+                        {{ message }}
+                      </div>
+                    {% endfor %}
+
+                    <!-- Étape 1: Informations de base -->
+                    <div id="step1" class="form-step">
+                      <div class="form-outline mb-4">
+                        {{ form_widget(form.nomComplet, {'attr': {'class': 'form-control form-control-lg', 'id': 'nomComplet'}}) }}
+                        <label class="form-label" for="nomComplet">Nom complet</label>
+                        {{ form_errors(form.nomComplet) }}
+                      </div>
+
+                      <div class="form-outline mb-4">
+                        {{ form_widget(form.email, {'attr': {'class': 'form-control form-control-lg', 'id': 'email'}}) }}
+                        <label class="form-label" for="email">Adresse email</label>
+                        {{ form_errors(form.email) }}
+                      </div>
+
+                      <div class="form-outline mb-4">
+                        {{ form_widget(form.password, {'attr': {'class': 'form-control form-control-lg', 'id': 'password'}}) }}
+                        <label class="form-label" for="password">Mot de passe</label>
+                        {{ form_errors(form.password) }}
+                      </div>
+
+                      <div class="form-outline mb-4">
+                        {{ form_widget(form.confirmPassword, {'attr': {'class': 'form-control form-control-lg', 'id': 'confirmPassword'}}) }}
+                        <label class="form-label" for="confirmPassword">Confirmer le mot de passe</label>
+                        {{ form_errors(form.confirmPassword) }}
+                      </div>
+
+                      {% if role == constant('App\\Entity\\RoleUtilisateur::PATIENT') %}
+                        {% if form.telephone is defined or form.dateNaissance is defined or form.adresse is defined %}
+                          <button type="button" class="btn btn-outline-secondary btn-lg w-100 mb-3" onclick="showStep(2)">
+                            Informations supplémentaires <i class="bi bi-arrow-right ms-2"></i>
+                          </button>
+                        {% endif %}
+                      {% elseif role == constant('App\\Entity\\RoleUtilisateur::MEDECIN') %}
+                        {% if form.specialite is defined or form.adresseCabinet is defined or form.numeroLicence is defined %}
+                          <button type="button" class="btn btn-outline-secondary btn-lg w-100 mb-3" onclick="showStep(2)">
+                            Informations professionnelles <i class="bi bi-arrow-right ms-2"></i>
+                          </button>
+                        {% endif %}
+                      {% elseif role == constant('App\\Entity\\RoleUtilisateur::SECRETAIRE') %}
+                        {% if form.telephone is defined %}
+                          <button type="button" class="btn btn-outline-secondary btn-lg w-100 mb-3" onclick="showStep(2)">
+                            Informations supplémentaires <i class="bi bi-arrow-right ms-2"></i>
+                          </button>
+                        {% endif %}
+                      {% endif %}
+                    </div>
+
+                    <!-- Étape 2: Informations supplémentaires -->
+                    {% if role == constant('App\\Entity\\RoleUtilisateur::PATIENT') %}
+                      <div id="step2" class="form-step" style="display: none;">
+                        <h6 class="mb-4" style="color: #112344;">Informations complémentaires (optionnel)</h6>
+                        
+                        {% if form.telephone is defined %}
+                        <div class="form-outline mb-4">
+                          {{ form_widget(form.telephone, {'attr': {'class': 'form-control form-control-lg', 'id': 'telephone'}}) }}
+                          <label class="form-label" for="telephone">Téléphone</label>
+                        </div>
+                        {% endif %}
+
+                        {% if form.dateNaissance is defined %}
+                        <div class="form-outline mb-4">
+                          {{ form_widget(form.dateNaissance, {'attr': {'class': 'form-control form-control-lg', 'id': 'dateNaissance'}}) }}
+                          <label class="form-label" for="dateNaissance">Date de naissance</label>
+                        </div>
+                        {% endif %}
+
+                        {% if form.adresse is defined %}
+                        <div class="form-outline mb-4">
+                          {{ form_widget(form.adresse, {'attr': {'class': 'form-control form-control-lg', 'id': 'adresse', 'rows': 3}}) }}
+                          <label class="form-label" for="adresse">Adresse</label>
+                        </div>
+                        {% endif %}
+
+                        <button type="button" class="btn btn-outline-secondary btn-lg w-100 mb-3" onclick="showStep(1)">
+                          <i class="bi bi-arrow-left me-2"></i> Retour
+                        </button>
+                      </div>
+                    {% elseif role == constant('App\\Entity\\RoleUtilisateur::MEDECIN') %}
+                      <div id="step2" class="form-step" style="display: none;">
+                        <h6 class="mb-4" style="color: #112344;">Informations professionnelles (optionnel)</h6>
+                        
+                        {% if form.specialite is defined %}
+                        <div class="form-outline mb-4">
+                          {{ form_widget(form.specialite, {'attr': {'class': 'form-control form-control-lg', 'id': 'specialite'}}) }}
+                          <label class="form-label" for="specialite">Spécialité</label>
+                        </div>
+                        {% endif %}
+
+                        {% if form.adresseCabinet is defined %}
+                        <div class="form-outline mb-4">
+                          {{ form_widget(form.adresseCabinet, {'attr': {'class': 'form-control form-control-lg', 'id': 'adresseCabinet', 'rows': 3}}) }}
+                          <label class="form-label" for="adresseCabinet">Adresse du cabinet</label>
+                        </div>
+                        {% endif %}
+
+                        {% if form.numeroLicence is defined %}
+                        <div class="form-outline mb-4">
+                          {{ form_widget(form.numeroLicence, {'attr': {'class': 'form-control form-control-lg', 'id': 'numeroLicence'}}) }}
+                          <label class="form-label" for="numeroLicence">Numéro de licence</label>
+                        </div>
+                        {% endif %}
+
+                        <button type="button" class="btn btn-outline-secondary btn-lg w-100 mb-3" onclick="showStep(1)">
+                          <i class="bi bi-arrow-left me-2"></i> Retour
+                        </button>
+                      </div>
+                    {% elseif role == constant('App\\Entity\\RoleUtilisateur::SECRETAIRE') %}
+                      <div id="step2" class="form-step" style="display: none;">
+                        <h6 class="mb-4" style="color: #112344;">Informations complémentaires (optionnel)</h6>
+                        
+                        {% if form.telephone is defined %}
+                        <div class="form-outline mb-4">
+                          {{ form_widget(form.telephone, {'attr': {'class': 'form-control form-control-lg', 'id': 'telephone'}}) }}
+                          <label class="form-label" for="telephone">Téléphone</label>
+                        </div>
+                        {% endif %}
+
+                        <button type="button" class="btn btn-outline-secondary btn-lg w-100 mb-3" onclick="showStep(1)">
+                          <i class="bi bi-arrow-left me-2"></i> Retour
+                        </button>
+                      </div>
+                    {% endif %}
+
+                    {{ form_errors(form) }}
+
+                    <div class="pt-1 mb-4">
+                      <button class="btn btn-primary btn-lg btn-block w-100" type="submit" style="background-color: #175cdd;">S'inscrire</button>
+                    </div>
+
+                    <p class="mb-0 text-center">
+                      <a href="{{ path('app_login') }}" style="color: #175cdd;">Vous avez déjà un compte ? Se connecter</a>
+                    </p>
+                  {{ form_end(form) }}
+                {% endif %}
+
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}
+
+{% block scripts %}
+    <script>
+        function showStep(step) {
+            const step1 = document.getElementById('step1');
+            const step2 = document.getElementById('step2');
+            
+            if (step === 1) {
+                step1.style.display = 'block';
+                if (step2) step2.style.display = 'none';
+            } else if (step === 2) {
+                step1.style.display = 'none';
+                if (step2) step2.style.display = 'block';
+                // Scroll vers le haut du formulaire
+                setTimeout(() => {
+                    const formBody = document.querySelector('.auth-form-body');
+                    if (formBody) {
+                        formBody.scrollTop = 0;
+                    }
+                }, 100);
+            }
+        }
+        
+        // Gérer les labels flottants pour les champs remplis au chargement
+        document.addEventListener('DOMContentLoaded', function() {
+            const inputs = document.querySelectorAll('.form-outline .form-control');
+            inputs.forEach(input => {
+                if (input.value) {
+                    input.classList.add('has-value');
+                }
+                input.addEventListener('input', function() {
+                    if (this.value) {
+                        this.classList.add('has-value');
+                    } else {
+                        this.classList.remove('has-value');
+                    }
+                });
+            });
+        });
+    </script>
+{% endblock %}
