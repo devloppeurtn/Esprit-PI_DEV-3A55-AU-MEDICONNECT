@@ -26,3 +26,7 @@ services:
     App\Security\UserProvider:
         arguments:
             $entityManager: '@doctrine.orm.entity_manager'
+
+    App\Security\LoginFailureHandler:
+        arguments:
+            $options: []

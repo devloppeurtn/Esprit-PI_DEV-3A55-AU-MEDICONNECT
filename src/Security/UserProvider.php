@@ -27,11 +27,8 @@ class UserProvider implements UserProviderInterface, PasswordUpgraderInterface
             throw new UserNotFoundException(sprintf('Utilisateur avec l\'email "%s" introuvable.', $identifier));
         }
 
-        // Vérifier le statut du compte
-        if ($user->getStatut() !== \App\Entity\StatutCompte::ACTIF) {
-            throw new UserNotFoundException('Votre compte n\'est pas actif.');
-        }
-
+        // Ne pas bloquer ici : SUSPENDU/BANNI sont gérés par UserChecker::checkPreAuth()
+        // (sinon UserNotFoundException → BadCredentialsException → "Email ou mot de passe incorrect")
         return $user;
     }
 

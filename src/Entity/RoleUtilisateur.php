@@ -8,4 +8,5 @@ enum RoleUtilisateur: string
     case PATIENT = 'PATIENT';
     case MEDECIN = 'MEDECIN';
     case SECRETAIRE = 'SECRETAIRE';
+    case PARTICIPATION = 'PARTICIPATION';
 }

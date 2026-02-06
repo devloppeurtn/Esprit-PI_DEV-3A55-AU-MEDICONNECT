@@ -42,20 +42,28 @@
                     </div>
                   {% endfor %}
 
-                  {% for message in app.flashes('error') %}
+                  {% set error_flashes = app.flashes('error') %}
+                  {% for message in error_flashes %}
                     <div class="alert alert-danger alert-dismissible fade show mb-4" role="alert">
                       <i class="bi bi-exclamation-triangle-fill me-2"></i>{{ message }}
                       <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                     </div>
                   {% endfor %}
 
-                  {% if error and app.flashes('error')|length == 0 %}
+                  {% if error and error_flashes|length == 0 %}
                     <div class="alert alert-danger alert-dismissible fade show mb-4" role="alert">
                       <i class="bi bi-exclamation-triangle-fill me-2"></i>
-                      {% if error.messageKey == 'Invalid credentials.' %}
+                      {# Comptes suspendus/bannis : vérifier en premier pour éviter "Email ou mot de passe incorrect" #}
+                      {% if error.message is defined and (error.message starts with 'Votre compte' or error.message starts with 'Compte suspendu' or error.message starts with 'Compte banni') %}
+                        {{ error.message }}
+                      {% elseif error.messageKey == 'Invalid credentials.' %}
                         Email ou mot de passe incorrect.
                       {% elseif error.messageKey == 'User account is disabled.' %}
                         Votre compte est désactivé.
+                      {% elseif error.messageKey == 'User account is locked.' %}
+                        Votre compte est verrouillé.
+                      {% elseif error.messageKey == 'User account has expired.' %}
+                        Votre compte a expiré.
                       {% else %}
                         {{ error.messageKey|trans(error.messageData, 'security') }}
                       {% endif %}

@@ -4,9 +4,12 @@ namespace App\Controller;
 
 use App\Entity\Admin;
 use App\Entity\Medecin;
+use App\Entity\Participation;
 use App\Entity\Patient;
+use App\Entity\RoleParticipation;
 use App\Entity\RoleUtilisateur;
 use App\Entity\Secretaire;
+use App\Entity\StatutCompte;
 use App\Entity\Utilisateur;
 use App\Form\LoginFormType;
 use App\Form\SignupFormType;
@@ -16,6 +19,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Security\Core\Exception\AccountStatusException;
 use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
 
 class AuthController extends AbstractController
@@ -37,25 +41,32 @@ class AuthController extends AbstractController
         $lastUsername = $authenticationUtils->getLastUsername();
 
         // Gérer les messages d'erreur spécifiques
+        // Les comptes SUSPENDU/BANNI : le message est déjà ajouté par LoginFailureHandler.
+        // Pour les autres erreurs, on ajoute le flash ici.
         if ($error) {
-            $errorMessage = $error->getMessageKey();
-            
-            // Traduire les messages d'erreur
-            switch ($errorMessage) {
-                case 'Invalid credentials.':
-                    $this->addFlash('error', 'Email ou mot de passe incorrect.');
-                    break;
-                case 'User account is disabled.':
-                    $this->addFlash('error', 'Votre compte est désactivé.');
-                    break;
-                case 'User account is locked.':
-                    $this->addFlash('error', 'Votre compte est verrouillé.');
-                    break;
-                case 'User account has expired.':
-                    $this->addFlash('error', 'Votre compte a expiré.');
-                    break;
-                default:
-                    $this->addFlash('error', 'Une erreur est survenue lors de la connexion. Veuillez réessayer.');
+            $accountStatusError = $error instanceof AccountStatusException
+                ? $error
+                : (($previous = $error->getPrevious()) instanceof AccountStatusException ? $previous : null);
+
+            // Ne pas ajouter de flash pour AccountStatusException (déjà fait par LoginFailureHandler)
+            if (!$accountStatusError) {
+                $errorMessage = $error->getMessageKey();
+                switch ($errorMessage) {
+                    case 'Invalid credentials.':
+                        $this->addFlash('error', 'Email ou mot de passe incorrect.');
+                        break;
+                    case 'User account is disabled.':
+                        $this->addFlash('error', 'Votre compte est désactivé.');
+                        break;
+                    case 'User account is locked.':
+                        $this->addFlash('error', 'Votre compte est verrouillé.');
+                        break;
+                    case 'User account has expired.':
+                        $this->addFlash('error', 'Votre compte a expiré.');
+                        break;
+                    default:
+                        $this->addFlash('error', 'Une erreur est survenue lors de la connexion. Veuillez réessayer.');
+                }
             }
         }
 
@@ -67,6 +78,11 @@ class AuthController extends AbstractController
             'error' => $error,
         ]);
     }
+
+
+
+
+
 
     #[Route('/signup/{role?}', name: 'app_signup', defaults: ['role' => null])]
     public function signup(Request $request, ?string $role = null): Response
@@ -120,6 +136,11 @@ class AuthController extends AbstractController
             // Créer l'utilisateur selon le rôle
             $user = $this->createUserByRole($roleEnum ?? RoleUtilisateur::PATIENT, $data);
 
+            // Les admins inscrits restent SUSPENDU jusqu'à validation par un autre admin
+            if ($user instanceof Admin) {
+                $user->setStatut(StatutCompte::SUSPENDU);
+            }
+
             // Hasher le mot de passe
             $hashedPassword = $this->passwordHasher->hashPassword($user, $data['password']);
             $user->setPassword($hashedPassword);
@@ -127,7 +148,11 @@ class AuthController extends AbstractController
             $this->entityManager->persist($user);
             $this->entityManager->flush();
 
-            $this->addFlash('success', 'Inscription réussie ! Vous pouvez maintenant vous connecter.');
+            if ($user instanceof Admin) {
+                $this->addFlash('success', 'Inscription réussie ! Votre compte admin est en attente de validation par un administrateur.');
+            } else {
+                $this->addFlash('success', 'Inscription réussie ! Vous pouvez maintenant vous connecter.');
+            }
             return $this->redirectToRoute('app_login');
         }
 
@@ -137,11 +162,48 @@ class AuthController extends AbstractController
         ]);
     }
 
+
+
+
+
     #[Route('/logout', name: 'app_logout')]
     public function logout(): void
     {
         throw new \LogicException('Cette méthode peut être vide - elle sera interceptée par la clé logout de votre firewall.');
     }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
     private function createUserByRole(RoleUtilisateur $role, array $data): Utilisateur
     {
@@ -150,6 +212,7 @@ class AuthController extends AbstractController
             RoleUtilisateur::PATIENT => new Patient(),
             RoleUtilisateur::MEDECIN => new Medecin(),
             RoleUtilisateur::SECRETAIRE => new Secretaire(),
+            RoleUtilisateur::PARTICIPATION => new Participation(),
         };
 
         $user->setEmail($data['email']);
@@ -179,6 +242,17 @@ class AuthController extends AbstractController
         } elseif ($user instanceof Secretaire) {
             if (isset($data['telephone'])) {
                 $user->setTelephone($data['telephone']);
+            }
+        } elseif ($user instanceof Participation) {
+            if (isset($data['roleDansEvenement'])) {
+                $user->setRoleDansEvenement($data['roleDansEvenement'] instanceof RoleParticipation
+                    ? $data['roleDansEvenement']
+                    : RoleParticipation::from($data['roleDansEvenement']));
+            } else {
+                $user->setRoleDansEvenement(RoleParticipation::PARTICIPANT);
+            }
+            if (isset($data['presenceConfirmee'])) {
+                $user->setPresenceConfirmee((bool) $data['presenceConfirmee']);
             }
         }
 

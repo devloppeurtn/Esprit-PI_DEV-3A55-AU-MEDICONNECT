@@ -17,6 +17,7 @@ use Symfony\Component\Security\Core\User\UserInterface;
     'patient' => Patient::class,
     'medecin' => Medecin::class,
     'secretaire' => Secretaire::class,
+    'participation' => Participation::class,
 ])]
 class Utilisateur implements UserInterface, PasswordAuthenticatedUserInterface
 {
