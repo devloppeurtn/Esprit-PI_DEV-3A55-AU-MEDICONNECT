@@ -71,14 +71,14 @@
                     </div>
                   {% endif %}
 
-                  <div class="form-outline mb-4">
-                    <input type="email" id="form2Example17" name="_username" value="{{ last_username }}" class="form-control form-control-lg" required autofocus />
+                  <div class="mb-4">
                     <label class="form-label" for="form2Example17">Adresse email</label>
+                    <input type="email" id="form2Example17" name="_username" value="{{ last_username }}" class="form-control form-control-lg" placeholder="exemple@email.com" required autofocus />
                   </div>
 
-                  <div class="form-outline mb-4">
-                    <input type="password" id="form2Example27" name="_password" class="form-control form-control-lg" required />
+                  <div class="mb-4">
                     <label class="form-label" for="form2Example27">Mot de passe</label>
+                    <input type="password" id="form2Example27" name="_password" class="form-control form-control-lg" placeholder="Entrez votre mot de passe" required />
                   </div>
 
                   <input type="hidden" name="_csrf_token" value="{{ csrf_token('authenticate') }}">
