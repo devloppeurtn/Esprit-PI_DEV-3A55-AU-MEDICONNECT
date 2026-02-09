@@ -42,6 +42,7 @@ class LoadSampleDataCommand extends Command
                 'description' => 'Étude de la structure du corps humain et de ses différents systèmes.',
                 'type' => 'Culture Générale'
             ],
+        
             [
                 'nom' => 'Physiologie',
                 'description' => 'Comprendre le fonctionnement des organes et systèmes du corps humain.',
