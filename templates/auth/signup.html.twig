@@ -84,27 +84,27 @@
 
                     <!-- Étape 1: Informations de base -->
                     <div id="step1" class="form-step">
-                      <div class="form-outline mb-4">
-                        {{ form_widget(form.nomComplet, {'attr': {'class': 'form-control form-control-lg', 'id': 'nomComplet'}}) }}
+                      <div class="mb-4">
                         <label class="form-label" for="nomComplet">Nom complet</label>
+                        {{ form_widget(form.nomComplet, {'attr': {'class': 'form-control form-control-lg', 'id': 'nomComplet', 'placeholder': 'Entrez votre nom complet'}}) }}
                         {{ form_errors(form.nomComplet) }}
                       </div>
 
-                      <div class="form-outline mb-4">
-                        {{ form_widget(form.email, {'attr': {'class': 'form-control form-control-lg', 'id': 'email'}}) }}
+                      <div class="mb-4">
                         <label class="form-label" for="email">Adresse email</label>
+                        {{ form_widget(form.email, {'attr': {'class': 'form-control form-control-lg', 'id': 'email', 'placeholder': 'exemple@email.com'}}) }}
                         {{ form_errors(form.email) }}
                       </div>
 
-                      <div class="form-outline mb-4">
-                        {{ form_widget(form.password, {'attr': {'class': 'form-control form-control-lg', 'id': 'password'}}) }}
+                      <div class="mb-4">
                         <label class="form-label" for="password">Mot de passe</label>
+                        {{ form_widget(form.password, {'attr': {'class': 'form-control form-control-lg', 'id': 'password', 'placeholder': 'Minimum 6 caractères'}}) }}
                         {{ form_errors(form.password) }}
                       </div>
 
-                      <div class="form-outline mb-4">
-                        {{ form_widget(form.confirmPassword, {'attr': {'class': 'form-control form-control-lg', 'id': 'confirmPassword'}}) }}
+                      <div class="mb-4">
                         <label class="form-label" for="confirmPassword">Confirmer le mot de passe</label>
+                        {{ form_widget(form.confirmPassword, {'attr': {'class': 'form-control form-control-lg', 'id': 'confirmPassword', 'placeholder': 'Confirmez votre mot de passe'}}) }}
                         {{ form_errors(form.confirmPassword) }}
                       </div>
 
@@ -135,23 +135,23 @@
                         <h6 class="mb-4" style="color: #112344;">Informations complémentaires (optionnel)</h6>
                         
                         {% if form.telephone is defined %}
-                        <div class="form-outline mb-4">
-                          {{ form_widget(form.telephone, {'attr': {'class': 'form-control form-control-lg', 'id': 'telephone'}}) }}
+                        <div class="mb-4">
                           <label class="form-label" for="telephone">Téléphone</label>
+                          {{ form_widget(form.telephone, {'attr': {'class': 'form-control form-control-lg', 'id': 'telephone', 'placeholder': '+216 XX XXX XXX'}}) }}
                         </div>
                         {% endif %}
 
                         {% if form.dateNaissance is defined %}
-                        <div class="form-outline mb-4">
-                          {{ form_widget(form.dateNaissance, {'attr': {'class': 'form-control form-control-lg', 'id': 'dateNaissance'}}) }}
+                        <div class="mb-4">
                           <label class="form-label" for="dateNaissance">Date de naissance</label>
+                          {{ form_widget(form.dateNaissance, {'attr': {'class': 'form-control form-control-lg', 'id': 'dateNaissance'}}) }}
                         </div>
                         {% endif %}
 
                         {% if form.adresse is defined %}
-                        <div class="form-outline mb-4">
-                          {{ form_widget(form.adresse, {'attr': {'class': 'form-control form-control-lg', 'id': 'adresse', 'rows': 3}}) }}
+                        <div class="mb-4">
                           <label class="form-label" for="adresse">Adresse</label>
+                          {{ form_widget(form.adresse, {'attr': {'class': 'form-control form-control-lg', 'id': 'adresse', 'rows': 3, 'placeholder': 'Votre adresse complète'}}) }}
                         </div>
                         {% endif %}
 
@@ -164,23 +164,23 @@
                         <h6 class="mb-4" style="color: #112344;">Informations professionnelles (optionnel)</h6>
                         
                         {% if form.specialite is defined %}
-                        <div class="form-outline mb-4">
-                          {{ form_widget(form.specialite, {'attr': {'class': 'form-control form-control-lg', 'id': 'specialite'}}) }}
+                        <div class="mb-4">
                           <label class="form-label" for="specialite">Spécialité</label>
+                          {{ form_widget(form.specialite, {'attr': {'class': 'form-control form-control-lg', 'id': 'specialite', 'placeholder': 'Ex: Cardiologie, Pédiatrie...'}}) }}
                         </div>
                         {% endif %}
 
                         {% if form.adresseCabinet is defined %}
-                        <div class="form-outline mb-4">
-                          {{ form_widget(form.adresseCabinet, {'attr': {'class': 'form-control form-control-lg', 'id': 'adresseCabinet', 'rows': 3}}) }}
+                        <div class="mb-4">
                           <label class="form-label" for="adresseCabinet">Adresse du cabinet</label>
+                          {{ form_widget(form.adresseCabinet, {'attr': {'class': 'form-control form-control-lg', 'id': 'adresseCabinet', 'rows': 3, 'placeholder': 'Adresse complète de votre cabinet'}}) }}
                         </div>
                         {% endif %}
 
                         {% if form.numeroLicence is defined %}
-                        <div class="form-outline mb-4">
-                          {{ form_widget(form.numeroLicence, {'attr': {'class': 'form-control form-control-lg', 'id': 'numeroLicence'}}) }}
+                        <div class="mb-4">
                           <label class="form-label" for="numeroLicence">Numéro de licence</label>
+                          {{ form_widget(form.numeroLicence, {'attr': {'class': 'form-control form-control-lg', 'id': 'numeroLicence', 'placeholder': 'Numéro de licence médical'}}) }}
                         </div>
                         {% endif %}
 
@@ -193,9 +193,9 @@
                         <h6 class="mb-4" style="color: #112344;">Informations complémentaires (optionnel)</h6>
                         
                         {% if form.telephone is defined %}
-                        <div class="form-outline mb-4">
-                          {{ form_widget(form.telephone, {'attr': {'class': 'form-control form-control-lg', 'id': 'telephone'}}) }}
+                        <div class="mb-4">
                           <label class="form-label" for="telephone">Téléphone</label>
+                          {{ form_widget(form.telephone, {'attr': {'class': 'form-control form-control-lg', 'id': 'telephone', 'placeholder': '+216 XX XXX XXX'}}) }}
                         </div>
                         {% endif %}
 
@@ -248,22 +248,5 @@
                 }, 100);
             }
         }
-        
-        // Gérer les labels flottants pour les champs remplis au chargement
-        document.addEventListener('DOMContentLoaded', function() {
-            const inputs = document.querySelectorAll('.form-outline .form-control');
-            inputs.forEach(input => {
-                if (input.value) {
-                    input.classList.add('has-value');
-                }
-                input.addEventListener('input', function() {
-                    if (this.value) {
-                        this.classList.add('has-value');
-                    } else {
-                        this.classList.remove('has-value');
-                    }
-                });
-            });
-        });
     </script>
 {% endblock %}

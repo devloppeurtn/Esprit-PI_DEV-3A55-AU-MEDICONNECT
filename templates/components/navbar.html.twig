@@ -41,6 +41,8 @@
                     <li><a href="#!">Services</a></li>
                     <li><a href="#!">Contact</a></li>
                     {% if app.user %}
+                        {# Savoir Médical : accessible à tous les utilisateurs connectés #}
+                        <li><a href="{{ path('app_savoir_medical_index') }}" {% if app.request.get('_route') starts with 'app_savoir_medical_' %}class="active"{% endif %}><i class="bi bi-book me-1"></i>Savoir Médical</a></li>
                         {# Admin : lien vers tableau de bord #}
                         {% if is_granted('ROLE_ADMIN') %}
                         <li><a href="{{ path('app_admin_dashboard') }}" {% if app.request.get('_route') starts with 'app_admin_' %}class="active"{% endif %}><i class="bi bi-speedometer2 me-1"></i>Administration</a></li>
