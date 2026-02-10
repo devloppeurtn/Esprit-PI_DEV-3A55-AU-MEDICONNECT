@@ -1,0 +1,100 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Catalogue - MediConnect{% endblock %}
+
+{% block body %}
+<div class="container py-5">
+    <div class="row">
+        <!-- Sidebar - Categories -->
+        <div class="col-lg-3">
+            <div class="card mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">Catégories</h5>
+                </div>
+                <div class="list-group list-group-flush">
+                    <a href="{{ path('app_catalogue') }}" 
+                       class="list-group-item list-group-item-action {{ (categorieActive is defined and categorieActive) ? '' : 'active' }}">
+                        Tous les produits
+                    </a>
+                    {% for categorie in categories %}
+                        <a href="{{ path('app_catalogue_categorie', {id: categorie.id}) }}" 
+                           class="list-group-item list-group-item-action {{ (categorieActive is defined and categorieActive.id == categorie.id) ? 'active' : '' }}">
+                            {{ categorie.nom }}
+                        </a>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- Search Widget -->
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Rechercher</h5>
+                    <div class="input-group">
+                        <input type="text" id="searchInput" class="form-control" 
+                               placeholder="Nom du produit..."
+                               value="{{ searchTerm ?? '' }}">
+                        <button class="btn btn-primary" type="button" id="searchBtn">
+                            <i class="bi bi-search"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content - Products -->
+        <div class="col-lg-9">
+            <!-- Header with Cart -->
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2>{{ (categorieActive is defined and categorieActive) ? categorieActive.nom : 'Catalogue' }}</h2>
+                <a href="{{ path('app_cart') }}" class="btn btn-outline-primary">
+                    <i class="bi bi-cart3"></i> Panier <span class="badge bg-danger" id="cartBadge">{{ cartCount }}</span>
+                </a>
+            </div>
+
+            <!-- Product List (AJAX container) -->
+            <div id="productList">
+                {% include 'catalogue/_product_list.html.twig' %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const searchInput = document.getElementById('searchInput');
+    const searchBtn = document.getElementById('searchBtn');
+    const productList = document.getElementById('productList');
+
+    // Debounce function
+    let searchTimeout;
+    function performSearch() {
+        const query = searchInput.value.trim();
+        
+        if (query.length < 2 && query.length > 0) {
+            return;
+        }
+
+        const url = query.length >= 2 
+            ? `{{ path('app_catalogue_search_ajax') }}?q=${encodeURIComponent(query)}`
+            : `{{ path('app_catalogue_search_ajax') }}?q=`;
+
+        fetch(url)
+            .then(response => response.text())
+            .then(html => {
+                productList.innerHTML = html;
+            })
+            .catch(error => console.error('Search error:', error));
+    }
+
+    searchInput.addEventListener('keyup', () => {
+        clearTimeout(searchTimeout);
+        searchTimeout = setTimeout(performSearch, 300);
+    });
+
+    searchBtn.addEventListener('click', performSearch);
+
+    // Update cart count and total
+    function updateCart(data) {
+        document.getElementById('cartBadge').textContent = data.cartCount;
+    }
+</script>
+{% endblock %}
