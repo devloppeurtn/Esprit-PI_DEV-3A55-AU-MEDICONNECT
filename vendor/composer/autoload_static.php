@@ -23,6 +23,7 @@ class ComposerStaticInit54c05e64f01f49eb136e9af7b3075bdd
         '9d2b9fc6db0f153a0a149fefb182415e' => __DIR__ . '/..' . '/symfony/polyfill-php84/bootstrap.php',
         '6124b4c8570aa390c21fafd04a26c69f' => __DIR__ . '/..' . '/myclabs/deep-copy/src/DeepCopy/deep_copy.php',
         '6a47392539ca2329373e0d33e1dba053' => __DIR__ . '/..' . '/symfony/polyfill-intl-icu/bootstrap.php',
+        '09f6b20656683369174dd6fa83b7e5fb' => __DIR__ . '/..' . '/symfony/polyfill-uuid/bootstrap.php',
         'ec07570ca5a812141189b1fa81503674' => __DIR__ . '/..' . '/phpunit/phpunit/src/Framework/Assert/Functions.php',
         'a1105708a18b76903365ca1c4aa61b02' => __DIR__ . '/..' . '/symfony/translation/Resources/functions.php',
     );
@@ -46,6 +47,7 @@ class ComposerStaticInit54c05e64f01f49eb136e9af7b3075bdd
             'Symfony\\UX\\Turbo\\' => 17,
             'Symfony\\UX\\StimulusBundle\\' => 26,
             'Symfony\\Runtime\\Symfony\\Component\\' => 34,
+            'Symfony\\Polyfill\\Uuid\\' => 22,
             'Symfony\\Polyfill\\Php84\\' => 23,
             'Symfony\\Polyfill\\Php83\\' => 23,
             'Symfony\\Polyfill\\Mbstring\\' => 26,
@@ -64,6 +66,7 @@ class ComposerStaticInit54c05e64f01f49eb136e9af7b3075bdd
             'Symfony\\Component\\VarExporter\\' => 30,
             'Symfony\\Component\\VarDumper\\' => 28,
             'Symfony\\Component\\Validator\\' => 28,
+            'Symfony\\Component\\Uid\\' => 22,
             'Symfony\\Component\\Translation\\' => 30,
             'Symfony\\Component\\String\\' => 25,
             'Symfony\\Component\\Stopwatch\\' => 28,
@@ -116,6 +119,7 @@ class ComposerStaticInit54c05e64f01f49eb136e9af7b3075bdd
             'Symfony\\Bridge\\Twig\\' => 20,
             'Symfony\\Bridge\\Monolog\\' => 23,
             'Symfony\\Bridge\\Doctrine\\' => 24,
+            'StellaMaris\\Clock\\' => 18,
         ),
         'P' =>
         array (
@@ -136,6 +140,7 @@ class ComposerStaticInit54c05e64f01f49eb136e9af7b3075bdd
         'L' =>
         array (
             'Lcobucci\\JWT\\' => 13,
+            'Lcobucci\\Clock\\' => 15,
         ),
         'E' =>
         array (
@@ -199,6 +204,10 @@ class ComposerStaticInit54c05e64f01f49eb136e9af7b3075bdd
         'Symfony\\Runtime\\Symfony\\Component\\' =>
         array (
             0 => __DIR__ . '/..' . '/symfony/runtime/Internal',
+        ),
+        'Symfony\\Polyfill\\Uuid\\' =>
+        array (
+            0 => __DIR__ . '/..' . '/symfony/polyfill-uuid',
         ),
         'Symfony\\Polyfill\\Php84\\' =>
         array (
@@ -271,6 +280,10 @@ class ComposerStaticInit54c05e64f01f49eb136e9af7b3075bdd
         'Symfony\\Component\\Validator\\' =>
         array (
             0 => __DIR__ . '/..' . '/symfony/validator',
+        ),
+        'Symfony\\Component\\Uid\\' =>
+        array (
+            0 => __DIR__ . '/..' . '/symfony/uid',
         ),
         'Symfony\\Component\\Translation\\' =>
         array (
@@ -480,6 +493,10 @@ class ComposerStaticInit54c05e64f01f49eb136e9af7b3075bdd
         array (
             0 => __DIR__ . '/..' . '/symfony/doctrine-bridge',
         ),
+        'StellaMaris\\Clock\\' =>
+        array (
+            0 => __DIR__ . '/..' . '/stella-maris/clock/src',
+        ),
         'Psr\\Log\\' =>
         array (
             0 => __DIR__ . '/..' . '/psr/log/src',
@@ -523,6 +540,10 @@ class ComposerStaticInit54c05e64f01f49eb136e9af7b3075bdd
         'Lcobucci\\JWT\\' =>
         array (
             0 => __DIR__ . '/..' . '/lcobucci/jwt/src',
+        ),
+        'Lcobucci\\Clock\\' =>
+        array (
+            0 => __DIR__ . '/..' . '/lcobucci/clock/src',
         ),
         'Egulias\\EmailValidator\\' =>
         array (
@@ -1435,6 +1456,7 @@ class ComposerStaticInit54c05e64f01f49eb136e9af7b3075bdd
         'PHPUnit\\TextUI\\Output\\Default\\ProgressPrinter\\TestPreparedSubscriber' => __DIR__ . '/..' . '/phpunit/phpunit/src/TextUI/Output/Default/ProgressPrinter/Subscriber/TestPreparedSubscriber.php',
         'PHPUnit\\TextUI\\Output\\Default\\ProgressPrinter\\TestRunnerExecutionStartedSubscriber' => __DIR__ . '/..' . '/phpunit/phpunit/src/TextUI/Output/Default/ProgressPrinter/Subscriber/TestRunnerExecutionStartedSubscriber.php',
         'PHPUnit\\TextUI\\Output\\Default\\ProgressPrinter\\TestSkippedSubscriber' => __DIR__ . '/..' . '/phpunit/phpunit/src/TextUI/Output/Default/ProgressPrinter/Subscriber/TestSkippedSubscriber.php',
+        'PHPUnit\\TextUI\\Output\\Default\\ProgressPrinter\\TestSuiteSkippedSubscriber' => __DIR__ . '/..' . '/phpunit/phpunit/src/TextUI/Output/Default/ProgressPrinter/Subscriber/TestSuiteSkippedSubscriber.php',
         'PHPUnit\\TextUI\\Output\\Default\\ProgressPrinter\\TestTriggeredDeprecationSubscriber' => __DIR__ . '/..' . '/phpunit/phpunit/src/TextUI/Output/Default/ProgressPrinter/Subscriber/TestTriggeredDeprecationSubscriber.php',
         'PHPUnit\\TextUI\\Output\\Default\\ProgressPrinter\\TestTriggeredErrorSubscriber' => __DIR__ . '/..' . '/phpunit/phpunit/src/TextUI/Output/Default/ProgressPrinter/Subscriber/TestTriggeredErrorSubscriber.php',
         'PHPUnit\\TextUI\\Output\\Default\\ProgressPrinter\\TestTriggeredNoticeSubscriber' => __DIR__ . '/..' . '/phpunit/phpunit/src/TextUI/Output/Default/ProgressPrinter/Subscriber/TestTriggeredNoticeSubscriber.php',

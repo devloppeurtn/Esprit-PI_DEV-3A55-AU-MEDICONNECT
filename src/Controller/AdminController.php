@@ -236,6 +236,7 @@ class AdminController extends AbstractController
             'email' => $u->getEmail(),
             'role' => $u->getRole()?->value ?? '',
             'statut' => $u->getStatut()?->value ?? '',
+            'emailVerified' => $u->isEmailVerified(),
             'dateCreation' => $u->getDateCreation()?->format('Y-m-d'),
             'derniereConnexion' => $u->getDerniereConnexion()?->format('d/m/Y H:i') ?? '—',
             'lastActive' => $u->getDerniereConnexion() ? $this->formatLastActive($u->getDerniereConnexion()) : '—',
@@ -333,14 +334,29 @@ class AdminController extends AbstractController
             return new JsonResponse(['success' => false, 'error' => 'Données invalides'], 400);
         }
 
-        $email = $data['email'] ?? '';
-        $nomComplet = $data['nomComplet'] ?? '';
+        $email = is_string($data['email'] ?? '') ? trim($data['email']) : '';
+        $nomComplet = is_string($data['nomComplet'] ?? '') ? strip_tags(trim($data['nomComplet'])) : '';
         $roleValue = $data['role'] ?? 'PATIENT';
         $statutValue = $data['statut'] ?? 'ACTIF';
         $password = $data['password'] ?? bin2hex(random_bytes(8));
 
-        if (!$email || !$nomComplet) {
-            return new JsonResponse(['success' => false, 'error' => 'Email et nom requis'], 400);
+        if ($email === '') {
+            return new JsonResponse(['success' => false, 'error' => 'Email requis'], 400);
+        }
+        if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            return new JsonResponse(['success' => false, 'error' => 'Email invalide'], 400);
+        }
+        if (mb_strlen($email) > 180) {
+            return new JsonResponse(['success' => false, 'error' => 'Email trop long'], 400);
+        }
+        if ($nomComplet === '') {
+            return new JsonResponse(['success' => false, 'error' => 'Nom requis'], 400);
+        }
+        if (mb_strlen($nomComplet) < 2 || mb_strlen($nomComplet) > 255) {
+            return new JsonResponse(['success' => false, 'error' => 'Nom invalide (2 à 255 caractères)'], 400);
+        }
+        if (is_string($password) && mb_strlen($password) > 0 && mb_strlen($password) < 6) {
+            return new JsonResponse(['success' => false, 'error' => 'Le mot de passe doit contenir au moins 6 caractères'], 400);
         }
 
         $existing = $this->entityManager->getRepository(Utilisateur::class)->findOneBy(['email' => $email]);
@@ -367,6 +383,7 @@ class AdminController extends AbstractController
         $user->setNomComplet($nomComplet);
         $user->setRole($role);
         $user->setStatut($statut);
+        $user->setEmailVerified(true); // Créé par admin = email considéré vérifié
         $user->setPassword($this->passwordHasher->hashPassword($user, $password));
 
         $this->entityManager->persist($user);
@@ -385,23 +402,46 @@ class AdminController extends AbstractController
 
         $data = json_decode($request->getContent(), true) ?? $request->request->all();
         if (isset($data['nomComplet'])) {
-            $user->setNomComplet($data['nomComplet']);
+            $nom = is_string($data['nomComplet']) ? strip_tags(trim($data['nomComplet'])) : '';
+            if ($nom === '' || mb_strlen($nom) < 2 || mb_strlen($nom) > 255) {
+                return new JsonResponse(['success' => false, 'error' => 'Nom invalide (2 à 255 caractères)'], 400);
+            }
+            $user->setNomComplet($nom);
         }
         if (isset($data['email'])) {
-            $other = $this->entityManager->getRepository(Utilisateur::class)->findOneBy(['email' => $data['email']]);
+            $email = is_string($data['email']) ? trim($data['email']) : '';
+            if ($email === '') {
+                return new JsonResponse(['success' => false, 'error' => 'Email requis'], 400);
+            }
+            if (!filter_var($email, FILTER_VALIDATE_EMAIL) || mb_strlen($email) > 180) {
+                return new JsonResponse(['success' => false, 'error' => 'Email invalide'], 400);
+            }
+            $other = $this->entityManager->getRepository(Utilisateur::class)->findOneBy(['email' => $email]);
             if ($other && $other->getId() !== $id) {
                 return new JsonResponse(['success' => false, 'error' => 'Cet email est déjà utilisé'], 400);
             }
-            $user->setEmail($data['email']);
+            $user->setEmail($email);
         }
         if (isset($data['role'])) {
-            $user->setRole(RoleUtilisateur::from($data['role']));
+            try {
+                $user->setRole(RoleUtilisateur::from($data['role']));
+            } catch (\ValueError) {
+                return new JsonResponse(['success' => false, 'error' => 'Rôle invalide'], 400);
+            }
         }
         if (isset($data['statut'])) {
-            $user->setStatut(StatutCompte::from($data['statut']));
+            try {
+                $user->setStatut(StatutCompte::from($data['statut']));
+            } catch (\ValueError) {
+                return new JsonResponse(['success' => false, 'error' => 'Statut invalide'], 400);
+            }
         }
         if (!empty($data['password'])) {
-            $user->setPassword($this->passwordHasher->hashPassword($user, $data['password']));
+            $pw = is_string($data['password']) ? $data['password'] : '';
+            if (mb_strlen($pw) < 6) {
+                return new JsonResponse(['success' => false, 'error' => 'Le mot de passe doit contenir au moins 6 caractères'], 400);
+            }
+            $user->setPassword($this->passwordHasher->hashPassword($user, $pw));
         }
 
         $this->entityManager->flush();

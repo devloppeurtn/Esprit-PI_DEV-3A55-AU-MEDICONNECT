@@ -1,0 +1,148 @@
+{% extends 'admin/base_admin.html.twig' %}
+
+{% block title %}Prendre rendez-vous - MediConnect{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <link href="{{ asset('assets/css/patient_clinic.css') }}" rel="stylesheet">
+{% endblock %}
+
+{% block body %}
+<div class="patient-prendre-rdv">
+    <section class="appointmnet section">
+        <div class="row">
+            <div class="col-lg-8 mx-auto">
+                <div class="booking-wrapper">
+                    <div class="booking-header text-center">
+                        <h2>Planifier votre rendez-vous</h2>
+                        <p>Prenez rendez-vous en quelques étapes simples. Nos professionnels de santé sont prêts à vous accompagner.</p>
+                    </div>
+
+                    <div class="booking-steps">
+                        <div class="step">
+                            <div class="step-icon"><i class="bi bi-calendar-check"></i></div>
+                            <div class="step-content">
+                                <h4>Choisir le médecin</h4>
+                                <p>Sélectionnez le médecin souhaité</p>
+                            </div>
+                        </div>
+                        <div class="step">
+                            <div class="step-icon"><i class="bi bi-clock"></i></div>
+                            <div class="step-content">
+                                <h4>Date et heure</h4>
+                                <p>Indiquez le créneau souhaité</p>
+                            </div>
+                        </div>
+                        <div class="step">
+                            <div class="step-icon"><i class="bi bi-person-check"></i></div>
+                            <div class="step-content">
+                                <h4>Confirmer</h4>
+                                <p>Vérifiez et envoyez votre demande</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card border-primary mb-4">
+                        <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                            <strong><i class="bi bi-person-badge me-2"></i>Médecin</strong>
+                            <a href="{{ path('app_patient_medecins') }}" class="btn btn-sm btn-light">Changer de médecin</a>
+                        </div>
+                        <div class="card-body">
+                            <div class="row g-3">
+                                <div class="col-md-6"><label class="form-label text-muted small">Nom complet</label><input type="text" class="form-control" value="{{ medecin.nomComplet }}" readonly></div>
+                                <div class="col-md-6"><label class="form-label text-muted small">Spécialité</label><input type="text" class="form-control" value="{{ medecin.specialite|default('—') }}" readonly></div>
+                                <div class="col-md-6"><label class="form-label text-muted small">Email</label><input type="email" class="form-control" value="{{ medecin.email }}" readonly></div>
+                                <div class="col-md-6"><label class="form-label text-muted small">Numéro de licence</label><input type="text" class="form-control" value="{{ medecin.numeroLicence|default('—') }}" readonly></div>
+                                <div class="col-12"><label class="form-label text-muted small">Adresse du cabinet</label><input type="text" class="form-control" value="{{ medecin.adresseCabinet|default('Cabinet MediConnect') }}" readonly></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="appointment-form">
+                        <form id="formRdvAjax" novalidate>
+                            <input type="hidden" name="_token" value="{{ csrf_token('rdv_ajax') }}">
+                            <input type="hidden" name="medecin" value="{{ medecin.id }}">
+                            <div class="row gy-4">
+                                <div class="col-md-6">
+                                    <input type="text" class="form-control" value="{{ patient.nomComplet }}" readonly placeholder="Nom complet">
+                                </div>
+                                <div class="col-md-6">
+                                    <input type="email" class="form-control" value="{{ patient.email }}" readonly placeholder="Email">
+                                </div>
+                                <div class="col-md-6">
+                                    <input type="tel" class="form-control" value="{{ patient.telephone|default('') }}" readonly placeholder="Téléphone">
+                                </div>
+                                <div class="col-md-6">
+                                    <input type="datetime-local" name="dateDebut" id="formDateDebut" class="form-control" placeholder="Date et heure">
+                                </div>
+                                <div class="col-12">
+                                    <textarea name="note" class="form-control" rows="4" placeholder="Notes additionnelles ou symptômes (optionnel)"></textarea>
+                                </div>
+                                <div class="col-12">
+                                    <div id="rdvFormMessage" class="d-none"></div>
+                                    <button type="submit" class="btn-book w-100" id="btnSubmitRdv">PRENDRE RENDEZ-VOUS</button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+
+                    <div class="emergency-info">
+                        <p><i class="bi bi-exclamation-triangle"></i> En cas d'urgence médicale, appelez le <strong>190</strong> ou rendez-vous aux urgences les plus proches.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</div>
+{% endblock %}
+
+{% block javascripts %}
+{{ parent() }}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const formRdv = document.getElementById('formRdvAjax');
+    const formDateDebut = document.getElementById('formDateDebut');
+    const rdvFormMessage = document.getElementById('rdvFormMessage');
+    const btnSubmit = document.getElementById('btnSubmitRdv');
+
+    const minDate = new Date();
+    minDate.setMinutes(minDate.getMinutes() - minDate.getTimezoneOffset());
+    formDateDebut.min = minDate.toISOString().slice(0, 16);
+
+    formRdv.addEventListener('submit', function(e) {
+        e.preventDefault();
+        btnSubmit.disabled = true;
+        rdvFormMessage.classList.add('d-none');
+
+        const formData = new FormData(formRdv);
+        fetch('{{ path('app_patient_rdv_ajax') }}', {
+            method: 'POST',
+            body: formData,
+            headers: { 'X-Requested-With': 'XMLHttpRequest' }
+        })
+        .then(r => r.json())
+        .then(data => {
+            if (data.success) {
+                rdvFormMessage.className = 'alert alert-success';
+                rdvFormMessage.textContent = data.message;
+                rdvFormMessage.classList.remove('d-none');
+                setTimeout(function() {
+                    window.location.href = '{{ path('app_patient_rendez_vous') }}';
+                }, 1500);
+            } else {
+                rdvFormMessage.className = 'alert alert-danger';
+                rdvFormMessage.textContent = data.message || 'Erreur lors de l\'envoi.';
+                rdvFormMessage.classList.remove('d-none');
+                btnSubmit.disabled = false;
+            }
+        })
+        .catch(err => {
+            rdvFormMessage.className = 'alert alert-danger';
+            rdvFormMessage.textContent = 'Erreur de connexion. Réessayez.';
+            rdvFormMessage.classList.remove('d-none');
+            btnSubmit.disabled = false;
+        });
+    });
+});
+</script>
+{% endblock %}

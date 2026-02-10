@@ -25,6 +25,10 @@ class UserChecker implements UserCheckerInterface
         if ($user->getStatut() === StatutCompte::BANNI) {
             throw new CustomUserMessageAccountStatusException('Votre compte a été banni.');
         }
+
+        if (!$user->isEmailVerified()) {
+            throw new CustomUserMessageAccountStatusException('Veuillez vérifier votre adresse email avant de vous connecter. Consultez votre boîte de réception.');
+        }
     }
 
     public function checkPostAuth(UserInterface $user): void

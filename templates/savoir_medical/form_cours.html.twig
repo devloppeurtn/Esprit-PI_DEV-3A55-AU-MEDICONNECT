@@ -1,0 +1,83 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ isEdit ? 'Modifier' : 'Nouveau' }} cours - MediConnect{% endblock %}
+
+{% block stylesheets %}
+    <link href="{{ asset('assets/vendor/bootstrap/css/bootstrap.min.css') }}" rel="stylesheet">
+    <style>
+        .form-header {
+            background: linear-gradient(135deg, #175cdd 0%, #1a4db5 100%);
+            color: white;
+            padding: 3rem 0;
+            margin-bottom: 2rem;
+        }
+        .form-container {
+            background: white;
+            border-radius: 15px;
+            padding: 2rem;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+    </style>
+{% endblock %}
+
+{% block body %}
+<div class="form-header">
+    <div class="container">
+        <a href="{{ path('app_savoir_medical_categorie', {id: categorie.id}) }}" class="btn btn-light btn-sm mb-3">
+            <i class="bi bi-arrow-left me-1"></i>Retour à {{ categorie.nom }}
+        </a>
+        <h1 class="display-5 mb-2">
+            <i class="bi bi-{{ isEdit ? 'pencil-square' : 'plus-circle' }} me-2"></i>
+            {{ isEdit ? 'Modifier le cours' : 'Nouveau cours' }}
+        </h1>
+        <p class="mb-0">{{ isEdit ? 'Modifiez le contenu du cours' : 'Créez un nouveau cours dans la catégorie ' ~ categorie.nom }}</p>
+    </div>
+</div>
+
+<div class="container mb-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="form-container">
+                {% for message in app.flashes('success') %}
+                    <div class="alert alert-success alert-dismissible fade show" role="alert">
+                        <i class="bi bi-check-circle me-2"></i>{{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                {% endfor %}
+                {% for message in app.flashes('error') %}
+                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                        <i class="bi bi-exclamation-circle me-2"></i>{{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                {% endfor %}
+
+                {{ form_start(form, {'attr': {'novalidate': 'novalidate'}}) }}
+                {% if form.categorieSante is defined %}
+                    <div class="mb-4">
+                        {{ form_row(form.categorieSante) }}
+                    </div>
+                {% endif %}
+                <div class="mb-4">
+                    {{ form_row(form.titre) }}
+                </div>
+                <div class="mb-4">
+                    {{ form_row(form.contenu) }}
+                </div>
+                <div class="mb-4">
+                    {{ form_row(form.scorePourBadge) }}
+                </div>
+                <div class="d-flex justify-content-between align-items-center pt-3 border-top">
+                    <a href="{{ path('app_savoir_medical_categorie', {id: categorie.id}) }}" class="btn btn-outline-secondary">
+                        <i class="bi bi-x-circle me-1"></i>Annuler
+                    </a>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-{{ isEdit ? 'check-circle' : 'plus-circle' }} me-2"></i>
+                        {{ isEdit ? 'Enregistrer' : 'Créer le cours' }}
+                    </button>
+                </div>
+                {{ form_end(form) }}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

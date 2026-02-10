@@ -1,0 +1,85 @@
+{% extends 'admin/base_admin.html.twig' %}
+
+{% block title %}Nos médecins - MediConnect{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <link href="{{ asset('assets/css/patient_clinic.css') }}" rel="stylesheet">
+{% endblock %}
+
+{% block body %}
+<div class="patient-medecins">
+    <div class="page-title-section mb-4">
+        <h1 class="h3 mb-2">Nos médecins</h1>
+        <p class="text-muted">Consultez nos médecins et prenez rendez-vous en un clic.</p>
+    </div>
+
+    <form method="get" class="row g-3 mb-4">
+        <div class="col-md-4">
+            <label for="filtreNom" class="form-label visually-hidden">Rechercher par nom</label>
+            <input type="text" name="nom" id="filtreNom" class="form-control" placeholder="Rechercher par nom..." value="{{ filtres.nom }}">
+        </div>
+        <div class="col-md-3">
+            <label for="filtreSpecialite" class="form-label visually-hidden">Spécialité</label>
+            <select name="specialite" id="filtreSpecialite" class="form-select">
+                <option value="">Toutes les spécialités</option>
+                {% for s in specialites %}
+                <option value="{{ s }}" {{ filtres.specialite == s ? 'selected' : '' }}>{{ s }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="col-md-2">
+            <label for="filtreTri" class="form-label visually-hidden">Tri</label>
+            <select name="tri" id="filtreTri" class="form-select">
+                <option value="az" {{ filtres.tri == 'az' ? 'selected' : '' }}>A → Z</option>
+                <option value="za" {{ filtres.tri == 'za' ? 'selected' : '' }}>Z → A</option>
+            </select>
+        </div>
+        <div class="col-md-3">
+            <button type="submit" class="btn btn-primary me-2"><i class="bi bi-search me-1"></i>Rechercher</button>
+            {% if filtres.nom or filtres.specialite or filtres.tri != 'az' %}
+            <a href="{{ path('app_patient_medecins') }}" class="btn btn-outline-secondary">Effacer</a>
+            {% endif %}
+        </div>
+    </form>
+
+    <section class="doctors section">
+        <div class="row gy-4" id="doctors-list">
+            {% for medecin in medecins %}
+            {% set imgIndex = loop.index0 % staffImages|length %}
+            {% set staffImg = staffImages[imgIndex] %}
+            <div class="col-lg-3 col-md-6">
+                <div class="doctor-card">
+                    <div class="doctor-image">
+                        <img src="{{ asset('assets/img/health/' ~ staffImg ~ '.webp') }}" alt="{{ medecin.nomComplet }}" class="img-fluid">
+                        <div class="doctor-overlay">
+                            <div class="social-links">
+                                <a href="mailto:{{ medecin.email }}" title="Email"><i class="bi bi-envelope"></i></a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="doctor-content">
+                        <h4>{{ medecin.nomComplet }}</h4>
+                        <span class="specialty">{{ medecin.specialite|default('Médecin généraliste') }}</span>
+                        <p>{% set addr = medecin.adresseCabinet|default('Cabinet MediConnect') %}{{ addr|length > 80 ? addr|slice(0, 80) ~ '...' : addr }}</p>
+                        <div class="doctor-meta">
+                            <div class="department">
+                                <i class="bi bi-building"></i>
+                                <span>{{ medecin.specialite|default('Consultation') }}</span>
+                            </div>
+                        </div>
+                        <a href="{{ path('app_patient_prendre_rdv', {medecin: medecin.id}) }}" class="btn-appointment">
+                            Prendre rendez-vous
+                        </a>
+                    </div>
+                </div>
+            </div>
+            {% else %}
+            <div class="col-12">
+                <p class="text-center text-muted py-5">Aucun médecin disponible pour le moment.</p>
+            </div>
+            {% endfor %}
+        </div>
+    </section>
+</div>
+{% endblock %}

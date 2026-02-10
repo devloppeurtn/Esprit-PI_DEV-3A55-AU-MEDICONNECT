@@ -67,13 +67,25 @@
 <div class="container mb-5">
     <div class="row">
         <div class="col-lg-8">
-            <h3 class="mb-4">Cours disponibles</h3>
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h3 class="mb-0">Cours disponibles</h3>
+                {% if is_granted('ROLE_MEDECIN') %}
+                    <a href="{{ path('app_savoir_medical_cours_nouveau', {categorie: categorie.id}) }}" class="btn btn-primary">
+                        <i class="bi bi-plus-lg me-1"></i>Nouveau cours
+                    </a>
+                {% endif %}
+            </div>
             
             {% if cours is empty %}
                 <div class="text-center py-5">
                     <i class="bi bi-book" style="font-size: 4rem; color: #e9ecef;"></i>
                     <h5 class="mt-3 text-muted">Aucun cours disponible</h5>
-                    <p class="text-muted">Les cours seront bientôt ajoutés</p>
+                    <p class="text-muted mb-4">{% if is_granted('ROLE_MEDECIN') %}Créez le premier cours de cette catégorie.{% else %}Les cours seront bientôt ajoutés.{% endif %}</p>
+                    {% if is_granted('ROLE_MEDECIN') %}
+                        <a href="{{ path('app_savoir_medical_cours_nouveau', {categorie: categorie.id}) }}" class="btn btn-primary">
+                            <i class="bi bi-plus-lg me-1"></i>Nouveau cours
+                        </a>
+                    {% endif %}
                 </div>
             {% else %}
                 <div class="row g-4">
@@ -86,7 +98,7 @@
                                         {{ coursItem.contenu|length > 150 ? coursItem.contenu|slice(0, 150) ~ '...' : coursItem.contenu }}
                                     </p>
                                     
-                                    <div class="d-flex justify-content-between align-items-center mt-3">
+                                    <div class="d-flex justify-content-between align-items-center mt-3 flex-wrap gap-2">
                                         <div>
                                             <small class="text-muted">
                                                 <i class="bi bi-question-circle me-1"></i>
@@ -98,9 +110,22 @@
                                                 {{ coursItem.scorePourBadge }} pts pour badge
                                             </small>
                                         </div>
-                                        <a href="{{ path('app_savoir_medical_cours', {id: coursItem.id}) }}" class="btn btn-primary btn-sm">
-                                            Commencer
-                                        </a>
+                                        <div class="d-flex gap-1">
+                                            {% if is_granted('ROLE_MEDECIN') %}
+                                                <a href="{{ path('app_savoir_medical_cours_modifier', {id: coursItem.id}) }}" class="btn btn-outline-secondary btn-sm">
+                                                    <i class="bi bi-pencil"></i>
+                                                </a>
+                                                <form method="post" action="{{ path('app_savoir_medical_cours_supprimer', {id: coursItem.id}) }}" class="d-inline" onsubmit="return confirm('Supprimer ce cours ? Les questions associées seront également supprimées.');">
+                                                    <input type="hidden" name="_token" value="{{ csrf_token('supprimer_cours_' ~ coursItem.id) }}">
+                                                    <button type="submit" class="btn btn-outline-danger btn-sm">
+                                                        <i class="bi bi-trash"></i>
+                                                    </button>
+                                                </form>
+                                            {% endif %}
+                                            <a href="{{ path('app_savoir_medical_cours', {id: coursItem.id}) }}" class="btn btn-primary btn-sm">
+                                                Commencer
+                                            </a>
+                                        </div>
                                     </div>
                                 </div>
                             </div>

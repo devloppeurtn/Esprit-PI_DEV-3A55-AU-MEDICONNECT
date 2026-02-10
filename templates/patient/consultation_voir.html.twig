@@ -1,0 +1,89 @@
+{% extends 'admin/base_admin.html.twig' %}
+
+{% block title %}Consultation du {{ consultation.date|date('d/m/Y') }} - MediConnect{% endblock %}
+
+{% block body %}
+<div class="patient-consultation-voir">
+    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+        <h1 class="h3 mb-0"><i class="bi bi-clipboard-pulse me-2"></i>Détail de la consultation</h1>
+        <a href="{{ path('app_patient_dossier') }}" class="btn btn-outline-secondary"><i class="bi bi-arrow-left me-1"></i>Retour au dossier</a>
+    </div>
+
+    <div class="card border-0 shadow-sm mb-4">
+        <div class="card-header bg-primary text-white d-flex align-items-center gap-2">
+            <div class="consult-avatar consult-avatar-light">
+                <i class="bi bi-person-badge-fill"></i>
+            </div>
+            <div>
+                <h5 class="mb-0">{{ consultation.medecin.nomComplet }}</h5>
+                <small>{{ consultation.medecin.specialite|default('Médecin généraliste') }} — {{ consultation.date|date('d/m/Y à H:i') }}</small>
+            </div>
+        </div>
+    </div>
+
+    <div class="card border-0 shadow-sm mb-4">
+        <div class="card-header"><h5 class="mb-0"><i class="bi bi-activity me-2"></i>Diagnostic</h5></div>
+        <div class="card-body">
+            <p class="mb-0">{{ consultation.diagnostic|default('Aucun diagnostic renseigné.')|nl2br }}</p>
+        </div>
+    </div>
+
+    {% if consultation.resume %}
+    <div class="card border-0 shadow-sm mb-4">
+        <div class="card-header"><h5 class="mb-0"><i class="bi bi-journal-text me-2"></i>Résumé de la consultation</h5></div>
+        <div class="card-body">
+            <p class="mb-0">{{ consultation.resume|nl2br }}</p>
+        </div>
+    </div>
+    {% endif %}
+
+    <div class="card border-0 shadow-sm mb-4">
+        <div class="card-header"><h5 class="mb-0"><i class="bi bi-capsule me-2"></i>Médicaments prescrits</h5></div>
+        <div class="card-body">
+            {% if consultation.ordonnances|length > 0 %}
+            <div class="list-group list-group-flush">
+                {% for o in consultation.ordonnances %}
+                <div class="list-group-item px-0 d-flex justify-content-between align-items-start flex-wrap gap-2">
+                    <div>
+                        <h6 class="mb-1">{{ o.medicament }}</h6>
+                        <p class="mb-1 text-muted small">{{ o.methodeUtilisation|default('—') }}</p>
+                        {% if o.instructions %}<p class="mb-0 small">{{ o.instructions }}</p>{% endif %}
+                    </div>
+                    <form method="post" action="{{ path('app_patient_medicament_ajouter', {id: o.id}) }}" class="ms-auto">
+                        <input type="hidden" name="_token" value="{{ csrf_token('ajouter_medicament_' ~ o.id) }}">
+                        <button type="submit" class="btn btn-sm btn-outline-success"><i class="bi bi-plus-circle me-1"></i>Je prends ce médicament</button>
+                    </form>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <p class="text-muted mb-0">Aucun médicament prescrit.</p>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="card border-0 shadow-sm mb-4">
+        <div class="card-header"><h5 class="mb-0"><i class="bi bi-file-medical me-2"></i>Rapports médicaux</h5></div>
+        <div class="card-body">
+            {% if consultation.rapportsMedicaux|length > 0 %}
+            <div class="list-group list-group-flush">
+                {% for r in consultation.rapportsMedicaux %}
+                <div class="list-group-item px-0">
+                    <h6 class="mb-2">{{ r.titre }}</h6>
+                    <p class="mb-0">{{ r.contenu|default('—')|nl2br }}</p>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <p class="text-muted mb-0">Aucun rapport médical.</p>
+            {% endif %}
+        </div>
+    </div>
+
+    <a href="{{ path('app_patient_dossier') }}" class="btn btn-outline-secondary"><i class="bi bi-arrow-left me-1"></i>Retour au dossier médical</a>
+</div>
+<style>
+.consult-avatar { width: 48px; height: 48px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.consult-avatar-light { background: rgba(255,255,255,0.3); color: #fff; }
+</style>
+{% endblock %}

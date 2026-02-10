@@ -6,6 +6,7 @@ use App\Entity\CategorieSante;
 use App\Entity\ProgressionUtilisateur;
 use App\Entity\CoursEducatif;
 use App\Form\CategorieSanteFormType;
+use App\Form\CoursEducatifFormType;
 use App\Repository\CategorieSanteRepository;
 use App\Repository\ProgressionUtilisateurRepository;
 use App\Repository\CoursEducatifRepository;
@@ -136,6 +137,73 @@ class SavoirMedicalController extends AbstractController
             ],
             'badges' => $badges,
         ]);
+    }
+
+    #[Route('/cours/nouveau', name: 'app_savoir_medical_cours_nouveau', methods: ['GET', 'POST'])]
+    #[IsGranted('ROLE_MEDECIN')]
+    public function nouveauCours(Request $request): Response
+    {
+        $categorieId = $request->query->get('categorie');
+        if (!$categorieId) {
+            $this->addFlash('error', 'Veuillez sélectionner une catégorie.');
+            return $this->redirectToRoute('app_savoir_medical_index');
+        }
+        $categorie = $this->categorieSanteRepository->find($categorieId);
+        if (!$categorie) {
+            $this->addFlash('error', 'Catégorie introuvable.');
+            return $this->redirectToRoute('app_savoir_medical_index');
+        }
+        $cours = new CoursEducatif();
+        $cours->setCategorieSante($categorie);
+        $form = $this->createForm(CoursEducatifFormType::class, $cours, ['show_categorie' => false]);
+        $form->handleRequest($request);
+        if ($form->isSubmitted() && $form->isValid()) {
+            $this->entityManager->persist($cours);
+            $this->entityManager->flush();
+            $this->addFlash('success', 'Le cours a été créé avec succès.');
+            return $this->redirectToRoute('app_savoir_medical_categorie', ['id' => $categorie->getId()]);
+        }
+        return $this->render('savoir_medical/form_cours.html.twig', [
+            'form' => $form,
+            'cours' => $cours,
+            'categorie' => $categorie,
+            'isEdit' => false,
+        ]);
+    }
+
+    #[Route('/cours/{id}/modifier', name: 'app_savoir_medical_cours_modifier', methods: ['GET', 'POST'])]
+    #[IsGranted('ROLE_MEDECIN')]
+    public function modifierCours(Request $request, CoursEducatif $cours): Response
+    {
+        $form = $this->createForm(CoursEducatifFormType::class, $cours, ['show_categorie' => true]);
+        $form->handleRequest($request);
+        if ($form->isSubmitted() && $form->isValid()) {
+            $this->entityManager->flush();
+            $this->addFlash('success', 'Le cours a été modifié avec succès.');
+            return $this->redirectToRoute('app_savoir_medical_categorie', ['id' => $cours->getCategorieSante()->getId()]);
+        }
+        return $this->render('savoir_medical/form_cours.html.twig', [
+            'form' => $form,
+            'cours' => $cours,
+            'categorie' => $cours->getCategorieSante(),
+            'isEdit' => true,
+        ]);
+    }
+
+    #[Route('/cours/{id}/supprimer', name: 'app_savoir_medical_cours_supprimer', methods: ['POST'])]
+    #[IsGranted('ROLE_MEDECIN')]
+    public function supprimerCours(Request $request, CoursEducatif $cours): Response
+    {
+        $categorie = $cours->getCategorieSante();
+        $token = $request->request->get('_token');
+        if (!$token || !$this->isCsrfTokenValid('supprimer_cours_' . $cours->getId(), $token)) {
+            $this->addFlash('error', 'Token invalide.');
+            return $this->redirectToRoute('app_savoir_medical_categorie', ['id' => $categorie->getId()]);
+        }
+        $this->entityManager->remove($cours);
+        $this->entityManager->flush();
+        $this->addFlash('success', 'Le cours a été supprimé.');
+        return $this->redirectToRoute('app_savoir_medical_categorie', ['id' => $categorie->getId()]);
     }
 
     #[Route('/cours/{id}', name: 'app_savoir_medical_cours')]

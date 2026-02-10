@@ -83,7 +83,7 @@
                     </div>
                 {% endfor %}
 
-                {{ form_start(form) }}
+                {{ form_start(form, {'attr': {'novalidate': 'novalidate'}}) }}
                 
                 <div class="mb-4">
                     {{ form_label(form.nom) }}

@@ -41,6 +41,10 @@ security:
     access_control:
         - { path: ^/login, roles: PUBLIC_ACCESS }
         - { path: ^/signup, roles: PUBLIC_ACCESS }
+        - { path: ^/oubli-mot-de-passe, roles: PUBLIC_ACCESS }
+        - { path: ^/reinitialiser-mot-de-passe, roles: PUBLIC_ACCESS }
+        - { path: ^/verifier-email, roles: PUBLIC_ACCESS }
+        - { path: ^/invitation, roles: PUBLIC_ACCESS }
         - { path: ^/profile, roles: ROLE_USER }
         - { path: ^/parametres, roles: ROLE_USER }
         - { path: ^/admin, roles: ROLE_ADMIN }

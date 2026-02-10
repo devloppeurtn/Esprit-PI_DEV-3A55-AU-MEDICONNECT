@@ -47,6 +47,21 @@ class Utilisateur implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(type: Types::DATETIME_IMMUTABLE, nullable: true)]
     private ?\DateTimeImmutable $derniereConnexion = null;
 
+    #[ORM\Column(type: Types::STRING, length: 100, nullable: true)]
+    private ?string $resetToken = null;
+
+    #[ORM\Column(type: Types::DATETIME_IMMUTABLE, nullable: true)]
+    private ?\DateTimeImmutable $resetTokenExpiresAt = null;
+
+    #[ORM\Column(type: Types::STRING, length: 100, nullable: true)]
+    private ?string $verificationToken = null;
+
+    #[ORM\Column(type: Types::DATETIME_IMMUTABLE, nullable: true)]
+    private ?\DateTimeImmutable $verificationTokenExpiresAt = null;
+
+    #[ORM\Column(type: Types::BOOLEAN, options: ['default' => false])]
+    private bool $emailVerified = false;
+
     public function __construct()
     {
         $this->dateCreation = new \DateTimeImmutable();
@@ -166,5 +181,60 @@ class Utilisateur implements UserInterface, PasswordAuthenticatedUserInterface
     public function eraseCredentials(): void
     {
         // If you store any temporary, sensitive data on the user, clear it here
+    }
+
+    public function getResetToken(): ?string
+    {
+        return $this->resetToken;
+    }
+
+    public function setResetToken(?string $resetToken): static
+    {
+        $this->resetToken = $resetToken;
+        return $this;
+    }
+
+    public function getResetTokenExpiresAt(): ?\DateTimeImmutable
+    {
+        return $this->resetTokenExpiresAt;
+    }
+
+    public function setResetTokenExpiresAt(?\DateTimeImmutable $resetTokenExpiresAt): static
+    {
+        $this->resetTokenExpiresAt = $resetTokenExpiresAt;
+        return $this;
+    }
+
+    public function getVerificationToken(): ?string
+    {
+        return $this->verificationToken;
+    }
+
+    public function setVerificationToken(?string $verificationToken): static
+    {
+        $this->verificationToken = $verificationToken;
+        return $this;
+    }
+
+    public function getVerificationTokenExpiresAt(): ?\DateTimeImmutable
+    {
+        return $this->verificationTokenExpiresAt;
+    }
+
+    public function setVerificationTokenExpiresAt(?\DateTimeImmutable $verificationTokenExpiresAt): static
+    {
+        $this->verificationTokenExpiresAt = $verificationTokenExpiresAt;
+        return $this;
+    }
+
+    public function isEmailVerified(): bool
+    {
+        return $this->emailVerified;
+    }
+
+    public function setEmailVerified(bool $emailVerified): static
+    {
+        $this->emailVerified = $emailVerified;
+        return $this;
     }
 }
