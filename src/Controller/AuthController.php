@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use App\Entity\Admin;
 use App\Entity\Medecin;
+use App\Entity\Organisateur;
 use App\Entity\Participation;
 use App\Entity\Patient;
 use App\Entity\RoleParticipation;
@@ -697,17 +698,17 @@ class AuthController extends AbstractController
             RoleUtilisateur::MEDECIN => new Medecin(),
             RoleUtilisateur::SECRETAIRE => new Secretaire(),
             RoleUtilisateur::PARTICIPATION => new Participation(),
+            RoleUtilisateur::ORGANISATEUR => new Organisateur(),
         };
 
         $user->setEmail($data['email']);
         $user->setNomComplet($data['nomComplet']);
 
-        // Téléphone obligatoire pour tous les types d'utilisateurs
+        // Téléphone obligatoire pour tous les types d'utilisateurs (sauf Médecin géré ailleurs si besoin)
         if (isset($data['telephone']) && !empty($data['telephone'])) {
-            if ($user instanceof Patient || $user instanceof Secretaire || $user instanceof Admin || $user instanceof Participation) {
+            if ($user instanceof Patient || $user instanceof Secretaire || $user instanceof Admin || $user instanceof Participation || $user instanceof Organisateur) {
                 $user->setTelephone($data['telephone']);
             }
-            // Medecin n'a pas de champ telephone dans son entité, mais on peut l'ajouter si nécessaire
         }
 
         // Remplir les champs spécifiques selon le rôle
@@ -729,8 +730,8 @@ class AuthController extends AbstractController
             if (isset($data['numeroLicence'])) {
                 $user->setNumeroLicence($data['numeroLicence']);
             }
-        } elseif ($user instanceof Secretaire) {
-            // Téléphone déjà géré ci-dessus pour tous les types
+        } elseif ($user instanceof Secretaire || $user instanceof Organisateur) {
+            // Téléphone déjà géré ci-dessus
         } elseif ($user instanceof Participation) {
             if (isset($data['roleDansEvenement'])) {
                 $user->setRoleDansEvenement($data['roleDansEvenement'] instanceof RoleParticipation

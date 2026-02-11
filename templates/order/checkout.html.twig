@@ -1,0 +1,94 @@
+{% extends 'base.html.twig' %}
+{% block title %}Passer la commande - MediConnect{% endblock %}
+{% block body %}
+<div class="container py-5">
+    <h1 class="mb-4">Valider votre commande</h1>
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title mb-4">Informations de livraison</h5>
+                    <form method="post">
+                        <div class="mb-3">
+                            <label class="form-label">Nom complet</label>
+                            <input type="text" class="form-control" value="{{ app.user.nomComplet }}" disabled>
+                            <small class="text-muted">Connecté en tant que: {{ app.user.nomComplet }}</small>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Email</label>
+                            <input type="email" class="form-control" value="{{ app.user.email }}" disabled>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Rue / Adresse (ligne 1) *</label>
+                            <input type="text" class="form-control" name="rue" required placeholder="Ex: 12 Rue de la Paix">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Complément d'adresse (optionnel)</label>
+                            <input type="text" class="form-control" name="complement" placeholder="Immeuble, étage, appartement...">
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Ville</label>
+                                <input type="text" class="form-control" name="ville" placeholder="Ville">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Code postal</label>
+                                <input type="text" class="form-control" name="code_postal" placeholder="Code postal">
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Pays *</label>
+                            <select class="form-select" name="pays" required>
+                                <option value="">Sélectionnez le pays</option>
+                                <option value="Tunisie">Tunisie</option>
+                                <option value="France">France</option>
+                                <option value="Algérie">Algérie</option>
+                                <option value="Maroc">Maroc</option>
+                                <option value="Autre">Autre</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Téléphone *</label>
+                            <input type="tel" class="form-control" name="telephone" required placeholder="+216 12 345 678" autocomplete="tel">
+                        </div>
+                        <hr class="my-4">
+                        <h5 class="card-title mb-3">Articles de la commande</h5>
+                        <div class="mb-4">
+                            {% for productId, item in cart %}
+                            <div class="row mb-3 pb-3 border-bottom">
+                                <div class="col-md-6"><h6>{{ item.nom }}</h6><small class="text-muted">Quantité: {{ item.quantity }}</small></div>
+                                <div class="col-md-6 text-end"><strong>{{ (item.prix * item.quantity)|number_format(2, ',', ' ') }} TND</strong></div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        <button type="submit" class="btn btn-primary btn-lg w-100"><i class="bi bi-check-circle"></i> Confirmer la commande</button>
+                        <a href="{{ path('app_cart') }}" class="btn btn-outline-secondary w-100 mt-2"><i class="bi bi-arrow-left"></i> Retour au panier</a>
+                    </form>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-4">
+            <div class="card sticky-top shadow-sm" style="top: 80px;">
+                <div class="card-header bg-light"><h5 class="mb-0">Résumé de la commande</h5></div>
+                <div class="card-body">
+                    <p class="mb-2"><span class="text-muted">Nombre d'articles:</span> <strong>{{ cart|length }}</strong></p>
+                    <div class="mb-3 pb-3 border-bottom">
+                        <div class="d-flex justify-content-between mb-2"><span>Sous-total:</span><span>{{ cartTotals.subtotal|number_format(2, ',', ' ') }} TND</span></div>
+                        {% if (cartTotals.discount ?? 0) > 0 %}
+                        <div class="d-flex justify-content-between mb-2"><span>Remise:</span><span class="text-success">- {{ cartTotals.discount|number_format(2, ',', ' ') }} TND</span></div>
+                        {% endif %}
+                        <div class="d-flex justify-content-between mb-2"><span>Frais de port:</span><span class="text-success">Gratuit</span></div>
+                    </div>
+                    <div class="mb-3">
+                        <h5 class="d-flex justify-content-between"><span>Total:</span><span id="finalTotal">{{ cartTotals.total|number_format(2, ',', ' ') }} TND</span></h5>
+                    </div>
+                    <div class="alert alert-info mb-0" role="alert">
+                        <i class="bi bi-info-circle me-2"></i>
+                        <small>Votre commande sera créée avec le statut <strong>En attente</strong>.</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

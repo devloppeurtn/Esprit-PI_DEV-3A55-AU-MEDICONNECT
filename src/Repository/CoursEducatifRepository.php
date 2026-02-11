@@ -22,12 +22,24 @@ class CoursEducatifRepository extends ServiceEntityRepository
      */
     public function findByCategorie(CategorieSante $categorie): array
     {
-        return $this->createQueryBuilder('c')
-            ->andWhere('c.categorieSante = :categorie')
-            ->setParameter('categorie', $categorie)
-            ->orderBy('c.dateCreation', 'DESC')
-            ->getQuery()
-            ->getResult();
+        // Use native SQL to avoid UUID conversion issues
+        $conn = $this->getEntityManager()->getConnection();
+        $sql = 'SELECT * FROM cours_educatif WHERE categorie_sante_id = ? ORDER BY date_creation DESC';
+        
+        $result = $conn->executeQuery($sql, [$categorie->getId()->toBinary()]);
+        
+        $coursData = $result->fetchAllAssociative();
+        
+        // Convert to entities
+        $cours = [];
+        foreach ($coursData as $data) {
+            $coursEntity = $this->find($data['id']);
+            if ($coursEntity) {
+                $cours[] = $coursEntity;
+            }
+        }
+        
+        return $cours;
     }
 
     /**

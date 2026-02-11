@@ -1,0 +1,135 @@
+{% extends 'base.html.twig' %}
+{% block title %}Paiement - Commande #{{ commande.id }} - MediConnect{% endblock %}
+{% block body %}
+<div class="container py-5">
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0"><i class="bi bi-credit-card"></i> Paiement sécurisé</h4>
+                </div>
+                <div class="card-body">
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <p class="small text-muted">Commande #{{ commande.id }}</p>
+                            <h5 class="text-primary">{{ commande.montantTotal|number_format(2, ',', ' ') }} TND</h5>
+                        </div>
+                        <div class="col-md-6 text-end">
+                            <p class="small text-muted">Téléphone</p>
+                            <h5>{{ commande.telephone }}</h5>
+                        </div>
+                    </div>
+                    <div class="alert alert-info" role="alert">
+                        <i class="bi bi-geo-alt me-2"></i>
+                        <strong>Livraison à :</strong> {{ commande.adresseLivraison }}, {{ commande.pays }}
+                    </div>
+                    {% if stripeConfigured is defined and not stripeConfigured %}
+                        <div class="alert alert-danger" role="alert">
+                            <strong>Stripe non configuré</strong> — STRIPE_SECRET_KEY manquant. Pour tester les paiements carte : ajoutez votre clé de test Stripe dans <code>.env.local</code> (STRIPE_SECRET_KEY) et installez <code>stripe/stripe-php</code>.
+                        </div>
+                    {% endif %}
+                    <div id="paymentError" class="alert alert-danger d-none" role="alert"></div>
+                    <div class="mb-4">
+                        <h6 class="text-uppercase text-muted mb-3">Détails de la commande</h6>
+                        <div class="list-group list-group-flush">
+                            {% for ligne in commande.lignesCommande %}
+                                <div class="list-group-item d-flex justify-content-between align-items-center px-0 py-3">
+                                    <div>
+                                        <strong>{{ ligne.produit.nom }}</strong>
+                                        <div class="small text-muted">Quantité: {{ ligne.quantite }} × {{ ligne.prixUnitaire|number_format(2, ',', ' ') }} TND</div>
+                                    </div>
+                                    <div class="fw-bold">{{ ligne.getSousTotal()|number_format(2, ',', ' ') }} TND</div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    <hr>
+                    <div class="mb-4">
+                        <h6 class="text-uppercase text-muted mb-3">Choisir la méthode de paiement</h6>
+                        <div class="d-grid gap-3">
+                            <button id="stripePay" class="btn btn-lg btn-primary d-flex align-items-center justify-content-center gap-2" {% if stripeConfigured is defined and not stripeConfigured %}disabled aria-disabled="true" title="Stripe non configuré"{% endif %}>
+                                <i class="bi bi-credit-card-2-front"></i>
+                                Payer avec Carte
+                            </button>
+                            <a id="payLater" href="{{ path('app_order_review', {id: commande.id}) }}" class="btn btn-lg btn-outline-secondary">
+                                <i class="bi bi-clock-history me-2"></i>
+                                Payer à la livraison
+                            </a>
+                        </div>
+                    </div>
+                    <small class="text-muted d-block text-center mt-4">
+                        <i class="bi bi-shield-check"></i> Paiement sécurisé par Stripe | Votre numéro de carte ne nous est jamais communiqué
+                    </small>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-4">
+            <div class="card sticky-top shadow-sm" style="top: 100px;">
+                <div class="card-header bg-light">
+                    <h6 class="mb-0"><i class="bi bi-info-circle"></i> Récapitulatif</h6>
+                </div>
+                <div class="card-body small">
+                    <div class="mb-3 pb-3 border-bottom">
+                        <p class="text-muted mb-1">Montant à payer</p>
+                        <h5 class="text-success">{{ commande.montantTotal|number_format(2, ',', ' ') }} TND</h5>
+                    </div>
+                    <div class="mb-3 pb-3 border-bottom">
+                        <p class="text-muted mb-1">Nombre d'articles</p>
+                        <p class="mb-0"><strong>{{ commande.lignesCommande|length }}</strong></p>
+                    </div>
+                    <div class="mb-3">
+                        <p class="text-muted mb-1">Statut</p>
+                        <span class="badge bg-warning">En attente de paiement</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+(function() {
+    const stripePayBtn = document.getElementById('stripePay');
+    const paymentError = document.getElementById('paymentError');
+
+    function showPaymentError(message) {
+        if (!paymentError) return;
+        paymentError.textContent = message;
+        paymentError.classList.remove('d-none');
+        paymentError.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+
+    if (stripePayBtn) {
+        stripePayBtn.addEventListener('click', function() {
+            paymentError && paymentError.classList.add('d-none');
+            this.disabled = true;
+            this.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Redirection...';
+
+            fetch('{{ path('app_payment_create', {id: commande.id}) }}', {
+                method: 'POST',
+                headers: { 'X-Requested-With': 'XMLHttpRequest' }
+            })
+            .then(function(r) { return r.text().then(function(text) { return { ok: r.ok, text: text }; }); })
+            .then(function(res) {
+                var data = null;
+                try { data = JSON.parse(res.text); } catch (e) {}
+                if (!res.ok) {
+                    var msg = (data && data.error) ? data.error : res.text;
+                    throw new Error(msg);
+                }
+                if (data && data.url) {
+                    window.location = data.url;
+                    return;
+                }
+                throw new Error((data && data.error) ? data.error : 'Erreur lors de la création de la session Stripe');
+            })
+            .catch(function(err) {
+                console.error(err);
+                showPaymentError(err.message || 'Erreur lors de la communication avec le serveur');
+                stripePayBtn.disabled = false;
+                stripePayBtn.innerHTML = '<i class="bi bi-credit-card-2-front"></i> Payer avec Carte';
+            });
+        });
+    }
+})();
+</script>
+{% endblock %}

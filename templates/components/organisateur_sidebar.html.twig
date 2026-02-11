@@ -1,0 +1,67 @@
+{# Sidebar organisateur - Événements et statistiques #}
+<aside class="admin-sidebar" id="admin-sidebar">
+    <div class="sidebar-header">
+        <div class="sidebar-brand">
+            <div class="sidebar-logo-wrap">
+                <img src="{{ asset('assets/img/logomed.png') }}" alt="MediConnect" class="sidebar-logo">
+            </div>
+            <span class="sidebar-title">MediConnect</span>
+        </div>
+        <button type="button" class="sidebar-toggle-btn" id="sidebar-toggle-btn" aria-label="Réduire le menu" title="Réduire le menu">
+            <i class="bi bi-chevron-left"></i>
+        </button>
+    </div>
+
+    <div class="sidebar-content">
+        <nav class="sidebar-nav">
+            <div class="sidebar-section">
+                <span class="sidebar-section-title">Événements</span>
+                <ul class="nav flex-column">
+                    <li class="nav-item">
+                        <a class="nav-link {{ app.request.get('_route') starts with 'app_evenement_' ? 'active' : '' }}" href="{{ path('app_evenement_index') }}" title="Liste des événements">
+                            <span class="nav-icon-wrap"><i class="bi bi-calendar-event"></i></span>
+                            <span class="nav-text">Mes événements</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {{ app.request.get('_route') == 'app_evenement_stats' ? 'active' : '' }}" href="{{ path('app_evenement_stats') }}" title="Statistiques">
+                            <span class="nav-icon-wrap"><i class="bi bi-bar-chart-fill"></i></span>
+                            <span class="nav-text">Statistiques</span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+
+            <div class="sidebar-section">
+                <span class="sidebar-section-title">Compte</span>
+                <ul class="nav flex-column">
+                    <li class="nav-item">
+                        <a class="nav-link {{ app.request.get('_route') == 'app_profile' ? 'active' : '' }}" href="{{ path('app_profile') }}" title="Mon profil">
+                            <span class="nav-icon-wrap"><i class="bi bi-person-fill"></i></span>
+                            <span class="nav-text">Mon profil</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link nav-link-external" href="{{ path('app_home') }}" title="Voir le site">
+                            <span class="nav-icon-wrap"><i class="bi bi-box-arrow-up-right"></i></span>
+                            <span class="nav-text">Voir le site</span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </nav>
+    </div>
+
+    <div class="sidebar-footer">
+        <div class="sidebar-version">v1.0</div>
+        <div class="sidebar-collapsed-hint" title="Cliquez pour agrandir">
+            <i class="bi bi-layout-sidebar-inset"></i>
+        </div>
+    </div>
+</aside>
+
+<button type="button" class="sidebar-open-btn" id="sidebar-open-btn" aria-label="Ouvrir le menu" title="Ouvrir le menu">
+    <i class="bi bi-list"></i>
+</button>
+
+<div class="sidebar-backdrop" id="sidebar-backdrop" aria-hidden="true"></div>

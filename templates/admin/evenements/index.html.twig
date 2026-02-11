@@ -1,0 +1,194 @@
+{% extends 'admin/base_admin.html.twig' %}
+
+{% block title %}Événements - Administration{% endblock %}
+
+{% block body %}
+<div class="container-fluid py-4" id="admin-evenements-app">
+    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+        <h1 class="h3 mb-0"><i class="bi bi-calendar-event me-2"></i>Gestion des événements</h1>
+        <a href="{{ path('app_admin_dashboard') }}" class="btn btn-outline-secondary"><i class="bi bi-arrow-left me-1"></i>Retour</a>
+    </div>
+
+    <div id="alert-container"></div>
+
+    <ul class="nav nav-tabs mb-4" id="filterTabs" role="tablist">
+        <li class="nav-item" role="presentation">
+            <button class="nav-link active" data-statut="" type="button">Tous</button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" data-statut="EN_ATTENTE" type="button">En attente</button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" data-statut="VALIDE" type="button">Publiés</button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" data-statut="REFUSE" type="button">Refusés</button>
+        </li>
+    </ul>
+
+    <div class="card shadow-sm">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Titre</th>
+                            <th>Organisateur</th>
+                            <th>Date événement</th>
+                            <th>Créé le</th>
+                            <th>Statut</th>
+                            <th class="text-end">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="events-tbody">
+                        <tr id="events-loading">
+                            <td colspan="6" class="text-center py-5 text-muted">
+                                <div class="spinner-border spinner-border-sm me-2" role="status"></div>Chargement...
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+(function() {
+    const listUrl = "{{ path('app_admin_evenements_list') }}";
+    const uuidPl = '00000000-0000-0000-0000-000000000000';
+    const acceptUrl = "{{ path('app_admin_evenement_accepter', { id: '00000000-0000-0000-0000-000000000000' }) }}";
+    const refuseUrl = "{{ path('app_admin_evenement_refuser', { id: '00000000-0000-0000-0000-000000000000' }) }}";
+    const eventShowUrl = "{{ path('app_evenement_show', { id: '00000000-0000-0000-0000-000000000000' }) }}";
+    const profileUrlTemplate = "{{ path('app_admin_user_profile', { id: 0 }) }}";
+    const assetBase = "{{ asset('') }}";
+
+    const tbody = document.getElementById('events-tbody');
+    const alertContainer = document.getElementById('alert-container');
+
+    function showAlert(message, type) {
+        alertContainer.innerHTML = '<div class="alert alert-' + type + ' alert-dismissible fade show"><i class="bi bi-info-circle me-2"></i>' + message + '<button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>';
+        setTimeout(function() { alertContainer.innerHTML = ''; }, 5000);
+    }
+
+    function photoUrl(photo) {
+        if (!photo) return null;
+        return photo.startsWith('http') ? photo : (assetBase + photo.replace(/^\/+/, ''));
+    }
+
+    function statutBadge(statut) {
+        const map = { 'EN_ATTENTE': 'warning', 'VALIDE': 'success', 'REFUSE': 'danger' };
+        const labels = { 'EN_ATTENTE': 'En attente', 'VALIDE': 'Publié', 'REFUSE': 'Refusé' };
+        const c = map[statut] || 'secondary';
+        return '<span class="badge bg-' + c + '">' + (labels[statut] || statut) + '</span>';
+    }
+
+    function renderRow(e) {
+        const o = e.organisateur;
+        const photo = o && o.photo ? photoUrl(o.photo) : null;
+        const organisateurHtml = o
+            ? '<div class="d-flex align-items-center gap-2">' +
+                '<div class="flex-shrink-0">' +
+                    (photo ? '<img src="' + photo + '" alt="" class="rounded-circle" style="width:36px;height:36px;object-fit:cover;">' : '<span class="rounded-circle d-inline-flex align-items-center justify-content-center bg-secondary text-white" style="width:36px;height:36px;font-size:14px;"><i class="bi bi-person"></i></span>') +
+                '</div>' +
+                '<div class="flex-grow-1">' +
+                    '<strong>' + escapeHtml(o.nomComplet) + '</strong><br>' +
+                    '<small class="text-muted">' + escapeHtml(o.email) + '</small><br>' +
+                    '<a href="' + profileUrlTemplate.replace('/0/', '/' + o.id + '/') + '" class="small" target="_blank"><i class="bi bi-person-badge me-1"></i>Voir le profil</a>' +
+                '</div></div>'
+            : '<span class="text-muted">—</span>';
+
+        let actions = '<a href="' + eventShowUrl.replace(uuidPl, e.id) + '" class="btn btn-sm btn-outline-primary me-1" target="_blank" title="Voir"><i class="bi bi-eye"></i></a>';
+        if (e.statut === 'EN_ATTENTE') {
+            actions += '<button type="button" class="btn btn-sm btn-success me-1 btn-accept" data-id="' + e.id + '" data-token="' + escapeHtml(e.tokenAccepter) + '" title="Accepter"><i class="bi bi-check-lg"></i></button>';
+            actions += '<button type="button" class="btn btn-sm btn-danger btn-refuse" data-id="' + e.id + '" data-token="' + escapeHtml(e.tokenRefuser) + '" title="Refuser"><i class="bi bi-x-lg"></i></button>';
+        }
+
+        return '<tr data-id="' + e.id + '">' +
+            '<td><strong>' + escapeHtml(e.title) + '</strong>' + (e.contentExcerpt ? '<br><small class="text-muted">' + escapeHtml(e.contentExcerpt) + '</small>' : '') + '</td>' +
+            '<td>' + organisateurHtml + '</td>' +
+            '<td>' + escapeHtml(e.eventDate) + '</td>' +
+            '<td>' + escapeHtml(e.createdAt) + '</td>' +
+            '<td>' + statutBadge(e.statut) + '</td>' +
+            '<td class="text-end">' + actions + '</td></tr>';
+    }
+
+    function escapeHtml(s) {
+        if (s == null) return '';
+        const div = document.createElement('div');
+        div.textContent = s;
+        return div.innerHTML;
+    }
+
+    function loadList(statut) {
+        tbody.innerHTML = '<tr id="events-loading"><td colspan="6" class="text-center py-5 text-muted"><div class="spinner-border spinner-border-sm me-2" role="status"></div>Chargement...</td></tr>';
+        const url = statut ? listUrl + '?statut=' + encodeURIComponent(statut) : listUrl;
+        fetch(url, { headers: { 'Accept': 'application/json' } })
+            .then(function(r) { return r.json(); })
+            .then(function(data) {
+                if (!data.success || !data.events) {
+                    tbody.innerHTML = '<tr><td colspan="6" class="text-center py-4 text-danger">Erreur lors du chargement.</td></tr>';
+                    return;
+                }
+                if (data.events.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="6" class="text-center py-4 text-muted">Aucun événement.</td></tr>';
+                    return;
+                }
+                tbody.innerHTML = data.events.map(renderRow).join('');
+                bindActions();
+            })
+            .catch(function() {
+                tbody.innerHTML = '<tr><td colspan="6" class="text-center py-4 text-danger">Erreur réseau.</td></tr>';
+            });
+    }
+
+    function bindActions() {
+        tbody.querySelectorAll('.btn-accept').forEach(function(btn) {
+            btn.addEventListener('click', function() {
+                const id = btn.getAttribute('data-id');
+                const token = btn.getAttribute('data-token');
+                const url = acceptUrl.replace(uuidPl, id);
+                const formData = new FormData();
+                formData.append('_token', token);
+                btn.disabled = true;
+                fetch(url, { method: 'POST', body: formData, headers: { 'X-Requested-With': 'XMLHttpRequest' } })
+                    .then(function(r) { return r.json(); })
+                    .then(function(data) {
+                        showAlert(data.message || 'Accepté.', data.success ? 'success' : 'warning');
+                        loadList(document.querySelector('#filterTabs .nav-link.active').getAttribute('data-statut') || '');
+                    })
+                    .catch(function() { showAlert('Erreur.', 'danger'); btn.disabled = false; });
+            });
+        });
+        tbody.querySelectorAll('.btn-refuse').forEach(function(btn) {
+            btn.addEventListener('click', function() {
+                if (!confirm('Refuser cet événement ?')) return;
+                const id = btn.getAttribute('data-id');
+                const token = btn.getAttribute('data-token');
+                const url = refuseUrl.replace(uuidPl, id);
+                const formData = new FormData();
+                formData.append('_token', token);
+                btn.disabled = true;
+                fetch(url, { method: 'POST', body: formData, headers: { 'X-Requested-With': 'XMLHttpRequest' } })
+                    .then(function(r) { return r.json(); })
+                    .then(function(data) {
+                        showAlert(data.message || 'Refusé.', data.success ? 'success' : 'warning');
+                        loadList(document.querySelector('#filterTabs .nav-link.active').getAttribute('data-statut') || '');
+                    })
+                    .catch(function() { showAlert('Erreur.', 'danger'); btn.disabled = false; });
+            });
+        });
+    }
+
+    document.querySelectorAll('#filterTabs .nav-link').forEach(function(link) {
+        link.addEventListener('click', function() {
+            document.querySelectorAll('#filterTabs .nav-link').forEach(function(l) { l.classList.remove('active'); });
+            this.classList.add('active');
+            loadList(this.getAttribute('data-statut') || '');
+        });
+    });
+
+    loadList('');
+})();
+</script>
+{% endblock %}

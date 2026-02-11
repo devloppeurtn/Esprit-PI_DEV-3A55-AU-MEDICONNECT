@@ -1,0 +1,54 @@
+{% extends 'base.html.twig' %}
+{% block title %}Choisir le paiement - MediConnect{% endblock %}
+{% block body %}
+<div class="container py-5">
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card mb-4">
+                <div class="card-header">Récapitulatif de la livraison</div>
+                <div class="card-body">
+                    <p><strong>Adresse :</strong> {{ commande.adresseLivraison }}</p>
+                    <p><strong>Téléphone :</strong> {{ commande.telephone }}</p>
+                    <p><strong>Pays :</strong> {{ commande.pays }}</p>
+                </div>
+            </div>
+            <div class="card mb-4">
+                <div class="card-header">Détails du panier</div>
+                <div class="card-body">
+                    <ul class="list-group mb-3">
+                        {% for ligne in commande.lignesCommande %}
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                <div>
+                                    <strong>{{ ligne.produit.nom }}</strong>
+                                    <div class="small text-muted">× {{ ligne.quantite }}</div>
+                                </div>
+                                <div>{{ ligne.getSousTotal()|number_format(2, ',', ' ') }} TND</div>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                    <p class="h5">Total: {{ commande.montantTotal|number_format(2, ',', ' ') }} TND</p>
+                </div>
+            </div>
+            <form method="post">
+                <div class="card">
+                    <div class="card-header">Choisir la méthode de paiement</div>
+                    <div class="card-body">
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="payment_method" id="pm_card" value="card" checked>
+                            <label class="form-check-label" for="pm_card">Carte bancaire (Stripe)</label>
+                        </div>
+                        <div class="form-check mt-2">
+                            <input class="form-check-input" type="radio" name="payment_method" id="pm_cod" value="cod">
+                            <label class="form-check-label" for="pm_cod">Paiement à la livraison (Espèces)</label>
+                        </div>
+                    </div>
+                    <div class="card-footer d-flex justify-content-between">
+                        <a href="{{ path('app_order_detail', {id: commande.id}) }}" class="btn btn-link">Voir la commande</a>
+                        <button type="submit" class="btn btn-primary">Valider et poursuivre</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

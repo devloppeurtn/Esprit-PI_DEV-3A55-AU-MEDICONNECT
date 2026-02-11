@@ -98,6 +98,9 @@
                     <a href="{{ path('app_signup', {role: 'SECRETAIRE'}) }}" class="btn btn-outline-primary btn-lg w-100 mb-3" style="border-color: #175cdd; color: #175cdd;">
                       <i class="bi bi-person-badge-fill me-2"></i>Secrétaire
                     </a>
+                    <a href="{{ path('app_signup', {role: 'ORGANISATEUR'}) }}" class="btn btn-outline-primary btn-lg w-100 mb-3" style="border-color: #175cdd; color: #175cdd;">
+                      <i class="bi bi-calendar-event me-2"></i>Organisateur
+                    </a>
                     <a href="{{ path('app_signup', {role: 'ADMIN'}) }}" class="btn btn-outline-primary btn-lg w-100 mb-3" style="border-color: #175cdd; color: #175cdd;">
                       <i class="bi bi-shield-lock-fill me-2"></i>Administrateur
                     </a>
@@ -194,7 +197,7 @@
                           </button>
                           <small class="text-danger d-block mb-3">* La spécialité est obligatoire</small>
                         {% endif %}
-                      {% elseif role == constant('App\\Entity\\RoleUtilisateur::SECRETAIRE') or role == constant('App\\Entity\\RoleUtilisateur::ADMIN') or role == constant('App\\Entity\\RoleUtilisateur::PARTICIPATION') %}
+                      {% elseif role == constant('App\\Entity\\RoleUtilisateur::SECRETAIRE') or role == constant('App\\Entity\\RoleUtilisateur::ADMIN') or role == constant('App\\Entity\\RoleUtilisateur::ORGANISATEUR') or role == constant('App\\Entity\\RoleUtilisateur::PARTICIPATION') %}
                         {% if form.telephone is defined %}
                           <button type="button" class="btn btn-outline-secondary btn-lg w-100 mb-3" onclick="showStep(2)">
                             Informations supplémentaires <i class="bi bi-arrow-right ms-2"></i>
@@ -275,7 +278,7 @@
                           <i class="bi bi-arrow-left me-2"></i> Retour
                         </button>
                       </div>
-                    {% elseif role == constant('App\\Entity\\RoleUtilisateur::SECRETAIRE') or role == constant('App\\Entity\\RoleUtilisateur::ADMIN') or role == constant('App\\Entity\\RoleUtilisateur::PARTICIPATION') %}
+                    {% elseif role == constant('App\\Entity\\RoleUtilisateur::SECRETAIRE') or role == constant('App\\Entity\\RoleUtilisateur::ADMIN') or role == constant('App\\Entity\\RoleUtilisateur::ORGANISATEUR') or role == constant('App\\Entity\\RoleUtilisateur::PARTICIPATION') %}
                       <div id="step2" class="form-step" style="display: none;">
                         <h6 class="mb-4" style="color: #112344;">Informations supplémentaires</h6>
                         

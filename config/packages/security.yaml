@@ -45,6 +45,12 @@ security:
         - { path: ^/reinitialiser-mot-de-passe, roles: PUBLIC_ACCESS }
         - { path: ^/verifier-email, roles: PUBLIC_ACCESS }
         - { path: ^/invitation, roles: PUBLIC_ACCESS }
+        - { path: ^/evenement, roles: PUBLIC_ACCESS }
+        - { path: ^/catalogue, roles: PUBLIC_ACCESS }
+        - { path: ^/panier, roles: PUBLIC_ACCESS }
+        - { path: ^/commandes, roles: ROLE_USER }
+        - { path: ^/payment/webhook, roles: PUBLIC_ACCESS }
+        - { path: ^/payment, roles: ROLE_USER }
         - { path: ^/profile, roles: ROLE_USER }
         - { path: ^/parametres, roles: ROLE_USER }
         - { path: ^/admin, roles: ROLE_ADMIN }

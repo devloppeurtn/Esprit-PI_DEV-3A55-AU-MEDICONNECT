@@ -1,0 +1,215 @@
+{% extends 'admin/base_admin.html.twig' %}
+
+{% block title %}Gérer Quiz - {{ cours.titre }}{% endblock %}
+
+{% block stylesheets %}
+    <link href="{{ asset('assets/vendor/bootstrap/css/bootstrap.min.css') }}" rel="stylesheet">
+{% endblock %}
+
+{% block body %}
+<div class="container my-5">
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h2>Gestion du Quiz</h2>
+                    <p class="text-muted mb-0">{{ cours.titre }}</p>
+                </div>
+                <a href="{{ path('app_savoir_medical_categorie', {id: cours.categorieSante.id}) }}" class="btn btn-outline-secondary">
+                    <i class="bi bi-arrow-left me-2"></i>Retour
+                </a>
+            </div>
+
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-body p-4">
+                    <h5 class="mb-4">
+                        <i class="bi bi-magic me-2 text-success"></i>
+                        Générer des questions avec l'IA
+                    </h5>
+                    
+                    <form method="post" action="{{ path('app_quiz_generer_ai', {coursId: cours.id}) }}" id="aiGenerateForm">
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Nombre de questions à générer</label>
+                            <select class="form-select" name="nombreQuestions">
+                                <option value="5">5 questions</option>
+                                <option value="10" selected>10 questions</option>
+                                <option value="15">15 questions</option>
+                                <option value="20">20 questions</option>
+                            </select>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Difficulté</label>
+                            <select class="form-select" name="difficulte">
+                                <option value="facile">Facile</option>
+                                <option value="moyen" selected>Moyen</option>
+                                <option value="difficile">Difficile</option>
+                            </select>
+                        </div>
+                        
+                        <div class="alert alert-info">
+                            <i class="bi bi-info-circle me-2"></i>
+                            L'IA va analyser le contenu du cours et générer des questions pertinentes avec des choix multiples.
+                        </div>
+                        
+                        <button type="submit" class="btn btn-success btn-lg w-100" id="generateBtn">
+                            <i class="bi bi-magic me-2"></i>Générer les questions
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-body p-4">
+                    <h5 class="mb-4">
+                        <i class="bi bi-pencil me-2 text-primary"></i>
+                        Ajouter une question manuellement
+                    </h5>
+                    <p class="text-muted mb-3">Créez vos propres questions personnalisées</p>
+                    <a href="{{ path('app_quiz_ajouter_manuel', {coursId: cours.id}) }}" class="btn btn-primary btn-lg w-100">
+                        <i class="bi bi-plus-circle me-2"></i>Ajouter une question
+                    </a>
+                </div>
+            </div>
+
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-body p-4">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h5 class="mb-0">
+                            <i class="bi bi-list-check me-2"></i>
+                            Questions existantes ({{ questions|length }})
+                        </h5>
+                        <div class="d-flex gap-2">
+                            <a href="{{ path('app_quiz_reponses_patients', {coursId: cours.id}) }}" class="btn btn-primary">
+                                <i class="bi bi-people-fill me-2"></i>Voir les réponses des patients
+                            </a>
+                            <a href="{{ path('app_quiz_preview', {coursId: cours.id}) }}" class="btn btn-outline-info" target="_blank">
+                                <i class="bi bi-eye me-2"></i>Aperçu Patient
+                            </a>
+                        </div>
+                    </div>
+                    
+                    <div class="alert alert-info mb-4">
+                        <div class="row text-center">
+                            <div class="col-md-4">
+                                <div class="h3 mb-0 text-success">{{ questions|filter(q => q.statut.value == 'VALIDE_MEDECIN')|length }}</div>
+                                <small class="text-muted">Publiées (visibles patients)</small>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="h3 mb-0 text-warning">{{ questions|filter(q => q.statut.value == 'IA_PROPOSE')|length }}</div>
+                                <small class="text-muted">En attente de validation</small>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="h3 mb-0 text-primary">{{ questions|length }}</div>
+                                <small class="text-muted">Total</small>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    {% if questions is empty %}
+                        <div class="text-center py-4">
+                            <i class="bi bi-inbox" style="font-size: 3rem; color: #e9ecef;"></i>
+                            <p class="text-muted mt-3">Aucune question pour le moment</p>
+                        </div>
+                    {% else %}
+                        {% for question in questions %}
+                            <div class="card mb-3 border {{ question.statut.value == 'VALIDE_MEDECIN' ? 'border-success' : 'border-warning' }}">
+                                <div class="card-body">
+                                    <div class="d-flex justify-content-between align-items-start mb-2">
+                                        <div>
+                                            <h6 class="fw-bold mb-1">Question {{ loop.index }}</h6>
+                                            {% if question.statut.value == 'VALIDE_MEDECIN' %}
+                                                <span class="badge bg-success">
+                                                    <i class="bi bi-check-circle me-1"></i>Publiée - Visible pour les patients
+                                                </span>
+                                            {% else %}
+                                                <span class="badge bg-warning">
+                                                    <i class="bi bi-clock me-1"></i>Brouillon - Non visible pour les patients
+                                                </span>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                    <p class="mb-2">{{ question.enonce }}</p>
+                                    <div class="mb-2">
+                                        <small class="text-muted">Options:</small>
+                                        <ul class="mb-0">
+                                            {% for option in question.optionsReponsesArray %}
+                                                <li class="{{ option == question.reponseCorrecte ? 'text-success fw-bold' : '' }}">
+                                                    {{ option }}
+                                                    {% if option == question.reponseCorrecte %}
+                                                        <i class="bi bi-check-circle-fill text-success"></i>
+                                                    {% endif %}
+                                                </li>
+                                            {% endfor %}
+                                        </ul>
+                                    </div>
+                                    {% if question.explication %}
+                                        <div class="alert alert-light mb-2">
+                                            <small><strong>Explication:</strong> {{ question.explication }}</small>
+                                        </div>
+                                    {% endif %}
+                                    <div class="d-flex gap-2">
+                                        {% if question.statut.value == 'IA_PROPOSE' %}
+                                            <form method="post" action="{{ path('app_quiz_valider_question', {questionId: question.id}) }}" class="d-inline">
+                                                <input type="hidden" name="_token" value="{{ csrf_token('validate' ~ question.id) }}">
+                                                <button type="submit" class="btn btn-sm btn-success">
+                                                    <i class="bi bi-check-circle"></i> Valider
+                                                </button>
+                                            </form>
+                                        {% endif %}
+                                        <a href="{{ path('app_quiz_modifier_question', {questionId: question.id}) }}" class="btn btn-sm btn-outline-primary">
+                                            <i class="bi bi-pencil"></i> Modifier
+                                        </a>
+                                        <button class="btn btn-sm btn-outline-danger" onclick="if(confirm('Supprimer cette question?')) document.getElementById('delete-{{ question.id }}').submit()">
+                                            <i class="bi bi-trash"></i> Supprimer
+                                        </button>
+                                        <form id="delete-{{ question.id }}" method="post" action="{{ path('app_quiz_supprimer_question', {questionId: question.id}) }}" class="d-none">
+                                            <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ question.id) }}">
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <div class="card border-0 shadow-sm sticky-top" style="top: 120px;">
+                <div class="card-body">
+                    <h6 class="fw-bold mb-3">Statistiques</h6>
+                    <div class="mb-3">
+                        <small class="text-muted">Questions totales</small>
+                        <div class="h4 mb-0">{{ questions|length }}</div>
+                    </div>
+                    <div class="mb-3">
+                        <small class="text-muted">Validées</small>
+                        <div class="h4 mb-0 text-success">
+                            {{ questions|filter(q => q.statut.value == 'VALIDE_MEDECIN')|length }}
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <small class="text-muted">Proposées par IA</small>
+                        <div class="h4 mb-0 text-warning">
+                            {{ questions|filter(q => q.statut.value == 'IA_PROPOSE')|length }}
+                        </div>
+                    </div>
+                    <hr>
+                    <a href="{{ path('app_quiz_reponses_patients', {coursId: cours.id}) }}" class="btn btn-primary w-100">
+                        <i class="bi bi-people-fill me-2"></i>Voir les réponses des patients
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.getElementById('aiGenerateForm').addEventListener('submit', function(e) {
+    const btn = document.getElementById('generateBtn');
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Génération en cours...';
+});
+</script>
+{% endblock %}

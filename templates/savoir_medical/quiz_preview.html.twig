@@ -1,0 +1,112 @@
+{% extends 'admin/base_admin.html.twig' %}
+
+{% block title %}Aperçu Patient - {{ cours.titre }}{% endblock %}
+
+{% block stylesheets %}
+    <link href="{{ asset('assets/vendor/bootstrap/css/bootstrap.min.css') }}" rel="stylesheet">
+{% endblock %}
+
+{% block body %}
+<div class="container my-5">
+    <div class="alert alert-info mb-4">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <i class="bi bi-info-circle me-2"></i>
+                <strong>Mode Aperçu Médecin</strong> - Ceci est exactement ce que les patients verront
+            </div>
+            <a href="{{ path('app_quiz_gerer', {coursId: cours.id}) }}" class="btn btn-sm btn-primary">
+                <i class="bi bi-arrow-left me-2"></i>Retour à la gestion
+            </a>
+        </div>
+    </div>
+
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card border-0 shadow-lg mb-4">
+                <div class="card-body p-4">
+                    <h2 class="mb-3">{{ cours.titre }}</h2>
+                    <p class="text-muted mb-4">{{ cours.categorieSante.nom }}</p>
+                    
+                    <div class="alert alert-success">
+                        <div class="row text-center">
+                            <div class="col-md-6">
+                                <div class="h4 mb-0">{{ questionsValidees|length }}</div>
+                                <small>Questions disponibles</small>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="h4 mb-0">{{ cours.scorePourBadge }}</div>
+                                <small>Points pour badge</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {% if questionsValidees is empty %}
+                <div class="card border-0 shadow">
+                    <div class="card-body p-5 text-center">
+                        <i class="bi bi-inbox" style="font-size: 4rem; color: #e9ecef;"></i>
+                        <h4 class="mt-4 text-muted">Aucune question publiée</h4>
+                        <p class="text-muted mb-4">
+                            Les patients ne verront pas ce quiz tant qu'aucune question n'est validée.
+                        </p>
+                        <a href="{{ path('app_quiz_gerer', {coursId: cours.id}) }}" class="btn btn-primary">
+                            <i class="bi bi-magic me-2"></i>Générer et valider des questions
+                        </a>
+                    </div>
+                </div>
+            {% else %}
+                <div class="card border-0 shadow mb-4">
+                    <div class="card-body p-4">
+                        <h5 class="mb-4">
+                            <i class="bi bi-list-check me-2"></i>
+                            Questions que les patients verront
+                        </h5>
+                        
+                        {% for question in questionsValidees %}
+                            <div class="card mb-3 bg-light border-0">
+                                <div class="card-body">
+                                    <div class="d-flex justify-content-between align-items-start mb-3">
+                                        <h6 class="fw-bold mb-0">Question {{ loop.index }}</h6>
+                                        <span class="badge bg-success">
+                                            <i class="bi bi-eye me-1"></i>Visible
+                                        </span>
+                                    </div>
+                                    <p class="mb-3">{{ question.enonce }}</p>
+                                    
+                                    <div class="list-group">
+                                        {% for option in question.optionsReponsesArray %}
+                                            <div class="list-group-item list-group-item-action">
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="radio" name="question{{ question.id }}" disabled>
+                                                    <label class="form-check-label">
+                                                        {{ option }}
+                                                    </label>
+                                                </div>
+                                            </div>
+                                        {% endfor %}
+                                    </div>
+                                    
+                                    {% if question.explication %}
+                                        <div class="alert alert-info mt-3 mb-0">
+                                            <small>
+                                                <strong><i class="bi bi-lightbulb me-1"></i>Explication:</strong> 
+                                                {{ question.explication }}
+                                            </small>
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        {% endfor %}
+                        
+                        <div class="alert alert-success mt-4">
+                            <i class="bi bi-check-circle me-2"></i>
+                            <strong>Statut:</strong> Ce quiz est prêt et visible pour les patients avec {{ questionsValidees|length }} question(s) validée(s).
+                        </div>
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

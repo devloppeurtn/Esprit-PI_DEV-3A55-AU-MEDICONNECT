@@ -2,6 +2,8 @@
 
 namespace App\Entity;
 
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
@@ -18,6 +20,7 @@ use Symfony\Component\Security\Core\User\UserInterface;
     'medecin' => Medecin::class,
     'secretaire' => Secretaire::class,
     'participation' => Participation::class,
+    'organisateur' => Organisateur::class,
 ])]
 class Utilisateur implements UserInterface, PasswordAuthenticatedUserInterface
 {
@@ -65,10 +68,14 @@ class Utilisateur implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(type: Types::STRING, length: 255, nullable: true)]
     private ?string $photo = null;
 
+    #[ORM\OneToMany(mappedBy: 'utilisateur', targetEntity: CommandeProduit::class, cascade: ['persist'])]
+    private Collection $commandes;
+
     public function __construct()
     {
         $this->dateCreation = new \DateTimeImmutable();
         $this->statut = StatutCompte::ACTIF;
+        $this->commandes = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -249,6 +256,33 @@ class Utilisateur implements UserInterface, PasswordAuthenticatedUserInterface
     public function setPhoto(?string $photo): static
     {
         $this->photo = $photo;
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, CommandeProduit>
+     */
+    public function getCommandes(): Collection
+    {
+        return $this->commandes;
+    }
+
+    public function addCommande(CommandeProduit $commande): static
+    {
+        if (!$this->commandes->contains($commande)) {
+            $this->commandes->add($commande);
+            $commande->setUtilisateur($this);
+        }
+        return $this;
+    }
+
+    public function removeCommande(CommandeProduit $commande): static
+    {
+        if ($this->commandes->removeElement($commande)) {
+            if ($commande->getUtilisateur() === $this) {
+                $commande->setUtilisateur(null);
+            }
+        }
         return $this;
     }
 }

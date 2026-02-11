@@ -143,6 +143,7 @@
 .profile-role-badge.patient { background: rgba(16, 185, 129, 0.12); color: #059669; }
 .profile-role-badge.secretaire { background: rgba(245, 158, 11, 0.12); color: #d97706; }
 .profile-role-badge.participation { background: rgba(100, 116, 139, 0.12); color: #475569; }
+.profile-role-badge.organisateur { background: rgba(99, 102, 241, 0.12); color: #4f46e5; }
 
 .profile-status-badge.success { background: rgba(16, 185, 129, 0.12); color: #059669; }
 .profile-status-badge.warning { background: rgba(245, 158, 11, 0.12); color: #d97706; }
