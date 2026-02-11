@@ -1,0 +1,29 @@
+{% extends 'admin/base_admin.html.twig' %}
+{% set title = 'Catégories' %}
+{% block admin_content %}
+<div class="d-flex justify-content-end mb-3">
+    <a href="{{ path('admin_categories_new') }}" class="btn btn-primary btn-sm">Nouvelle catégorie</a>
+</div>
+<div class="table-responsive">
+    <table class="table table-striped align-middle">
+        <thead><tr><th>#</th><th>Nom</th><th>Description</th><th></th></tr></thead>
+        <tbody>
+        {% for c in categories %}
+            <tr>
+                <td>{{ c.id }}</td>
+                <td>{{ c.nom }}</td>
+                <td class="text-muted">{{ c.description }}</td>
+                <td class="text-end">
+                    <a class="btn btn-outline-secondary btn-sm" href="{{ path('admin_categories_edit', {id:c.id}) }}">Éditer</a>
+                    <form action="{{ path('admin_categories_delete', {id:c.id}) }}" method="post" class="d-inline" onsubmit="return confirm('Supprimer cette catégorie ?');">
+                        <button class="btn btn-outline-danger btn-sm">Supprimer</button>
+                    </form>
+                </td>
+            </tr>
+        {% else %}
+            <tr><td colspan="4" class="text-center text-muted">Aucune catégorie</td></tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

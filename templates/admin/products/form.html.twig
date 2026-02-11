@@ -1,0 +1,44 @@
+{% extends 'admin/base_admin.html.twig' %}
+{% set title = product.id ? 'Éditer produit' : 'Nouveau produit' %}
+{% block admin_content %}
+<form method="post" class="card shadow-sm">
+    <div class="card-body">
+        <div class="row mb-3">
+            <div class="col-md-6">
+                <label class="form-label">Nom</label>
+                <input type="text" name="nom" class="form-control" required value="{{ product.nom }}">
+            </div>
+            <div class="col-md-3">
+                <label class="form-label">Prix (TND)</label>
+                <input type="number" step="0.01" min="0" name="prix" class="form-control" required value="{{ product.prix }}">
+            </div>
+            <div class="col-md-3">
+                <label class="form-label">Stock</label>
+                <input type="number" min="0" name="stock" class="form-control" required value="{{ product.stock }}">
+            </div>
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Catégorie</label>
+            <select name="categorie" class="form-select" required>
+                <option value="">-- Choisir --</option>
+                {% for c in categories %}
+                    <option value="{{ c.id }}" {% if product.categorie and product.categorie.id == c.id %}selected{% endif %}>{{ c.nom }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Image (chemin)</label>
+            <input type="text" name="image" class="form-control" value="{{ product.image }}">
+            <small class="text-muted">Ex: assets/img/products/mon-produit.jpg</small>
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Description</label>
+            <textarea name="description" rows="4" class="form-control">{{ product.description }}</textarea>
+        </div>
+    </div>
+    <div class="card-footer d-flex justify-content-between">
+        <a href="{{ path('admin_products') }}" class="btn btn-outline-secondary">Annuler</a>
+        <button class="btn btn-primary">Enregistrer</button>
+    </div>
+</form>
+{% endblock %}

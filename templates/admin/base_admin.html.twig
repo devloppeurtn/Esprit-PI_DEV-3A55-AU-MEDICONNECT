@@ -1,0 +1,22 @@
+{% extends 'base.html.twig' %}
+{% block body %}
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h1 class="h4">{{ title|default('Admin') }}</h1>
+        <div>
+            <a href="{{ path('admin_products') }}" class="btn btn-outline-secondary btn-sm">Produits</a>
+            <a href="{{ path('admin_categories') }}" class="btn btn-outline-secondary btn-sm">Catégories</a>
+            <a href="{{ path('admin_promos') }}" class="btn btn-outline-secondary btn-sm">Promos</a>
+        </div>
+    </div>
+    {% for type, messages in app.flashes %}
+        {% for m in messages %}
+            <div class="alert alert-{{ type == 'error' ? 'danger' : type }} alert-dismissible fade show" role="alert">
+                {{ m }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        {% endfor %}
+    {% endfor %}
+    {% block admin_content %}{% endblock %}
+</div>
+{% endblock %}
