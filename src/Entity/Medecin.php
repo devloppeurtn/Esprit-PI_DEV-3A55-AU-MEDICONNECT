@@ -10,6 +10,9 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\Entity]
 class Medecin extends Utilisateur
 {
+    #[ORM\Column(type: Types::STRING, length: 20, nullable: true)]
+    private ?string $telephone = null;
+
     #[ORM\Column(type: Types::STRING, length: 255, nullable: true)]
     private ?string $specialite = null;
 
@@ -70,6 +73,17 @@ class Medecin extends Utilisateur
             $this->consultations->add($consultation);
             $consultation->setMedecin($this);
         }
+        return $this;
+    }
+
+    public function getTelephone(): ?string
+    {
+        return $this->telephone;
+    }
+
+    public function setTelephone(?string $telephone): static
+    {
+        $this->telephone = $telephone;
         return $this;
     }
 

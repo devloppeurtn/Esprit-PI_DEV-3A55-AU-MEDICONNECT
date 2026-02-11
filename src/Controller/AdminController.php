@@ -240,6 +240,7 @@ class AdminController extends AbstractController
             'dateCreation' => $u->getDateCreation()?->format('Y-m-d'),
             'derniereConnexion' => $u->getDerniereConnexion()?->format('d/m/Y H:i') ?? '—',
             'lastActive' => $u->getDerniereConnexion() ? $this->formatLastActive($u->getDerniereConnexion()) : '—',
+            'photo' => $u->getPhoto(),
             'avatar' => '', // sera remplacé par l'asset dans le template
         ], $users);
 
@@ -297,6 +298,51 @@ class AdminController extends AbstractController
         ]);
     }
 
+    #[Route('/users/{id}/profile/data', name: 'app_admin_user_profile_data', methods: ['GET'])]
+    public function userProfileData(int $id): JsonResponse
+    {
+        $user = $this->entityManager->getRepository(Utilisateur::class)->find($id);
+        if (!$user) {
+            return new JsonResponse(['success' => false, 'error' => 'Utilisateur introuvable'], 404);
+        }
+
+        $userData = [
+            'id' => $user->getId(),
+            'nomComplet' => $user->getNomComplet(),
+            'email' => $user->getEmail(),
+            'role' => $user->getRole()?->value ?? '',
+            'statut' => $user->getStatut()?->value ?? '',
+            'photo' => $user->getPhoto(),
+            'emailVerified' => $user->isEmailVerified(),
+            'dateCreation' => $user->getDateCreation()?->format('d/m/Y H:i') ?? '',
+            'derniereConnexion' => $user->getDerniereConnexion()?->format('d/m/Y H:i') ?? '—',
+        ];
+
+        // Données spécifiques selon le rôle
+        if ($user instanceof Patient) {
+            $userData['telephone'] = $user->getTelephone() ?? '';
+            $userData['dateNaissance'] = $user->getDateNaissance()?->format('d/m/Y') ?? '';
+            $userData['adresse'] = $user->getAdresse() ?? '';
+        } elseif ($user instanceof Medecin) {
+            $userData['specialite'] = $user->getSpecialite() ?? '';
+            $userData['adresseCabinet'] = $user->getAdresseCabinet() ?? '';
+            $userData['numeroLicence'] = $user->getNumeroLicence() ?? '';
+            $userData['telephone'] = $user->getTelephone() ?? '';
+        } elseif ($user instanceof Secretaire) {
+            $userData['telephone'] = $user->getTelephone() ?? '';
+        }
+        
+        // Ajouter le téléphone pour Admin et Participation si nécessaire
+        if ($user instanceof \App\Entity\Admin || $user instanceof \App\Entity\Participation) {
+            $userData['telephone'] = $user->getTelephone() ?? '';
+        } elseif ($user instanceof Participation) {
+            $userData['roleDansEvenement'] = $user->getRoleDansEvenement()?->value ?? '';
+            $userData['presenceConfirmee'] = $user->isPresenceConfirmee();
+        }
+
+        return new JsonResponse(['success' => true, 'user' => $userData]);
+    }
+
     #[Route('/users/export', name: 'app_admin_users_export', methods: ['GET'])]
     public function exportUsers(Request $request): StreamedResponse
     {
@@ -324,6 +370,20 @@ class AdminController extends AbstractController
         $response->headers->set('Content-Type', 'text/csv; charset=UTF-8');
         $response->headers->set('Content-Disposition', 'attachment; filename="utilisateurs-' . date('Y-m-d') . '.csv"');
         return $response;
+    }
+
+    #[Route('/users/export/status', name: 'app_admin_users_export_status', methods: ['GET'])]
+    public function exportUsersStatus(): JsonResponse
+    {
+        $userRepo = $this->entityManager->getRepository(Utilisateur::class);
+        $totalUsers = $userRepo->count([]);
+        
+        return new JsonResponse([
+            'success' => true,
+            'totalUsers' => $totalUsers,
+            'exportUrl' => $this->generateUrl('app_admin_users_export'),
+            'message' => 'Export prêt. Le téléchargement va commencer...'
+        ]);
     }
 
     #[Route('/users/create', name: 'app_admin_users_create', methods: ['GET', 'POST'])]

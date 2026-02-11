@@ -52,10 +52,25 @@
                         <tr>
                             <td class="ps-4">
                                 <div class="d-flex align-items-center">
-                                    <div class="rounded-circle bg-warning bg-opacity-10 text-warning d-flex align-items-center justify-content-center me-3" style="width: 40px; height: 40px;">
-                                        <i class="bi bi-hourglass-split"></i>
-                                    </div>
-                                    <span class="fw-medium">{{ inv.secretaire.nomComplet }}</span>
+                                    <a href="{{ path('app_user_profile_view', {id: inv.secretaire.id}) }}" class="text-decoration-none text-dark d-flex align-items-center">
+                                        {% if inv.secretaire.photo %}
+                                            <img src="{{ asset(inv.secretaire.photo) }}" 
+                                                 alt="{{ inv.secretaire.nomComplet }}" 
+                                                 class="rounded-circle me-3" 
+                                                 style="width: 40px; height: 40px; object-fit: cover; border: 2px solid #ffc107; cursor: pointer; transition: transform 0.2s;"
+                                                 onmouseover="this.style.transform='scale(1.1)'"
+                                                 onmouseout="this.style.transform='scale(1)'"
+                                                 title="Voir le profil">
+                                        {% else %}
+                                            <div class="rounded-circle bg-warning bg-opacity-10 text-warning d-flex align-items-center justify-content-center me-3" style="width: 40px; height: 40px; cursor: pointer; transition: transform 0.2s;" 
+                                                 onmouseover="this.style.transform='scale(1.1)'"
+                                                 onmouseout="this.style.transform='scale(1)'"
+                                                 title="Voir le profil">
+                                                <i class="bi bi-hourglass-split"></i>
+                                            </div>
+                                        {% endif %}
+                                        <span class="fw-medium">{{ inv.secretaire.nomComplet }}</span>
+                                    </a>
                                 </div>
                             </td>
                             <td>{{ inv.secretaire.email }}</td>
@@ -92,10 +107,25 @@
                         <tr>
                             <td class="ps-4">
                                 <div class="d-flex align-items-center">
-                                    <div class="rounded-circle bg-primary bg-opacity-10 text-primary d-flex align-items-center justify-content-center me-3" style="width: 40px; height: 40px;">
-                                        <i class="bi bi-person-fill"></i>
-                                    </div>
-                                    <span class="fw-medium">{{ secretaire.nomComplet }}</span>
+                                    <a href="{{ path('app_user_profile_view', {id: secretaire.id}) }}" class="text-decoration-none text-dark d-flex align-items-center">
+                                        {% if secretaire.photo %}
+                                            <img src="{{ asset(secretaire.photo) }}" 
+                                                 alt="{{ secretaire.nomComplet }}" 
+                                                 class="rounded-circle me-3" 
+                                                 style="width: 40px; height: 40px; object-fit: cover; border: 2px solid #0d6efd; cursor: pointer; transition: transform 0.2s;"
+                                                 onmouseover="this.style.transform='scale(1.1)'"
+                                                 onmouseout="this.style.transform='scale(1)'"
+                                                 title="Voir le profil">
+                                        {% else %}
+                                            <div class="rounded-circle bg-primary bg-opacity-10 text-primary d-flex align-items-center justify-content-center me-3" style="width: 40px; height: 40px; cursor: pointer; transition: transform 0.2s;"
+                                                 onmouseover="this.style.transform='scale(1.1)'"
+                                                 onmouseout="this.style.transform='scale(1)'"
+                                                 title="Voir le profil">
+                                                <i class="bi bi-person-fill"></i>
+                                            </div>
+                                        {% endif %}
+                                        <span class="fw-medium">{{ secretaire.nomComplet }}</span>
+                                    </a>
                                 </div>
                             </td>
                             <td>{{ secretaire.email }}</td>

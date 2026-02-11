@@ -18,9 +18,13 @@ use App\Form\SignupFormType;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Bridge\Twig\Mime\TemplatedEmail;
+use Symfony\Component\HttpFoundation\File\Exception\FileException;
+use Symfony\Component\HttpFoundation\File\UploadedFile;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Mailer\MailerInterface;
+use Symfony\Component\String\Slugger\SluggerInterface;
 use Symfony\Component\Mailer\Exception\TransportExceptionInterface;
 use Symfony\Component\Mime\Address;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
@@ -33,7 +37,9 @@ class AuthController extends AbstractController
     public function __construct(
         private EntityManagerInterface $entityManager,
         private UserPasswordHasherInterface $passwordHasher,
-        private MailerInterface $mailer
+        private MailerInterface $mailer,
+        private SluggerInterface $slugger,
+        private string $photosDirectory
     ) {
     }
 
@@ -241,8 +247,27 @@ class AuthController extends AbstractController
                 ]);
             }
 
+            // Gérer l'upload de photo si présent
+            $photoFile = $form->get('photo')->getData();
+            $photoPath = null;
+            if ($photoFile instanceof UploadedFile) {
+                $photoPath = $this->handlePhotoUpload($photoFile);
+                if (!$photoPath) {
+                    $this->addFlash('error', 'Erreur lors de l\'upload de la photo. Veuillez réessayer.');
+                    return $this->render('auth/signup.html.twig', [
+                        'form' => $form,
+                        'role' => $roleEnum,
+                    ]);
+                }
+            }
+
             // Créer l'utilisateur selon le rôle
             $user = $this->createUserByRole($roleEnum ?? RoleUtilisateur::PATIENT, $data);
+            
+            // Définir la photo si uploadée
+            if ($photoPath) {
+                $user->setPhoto($photoPath);
+            }
 
             // Les admins inscrits restent SUSPENDU jusqu'à validation par un autre admin
             if ($user instanceof Admin) {
@@ -297,6 +322,313 @@ class AuthController extends AbstractController
 
 
 
+
+    #[Route('/api/login', name: 'app_api_login', methods: ['POST'])]
+    public function apiLogin(Request $request, AuthenticationUtils $authenticationUtils): JsonResponse
+    {
+        if ($this->getUser()) {
+            return new JsonResponse(['success' => true, 'redirect' => $this->generateUrl('app_profile')]);
+        }
+
+        $data = json_decode($request->getContent(), true) ?? $request->request->all();
+        $username = $data['_username'] ?? $data['email'] ?? '';
+        $password = $data['_password'] ?? $data['password'] ?? '';
+        $csrfToken = $data['_csrf_token'] ?? '';
+
+        if (empty($username) || empty($password)) {
+            return new JsonResponse(['success' => false, 'error' => 'Email et mot de passe requis'], 400);
+        }
+
+        // Vérifier le token CSRF
+        if (!$this->isCsrfTokenValid('authenticate', $csrfToken)) {
+            return new JsonResponse(['success' => false, 'error' => 'Token CSRF invalide'], 403);
+        }
+
+        // Vérifier si l'utilisateur existe et son statut
+        $user = $this->entityManager->getRepository(Utilisateur::class)->findOneBy(['email' => $username]);
+        if ($user) {
+            if ($user->getStatut() === StatutCompte::SUSPENDU) {
+                return new JsonResponse(['success' => false, 'error' => 'Votre compte est suspendu. Veuillez contacter un administrateur.'], 403);
+            }
+            if ($user->getStatut() === StatutCompte::BANNI) {
+                return new JsonResponse(['success' => false, 'error' => 'Votre compte a été banni.'], 403);
+            }
+        }
+
+        // Note: L'authentification réelle sera gérée par Symfony Security via form_login
+        // On retourne une indication que le formulaire doit être soumis
+        return new JsonResponse([
+            'success' => false,
+            'error' => 'Veuillez utiliser le formulaire de connexion standard',
+            'useFormSubmit' => true
+        ], 400);
+    }
+
+    #[Route('/api/signup', name: 'app_api_signup', methods: ['POST'])]
+    public function apiSignup(Request $request): JsonResponse
+    {
+        if ($this->getUser()) {
+            return new JsonResponse(['success' => false, 'error' => 'Vous êtes déjà connecté'], 400);
+        }
+
+        // Pour les requêtes avec fichiers, utiliser request->request->all() au lieu de JSON
+        $isMultipart = $request->request->has('email') || $request->files->has('photo');
+        $data = $isMultipart ? $request->request->all() : (json_decode($request->getContent(), true) ?? []);
+        
+        $email = isset($data['email']) ? trim($data['email']) : '';
+        $nomComplet = isset($data['nomComplet']) ? trim($data['nomComplet']) : '';
+        $password = $data['password'] ?? '';
+        $confirmPassword = $data['confirmPassword'] ?? '';
+        $telephone = isset($data['telephone']) ? trim($data['telephone']) : '';
+        $roleValue = $data['role'] ?? 'PATIENT';
+
+        // Validation email
+        if (empty($email)) {
+            return new JsonResponse(['success' => false, 'error' => 'L\'email est requis'], 400);
+        }
+        if (mb_strlen($email) > 180) {
+            return new JsonResponse(['success' => false, 'error' => 'L\'email est trop long (maximum 180 caractères)'], 400);
+        }
+        if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            return new JsonResponse(['success' => false, 'error' => 'Format d\'email invalide'], 400);
+        }
+
+        // Validation nom complet
+        if (empty($nomComplet)) {
+            return new JsonResponse(['success' => false, 'error' => 'Le nom complet est requis'], 400);
+        }
+        $nomCompletLength = mb_strlen($nomComplet);
+        if ($nomCompletLength < 2) {
+            return new JsonResponse(['success' => false, 'error' => 'Le nom complet doit contenir au moins 2 caractères'], 400);
+        }
+        if ($nomCompletLength > 255) {
+            return new JsonResponse(['success' => false, 'error' => 'Le nom complet ne doit pas dépasser 255 caractères'], 400);
+        }
+
+        // Validation mot de passe
+        if (empty($password)) {
+            return new JsonResponse(['success' => false, 'error' => 'Le mot de passe est requis'], 400);
+        }
+        $passwordLength = mb_strlen($password);
+        if ($passwordLength < 6) {
+            return new JsonResponse(['success' => false, 'error' => 'Le mot de passe doit contenir au moins 6 caractères'], 400);
+        }
+        if ($passwordLength > 4096) {
+            return new JsonResponse(['success' => false, 'error' => 'Le mot de passe est trop long'], 400);
+        }
+
+        // Validation confirmation mot de passe
+        if (empty($confirmPassword)) {
+            return new JsonResponse(['success' => false, 'error' => 'Veuillez confirmer votre mot de passe'], 400);
+        }
+        if ($password !== $confirmPassword) {
+            return new JsonResponse(['success' => false, 'error' => 'Les mots de passe ne correspondent pas'], 400);
+        }
+
+        // Validation téléphone (obligatoire pour tous)
+        if (empty($telephone)) {
+            return new JsonResponse(['success' => false, 'error' => 'Le numéro de téléphone est requis'], 400);
+        }
+        if (mb_strlen($telephone) > 20) {
+            return new JsonResponse(['success' => false, 'error' => 'Le numéro de téléphone est trop long (maximum 20 caractères)'], 400);
+        }
+
+        // Validation spécialité (obligatoire pour médecins)
+        if ($roleValue === 'MEDECIN') {
+            $specialite = isset($data['specialite']) ? trim($data['specialite']) : '';
+            if (empty($specialite)) {
+                return new JsonResponse(['success' => false, 'error' => 'La spécialité est requise pour les médecins'], 400);
+            }
+            if (mb_strlen($specialite) > 255) {
+                return new JsonResponse(['success' => false, 'error' => 'La spécialité est trop longue (maximum 255 caractères)'], 400);
+            }
+        }
+
+        // Vérifier si l'email existe déjà
+        $existingUser = $this->entityManager->getRepository(Utilisateur::class)->findOneBy(['email' => $email]);
+        if ($existingUser) {
+            return new JsonResponse(['success' => false, 'error' => 'Cet email est déjà utilisé'], 400);
+        }
+
+        // Valider le rôle
+        try {
+            $roleEnum = RoleUtilisateur::from($roleValue);
+        } catch (\ValueError) {
+            return new JsonResponse(['success' => false, 'error' => 'Rôle invalide'], 400);
+        }
+
+        // Gérer l'upload de photo si présent
+        $photoPath = null;
+        if ($request->files->has('photo')) {
+            $photoFile = $request->files->get('photo');
+            if ($photoFile instanceof UploadedFile) {
+                $photoPath = $this->handlePhotoUpload($photoFile);
+                if (!$photoPath) {
+                    return new JsonResponse(['success' => false, 'error' => 'Erreur lors de l\'upload de la photo'], 400);
+                }
+            }
+        }
+
+        // Créer l'utilisateur avec toutes les données
+        $userData = array_merge($data, [
+            'email' => $email,
+            'nomComplet' => $nomComplet,
+            'password' => $password,
+            'telephone' => $telephone
+        ]);
+        
+        // Ajouter spécialité pour médecins
+        if ($roleValue === 'MEDECIN' && isset($data['specialite'])) {
+            $userData['specialite'] = trim($data['specialite']);
+        }
+        
+        $user = $this->createUserByRole($roleEnum, $userData);
+
+        // Définir la photo si uploadée
+        if ($photoPath) {
+            $user->setPhoto($photoPath);
+        }
+
+        if ($user instanceof Admin) {
+            $user->setStatut(StatutCompte::SUSPENDU);
+        }
+
+        $user->setEmailVerified(false);
+        $verifyToken = bin2hex(random_bytes(32));
+        $user->setVerificationToken($verifyToken);
+        $user->setVerificationTokenExpiresAt(new \DateTimeImmutable('+24 hours'));
+        $user->setPassword($this->passwordHasher->hashPassword($user, $password));
+
+        $this->entityManager->persist($user);
+        $this->entityManager->flush();
+
+        // Envoyer l'email de vérification
+        try {
+            $fromAddress = $_ENV['MAILER_FROM'] ?? getenv('MAILER_FROM') ?: 'MediConnect <noreply@mediconnect.com>';
+            $emailMessage = (new TemplatedEmail())
+                ->from(Address::create($fromAddress))
+                ->to($user->getEmail())
+                ->subject('Vérifiez votre compte MediConnect')
+                ->htmlTemplate('emails/verify_email.html.twig')
+                ->context([
+                    'user' => $user,
+                    'verifyUrl' => $this->getVerifyUrl($verifyToken),
+                    'expiresAt' => $user->getVerificationTokenExpiresAt(),
+                ]);
+            $this->mailer->send($emailMessage);
+        } catch (TransportExceptionInterface $e) {
+            error_log('[MediConnect] Erreur envoi email vérification: ' . $e->getMessage());
+        }
+
+        $message = $user instanceof Admin
+            ? 'Inscription réussie ! Un email de vérification vous a été envoyé. Cliquez sur le lien pour activer votre compte, puis attendez la validation par un administrateur.'
+            : 'Inscription réussie ! Un email de vérification vous a été envoyé. Cliquez sur le lien pour activer votre compte et vous connecter.';
+
+        return new JsonResponse([
+            'success' => true,
+            'message' => $message,
+            'redirect' => $this->generateUrl('app_login')
+        ]);
+    }
+
+    #[Route('/api/forgot-password', name: 'app_api_forgot_password', methods: ['POST'])]
+    public function apiForgotPassword(Request $request): JsonResponse
+    {
+        if ($this->getUser()) {
+            return new JsonResponse(['success' => false, 'error' => 'Vous êtes déjà connecté'], 400);
+        }
+
+        $data = json_decode($request->getContent(), true) ?? $request->request->all();
+        $email = isset($data['email']) ? trim($data['email']) : '';
+
+        // Validation email
+        if (empty($email)) {
+            return new JsonResponse(['success' => false, 'error' => 'L\'email est requis'], 400);
+        }
+        if (mb_strlen($email) > 180) {
+            return new JsonResponse(['success' => false, 'error' => 'L\'email est trop long (maximum 180 caractères)'], 400);
+        }
+        if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            return new JsonResponse(['success' => false, 'error' => 'Format d\'email invalide'], 400);
+        }
+
+        $user = $this->entityManager->getRepository(Utilisateur::class)->findOneBy(['email' => $email]);
+
+        // Toujours afficher le même message pour éviter l'enumération d'emails
+        if ($user) {
+            $token = bin2hex(random_bytes(32));
+            $user->setResetToken($token);
+            $user->setResetTokenExpiresAt(new \DateTimeImmutable('+1 hour'));
+            $this->entityManager->flush();
+
+            try {
+                $fromAddress = $_ENV['MAILER_FROM'] ?? getenv('MAILER_FROM') ?: 'MediConnect <noreply@mediconnect.com>';
+                $emailMessage = (new TemplatedEmail())
+                    ->from(Address::create($fromAddress))
+                    ->to($user->getEmail())
+                    ->subject('Réinitialisation de votre mot de passe - MediConnect')
+                    ->htmlTemplate('emails/reset_password.html.twig')
+                    ->context([
+                        'user' => $user,
+                        'resetUrl' => $this->getResetUrl($token),
+                        'expiresAt' => $user->getResetTokenExpiresAt(),
+                    ]);
+                $this->mailer->send($emailMessage);
+            } catch (TransportExceptionInterface $e) {
+                error_log('[MediConnect] Erreur envoi email reset password: ' . $e->getMessage());
+            }
+        }
+
+        return new JsonResponse([
+            'success' => true,
+            'message' => 'Si un compte existe avec cet email, vous recevrez un lien pour réinitialiser votre mot de passe. Vérifiez votre boîte de réception.',
+            'redirect' => $this->generateUrl('app_login')
+        ]);
+    }
+
+    #[Route('/api/reset-password/{token}', name: 'app_api_reset_password', methods: ['POST'])]
+    public function apiResetPassword(Request $request, string $token): JsonResponse
+    {
+        if ($this->getUser()) {
+            return new JsonResponse(['success' => false, 'error' => 'Vous êtes déjà connecté'], 400);
+        }
+
+        $user = $this->entityManager->getRepository(Utilisateur::class)->findOneBy(['resetToken' => $token]);
+
+        if (!$user || !$user->getResetTokenExpiresAt() || $user->getResetTokenExpiresAt() < new \DateTimeImmutable()) {
+            return new JsonResponse([
+                'success' => false,
+                'error' => 'Ce lien de réinitialisation est invalide ou a expiré. Veuillez en demander un nouveau.',
+                'redirect' => $this->generateUrl('app_forgot_password')
+            ], 400);
+        }
+
+        $data = json_decode($request->getContent(), true) ?? $request->request->all();
+        $password = $data['password'] ?? '';
+
+        // Validation mot de passe
+        if (empty($password)) {
+            return new JsonResponse(['success' => false, 'error' => 'Le mot de passe est requis'], 400);
+        }
+        $passwordLength = mb_strlen($password);
+        if ($passwordLength < 6) {
+            return new JsonResponse(['success' => false, 'error' => 'Le mot de passe doit contenir au moins 6 caractères'], 400);
+        }
+        if ($passwordLength > 4096) {
+            return new JsonResponse(['success' => false, 'error' => 'Le mot de passe est trop long'], 400);
+        }
+
+        $user->setPassword($this->passwordHasher->hashPassword($user, $password));
+        $user->setResetToken(null);
+        $user->setResetTokenExpiresAt(null);
+        $this->entityManager->flush();
+
+        return new JsonResponse([
+            'success' => true,
+            'message' => 'Votre mot de passe a été réinitialisé avec succès. Vous pouvez maintenant vous connecter.',
+            'redirect' => $this->generateUrl('app_login')
+        ]);
+    }
 
     #[Route('/logout', name: 'app_logout')]
     public function logout(): void
@@ -370,11 +702,17 @@ class AuthController extends AbstractController
         $user->setEmail($data['email']);
         $user->setNomComplet($data['nomComplet']);
 
-        // Remplir les champs spécifiques selon le rôle
-        if ($user instanceof Patient) {
-            if (isset($data['telephone'])) {
+        // Téléphone obligatoire pour tous les types d'utilisateurs
+        if (isset($data['telephone']) && !empty($data['telephone'])) {
+            if ($user instanceof Patient || $user instanceof Secretaire || $user instanceof Admin || $user instanceof Participation) {
                 $user->setTelephone($data['telephone']);
             }
+            // Medecin n'a pas de champ telephone dans son entité, mais on peut l'ajouter si nécessaire
+        }
+
+        // Remplir les champs spécifiques selon le rôle
+        if ($user instanceof Patient) {
+            // Téléphone déjà géré ci-dessus
             if (isset($data['dateNaissance'])) {
                 $user->setDateNaissance($data['dateNaissance']);
             }
@@ -392,9 +730,7 @@ class AuthController extends AbstractController
                 $user->setNumeroLicence($data['numeroLicence']);
             }
         } elseif ($user instanceof Secretaire) {
-            if (isset($data['telephone'])) {
-                $user->setTelephone($data['telephone']);
-            }
+            // Téléphone déjà géré ci-dessus pour tous les types
         } elseif ($user instanceof Participation) {
             if (isset($data['roleDansEvenement'])) {
                 $user->setRoleDansEvenement($data['roleDansEvenement'] instanceof RoleParticipation
@@ -409,5 +745,38 @@ class AuthController extends AbstractController
         }
 
         return $user;
+    }
+
+    private function handlePhotoUpload(UploadedFile $file): ?string
+    {
+        // Vérifier le type MIME
+        $allowedMimes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+        if (!in_array($file->getMimeType(), $allowedMimes, true)) {
+            return null;
+        }
+
+        // Vérifier la taille (5 Mo max)
+        if ($file->getSize() > 5 * 1024 * 1024) {
+            return null;
+        }
+
+        // Créer le répertoire s'il n'existe pas
+        if (!is_dir($this->photosDirectory)) {
+            mkdir($this->photosDirectory, 0755, true);
+        }
+
+        // Générer un nom de fichier unique
+        $originalFilename = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
+        $safeFilename = $this->slugger->slug($originalFilename)->toString();
+        $newFilename = $safeFilename . '-' . uniqid() . '.' . $file->guessExtension();
+
+        try {
+            $file->move($this->photosDirectory, $newFilename);
+            // Retourner le chemin relatif depuis public/
+            return 'uploads/photos/' . $newFilename;
+        } catch (FileException $e) {
+            error_log('[MediConnect] Erreur upload photo: ' . $e->getMessage());
+            return null;
+        }
     }
 }

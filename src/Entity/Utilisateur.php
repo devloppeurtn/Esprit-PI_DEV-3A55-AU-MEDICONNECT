@@ -62,6 +62,9 @@ class Utilisateur implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(type: Types::BOOLEAN, options: ['default' => false])]
     private bool $emailVerified = false;
 
+    #[ORM\Column(type: Types::STRING, length: 255, nullable: true)]
+    private ?string $photo = null;
+
     public function __construct()
     {
         $this->dateCreation = new \DateTimeImmutable();
@@ -235,6 +238,17 @@ class Utilisateur implements UserInterface, PasswordAuthenticatedUserInterface
     public function setEmailVerified(bool $emailVerified): static
     {
         $this->emailVerified = $emailVerified;
+        return $this;
+    }
+
+    public function getPhoto(): ?string
+    {
+        return $this->photo;
+    }
+
+    public function setPhoto(?string $photo): static
+    {
+        $this->photo = $photo;
         return $this;
     }
 }
