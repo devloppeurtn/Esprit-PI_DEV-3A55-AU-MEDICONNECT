@@ -1,0 +1,214 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="e94b2d10-0786-4972-ae0e-552db20ed4a6" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/.env" beforeDir="false" afterPath="$PROJECT_DIR$/.env" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/controllers.json" beforeDir="false" afterPath="$PROJECT_DIR$/assets/controllers.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/vendor/installed.php" beforeDir="false" afterPath="$PROJECT_DIR$/assets/vendor/installed.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/composer.lock" beforeDir="false" afterPath="$PROJECT_DIR$/composer.lock" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/config/packages/framework.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/config/packages/framework.yaml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/config/packages/mailer.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/config/packages/mailer.yaml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/config/packages/messenger.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/config/packages/messenger.yaml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/config/packages/security.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/config/packages/security.yaml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/config/packages/twig.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/config/packages/twig.yaml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/config/services.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/config/services.yaml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Controller/AdminController.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Controller/AdminController.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Controller/AuthController.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Controller/AuthController.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Controller/SavoirMedicalController.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Controller/SavoirMedicalController.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Controller/UserController.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Controller/UserController.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Entity/Medecin.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Entity/Medecin.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Entity/Patient.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Entity/Patient.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Entity/Secretaire.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Entity/Secretaire.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Entity/Utilisateur.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Entity/Utilisateur.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Form/LoginFormType.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Form/LoginFormType.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Form/ProfileSettingsFormType.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Form/ProfileSettingsFormType.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Form/SignupFormType.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Form/SignupFormType.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Security/AdminLoginSuccessHandler.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Security/AdminLoginSuccessHandler.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Security/UserChecker.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Security/UserChecker.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/admin/base_admin.html.twig" beforeDir="false" afterPath="$PROJECT_DIR$/templates/admin/base_admin.html.twig" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/admin/components/admin_sidebar.html.twig" beforeDir="false" afterPath="$PROJECT_DIR$/templates/admin/components/admin_sidebar.html.twig" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/admin/users/index.html.twig" beforeDir="false" afterPath="$PROJECT_DIR$/templates/admin/users/index.html.twig" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/auth/login.html.twig" beforeDir="false" afterPath="$PROJECT_DIR$/templates/auth/login.html.twig" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/auth/signup.html.twig" beforeDir="false" afterPath="$PROJECT_DIR$/templates/auth/signup.html.twig" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/components/navbar.html.twig" beforeDir="false" afterPath="$PROJECT_DIR$/templates/components/navbar.html.twig" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/savoir_medical/categorie.html.twig" beforeDir="false" afterPath="$PROJECT_DIR$/templates/savoir_medical/categorie.html.twig" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/savoir_medical/form_categorie.html.twig" beforeDir="false" afterPath="$PROJECT_DIR$/templates/savoir_medical/form_categorie.html.twig" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/user/profile.html.twig" beforeDir="false" afterPath="$PROJECT_DIR$/templates/user/profile.html.twig" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/user/settings.html.twig" beforeDir="false" afterPath="$PROJECT_DIR$/templates/user/settings.html.twig" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/vendor/composer/autoload_classmap.php" beforeDir="false" afterPath="$PROJECT_DIR$/vendor/composer/autoload_classmap.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/vendor/composer/autoload_files.php" beforeDir="false" afterPath="$PROJECT_DIR$/vendor/composer/autoload_files.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/vendor/composer/autoload_psr4.php" beforeDir="false" afterPath="$PROJECT_DIR$/vendor/composer/autoload_psr4.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/vendor/composer/autoload_static.php" beforeDir="false" afterPath="$PROJECT_DIR$/vendor/composer/autoload_static.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/vendor/composer/installed.json" beforeDir="false" afterPath="$PROJECT_DIR$/vendor/composer/installed.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/vendor/composer/installed.php" beforeDir="false" afterPath="$PROJECT_DIR$/vendor/composer/installed.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/vendor/doctrine/deprecations/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/vendor/doctrine/deprecations/README.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/vendor/doctrine/deprecations/composer.json" beforeDir="false" afterPath="$PROJECT_DIR$/vendor/doctrine/deprecations/composer.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/vendor/doctrine/deprecations/src/PHPUnit/VerifyDeprecations.php" beforeDir="false" afterPath="$PROJECT_DIR$/vendor/doctrine/deprecations/src/PHPUnit/VerifyDeprecations.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/vendor/doctrine/event-manager/src/EventManager.php" beforeDir="false" afterPath="$PROJECT_DIR$/vendor/doctrine/event-manager/src/EventManager.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/vendor/doctrine/orm/phpstan-dbal3.neon" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/vendor/doctrine/orm/src/Mapping/FieldMapping.php" beforeDir="false" afterPath="$PROJECT_DIR$/vendor/doctrine/orm/src/Mapping/FieldMapping.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/vendor/doctrine/sql-formatter/src/Tokenizer.php" beforeDir="false" afterPath="$PROJECT_DIR$/vendor/doctrine/sql-formatter/src/Tokenizer.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/vendor/lcobucci/jwt/composer.json" beforeDir="false" afterPath="$PROJECT_DIR$/vendor/lcobucci/jwt/composer.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/vendor/lcobucci/jwt/src/Builder.php" beforeDir="false" afterPath="$PROJECT_DIR$/vendor/lcobucci/jwt/src/Builder.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/vendor/lcobucci/jwt/src/ClaimsFormatter.php" beforeDir="false" afterPath="$PROJECT_DIR$/vendor/lcobucci/jwt/src/ClaimsFormatter.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/vendor/lcobucci/jwt/src/Configuration.php" beforeDir="false" afterPath="$PROJECT_DIR$/vendor/lcobucci/jwt/src/Configuration.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/vendor/lcobucci/jwt/src/Decoder.php" beforeDir="false" afterPath="$PROJECT_DIR$/vendor/lcobucci/jwt/src/Decoder.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/vendor/lcobucci/jwt/src/Encoder.php" beforeDir="false" afterPath="$PROJECT_DIR$/vendor/lcobucci/jwt/src/Encoder.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/vendor/lcobucci/jwt/src/Encoding/CannotDecodeContent.php" beforeDir="false" afterPath="$PROJECT_DIR$/vendor/lcobucci/jwt/src/Encoding/CannotDecodeContent.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/vendor/lcobucci/jwt/src/Encoding/CannotEncodeContent.php" beforeDir="false" afterPath="$PROJECT_DIR$/vendor/lcobucci/jwt/src/Encoding/CannotEncodeContent.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/vendor/lcobucci/jwt/src/Encoding/ChainedFormatter.php" beforeDir="false" afterPath="$PROJECT_DIR$/vendor/lcobucci/jwt/src/Encoding/ChainedFormatter.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/vendor/lcobucci/jwt/src/Encoding/JoseEncoder.php" beforeDir="false" afterPath="$PROJECT_DIR$/vendor/lcobucci/jwt/src/Encoding/JoseEncoder.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/vendor/lcobucci/jwt/src/Encoding/MicrosecondBasedDateConversion.php" beforeDir="false" afterPath="$PROJECT_DIR$/vendor/lcobucci/jwt/src/Encoding/MicrosecondBasedDateConversion.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/vendor/lcobucci/jwt/src/Encoding/UnixTimestampDates.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/vendor/lcobucci/jwt/src/JwtFacade.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/vendor/lcobucci/jwt/src/Parser.php" beforeDir="false" afterPath="$PROJECT_DIR$/vendor/lcobucci/jwt/src/Parser.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/vendor/lcobucci/jwt/src/Signer.php" beforeDir="false" afterPath="$PROJECT_DIR$/vendor/lcobucci/jwt/src/Signer.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/vendor/lcobucci/jwt/src/Signer/Blake2b.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/vendor/lcobucci/jwt/src/Signer/CannotSignPayload.php" beforeDir="false" afterPath="$PROJECT_DIR$/vendor/lcobucci/jwt/src/Signer/CannotSignPayload.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/vendor/lcobucci/jwt/src/Signer/Ecdsa.php" beforeDir="false" afterPath="$PROJECT_DIR$/vendor/lcobucci/jwt/src/Signer/Ecdsa.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/vendor/lcobucci/jwt/src/Signer/Ecdsa/MultibyteStringConverter.php" beforeDir="false" afterPath="$PROJECT_DIR$/vendor/lcobucci/jwt/src/Signer/Ecdsa/MultibyteStringConverter.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/vendor/lcobucci/jwt/src/Signer/Ecdsa/Sha256.php" beforeDir="false" afterPath="$PROJECT_DIR$/vendor/lcobucci/jwt/src/Signer/Ecdsa/Sha256.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/vendor/lcobucci/jwt/src/Signer/Ecdsa/Sha384.php" beforeDir="false" afterPath="$PROJECT_DIR$/vendor/lcobucci/jwt/src/Signer/Ecdsa/Sha384.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/vendor/lcobucci/jwt/src/Signer/Ecdsa/Sha512.php" beforeDir="false" afterPath="$PROJECT_DIR$/vendor/lcobucci/jwt/src/Signer/Ecdsa/Sha512.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/vendor/lcobucci/jwt/src/Signer/Ecdsa/SignatureConverter.php" beforeDir="false" afterPath="$PROJECT_DIR$/vendor/lcobucci/jwt/src/Signer/Ecdsa/SignatureConverter.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/vendor/lcobucci/jwt/src/Signer/Eddsa.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/vendor/lcobucci/jwt/src/Signer/Hmac.php" beforeDir="false" afterPath="$PROJECT_DIR$/vendor/lcobucci/jwt/src/Signer/Hmac.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/vendor/lcobucci/jwt/src/Signer/Hmac/Sha256.php" beforeDir="false" afterPath="$PROJECT_DIR$/vendor/lcobucci/jwt/src/Signer/Hmac/Sha256.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/vendor/lcobucci/jwt/src/Signer/Hmac/Sha384.php" beforeDir="false" afterPath="$PROJECT_DIR$/vendor/lcobucci/jwt/src/Signer/Hmac/Sha384.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/vendor/lcobucci/jwt/src/Signer/Hmac/Sha512.php" beforeDir="false" afterPath="$PROJECT_DIR$/vendor/lcobucci/jwt/src/Signer/Hmac/Sha512.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/vendor/lcobucci/jwt/src/Signer/InvalidKeyProvided.php" beforeDir="false" afterPath="$PROJECT_DIR$/vendor/lcobucci/jwt/src/Signer/InvalidKeyProvided.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/vendor/lcobucci/jwt/src/Signer/Key.php" beforeDir="false" afterPath="$PROJECT_DIR$/vendor/lcobucci/jwt/src/Signer/Key.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/vendor/lcobucci/jwt/src/Signer/Key/FileCouldNotBeRead.php" beforeDir="false" afterPath="$PROJECT_DIR$/vendor/lcobucci/jwt/src/Signer/Key/FileCouldNotBeRead.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/vendor/lcobucci/jwt/src/Signer/Key/InMemory.php" beforeDir="false" afterPath="$PROJECT_DIR$/vendor/lcobucci/jwt/src/Signer/Key/InMemory.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/vendor/lcobucci/jwt/src/Signer/OpenSSL.php" beforeDir="false" afterPath="$PROJECT_DIR$/vendor/lcobucci/jwt/src/Signer/OpenSSL.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/vendor/lcobucci/jwt/src/Signer/Rsa.php" beforeDir="false" afterPath="$PROJECT_DIR$/vendor/lcobucci/jwt/src/Signer/Rsa.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/vendor/lcobucci/jwt/src/SodiumBase64Polyfill.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/vendor/lcobucci/jwt/src/Token.php" beforeDir="false" afterPath="$PROJECT_DIR$/vendor/lcobucci/jwt/src/Token.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/vendor/lcobucci/jwt/src/Token/Builder.php" beforeDir="false" afterPath="$PROJECT_DIR$/vendor/lcobucci/jwt/src/Token/Builder.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/vendor/lcobucci/jwt/src/Token/DataSet.php" beforeDir="false" afterPath="$PROJECT_DIR$/vendor/lcobucci/jwt/src/Token/DataSet.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/vendor/lcobucci/jwt/src/Token/InvalidTokenStructure.php" beforeDir="false" afterPath="$PROJECT_DIR$/vendor/lcobucci/jwt/src/Token/InvalidTokenStructure.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/vendor/lcobucci/jwt/src/Token/Parser.php" beforeDir="false" afterPath="$PROJECT_DIR$/vendor/lcobucci/jwt/src/Token/Parser.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/vendor/lcobucci/jwt/src/Token/Plain.php" beforeDir="false" afterPath="$PROJECT_DIR$/vendor/lcobucci/jwt/src/Token/Plain.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/vendor/lcobucci/jwt/src/Token/RegisteredClaimGiven.php" beforeDir="false" afterPath="$PROJECT_DIR$/vendor/lcobucci/jwt/src/Token/RegisteredClaimGiven.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/vendor/lcobucci/jwt/src/Token/Signature.php" beforeDir="false" afterPath="$PROJECT_DIR$/vendor/lcobucci/jwt/src/Token/Signature.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/vendor/lcobucci/jwt/src/UnencryptedToken.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/vendor/lcobucci/jwt/src/Validation/Constraint/CannotValidateARegisteredClaim.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/vendor/lcobucci/jwt/src/Validation/Constraint/HasClaim.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/vendor/lcobucci/jwt/src/Validation/Constraint/HasClaimWithValue.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/vendor/lcobucci/jwt/src/Validation/Constraint/IdentifiedBy.php" beforeDir="false" afterPath="$PROJECT_DIR$/vendor/lcobucci/jwt/src/Validation/Constraint/IdentifiedBy.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/vendor/lcobucci/jwt/src/Validation/Constraint/IssuedBy.php" beforeDir="false" afterPath="$PROJECT_DIR$/vendor/lcobucci/jwt/src/Validation/Constraint/IssuedBy.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/vendor/lcobucci/jwt/src/Validation/Constraint/LooseValidAt.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/vendor/lcobucci/jwt/src/Validation/Constraint/PermittedFor.php" beforeDir="false" afterPath="$PROJECT_DIR$/vendor/lcobucci/jwt/src/Validation/Constraint/PermittedFor.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/vendor/lcobucci/jwt/src/Validation/Constraint/RelatedTo.php" beforeDir="false" afterPath="$PROJECT_DIR$/vendor/lcobucci/jwt/src/Validation/Constraint/RelatedTo.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/vendor/lcobucci/jwt/src/Validation/Constraint/SignedWith.php" beforeDir="false" afterPath="$PROJECT_DIR$/vendor/lcobucci/jwt/src/Validation/Constraint/SignedWith.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/vendor/lcobucci/jwt/src/Validation/Constraint/SignedWithOneInSet.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/vendor/lcobucci/jwt/src/Validation/Constraint/SignedWithUntilDate.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/vendor/lcobucci/jwt/src/Validation/Constraint/StrictValidAt.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/vendor/lcobucci/jwt/src/Validation/ConstraintViolation.php" beforeDir="false" afterPath="$PROJECT_DIR$/vendor/lcobucci/jwt/src/Validation/ConstraintViolation.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/vendor/lcobucci/jwt/src/Validation/RequiredConstraintsViolated.php" beforeDir="false" afterPath="$PROJECT_DIR$/vendor/lcobucci/jwt/src/Validation/RequiredConstraintsViolated.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/vendor/lcobucci/jwt/src/Validation/SignedWith.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/vendor/lcobucci/jwt/src/Validation/ValidAt.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/vendor/lcobucci/jwt/src/Validation/Validator.php" beforeDir="false" afterPath="$PROJECT_DIR$/vendor/lcobucci/jwt/src/Validation/Validator.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/vendor/phpunit/php-file-iterator/ChangeLog.md" beforeDir="false" afterPath="$PROJECT_DIR$/vendor/phpunit/php-file-iterator/ChangeLog.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/vendor/phpunit/php-file-iterator/LICENSE" beforeDir="false" afterPath="$PROJECT_DIR$/vendor/phpunit/php-file-iterator/LICENSE" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/vendor/phpunit/php-file-iterator/composer.json" beforeDir="false" afterPath="$PROJECT_DIR$/vendor/phpunit/php-file-iterator/composer.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/vendor/phpunit/php-file-iterator/src/Factory.php" beforeDir="false" afterPath="$PROJECT_DIR$/vendor/phpunit/php-file-iterator/src/Factory.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/vendor/phpunit/php-file-iterator/src/Iterator.php" beforeDir="false" afterPath="$PROJECT_DIR$/vendor/phpunit/php-file-iterator/src/Iterator.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/vendor/phpunit/phpunit/ChangeLog-11.5.md" beforeDir="false" afterPath="$PROJECT_DIR$/vendor/phpunit/phpunit/ChangeLog-11.5.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/vendor/phpunit/phpunit/composer.json" beforeDir="false" afterPath="$PROJECT_DIR$/vendor/phpunit/phpunit/composer.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/vendor/phpunit/phpunit/composer.lock" beforeDir="false" afterPath="$PROJECT_DIR$/vendor/phpunit/phpunit/composer.lock" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/vendor/phpunit/phpunit/phpunit.xsd" beforeDir="false" afterPath="$PROJECT_DIR$/vendor/phpunit/phpunit/phpunit.xsd" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/vendor/phpunit/phpunit/src/Framework/Constraint/Cardinality/Count.php" beforeDir="false" afterPath="$PROJECT_DIR$/vendor/phpunit/phpunit/src/Framework/Constraint/Cardinality/Count.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/vendor/phpunit/phpunit/src/Framework/TestRunner/SeparateProcessTestRunner.php" beforeDir="false" afterPath="$PROJECT_DIR$/vendor/phpunit/phpunit/src/Framework/TestRunner/SeparateProcessTestRunner.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/vendor/phpunit/phpunit/src/Framework/TestRunner/templates/class.tpl" beforeDir="false" afterPath="$PROJECT_DIR$/vendor/phpunit/phpunit/src/Framework/TestRunner/templates/class.tpl" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/vendor/phpunit/phpunit/src/Framework/TestRunner/templates/method.tpl" beforeDir="false" afterPath="$PROJECT_DIR$/vendor/phpunit/phpunit/src/Framework/TestRunner/templates/method.tpl" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/vendor/phpunit/phpunit/src/Framework/TestSuite.php" beforeDir="false" afterPath="$PROJECT_DIR$/vendor/phpunit/phpunit/src/Framework/TestSuite.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/vendor/phpunit/phpunit/src/Runner/ErrorHandler.php" beforeDir="false" afterPath="$PROJECT_DIR$/vendor/phpunit/phpunit/src/Runner/ErrorHandler.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/vendor/phpunit/phpunit/src/Runner/PHPT/PhptTestCase.php" beforeDir="false" afterPath="$PROJECT_DIR$/vendor/phpunit/phpunit/src/Runner/PHPT/PhptTestCase.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/vendor/phpunit/phpunit/src/Runner/TestResult/Collector.php" beforeDir="false" afterPath="$PROJECT_DIR$/vendor/phpunit/phpunit/src/Runner/TestResult/Collector.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/vendor/phpunit/phpunit/src/Runner/TestResult/TestResult.php" beforeDir="false" afterPath="$PROJECT_DIR$/vendor/phpunit/phpunit/src/Runner/TestResult/TestResult.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/vendor/phpunit/phpunit/src/Runner/Version.php" beforeDir="false" afterPath="$PROJECT_DIR$/vendor/phpunit/phpunit/src/Runner/Version.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/vendor/phpunit/phpunit/src/TextUI/Configuration/Merger.php" beforeDir="false" afterPath="$PROJECT_DIR$/vendor/phpunit/phpunit/src/TextUI/Configuration/Merger.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/vendor/phpunit/phpunit/src/TextUI/Configuration/SourceMapper.php" beforeDir="false" afterPath="$PROJECT_DIR$/vendor/phpunit/phpunit/src/TextUI/Configuration/SourceMapper.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/vendor/phpunit/phpunit/src/TextUI/Configuration/Value/Source.php" beforeDir="false" afterPath="$PROJECT_DIR$/vendor/phpunit/phpunit/src/TextUI/Configuration/Value/Source.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/vendor/phpunit/phpunit/src/TextUI/Configuration/Xml/DefaultConfiguration.php" beforeDir="false" afterPath="$PROJECT_DIR$/vendor/phpunit/phpunit/src/TextUI/Configuration/Xml/DefaultConfiguration.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/vendor/phpunit/phpunit/src/TextUI/Configuration/Xml/Loader.php" beforeDir="false" afterPath="$PROJECT_DIR$/vendor/phpunit/phpunit/src/TextUI/Configuration/Xml/Loader.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/vendor/phpunit/phpunit/src/TextUI/Output/Default/ProgressPrinter/ProgressPrinter.php" beforeDir="false" afterPath="$PROJECT_DIR$/vendor/phpunit/phpunit/src/TextUI/Output/Default/ProgressPrinter/ProgressPrinter.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/vendor/phpunit/phpunit/src/TextUI/Output/SummaryPrinter.php" beforeDir="false" afterPath="$PROJECT_DIR$/vendor/phpunit/phpunit/src/TextUI/Output/SummaryPrinter.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/vendor/symfony/property-info/Extractor/PhpDocExtractor.php" beforeDir="false" afterPath="$PROJECT_DIR$/vendor/symfony/property-info/Extractor/PhpDocExtractor.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/vendor/symfony/property-info/composer.json" beforeDir="false" afterPath="$PROJECT_DIR$/vendor/symfony/property-info/composer.json" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="ProjectColorInfo">{
+  &quot;associatedIndex&quot;: 0
+}</component>
+  <component name="ProjectId" id="38tI563m1RfoZtyKicnNdwtVQEL" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.typescript.service.memoryLimit.init&quot;: &quot;true&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;main&quot;,
+    &quot;ignore.virus.scanning.warn.message&quot;: &quot;true&quot;,
+    &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
+    &quot;last_opened_file_path&quot;: &quot;D:/dev_pi&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+  }
+}</component>
+  <component name="RecentsManager">
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="D:\dev_pi\public\assets\img" />
+    </key>
+  </component>
+  <component name="SharedIndexes">
+    <attachedChunks>
+      <set>
+        <option value="bundled-jdk-30f59d01ecdd-2fc7cc6b9a17-intellij.indexing.shared.core-IU-253.30387.90" />
+        <option value="bundled-js-predefined-d6986cc7102b-9b0f141eb926-JavaScript-IU-253.30387.90" />
+      </set>
+    </attachedChunks>
+  </component>
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="e94b2d10-0786-4972-ae0e-552db20ed4a6" name="Changes" comment="" />
+      <created>1769612256177</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1769612256177</updated>
+      <workItem from="1769612258469" duration="1958000" />
+      <workItem from="1769684631893" duration="4500000" />
+      <workItem from="1769697835257" duration="1146000" />
+      <workItem from="1770296170395" duration="760000" />
+      <workItem from="1770367049635" duration="9812000" />
+      <workItem from="1770640139626" duration="14000" />
+      <workItem from="1770668459553" duration="7759000" />
+      <workItem from="1770729393088" duration="3689000" />
+      <workItem from="1770747439010" duration="2433000" />
+    </task>
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
+  </component>
+</project>
