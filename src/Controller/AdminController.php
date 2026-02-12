@@ -2,9 +2,12 @@
 
 namespace App\Controller;
 
+use App\Entity\Evenement;
 use App\Entity\RoleUtilisateur;
 use App\Entity\StatutCompte;
 use App\Entity\Utilisateur;
+use App\Enum\StatutEvenement;
+use App\Repository\EvenementRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -13,6 +16,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Security\Csrf\CsrfTokenManagerInterface;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 #[Route('/admin')]
@@ -22,6 +26,8 @@ class AdminController extends AbstractController
     public function __construct(
         private EntityManagerInterface $entityManager,
         private UserPasswordHasherInterface $passwordHasher,
+        private EvenementRepository $evenementRepository,
+        private CsrfTokenManagerInterface $csrfTokenManager,
     ) {
     }
 
@@ -35,6 +41,8 @@ class AdminController extends AbstractController
         $countSecretaires = $userRepo->count(['role' => RoleUtilisateur::SECRETAIRE]);
         $countAdmins = $userRepo->count(['role' => RoleUtilisateur::ADMIN]);
         $countParticipations = $userRepo->count(['role' => RoleUtilisateur::PARTICIPATION]);
+        $countOrganisateurs = $userRepo->count(['role' => RoleUtilisateur::ORGANISATEUR]);
+        $pendingEvenements = $this->evenementRepository->findPending();
 
         return $this->render('admin/dashboard/index.html.twig', [
             'totalUsers' => $totalUsers,
@@ -43,7 +51,97 @@ class AdminController extends AbstractController
             'countSecretaires' => $countSecretaires,
             'countAdmins' => $countAdmins,
             'countParticipations' => $countParticipations,
+            'countOrganisateurs' => $countOrganisateurs,
+            'pendingEvenements' => $pendingEvenements,
         ]);
+    }
+
+    #[Route('/evenements', name: 'app_admin_evenements', methods: ['GET'])]
+    public function evenements(): Response
+    {
+        return $this->render('admin/evenements/index.html.twig', []);
+    }
+
+    #[Route('/evenements/list', name: 'app_admin_evenements_list', methods: ['GET'])]
+    public function evenementsList(Request $request): JsonResponse
+    {
+        $statut = $request->query->get('statut'); // '', 'EN_ATTENTE', 'VALIDE', 'REFUSE'
+        $list = $this->evenementRepository->findAllForAdmin($statut === '' || $statut === null ? null : $statut);
+        $data = [];
+        foreach ($list as $e) {
+            $o = $e->getOrganisateur();
+            $data[] = [
+                'id' => $e->getId(),
+                'title' => $e->getTitle(),
+                'contentExcerpt' => $e->getContent() ? mb_substr(strip_tags($e->getContent()), 0, 100) . (mb_strlen($e->getContent()) > 100 ? '...' : '') : '',
+                'eventDate' => $e->getEventDate()?->format('d/m/Y') ?? '—',
+                'createdAt' => $e->getCreatedAt()->format('d/m/Y H:i'),
+                'statut' => $e->getStatut()->value,
+                'tokenAccepter' => $this->csrfTokenManager->getToken('accepter' . $e->getId())->getValue(),
+                'tokenRefuser' => $this->csrfTokenManager->getToken('refuser' . $e->getId())->getValue(),
+                'organisateur' => $o ? [
+                    'id' => $o->getId(),
+                    'nomComplet' => $o->getNomComplet(),
+                    'email' => $o->getEmail(),
+                    'photo' => $o->getPhoto(),
+                ] : null,
+            ];
+        }
+        return new JsonResponse(['success' => true, 'events' => $data]);
+    }
+
+    #[Route('/evenements/{id}/accepter', name: 'app_admin_evenement_accepter', methods: ['POST'])]
+    public function evenementAccepter(Request $request, Evenement $evenement): Response|JsonResponse
+    {
+        if ($evenement->getStatut() !== StatutEvenement::EN_ATTENTE) {
+            if ($request->isXmlHttpRequest() || $request->headers->get('Accept') === 'application/json') {
+                return new JsonResponse(['success' => false, 'message' => 'Cet événement n\'est plus en attente.'], 400);
+            }
+            $this->addFlash('warning', 'Cet événement n\'est plus en attente.');
+            return $this->redirectToRoute('app_admin_evenements');
+        }
+        if (!$this->isCsrfTokenValid('accepter'.$evenement->getId(), $request->request->get('_token'))) {
+            if ($request->isXmlHttpRequest() || $request->headers->get('Accept') === 'application/json') {
+                return new JsonResponse(['success' => false, 'message' => 'Jeton invalide.'], 400);
+            }
+            return $this->redirectToRoute('app_admin_evenements');
+        }
+        $evenement->setStatut(StatutEvenement::VALIDE);
+        $evenement->setApprouvePar($this->getUser());
+        $evenement->setApprouveAt(new \DateTimeImmutable());
+        $this->entityManager->flush();
+        if ($request->isXmlHttpRequest() || $request->headers->get('Accept') === 'application/json') {
+            return new JsonResponse(['success' => true, 'message' => 'Événement « ' . $evenement->getTitle() . ' » a été accepté et publié.']);
+        }
+        $this->addFlash('success', 'Événement « ' . $evenement->getTitle() . ' » a été accepté et est maintenant publié.');
+        return $this->redirectToRoute('app_admin_evenements');
+    }
+
+    #[Route('/evenements/{id}/refuser', name: 'app_admin_evenement_refuser', methods: ['POST'])]
+    public function evenementRefuser(Request $request, Evenement $evenement): Response|JsonResponse
+    {
+        if ($evenement->getStatut() !== StatutEvenement::EN_ATTENTE) {
+            if ($request->isXmlHttpRequest() || $request->headers->get('Accept') === 'application/json') {
+                return new JsonResponse(['success' => false, 'message' => 'Cet événement n\'est plus en attente.'], 400);
+            }
+            $this->addFlash('warning', 'Cet événement n\'est plus en attente.');
+            return $this->redirectToRoute('app_admin_evenements');
+        }
+        if (!$this->isCsrfTokenValid('refuser'.$evenement->getId(), $request->request->get('_token'))) {
+            if ($request->isXmlHttpRequest() || $request->headers->get('Accept') === 'application/json') {
+                return new JsonResponse(['success' => false, 'message' => 'Jeton invalide.'], 400);
+            }
+            return $this->redirectToRoute('app_admin_evenements');
+        }
+        $evenement->setStatut(StatutEvenement::REFUSE);
+        $evenement->setApprouvePar($this->getUser());
+        $evenement->setApprouveAt(new \DateTimeImmutable());
+        $this->entityManager->flush();
+        if ($request->isXmlHttpRequest() || $request->headers->get('Accept') === 'application/json') {
+            return new JsonResponse(['success' => true, 'message' => 'Événement « ' . $evenement->getTitle() . ' » a été refusé.']);
+        }
+        $this->addFlash('success', 'Événement « ' . $evenement->getTitle() . ' » a été refusé.');
+        return $this->redirectToRoute('app_admin_evenements');
     }
 
     #[Route('/stats', name: 'app_admin_stats', methods: ['GET'])]
@@ -240,6 +338,7 @@ class AdminController extends AbstractController
             'dateCreation' => $u->getDateCreation()?->format('Y-m-d'),
             'derniereConnexion' => $u->getDerniereConnexion()?->format('d/m/Y H:i') ?? '—',
             'lastActive' => $u->getDerniereConnexion() ? $this->formatLastActive($u->getDerniereConnexion()) : '—',
+            'photo' => $u->getPhoto(),
             'avatar' => '', // sera remplacé par l'asset dans le template
         ], $users);
 
@@ -297,6 +396,53 @@ class AdminController extends AbstractController
         ]);
     }
 
+    #[Route('/users/{id}/profile/data', name: 'app_admin_user_profile_data', methods: ['GET'])]
+    public function userProfileData(int $id): JsonResponse
+    {
+        $user = $this->entityManager->getRepository(Utilisateur::class)->find($id);
+        if (!$user) {
+            return new JsonResponse(['success' => false, 'error' => 'Utilisateur introuvable'], 404);
+        }
+
+        $userData = [
+            'id' => $user->getId(),
+            'nomComplet' => $user->getNomComplet(),
+            'email' => $user->getEmail(),
+            'role' => $user->getRole()?->value ?? '',
+            'statut' => $user->getStatut()?->value ?? '',
+            'photo' => $user->getPhoto(),
+            'emailVerified' => $user->isEmailVerified(),
+            'dateCreation' => $user->getDateCreation()?->format('d/m/Y H:i') ?? '',
+            'derniereConnexion' => $user->getDerniereConnexion()?->format('d/m/Y H:i') ?? '—',
+        ];
+
+        // Données spécifiques selon le rôle
+        if ($user instanceof Patient) {
+            $userData['telephone'] = $user->getTelephone() ?? '';
+            $userData['dateNaissance'] = $user->getDateNaissance()?->format('d/m/Y') ?? '';
+            $userData['adresse'] = $user->getAdresse() ?? '';
+        } elseif ($user instanceof Medecin) {
+            $userData['specialite'] = $user->getSpecialite() ?? '';
+            $userData['adresseCabinet'] = $user->getAdresseCabinet() ?? '';
+            $userData['numeroLicence'] = $user->getNumeroLicence() ?? '';
+            $userData['telephone'] = $user->getTelephone() ?? '';
+        } elseif ($user instanceof Secretaire) {
+            $userData['telephone'] = $user->getTelephone() ?? '';
+        } elseif ($user instanceof \App\Entity\Organisateur) {
+            $userData['telephone'] = $user->getTelephone() ?? '';
+        }
+        
+        // Ajouter le téléphone pour Admin et Participation si nécessaire
+        if ($user instanceof \App\Entity\Admin || $user instanceof \App\Entity\Participation) {
+            $userData['telephone'] = $user->getTelephone() ?? '';
+        } elseif ($user instanceof Participation) {
+            $userData['roleDansEvenement'] = $user->getRoleDansEvenement()?->value ?? '';
+            $userData['presenceConfirmee'] = $user->isPresenceConfirmee();
+        }
+
+        return new JsonResponse(['success' => true, 'user' => $userData]);
+    }
+
     #[Route('/users/export', name: 'app_admin_users_export', methods: ['GET'])]
     public function exportUsers(Request $request): StreamedResponse
     {
@@ -324,6 +470,20 @@ class AdminController extends AbstractController
         $response->headers->set('Content-Type', 'text/csv; charset=UTF-8');
         $response->headers->set('Content-Disposition', 'attachment; filename="utilisateurs-' . date('Y-m-d') . '.csv"');
         return $response;
+    }
+
+    #[Route('/users/export/status', name: 'app_admin_users_export_status', methods: ['GET'])]
+    public function exportUsersStatus(): JsonResponse
+    {
+        $userRepo = $this->entityManager->getRepository(Utilisateur::class);
+        $totalUsers = $userRepo->count([]);
+        
+        return new JsonResponse([
+            'success' => true,
+            'totalUsers' => $totalUsers,
+            'exportUrl' => $this->generateUrl('app_admin_users_export'),
+            'message' => 'Export prêt. Le téléchargement va commencer...'
+        ]);
     }
 
     #[Route('/users/create', name: 'app_admin_users_create', methods: ['GET', 'POST'])]

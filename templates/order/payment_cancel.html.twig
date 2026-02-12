@@ -1,0 +1,17 @@
+{% extends 'base.html.twig' %}
+{% block title %}Paiement annulé - MediConnect{% endblock %}
+{% block body %}
+<div class="container py-5">
+    <div class="row">
+        <div class="col-md-8 offset-md-2">
+            <div class="alert alert-warning">
+                <h4 class="alert-heading">Paiement annulé</h4>
+                <p>Le paiement pour la commande #{{ commande.id }} a été annulé. Vous pouvez réessayer ou choisir un autre mode de paiement.</p>
+                <hr>
+                <a href="{{ path('app_payment', {id: commande.id}) }}" class="btn btn-primary">Retour au paiement</a>
+                <a href="{{ path('app_order_review', {id: commande.id}) }}" class="btn btn-outline-secondary">Changer de mode de paiement</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

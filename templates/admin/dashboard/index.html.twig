@@ -113,6 +113,43 @@
             </div>
         </div>
     </div>
+    <div class="col-sm-6 col-lg-4 col-xl-3">
+        <div class="card admin-stats-card border-0 shadow-sm">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <div class="flex-shrink-0">
+                        <div class="admin-stats-icon bg-info bg-opacity-10 text-info">
+                            <i class="bi bi-calendar-plus"></i>
+                        </div>
+                    </div>
+                    <div class="flex-grow-1 ms-3">
+                        <h6 class="mb-0 text-muted">Organisateurs</h6>
+                        <h3 class="mb-0">{{ countOrganisateurs|default(0) }}</h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-6 col-lg-4 col-xl-3">
+        <a href="{{ path('app_admin_evenements') }}" class="text-decoration-none">
+            <div class="card admin-stats-card border-0 shadow-sm border border-warning">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-shrink-0">
+                            <div class="admin-stats-icon bg-warning bg-opacity-25 text-warning">
+                                <i class="bi bi-hourglass-split"></i>
+                            </div>
+                        </div>
+                        <div class="flex-grow-1 ms-3">
+                            <h6 class="mb-0 text-muted">Événements en attente</h6>
+                            <h3 class="mb-0 text-warning">{{ pendingEvenements|default([])|length }}</h3>
+                            <small class="text-muted">Cliquer pour valider</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </a>
+    </div>
 </div>
 
 <div class="row g-4 mb-4">

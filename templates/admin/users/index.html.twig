@@ -31,9 +31,9 @@
         <button type="button" class="btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#importModal">
             <i class="bi bi-upload me-2"></i>Import Users
         </button>
-        <a href="{{ path('app_admin_users_export') }}" class="btn btn-outline-secondary">
+        <button type="button" class="btn btn-outline-secondary" id="exportUsersBtn">
             <i class="bi bi-download me-2"></i>Export
-        </a>
+        </button>
         <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#userModal" id="addUserBtn">
             <i class="bi bi-person-plus me-2"></i>Add User
         </button>
@@ -249,9 +249,9 @@
                                     </button>
                                 </div>
                                 <div class="col-6">
-                                    <a href="{{ path('app_admin_users_export') }}" class="btn btn-outline-success btn-sm w-100">
+                                    <button class="btn btn-outline-success btn-sm w-100" id="exportUsersBtnSmall">
                                         <i class="bi bi-download me-1"></i>Export
-                                    </a>
+                                    </button>
                                 </div>
                                 <div class="col-6">
                                     <button class="btn btn-outline-warning btn-sm w-100" @click="alert('Fonctionnalité à venir')">
@@ -259,9 +259,9 @@
                                     </button>
                                 </div>
                                 <div class="col-12">
-                                    <a href="{{ path('app_admin_users_export') }}" class="btn btn-outline-secondary btn-sm w-100">
+                                    <button class="btn btn-outline-secondary btn-sm w-100" id="exportUsersBtnReport">
                                         <i class="bi bi-file-earmark-text me-1"></i>Generate Report
-                                    </a>
+                                    </button>
                                 </div>
                             </div>
                         </div>
@@ -341,8 +341,16 @@
                                     <input type="checkbox" class="form-check-input user-select-checkbox" :checked="selectedUsers.includes(user.id)" @change="toggleUser(user.id)">
                                 </td>
                                 <td>
-                                    <a :href="'{{ path('app_admin_user_profile', {id: '__ID__'}) }}'.replace('__ID__', user.id)" class="text-decoration-none text-dark d-flex align-items-center">
-                                        <img :src="avatarUrl || user.avatar" class="rounded-circle me-2" width="32" height="32" alt="">
+                                    <a :href="`/profile/voir/${user.id}`" class="text-decoration-none text-dark d-flex align-items-center">
+                                        <img :src="user.photo ? '{{ app.request.basepath }}/' + user.photo : (avatarUrl || user.avatar || '{{ asset('assets/img/avatar-placeholder.svg') }}')" 
+                                             class="rounded-circle me-2" 
+                                             width="40" 
+                                             height="40" 
+                                             style="object-fit: cover; border: 2px solid #dee2e6; cursor: pointer; transition: transform 0.2s;"
+                                             :alt="user.nomComplet"
+                                             @mouseenter="$el.style.transform = 'scale(1.1)'"
+                                             @mouseleave="$el.style.transform = 'scale(1)'"
+                                             @click.stop="window.location.href = `/profile/voir/${user.id}`">
                                         <div>
                                             <div class="fw-medium" x-text="user.nomComplet"></div>
                                             <small class="text-muted" x-text="'ID: ' + user.id"></small>
@@ -689,6 +697,50 @@ document.addEventListener('DOMContentLoaded', () => {
         fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-Requested-With': 'XMLHttpRequest' }, body: JSON.stringify(data) })
             .then(r => r.json()).then(res => { if (res.success) { bootstrap.Modal.getInstance(modal).hide(); location.reload(); } else alert(res.error); }).catch(() => alert('Erreur'));
     });
+});
+
+// Gestion de l'export avec notification AJAX
+document.addEventListener('DOMContentLoaded', function() {
+    function handleExport() {
+        // Afficher une notification
+        const alertDiv = document.createElement('div');
+        alertDiv.className = 'alert alert-info alert-dismissible fade show position-fixed top-0 start-50 translate-middle-x mt-3';
+        alertDiv.style.zIndex = '9999';
+        alertDiv.innerHTML = `
+            <i class="bi bi-info-circle me-2"></i>Préparation de l'export en cours...
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        `;
+        document.body.appendChild(alertDiv);
+        
+        // Vérifier le statut puis télécharger
+        fetch('{{ path('app_admin_users_export_status') }}', {
+            headers: { 'X-Requested-With': 'XMLHttpRequest' }
+        })
+        .then(r => r.json())
+        .then(data => {
+            if (data.success) {
+                alertDiv.className = 'alert alert-success alert-dismissible fade show position-fixed top-0 start-50 translate-middle-x mt-3';
+                alertDiv.innerHTML = `
+                    <i class="bi bi-check-circle me-2"></i>${data.message}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                `;
+                // Télécharger le fichier
+                window.location.href = data.exportUrl;
+                setTimeout(() => {
+                    alertDiv.remove();
+                }, 3000);
+            }
+        })
+        .catch(() => {
+            // En cas d'erreur, télécharger directement
+            window.location.href = '{{ path('app_admin_users_export') }}';
+            alertDiv.remove();
+        });
+    }
+    
+    document.getElementById('exportUsersBtn')?.addEventListener('click', handleExport);
+    document.getElementById('exportUsersBtnSmall')?.addEventListener('click', handleExport);
+    document.getElementById('exportUsersBtnReport')?.addEventListener('click', handleExport);
 });
 </script>
 {% endblock %}

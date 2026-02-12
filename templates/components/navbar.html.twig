@@ -5,57 +5,61 @@
 #}
 {% set is_admin = is_admin_context|default(false) %}
 
-<header id="header" class="header fixed-top {{ is_admin ? 'navbar-admin-context' : '' }}">
-    <div class="topbar d-flex align-items-center dark-background">
-        <div class="container d-flex justify-content-center justify-content-md-between">
-            <div class="contact-info d-flex align-items-center">
-                <i class="bi bi-envelope d-flex align-items-center"><a href="mailto:contact@mediconnect.fr">contact@mediconnect.fr</a></i>
-                <i class="bi bi-phone d-flex align-items-center ms-4"><span>+216 52 251 112</span></i>
-            </div>
-            <div class="social-links d-none d-md-flex align-items-center">
-                <a href="#!" class="twitter"><i class="bi bi-twitter-x"></i></a>
-                <a href="#!" class="facebook"><i class="bi bi-facebook"></i></a>
-                <a href="#!" class="instagram"><i class="bi bi-instagram"></i></a>
-                <a href="#!" class="linkedin"><i class="bi bi-linkedin"></i></a>
-            </div>
-        </div>
-    </div>
-
-    <div class="branding d-flex align-items-center {{ is_admin ? 'branding-admin' : '' }}">
+<header id="header" class="header fixed-top {{ is_admin or is_organisateur_context|default(false) ? 'navbar-admin-context' : '' }}">
+    <div class="branding d-flex align-items-center {{ is_admin or is_organisateur_context|default(false) ? 'branding-admin' : '' }}">
         <div class="container position-relative d-flex align-items-center justify-content-between">
-            {% if is_admin %}
+            {% if is_admin or is_organisateur_context|default(false) %}
                 <button class="navbar-sidebar-toggle" type="button" data-admin-sidebar-toggle aria-label="Menu">
                     <i class="bi bi-list"></i>
                 </button>
             {% endif %}
 
+<<<<<<< HEAD
             <a href="{{ is_admin ? (is_granted('ROLE_ADMIN') ? path('app_admin_dashboard') : (is_granted('ROLE_SECRETAIRE') ? path('app_secretaire_index') : (is_granted('ROLE_MEDECIN') ? path('app_medecin_index') : (is_granted('ROLE_PATIENT') ? path('app_patient_index') : path('app_profile'))))) : path('app_home') }}" class="logo d-flex align-items-center">
+=======
+            <a href="{{ is_admin ? (is_granted('ROLE_ADMIN') ? path('app_admin_dashboard') : (is_granted('ROLE_SECRETAIRE') ? path('app_secretaire_index') : (is_granted('ROLE_MEDECIN') ? path('app_medecin_index') : (is_granted('ROLE_PATIENT') ? path('app_patient_index') : path('app_profile'))))) : (is_organisateur_context|default(false) ? path('app_evenement_index') : path('app_home')) }}" class="logo d-flex align-items-center">
+>>>>>>> a394a49d254c11c5d5c2968c663ca48ad0d8f7b9
                 <img src="{{ asset('assets/img/logomed.png') }}" alt="Logo MediConnect" {{ is_admin ? 'height="32"' : '' }}>
                 <h1 class="sitename">MediConnect</h1>
             </a>
 
             <nav id="navmenu" class="navmenu">
                 <ul>
+                    {% if not app.user %}
                     <li><a href="{{ path('app_home') }}" {% if app.request.get('_route') == 'app_home' %}class="active"{% endif %}>Accueil</a></li>
                     <li><a href="#!">À propos</a></li>
                     <li><a href="#!">Services</a></li>
                     <li><a href="#!">Contact</a></li>
+                    {% endif %}
+                    <li><a href="{{ path('app_catalogue') }}" {% if app.request.get('_route') starts with 'app_catalogue' or app.request.get('_route') starts with 'app_product' %}class="active"{% endif %}><i class="bi bi-shop me-1"></i>Catalogue</a></li>
+                    <li><a href="{{ path('app_cart') }}" {% if app.request.get('_route') == 'app_cart' %}class="active"{% endif %}><i class="bi bi-cart me-1"></i>Panier</a></li>
+                    {% if app.user and not is_granted('ROLE_ORGANISATEUR') %}
+                    <li><a href="{{ path('app_evenement_index') }}" {% if app.request.get('_route') starts with 'app_evenement_' %}class="active"{% endif %}><i class="bi bi-calendar-event me-1"></i>Événements</a></li>
+                    {% endif %}
                     {% if app.user %}
-                        {# Savoir Médical : accessible à tous les utilisateurs connectés #}
+                        {# Savoir Médical (répondre aux quiz) : réservé aux patients #}
+                        {% if is_granted('ROLE_PATIENT') %}
                         <li><a href="{{ path('app_savoir_medical_index') }}" {% if app.request.get('_route') starts with 'app_savoir_medical_' %}class="active"{% endif %}><i class="bi bi-book me-1"></i>Savoir Médical</a></li>
+                        {% endif %}
                         {# Admin : lien vers tableau de bord #}
                         {% if is_granted('ROLE_ADMIN') %}
                         <li><a href="{{ path('app_admin_dashboard') }}" {% if app.request.get('_route') starts with 'app_admin_' %}class="active"{% endif %}><i class="bi bi-speedometer2 me-1"></i>Administration</a></li>
                         {% endif %}
-                        {# Médecin : lien espace médecin (si route existe) #}
+                        {# Médecin : lien espace médecin (/medecin) #}
                         {% if is_granted('ROLE_MEDECIN') %}
-                        <li><a href="{{ path('app_home') }}#medecins">Espace Médecin</a></li>
+                        <li><a href="{{ path('app_medecin_index') }}" {% if app.request.get('_route') starts with 'app_medecin_' %}class="active"{% endif %}><i class="bi bi-heart-pulse me-1"></i>Espace Médecin</a></li>
                         {% endif %}
                         {# Menu utilisateur style Bootstrap (Profile, Paramètres, Déconnexion) #}
                         <li class="nav-user-dropdown">
                             <div class="dropdown">
                                 <button class="btn btn-user-dropdown d-flex align-items-center" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                    <span class="user-avatar-profile me-2"><i class="bi bi-person-circle"></i></span>
+                                    <span class="user-avatar-profile me-2">
+                                        {% if app.user.photo %}
+                                            <img src="{{ asset(app.user.photo) }}" alt="{{ app.user.nomComplet }}" style="width: 32px; height: 32px; border-radius: 50%; object-fit: cover; border: 2px solid rgba(255,255,255,0.3);">
+                                        {% else %}
+                                            <i class="bi bi-person-circle"></i>
+                                        {% endif %}
+                                    </span>
                                     <span class="user-name-text d-none d-md-inline">{{ app.user.nomComplet }}</span>
                                     <i class="bi bi-chevron-down ms-1 dropdown-chevron"></i>
                                 </button>

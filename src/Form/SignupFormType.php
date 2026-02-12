@@ -7,11 +7,13 @@ use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\DateType;
 use Symfony\Component\Form\Extension\Core\Type\EmailType;
+use Symfony\Component\Form\Extension\Core\Type\FileType;
 use Symfony\Component\Form\Extension\Core\Type\PasswordType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\Extension\Core\Type\TelType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
+use Symfony\Component\Validator\Constraints\File;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Validator\Constraints\Email;
@@ -73,17 +75,51 @@ class SignupFormType extends AbstractType
                         'message' => 'Veuillez confirmer votre mot de passe',
                     ]),
                 ],
+            ])
+            ->add('photo', FileType::class, [
+                'label' => 'Photo de profil (optionnel)',
+                'mapped' => false,
+                'required' => false,
+                'attr' => [
+                    'class' => 'form-control',
+                    'accept' => 'image/*',
+                ],
+                'constraints' => [
+                    new File([
+                        'maxSize' => '5M',
+                        'mimeTypes' => [
+                            'image/jpeg',
+                            'image/png',
+                            'image/gif',
+                            'image/webp',
+                        ],
+                        'mimeTypesMessage' => 'Veuillez télécharger une image valide (JPEG, PNG, GIF ou WebP)',
+                        'maxSizeMessage' => 'L\'image ne doit pas dépasser 5 Mo',
+                    ]),
+                ],
+            ])
+            ->add('telephone', TelType::class, [
+                'label' => false,
+                'required' => true,
+                'attr' => ['placeholder' => 'Téléphone', 'class' => 'form-control'],
+                'constraints' => [
+                    new NotBlank(['message' => 'Le numéro de téléphone est requis']),
+                    new Length(['max' => 20, 'maxMessage' => 'Téléphone trop long.']),
+                ],
             ]);
 
         // Champs spécifiques selon le rôle
         if ($role === RoleUtilisateur::PATIENT) {
             $builder
+<<<<<<< HEAD
                 ->add('telephone', TelType::class, [
                     'label' => false,
                     'required' => false,
                     'attr' => ['placeholder' => 'Téléphone', 'class' => 'form-control'],
                     'constraints' => [new Length(['max' => 30, 'maxMessage' => 'Téléphone trop long.'])],
                 ])
+=======
+>>>>>>> a394a49d254c11c5d5c2968c663ca48ad0d8f7b9
                 ->add('dateNaissance', DateType::class, [
                     'label' => false,
                     'required' => false,
@@ -103,9 +139,18 @@ class SignupFormType extends AbstractType
             $builder
                 ->add('specialite', TextType::class, [
                     'label' => false,
+<<<<<<< HEAD
                     'required' => false,
                     'attr' => ['placeholder' => 'Spécialité', 'class' => 'form-control'],
                     'constraints' => [new Length(['max' => 255, 'maxMessage' => 'Spécialité trop longue.'])],
+=======
+                    'required' => true,
+                    'attr' => ['placeholder' => 'Spécialité', 'class' => 'form-control'],
+                    'constraints' => [
+                        new NotBlank(['message' => 'La spécialité est requise pour les médecins']),
+                        new Length(['max' => 255, 'maxMessage' => 'Spécialité trop longue.']),
+                    ],
+>>>>>>> a394a49d254c11c5d5c2968c663ca48ad0d8f7b9
                 ])
                 ->add('adresseCabinet', TextareaType::class, [
                     'label' => false,
@@ -118,6 +163,7 @@ class SignupFormType extends AbstractType
                     'required' => false,
                     'attr' => ['placeholder' => 'Numéro de licence', 'class' => 'form-control'],
                     'constraints' => [new Length(['max' => 100, 'maxMessage' => 'Numéro de licence trop long.'])],
+<<<<<<< HEAD
                 ]);
         } elseif ($role === RoleUtilisateur::SECRETAIRE) {
             $builder
@@ -126,6 +172,8 @@ class SignupFormType extends AbstractType
                     'required' => false,
                     'attr' => ['placeholder' => 'Téléphone', 'class' => 'form-control'],
                     'constraints' => [new Length(['max' => 30, 'maxMessage' => 'Téléphone trop long.'])],
+=======
+>>>>>>> a394a49d254c11c5d5c2968c663ca48ad0d8f7b9
                 ]);
         }
     }

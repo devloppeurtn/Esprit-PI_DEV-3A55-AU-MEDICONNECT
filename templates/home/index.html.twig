@@ -126,6 +126,41 @@
 
     </section><!-- /Hero Section -->
 
+    <!-- Events Preview Section -->
+    <section id="home-events" class="home-events section py-5">
+      <div class="container" data-aos="fade-up">
+        <div class="section-title text-center mb-4">
+          <h2>Événements à venir</h2>
+          <p>Découvrez nos prochains événements et inscrivez-vous sans créer de compte</p>
+        </div>
+        <div class="row g-4">
+          {% for item in events|default([]) %}
+            <div class="col-lg-4" data-aos="fade-up">
+              <div class="card event-card shadow-sm h-100">
+                <div class="card-body">
+                  <h5 class="card-title">{{ item.title }}</h5>
+                  {% if item.eventDate %}
+                    <p class="text-info small mb-2"><i class="bi bi-calendar-event"></i> {{ item.eventDate|date('d-m-Y') }}</p>
+                  {% endif %}
+                  <p class="card-text text-muted">{{ (item.content|length > 120) ? item.content|slice(0,120) ~ '...' : (item.content ?? '') }}</p>
+                </div>
+                <div class="card-footer bg-white border-0 d-flex justify-content-between align-items-center">
+                  <a href="{{ path('app_evenement_show', {id: item.id}) }}" class="btn btn-outline-primary btn-sm">Détails</a>
+                  <a href="{{ path('app_evenement_show', {id: item.id}) }}#participer" class="btn btn-success btn-sm">
+                    <i class="bi bi-check-circle me-1"></i> Participer
+                  </a>
+                </div>
+              </div>
+            </div>
+          {% else %}
+            <div class="col-12">
+              <div class="alert alert-info mb-0">Aucun événement à venir pour le moment.</div>
+            </div>
+          {% endfor %}
+        </div>
+      </div>
+    </section>
+
     <!-- Home About Section -->
     <section id="home-about" class="home-about section">
 
@@ -822,7 +857,7 @@
           <div class="col-lg-5">
             <div class="brand-section">
               <a href="{{ path('app_home') }}" class="logo d-flex align-items-center mb-4">
-                <img src="{{ asset('assets/img/logomed.png') }}" alt="Logo MediConnect" class="me-2">
+                <img src="{{ asset('assets/img/logomed.png') }}" alt="Logo MediConnect" class="me-2" style="max-width: 60px; height: auto;">
                 <span class="sitename">MediConnect</span>
               </a>
               <p class="brand-description">La plateforme numérique qui connecte patients et médecins pour une gestion médicale moderne, sécurisée et efficace.</p>

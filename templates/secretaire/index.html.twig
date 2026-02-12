@@ -19,11 +19,36 @@
         <div class="card-body p-4">
             {% if medecin %}
             <div class="d-flex align-items-center">
+<<<<<<< HEAD
                 <div class="rounded-circle bg-primary bg-opacity-10 text-primary d-flex align-items-center justify-content-center me-3" style="width: 56px; height: 56px;">
                     <i class="bi bi-person-badge-fill fs-4"></i>
                 </div>
                 <div>
                     <h5 class="mb-1">{{ medecin.nomComplet }}</h5>
+=======
+                <a href="{{ path('app_user_profile_view', {id: medecin.id}) }}" class="text-decoration-none text-dark">
+                    {% if medecin.photo %}
+                        <img src="{{ asset(medecin.photo) }}" 
+                             alt="{{ medecin.nomComplet }}" 
+                             class="rounded-circle me-3" 
+                             style="width: 56px; height: 56px; object-fit: cover; border: 2px solid #0d6efd; cursor: pointer; transition: transform 0.2s;"
+                             onmouseover="this.style.transform='scale(1.1)'"
+                             onmouseout="this.style.transform='scale(1)'"
+                             title="Voir le profil">
+                    {% else %}
+                        <div class="rounded-circle bg-primary bg-opacity-10 text-primary d-flex align-items-center justify-content-center me-3" style="width: 56px; height: 56px; cursor: pointer; transition: transform 0.2s;"
+                             onmouseover="this.style.transform='scale(1.1)'"
+                             onmouseout="this.style.transform='scale(1)'"
+                             title="Voir le profil">
+                            <i class="bi bi-person-badge-fill fs-4"></i>
+                        </div>
+                    {% endif %}
+                </a>
+                <div>
+                    <a href="{{ path('app_user_profile_view', {id: medecin.id}) }}" class="text-decoration-none text-dark">
+                        <h5 class="mb-1">{{ medecin.nomComplet }}</h5>
+                    </a>
+>>>>>>> a394a49d254c11c5d5c2968c663ca48ad0d8f7b9
                     <p class="text-muted mb-0 small">{{ medecin.email }}</p>
                     {% if medecin.specialite %}<span class="badge bg-primary mt-1">{{ medecin.specialite }}</span>{% endif %}
                 </div>
@@ -61,10 +86,32 @@
                         <tr>
                             <td class="ps-4">
                                 <div class="d-flex align-items-center">
+<<<<<<< HEAD
                                     <div class="rounded-circle bg-warning bg-opacity-10 text-warning d-flex align-items-center justify-content-center me-3" style="width: 40px; height: 40px;">
                                         <i class="bi bi-hourglass-split"></i>
                                     </div>
                                     <span class="fw-medium">{{ inv.medecin.nomComplet }}</span>
+=======
+                                    <a href="{{ path('app_user_profile_view', {id: inv.medecin.id}) }}" class="text-decoration-none text-dark d-flex align-items-center">
+                                        {% if inv.medecin.photo %}
+                                            <img src="{{ asset(inv.medecin.photo) }}" 
+                                                 alt="{{ inv.medecin.nomComplet }}" 
+                                                 class="rounded-circle me-3" 
+                                                 style="width: 40px; height: 40px; object-fit: cover; border: 2px solid #ffc107; cursor: pointer; transition: transform 0.2s;"
+                                                 onmouseover="this.style.transform='scale(1.1)'"
+                                                 onmouseout="this.style.transform='scale(1)'"
+                                                 title="Voir le profil">
+                                        {% else %}
+                                            <div class="rounded-circle bg-warning bg-opacity-10 text-warning d-flex align-items-center justify-content-center me-3" style="width: 40px; height: 40px; cursor: pointer; transition: transform 0.2s;" 
+                                                 onmouseover="this.style.transform='scale(1.1)'"
+                                                 onmouseout="this.style.transform='scale(1)'"
+                                                 title="Voir le profil">
+                                                <i class="bi bi-hourglass-split"></i>
+                                            </div>
+                                        {% endif %}
+                                        <span class="fw-medium">{{ inv.medecin.nomComplet }}</span>
+                                    </a>
+>>>>>>> a394a49d254c11c5d5c2968c663ca48ad0d8f7b9
                                 </div>
                             </td>
                             <td>{{ inv.medecin.specialite ?? '—' }}</td>
@@ -102,7 +149,33 @@
                     <tbody>
                         {% for inv in invitationsAcceptees %}
                         <tr>
+<<<<<<< HEAD
                             <td class="ps-4">{{ inv.medecin.nomComplet }}</td>
+=======
+                            <td class="ps-4">
+                                <div class="d-flex align-items-center">
+                                    <a href="{{ path('app_user_profile_view', {id: inv.medecin.id}) }}" class="text-decoration-none text-dark d-flex align-items-center">
+                                        {% if inv.medecin.photo %}
+                                            <img src="{{ asset(inv.medecin.photo) }}" 
+                                                 alt="{{ inv.medecin.nomComplet }}" 
+                                                 class="rounded-circle me-3" 
+                                                 style="width: 40px; height: 40px; object-fit: cover; border: 2px solid #198754; cursor: pointer; transition: transform 0.2s;"
+                                                 onmouseover="this.style.transform='scale(1.1)'"
+                                                 onmouseout="this.style.transform='scale(1)'"
+                                                 title="Voir le profil">
+                                        {% else %}
+                                            <div class="rounded-circle bg-success bg-opacity-10 text-success d-flex align-items-center justify-content-center me-3" style="width: 40px; height: 40px; cursor: pointer; transition: transform 0.2s;"
+                                                 onmouseover="this.style.transform='scale(1.1)'"
+                                                 onmouseout="this.style.transform='scale(1)'"
+                                                 title="Voir le profil">
+                                                <i class="bi bi-check-circle-fill"></i>
+                                            </div>
+                                        {% endif %}
+                                        <span class="fw-medium">{{ inv.medecin.nomComplet }}</span>
+                                    </a>
+                                </div>
+                            </td>
+>>>>>>> a394a49d254c11c5d5c2968c663ca48ad0d8f7b9
                             <td>{{ inv.medecin.email }}</td>
                             <td>{{ inv.dateReponse ? inv.dateReponse|date('d/m/Y H:i') : '—' }}</td>
                         </tr>
@@ -133,7 +206,33 @@
                     <tbody>
                         {% for inv in invitationsRefusees %}
                         <tr>
+<<<<<<< HEAD
                             <td class="ps-4">{{ inv.medecin.nomComplet }}</td>
+=======
+                            <td class="ps-4">
+                                <div class="d-flex align-items-center">
+                                    <a href="{{ path('app_user_profile_view', {id: inv.medecin.id}) }}" class="text-decoration-none text-dark d-flex align-items-center">
+                                        {% if inv.medecin.photo %}
+                                            <img src="{{ asset(inv.medecin.photo) }}" 
+                                                 alt="{{ inv.medecin.nomComplet }}" 
+                                                 class="rounded-circle me-3" 
+                                                 style="width: 40px; height: 40px; object-fit: cover; border: 2px solid #6c757d; cursor: pointer; transition: transform 0.2s;"
+                                                 onmouseover="this.style.transform='scale(1.1)'"
+                                                 onmouseout="this.style.transform='scale(1)'"
+                                                 title="Voir le profil">
+                                        {% else %}
+                                            <div class="rounded-circle bg-secondary bg-opacity-10 text-secondary d-flex align-items-center justify-content-center me-3" style="width: 40px; height: 40px; cursor: pointer; transition: transform 0.2s;"
+                                                 onmouseover="this.style.transform='scale(1.1)'"
+                                                 onmouseout="this.style.transform='scale(1)'"
+                                                 title="Voir le profil">
+                                                <i class="bi bi-x-circle-fill"></i>
+                                            </div>
+                                        {% endif %}
+                                        <span class="fw-medium">{{ inv.medecin.nomComplet }}</span>
+                                    </a>
+                                </div>
+                            </td>
+>>>>>>> a394a49d254c11c5d5c2968c663ca48ad0d8f7b9
                             <td>{{ inv.medecin.email }}</td>
                             <td>{{ inv.dateReponse ? inv.dateReponse|date('d/m/Y H:i') : '—' }}</td>
                         </tr>

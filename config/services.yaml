@@ -5,6 +5,10 @@
 # https://symfony.com/doc/current/best_practices.html#use-parameters-for-application-configuration
 parameters:
     documents_directory: '%kernel.project_dir%/public/uploads/documents'
+<<<<<<< HEAD
+=======
+    photos_directory: '%kernel.project_dir%/public/uploads/photos'
+>>>>>>> a394a49d254c11c5d5c2968c663ca48ad0d8f7b9
 
 services:
     # default configuration for services in *this* file
@@ -23,6 +27,14 @@ services:
 
     # add more service definitions when explicit configuration is needed
     # please note that last definitions always *replace* previous ones
+    
+    App\Controller\AuthController:
+        arguments:
+            $photosDirectory: '%photos_directory%'
+    
+    App\Controller\UserController:
+        arguments:
+            $photosDirectory: '%photos_directory%'
     
     App\Security\UserProvider:
         arguments:

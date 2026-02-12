@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 {% extends 'base.html.twig' %}
+=======
+{% extends 'admin/base_admin.html.twig' %}
+>>>>>>> a394a49d254c11c5d5c2968c663ca48ad0d8f7b9
 
 {% block title %}{{ isEdit ? 'Modifier' : 'Nouveau' }} cours - MediConnect{% endblock %}
 
@@ -6,6 +10,7 @@
     <link href="{{ asset('assets/vendor/bootstrap/css/bootstrap.min.css') }}" rel="stylesheet">
     <style>
         .form-header {
+<<<<<<< HEAD
             background: linear-gradient(135deg, #175cdd 0%, #1a4db5 100%);
             color: white;
             padding: 3rem 0;
@@ -16,6 +21,164 @@
             border-radius: 15px;
             padding: 2rem;
             box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+=======
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            color: #333;
+            padding: 2.5rem 0;
+            margin-bottom: 2rem;
+            border-bottom: 3px solid #175cdd;
+        }
+        
+        .form-header h1 {
+            color: #175cdd;
+            font-weight: 700;
+        }
+        
+        .form-card {
+            border: none;
+            border-radius: 20px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.08);
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+        
+        .form-card:hover {
+            box-shadow: 0 12px 35px rgba(0,0,0,0.12);
+        }
+        
+        .form-card .card-body {
+            padding: 2.5rem;
+        }
+        
+        .form-label {
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 0.75rem;
+            font-size: 0.95rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .form-label i {
+            color: #175cdd;
+            font-size: 1.1rem;
+        }
+        
+        .form-control, .form-control-lg {
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            padding: 0.875rem 1.25rem;
+            transition: all 0.3s ease;
+            font-size: 0.95rem;
+        }
+        
+        .form-control:focus, .form-control-lg:focus {
+            border-color: #175cdd;
+            box-shadow: 0 0 0 0.2rem rgba(23, 92, 221, 0.15);
+            outline: none;
+        }
+        
+        textarea.form-control {
+            min-height: 300px;
+            resize: vertical;
+            font-family: inherit;
+            line-height: 1.6;
+        }
+        
+        .form-text {
+            margin-top: 0.5rem;
+            font-size: 0.85rem;
+            color: #6c757d;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .form-text i {
+            color: #175cdd;
+        }
+        
+        .info-box {
+            background: linear-gradient(135deg, #e7f1ff 0%, #d4e7ff 100%);
+            border-left: 4px solid #175cdd;
+            border-radius: 10px;
+            padding: 1.25rem;
+            margin-bottom: 2rem;
+        }
+        
+        .info-box i {
+            color: #175cdd;
+            font-size: 1.5rem;
+        }
+        
+        .btn-group-actions {
+            display: flex;
+            gap: 1rem;
+            justify-content: flex-end;
+            padding-top: 1.5rem;
+            border-top: 2px solid #f0f0f0;
+            margin-top: 2rem;
+        }
+        
+        .btn-lg {
+            padding: 0.875rem 2rem;
+            font-weight: 600;
+            border-radius: 10px;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-primary {
+            background: #175cdd;
+            border: none;
+            box-shadow: 0 4px 15px rgba(23, 92, 221, 0.3);
+        }
+        
+        .btn-primary:hover {
+            background: #1a4db5;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(23, 92, 221, 0.4);
+        }
+        
+        .btn-outline-secondary {
+            border: 2px solid #6c757d;
+            color: #6c757d;
+        }
+        
+        .btn-outline-secondary:hover {
+            background: #6c757d;
+            color: white;
+            transform: translateY(-2px);
+        }
+        
+        .input-group-icon {
+            position: relative;
+        }
+        
+        .input-group-icon i {
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #6c757d;
+            z-index: 10;
+        }
+        
+        .input-group-icon .form-control {
+            padding-left: 2.75rem;
+        }
+        
+        .character-count {
+            text-align: right;
+            font-size: 0.8rem;
+            color: #6c757d;
+            margin-top: 0.25rem;
+        }
+        
+        .required-indicator {
+            color: #dc3545;
+            font-weight: 700;
+>>>>>>> a394a49d254c11c5d5c2968c663ca48ad0d8f7b9
         }
     </style>
 {% endblock %}
@@ -23,6 +186,7 @@
 {% block body %}
 <div class="form-header">
     <div class="container">
+<<<<<<< HEAD
         <a href="{{ path('app_savoir_medical_categorie', {id: categorie.id}) }}" class="btn btn-light btn-sm mb-3">
             <i class="bi bi-arrow-left me-1"></i>Retour à {{ categorie.nom }}
         </a>
@@ -31,11 +195,35 @@
             {{ isEdit ? 'Modifier le cours' : 'Nouveau cours' }}
         </h1>
         <p class="mb-0">{{ isEdit ? 'Modifiez le contenu du cours' : 'Créez un nouveau cours dans la catégorie ' ~ categorie.nom }}</p>
+=======
+        <div class="d-flex align-items-center justify-content-between">
+            <div>
+                <a href="{{ path('app_savoir_medical_categorie', {id: categorie.id}) }}" class="btn btn-outline-secondary btn-sm mb-3">
+                    <i class="bi bi-arrow-left me-1"></i>Retour à {{ categorie.nom }}
+                </a>
+                <h1 class="display-5 mb-2">
+                    <i class="bi bi-{{ isEdit ? 'pencil-square' : 'plus-circle' }} me-2"></i>
+                    {{ isEdit ? 'Modifier le cours' : 'Nouveau cours' }}
+                </h1>
+                <p class="lead mb-0 text-muted">
+                    <i class="bi bi-folder me-1"></i>{{ categorie.nom }}
+                </p>
+            </div>
+            <div class="d-none d-md-block">
+                <div class="text-end">
+                    <div class="badge bg-primary fs-6 px-3 py-2">
+                        <i class="bi bi-book me-1"></i>{{ isEdit ? 'Modification' : 'Création' }}
+                    </div>
+                </div>
+            </div>
+        </div>
+>>>>>>> a394a49d254c11c5d5c2968c663ca48ad0d8f7b9
     </div>
 </div>
 
 <div class="container mb-5">
     <div class="row justify-content-center">
+<<<<<<< HEAD
         <div class="col-lg-8">
             <div class="form-container">
                 {% for message in app.flashes('success') %}
@@ -76,8 +264,160 @@
                     </button>
                 </div>
                 {{ form_end(form) }}
+=======
+        <div class="col-lg-10">
+            <div class="card form-card">
+                <div class="card-body">
+                    <form method="post" id="coursForm">
+                        <div class="mb-4">
+                            <label for="titre" class="form-label">
+                                <i class="bi bi-type"></i>
+                                Titre du cours <span class="required-indicator">*</span>
+                            </label>
+                            <div class="input-group-icon">
+                                <i class="bi bi-bookmark"></i>
+                                <input type="text" class="form-control form-control-lg" id="titre" name="titre" 
+                                       value="{{ cours.titre ?? '' }}" required 
+                                       placeholder="Ex: Introduction à la cardiologie"
+                                       maxlength="255">
+                            </div>
+                            <div class="form-text">
+                                <i class="bi bi-info-circle"></i>
+                                Donnez un titre clair et descriptif à votre cours (max 255 caractères)
+                            </div>
+                            <div class="character-count">
+                                <span id="titre-count">0</span>/255 caractères
+                            </div>
+                        </div>
+                        
+                        <div class="mb-4">
+                            <label for="contenu" class="form-label">
+                                <i class="bi bi-file-text"></i>
+                                Contenu du cours <span class="required-indicator">*</span>
+                            </label>
+                            <textarea class="form-control" id="contenu" name="contenu" rows="15" required 
+                                      placeholder="Rédigez le contenu détaillé de votre cours...
+
+Vous pouvez structurer votre cours avec :
+• Des sections claires
+• Des explications détaillées
+• Des exemples pratiques
+• Des points importants à retenir">{{ cours.contenu ?? '' }}</textarea>
+                            <div class="form-text">
+                                <i class="bi bi-lightbulb"></i>
+                                Expliquez les concepts de manière claire et pédagogique. Utilisez des paragraphes pour structurer votre contenu.
+                            </div>
+                            <div class="character-count">
+                                <span id="contenu-count">0</span> caractères
+                            </div>
+                        </div>
+                        
+                        <div class="mb-4">
+                            <label for="scorePourBadge" class="form-label">
+                                <i class="bi bi-trophy"></i>
+                                Score requis pour le badge
+                            </label>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="input-group-icon">
+                                        <i class="bi bi-star"></i>
+                                        <input type="number" class="form-control" id="scorePourBadge" name="scorePourBadge" 
+                                               value="{{ cours.scorePourBadge ?? 100 }}" min="0" step="10"
+                                               placeholder="100">
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="alert alert-light mb-0">
+                                        <small>
+                                            <i class="bi bi-info-circle text-primary me-1"></i>
+                                            Score minimum que l'utilisateur doit atteindre pour obtenir un badge. Recommandé : 70-100 points.
+                                        </small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="info-box">
+                            <div class="d-flex align-items-start">
+                                <i class="bi bi-info-circle-fill me-3 mt-1"></i>
+                                <div>
+                                    <h6 class="fw-bold mb-2">Prochaines étapes après la création</h6>
+                                    <ul class="mb-0 small">
+                                        <li>Vous pourrez ajouter des questions de quiz pour tester les connaissances des utilisateurs</li>
+                                        <li>Les questions peuvent être générées automatiquement avec l'IA ou ajoutées manuellement</li>
+                                        <li>Une fois validées, les questions seront disponibles pour les patients</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="btn-group-actions">
+                            <a href="{{ path('app_savoir_medical_categorie', {id: categorie.id}) }}" class="btn btn-outline-secondary btn-lg">
+                                <i class="bi bi-x-circle me-2"></i>Annuler
+                            </a>
+                            <button type="submit" class="btn btn-primary btn-lg">
+                                <i class="bi bi-{{ isEdit ? 'check-circle' : 'plus-circle' }} me-2"></i>
+                                {{ isEdit ? 'Enregistrer les modifications' : 'Créer le cours' }}
+                            </button>
+                        </div>
+                    </form>
+                </div>
+>>>>>>> a394a49d254c11c5d5c2968c663ca48ad0d8f7b9
             </div>
         </div>
     </div>
 </div>
+<<<<<<< HEAD
+=======
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const titreInput = document.getElementById('titre');
+    const contenuInput = document.getElementById('contenu');
+    const titreCount = document.getElementById('titre-count');
+    const contenuCount = document.getElementById('contenu-count');
+    
+    function updateCount(input, countElement) {
+        countElement.textContent = input.value.length;
+    }
+    
+    if (titreInput && titreCount) {
+        updateCount(titreInput, titreCount);
+        titreInput.addEventListener('input', function() {
+            updateCount(titreInput, titreCount);
+        });
+    }
+    
+    if (contenuInput && contenuCount) {
+        updateCount(contenuInput, contenuCount);
+        contenuInput.addEventListener('input', function() {
+            updateCount(contenuInput, contenuCount);
+        });
+    }
+    
+    // Validation du formulaire
+    const form = document.getElementById('coursForm');
+    if (form) {
+        form.addEventListener('submit', function(e) {
+            const titre = titreInput.value.trim();
+            const contenu = contenuInput.value.trim();
+            
+            if (!titre || titre.length < 5) {
+                e.preventDefault();
+                alert('Le titre doit contenir au moins 5 caractères.');
+                titreInput.focus();
+                return false;
+            }
+            
+            if (!contenu || contenu.length < 50) {
+                e.preventDefault();
+                alert('Le contenu doit contenir au moins 50 caractères.');
+                contenuInput.focus();
+                return false;
+            }
+        });
+    }
+});
+</script>
+>>>>>>> a394a49d254c11c5d5c2968c663ca48ad0d8f7b9
 {% endblock %}

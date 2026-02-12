@@ -1,4 +1,4 @@
-{% extends 'base.html.twig' %}
+{% extends 'admin/base_admin.html.twig' %}
 
 {% block title %}Savoir Médical - MediConnect{% endblock %}
 
@@ -6,102 +6,290 @@
     <link href="{{ asset('assets/vendor/bootstrap/css/bootstrap.min.css') }}" rel="stylesheet">
     <style>
         .hero-section {
-            background: linear-gradient(135deg, #175cdd 0%, #1a4db5 100%);
-            color: white;
-            padding: 4rem 0;
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            color: #333;
+            padding: 3rem 0;
             margin-bottom: 3rem;
+            border-bottom: 3px solid #175cdd;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .hero-section::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -10%;
+            width: 400px;
+            height: 400px;
+            background: radial-gradient(circle, rgba(23, 92, 221, 0.1) 0%, transparent 70%);
+            border-radius: 50%;
+        }
+        
+        .hero-content h1 {
+            color: #175cdd;
+            font-weight: 800;
+            line-height: 1.2;
+            margin-bottom: 1.5rem;
+        }
+        
+        .hero-content .lead {
+            color: #495057;
+            font-size: 1.15rem;
+            line-height: 1.7;
+        }
+        
+        .hero-icon {
+            font-size: 10rem;
+            opacity: 0.15;
+            color: #175cdd;
+            animation: float 3s ease-in-out infinite;
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-20px); }
         }
         
         .category-card {
             border: none;
-            border-radius: 15px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-            transition: all 0.3s;
+            border-radius: 20px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             height: 100%;
             overflow: hidden;
+            position: relative;
+            background: white;
+        }
+        
+        .category-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 5px;
+            background: linear-gradient(90deg, #175cdd 0%, #4a90e2 100%);
+            transform: scaleX(0);
+            transition: transform 0.4s ease;
         }
         
         .category-card:hover {
-            transform: translateY(-10px);
-            box-shadow: 0 15px 30px rgba(0,0,0,0.2);
+            transform: translateY(-12px) scale(1.02);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.15);
+        }
+        
+        .category-card:hover::before {
+            transform: scaleX(1);
         }
         
         .category-header {
-            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-            padding: 2rem;
+            background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+            padding: 2.5rem 2rem;
             position: relative;
+            border-bottom: 2px solid #f0f0f0;
         }
         
         .category-icon {
-            width: 80px;
-            height: 80px;
+            width: 90px;
+            height: 90px;
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 2.5rem;
-            margin-bottom: 1rem;
+            font-size: 2.75rem;
+            margin-bottom: 1.25rem;
             background: white;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+            position: relative;
+        }
+        
+        .category-card:hover .category-icon {
+            transform: scale(1.1) rotate(5deg);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
         }
         
         .progress-badge {
             position: absolute;
-            top: 1rem;
-            right: 1rem;
+            top: 1.25rem;
+            right: 1.25rem;
             background: white;
-            border-radius: 10px;
-            padding: 0.5rem 1rem;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            border-radius: 12px;
+            padding: 0.625rem 1.25rem;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            z-index: 10;
+        }
+        
+        .progress-badge .badge {
+            font-size: 0.85rem;
+            font-weight: 600;
+            padding: 0.5rem 0.875rem;
+        }
+        
+        .category-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #2c3e50;
+            margin-bottom: 0.75rem;
+            line-height: 1.3;
+        }
+        
+        .category-type-badge {
+            display: inline-block;
+            padding: 0.5rem 1.25rem;
+            background: #175cdd;
+            color: white;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 0.875rem;
+            box-shadow: 0 2px 8px rgba(23, 92, 221, 0.3);
+        }
+        
+        .category-description {
+            color: #6c757d;
+            font-size: 0.95rem;
+            line-height: 1.6;
+            margin-bottom: 1.5rem;
+            min-height: 3em;
         }
         
         .stats-bar {
-            background: white;
-            border-radius: 10px;
-            padding: 1rem;
+            background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+            border-radius: 12px;
+            padding: 1.25rem;
             margin-top: 1rem;
             display: flex;
             justify-content: space-around;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            border: 1px solid #e9ecef;
         }
         
         .stat-item {
             text-align: center;
+            padding: 0.5rem;
+            flex: 1;
         }
         
         .stat-value {
-            font-size: 1.5rem;
-            font-weight: 700;
+            font-size: 1.75rem;
+            font-weight: 800;
             color: #175cdd;
+            margin-bottom: 0.25rem;
+            line-height: 1;
         }
         
         .stat-label {
             font-size: 0.8rem;
             color: #6c757d;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .category-actions {
+            margin-top: 1.5rem;
+        }
+        
+        .btn-explore {
+            background: linear-gradient(135deg, #175cdd 0%, #1a4db5 100%);
+            border: none;
+            color: white;
+            font-weight: 600;
+            padding: 0.875rem 1.5rem;
+            border-radius: 10px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(23, 92, 221, 0.3);
+        }
+        
+        .btn-explore:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(23, 92, 221, 0.4);
+            color: white;
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 5rem 2rem;
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border-radius: 20px;
+            border: 2px dashed #dee2e6;
+        }
+        
+        .empty-state i {
+            font-size: 6rem;
+            color: #dee2e6;
+            margin-bottom: 2rem;
+        }
+        
+        .action-buttons {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            margin-top: 2rem;
+        }
+        
+        .btn-action-hero {
+            padding: 1rem 2rem;
+            font-weight: 600;
+            border-radius: 12px;
+            font-size: 1.05rem;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        
+        .btn-action-hero:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        }
+        
+        .section-header {
+            margin-bottom: 2.5rem;
+        }
+        
+        .section-header h2 {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #2c3e50;
+            margin-bottom: 0.5rem;
+        }
+        
+        .section-header p {
+            color: #6c757d;
+            font-size: 1.05rem;
         }
     </style>
 {% endblock %}
 
 {% block body %}
 <div class="hero-section">
-    <div class="container">
+    <div class="container position-relative">
         <div class="row align-items-center">
             <div class="col-lg-8">
-                <h1 class="display-3 fw-bold mb-3">📚 Savoir Médical & Intelligence Partagée</h1>
-                <p class="lead mb-4">Développez vos connaissances médicales à travers des cours interactifs et des quiz validés par des professionnels</p>
-                <div class="d-flex gap-2 flex-wrap">
-                    <a href="{{ path('app_progression_utilisateur') }}" class="btn btn-light btn-lg">
-                        <i class="bi bi-graph-up me-2"></i>Voir ma progression
-                    </a>
-                    {% if is_granted('ROLE_MEDECIN') %}
-                        <a href="{{ path('app_savoir_medical_nouvelle_categorie') }}" class="btn btn-outline-light btn-lg">
-                            <i class="bi bi-plus-circle me-2"></i>Nouvelle catégorie
-                        </a>
-                    {% endif %}
+                <div class="hero-content">
+                    <h1 class="display-4 fw-bold mb-3">
+                        <i class="bi bi-book me-3"></i>
+                        Savoir Médical & Intelligence Partagée
+                    </h1>
+                    <p class="lead mb-4">
+                        Développez vos connaissances médicales à travers des cours interactifs et des quiz validés par des professionnels de santé. Apprenez à votre rythme et testez vos compétences.
+                    </p>
+                    <div class="action-buttons">
+                        {% if is_granted('ROLE_PATIENT') %}
+                            <a href="{{ path('app_progression_utilisateur') }}" class="btn btn-primary btn-action-hero">
+                                <i class="bi bi-graph-up me-2"></i>Voir ma progression
+                            </a>
+                        {% endif %}
+                        {% if is_granted('ROLE_MEDECIN') %}
+                            <a href="{{ path('app_savoir_medical_nouvelle_categorie') }}" class="btn btn-success btn-action-hero">
+                                <i class="bi bi-plus-circle me-2"></i>Nouvelle catégorie
+                            </a>
+                        {% endif %}
+                    </div>
                 </div>
             </div>
             <div class="col-lg-4 text-center d-none d-lg-block">
-                <i class="bi bi-mortarboard-fill" style="font-size: 8rem; opacity: 0.3;"></i>
+                <i class="bi bi-mortarboard-fill hero-icon"></i>
             </div>
         </div>
     </div>
@@ -109,12 +297,25 @@
 
 <div class="container mb-5">
     {% if categories is empty %}
-        <div class="text-center py-5">
-            <i class="bi bi-folder-x" style="font-size: 5rem; color: #e9ecef;"></i>
-            <h3 class="mt-4 text-muted">Aucune catégorie disponible</h3>
-            <p class="text-muted">Les catégories seront bientôt ajoutées par les administrateurs</p>
+        <div class="empty-state">
+            <i class="bi bi-folder-x"></i>
+            <h3 class="text-muted mb-3">Aucune catégorie disponible</h3>
+            <p class="text-muted mb-4">Les catégories seront bientôt ajoutées par les administrateurs</p>
+            {% if is_granted('ROLE_MEDECIN') %}
+                <a href="{{ path('app_savoir_medical_nouvelle_categorie') }}" class="btn btn-primary btn-lg">
+                    <i class="bi bi-plus-circle me-2"></i>Créer la première catégorie
+                </a>
+            {% endif %}
         </div>
     {% else %}
+        <div class="section-header">
+            <h2>
+                <i class="bi bi-grid-3x3-gap me-2 text-primary"></i>
+                Catégories disponibles
+            </h2>
+            <p>{{ categories|length }} catégorie{{ categories|length > 1 ? 's' : '' }} à explorer</p>
+        </div>
+        
         <div class="row g-4">
             {% for categorie in categories %}
                 {% set progression = progressionsParCategorie[categorie.id.toRfc4122()] ?? null %}
@@ -129,7 +330,7 @@
                                             <i class="bi bi-check-circle me-1"></i>Complété
                                         </span>
                                     {% elseif progression.scoreMax > 0 %}
-                                        <span class="badge bg-warning">
+                                        <span class="badge bg-warning text-dark">
                                             <i class="bi bi-clock-history me-1"></i>En cours
                                         </span>
                                     {% else %}
@@ -154,12 +355,14 @@
                                 {% endif %}
                             </div>
                             
-                            <h4 class="fw-bold mb-2">{{ categorie.nom }}</h4>
-                            <span class="badge bg-primary">{{ categorie.type }}</span>
+                            <h4 class="category-title">{{ categorie.nom }}</h4>
+                            <span class="category-type-badge">
+                                <i class="bi bi-tag me-1"></i>{{ categorie.type }}
+                            </span>
                         </div>
                         
-                        <div class="card-body">
-                            <p class="text-muted">{{ categorie.description }}</p>
+                        <div class="card-body p-4">
+                            <p class="category-description">{{ categorie.description }}</p>
                             
                             {% if progression %}
                                 <div class="stats-bar">
@@ -180,16 +383,18 @@
                                 </div>
                             {% endif %}
                             
-                            <div class="d-grid gap-2 mt-3">
-                                <a href="{{ path('app_savoir_medical_categorie', {id: categorie.id}) }}" class="btn btn-primary">
+                            <div class="category-actions">
+                                <a href="{{ path('app_savoir_medical_categorie', {id: categorie.id}) }}" class="btn btn-explore w-100">
                                     <i class="bi bi-book me-2"></i>Explorer les cours
                                 </a>
                                 {% if is_granted('ROLE_MEDECIN') %}
-                                    <div class="d-flex gap-2">
+                                    <div class="d-flex gap-2 mt-2">
                                         <a href="{{ path('app_savoir_medical_modifier_categorie', {id: categorie.id}) }}" class="btn btn-outline-secondary btn-sm flex-fill">
                                             <i class="bi bi-pencil me-1"></i>Modifier
                                         </a>
-                                        <form method="post" action="{{ path('app_savoir_medical_supprimer_categorie', {id: categorie.id}) }}" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer cette catégorie ? Cette action est irréversible.')" class="flex-fill">
+                                        <form method="post" action="{{ path('app_savoir_medical_supprimer_categorie', {id: categorie.id}) }}" 
+                                              onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer cette catégorie ? Cette action est irréversible.')" 
+                                              class="flex-fill">
                                             <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ categorie.id) }}">
                                             <button type="submit" class="btn btn-outline-danger btn-sm w-100">
                                                 <i class="bi bi-trash me-1"></i>Supprimer

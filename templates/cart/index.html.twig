@@ -1,0 +1,203 @@
+{% extends 'base.html.twig' %}
+{% block title %}Panier - MediConnect{% endblock %}
+{% block body %}
+<div class="container py-5">
+    <h1 class="mb-4">Votre panier</h1>
+    {% if cart|length > 0 %}
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <div id="cartItems">
+                        {% for productId, item in cart %}
+                        <div class="card mb-3 cart-item" data-product-id="{{ productId }}">
+                            <div class="card-body">
+                                <div class="row align-items-center">
+                                    <div class="col-md-2">
+                                        {% if item.image %}
+                                            {% set imgPath = (item.image starts with('http') or item.image starts with('/') or item.image starts with('assets')) ? item.image : ('assets/img/' ~ item.image) %}
+                                            <img src="{{ asset(imgPath) }}" class="img-fluid rounded" alt="{{ item.nom }}" style="height:80px;object-fit:cover;">
+                                        {% else %}
+                                            <div class="bg-light rounded d-flex align-items-center justify-content-center" style="height:80px;"><i class="bi bi-image text-muted"></i></div>
+                                        {% endif %}
+                                    </div>
+                                    <div class="col-md-4">
+                                        <h6>{{ item.nom }}</h6>
+                                        <p class="text-muted mb-1">Prix unitaire: <strong>{{ item.prix|number_format(2, ',', ' ') }} TND</strong></p>
+                                        <p class="mb-0" id="lineTotal{{ productId }}">Sous-total: <strong>{{ (item.prix * item.quantity)|number_format(2, ',', ' ') }} TND</strong></p>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="input-group input-group-sm">
+                                            <button class="btn btn-outline-secondary decrease-qty" data-product-id="{{ productId }}">−</button>
+                                            <input type="number" class="form-control text-center quantity-input" data-product-id="{{ productId }}" value="{{ item.quantity }}" min="1" style="width:55px;">
+                                            <button class="btn btn-outline-secondary increase-qty" data-product-id="{{ productId }}">+</button>
+                                        </div>
+                                        <button class="btn btn-danger btn-sm mt-1 remove-from-cart" data-product-id="{{ productId }}"><i class="bi bi-trash"></i> Retirer</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+            <a href="{{ path('app_catalogue') }}" class="btn btn-outline-secondary mt-3"><i class="bi bi-arrow-left"></i> Continuer mes achats</a>
+        </div>
+        <div class="col-lg-4">
+            <div class="card sticky-top shadow-sm" style="top: 80px;">
+                <div class="card-header bg-light"><h5 class="mb-0">Résumé de la commande</h5></div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <label for="promoCode" class="form-label">Code promo</label>
+                        <div class="input-group">
+                            <input type="text" class="form-control" id="promoCode" placeholder="Ex: PROMO20" value="{{ cartTotals.promo.code ?? '' }}">
+                            <button class="btn btn-outline-primary" id="applyPromoBtn">Appliquer</button>
+                        </div>
+                        <div id="promoFeedback" class="form-text text-success"></div>
+                    </div>
+                    <div class="mb-3 pb-3 border-bottom">
+                        <div class="d-flex justify-content-between mb-2"><span>Sous-total:</span><span id="subtotal">{{ cartTotals.subtotal|number_format(2, ',', ' ') }} TND</span></div>
+                        <div class="d-flex justify-content-between mb-2" id="discountRow" {% if (cartTotals.discount ?? 0) <= 0 %}style="display:none"{% endif %}>
+                            <span>Remise:</span><span id="discount" class="text-success">- {{ cartTotals.discount|number_format(2, ',', ' ') }} TND</span>
+                        </div>
+                        <div class="d-flex justify-content-between mb-2"><span>Livraison:</span><span class="text-success">Gratuite</span></div>
+                    </div>
+                    <div class="mb-3">
+                        <h5 class="d-flex justify-content-between"><span>Total:</span><span id="total">{{ cartTotals.total|number_format(2, ',', ' ') }} TND</span></h5>
+                    </div>
+                    {% if app.user %}
+                        <a href="{{ path('app_checkout') }}" class="btn btn-primary w-100 btn-lg mb-2"><i class="bi bi-credit-card"></i> Procéder au paiement</a>
+                    {% else %}
+                        <a href="{{ path('app_login') }}" class="btn btn-primary w-100 btn-lg mb-2">Se connecter pour commander</a>
+                    {% endif %}
+                    <button id="clearCartBtn" class="btn btn-outline-danger w-100"><i class="bi bi-trash"></i> Vider le panier</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% else %}
+    <div class="alert alert-info text-center"><i class="bi bi-info-circle me-2"></i>Votre panier est vide.</div>
+    <div class="text-center"><a href="{{ path('app_catalogue') }}" class="btn btn-primary btn-lg"><i class="bi bi-shop"></i> Continuer mes achats</a></div>
+    {% endif %}
+</div>
+<script>
+var cartUpdateUrl = '{{ path('app_cart_update', {id: 0}) }}'.replace('0', '');
+var cartRemoveUrl = '{{ path('app_cart_remove', {id: 0}) }}'.replace('0', '');
+var cartClearUrl = '{{ path('app_cart_clear') }}';
+var cartPromoUrl = '{{ path('app_cart_promo') }}';
+
+function formatTnd(val) { return (typeof val === 'number' ? val : parseFloat(val || 0)).toLocaleString('fr-FR', {minimumFractionDigits: 2, maximumFractionDigits: 2}) + ' TND'; }
+
+function updateQty(id, qty) {
+    var fd = new FormData(); fd.append('quantity', qty);
+    fetch(cartUpdateUrl + id, { method: 'POST', body: fd, headers: { 'X-Requested-With': 'XMLHttpRequest' } })
+        .then(function(r){ return r.json(); })
+        .then(function(d){
+            if (d.success) {
+                var el = document.getElementById('lineTotal' + id);
+                if (el) el.innerHTML = 'Sous-total: <strong>' + formatTnd(d.itemTotal) + '</strong>';
+                updateTotals(d);
+            } else {
+                showNotification(d.error || 'Stock insuffisant pour ce produit', 'error');
+            }
+        })
+        .catch(function(e){ showNotification('Erreur lors de la requête', 'error'); });
+}
+
+function removeItem(id) {
+    fetch(cartRemoveUrl + id, { method: 'POST', headers: { 'X-Requested-With': 'XMLHttpRequest' } })
+        .then(function(r){ return r.json(); })
+        .then(function(d){
+            if (d.success) {
+                var item = document.querySelector('.cart-item[data-product-id="' + id + '"]');
+                if (item) item.remove();
+                updateTotals(d);
+                var cartItems = document.getElementById('cartItems');
+                if (cartItems && cartItems.children.length === 0) location.reload();
+            }
+        });
+}
+
+function updateTotals(d) {
+    if (!d) return;
+    var subtotal = parseFloat(d.subtotal || d.cartTotal || 0);
+    var total = parseFloat(d.cartTotal || 0);
+    var discount = parseFloat(d.discount || 0);
+    var subEl = document.getElementById('subtotal');
+    var totEl = document.getElementById('total');
+    var discEl = document.getElementById('discount');
+    var discRow = document.getElementById('discountRow');
+    if (subEl) subEl.textContent = formatTnd(subtotal);
+    if (totEl) totEl.textContent = formatTnd(total);
+    if (discEl && discRow) {
+        if (discount > 0.0001) { discEl.textContent = '- ' + formatTnd(discount); discRow.style.display = ''; }
+        else { discRow.style.display = 'none'; }
+    }
+    if (d.promo && d.promo.code) {
+        var promoInput = document.getElementById('promoCode');
+        if (promoInput) promoInput.value = d.promo.code;
+        var fb = document.getElementById('promoFeedback');
+        if (fb) { fb.textContent = 'Code appliqué: ' + d.promo.code; fb.classList.remove('text-danger'); fb.classList.add('text-success'); }
+    }
+}
+
+function showNotification(msg, type) {
+    var cls = type === 'success' ? 'alert-success' : 'alert-danger';
+    var div = document.createElement('div');
+    div.className = 'alert ' + cls + ' alert-dismissible fade show position-fixed top-0 start-50 translate-middle-x mt-3';
+    div.style.zIndex = '9999';
+    div.setAttribute('role', 'alert');
+    div.innerHTML = msg + ' <button type="button" class="btn-close" data-bs-dismiss="alert"></button>';
+    document.body.appendChild(div);
+    setTimeout(function(){ div.remove(); }, 3000);
+}
+
+document.querySelectorAll('.decrease-qty').forEach(function(btn){
+    btn.addEventListener('click', function(){
+        var id = this.dataset.productId;
+        var inp = document.querySelector('.quantity-input[data-product-id="' + id + '"]');
+        if (inp && parseInt(inp.value) > 1) { inp.value = parseInt(inp.value) - 1; updateQty(id, parseInt(inp.value)); }
+    });
+});
+document.querySelectorAll('.increase-qty').forEach(function(btn){
+    btn.addEventListener('click', function(){
+        var id = this.dataset.productId;
+        var inp = document.querySelector('.quantity-input[data-product-id="' + id + '"]');
+        if (inp) { inp.value = parseInt(inp.value) + 1; updateQty(id, parseInt(inp.value)); }
+    });
+});
+document.querySelectorAll('.quantity-input').forEach(function(inp){
+    inp.addEventListener('change', function(){
+        var id = this.dataset.productId;
+        if (parseInt(this.value) < 1) this.value = 1;
+        updateQty(id, parseInt(this.value));
+    });
+});
+document.querySelectorAll('.remove-from-cart').forEach(function(btn){
+    btn.addEventListener('click', function(){ removeItem(this.dataset.productId); });
+});
+document.getElementById('clearCartBtn') && document.getElementById('clearCartBtn').addEventListener('click', function(){
+    if (!confirm('Êtes-vous sûr de vouloir vider votre panier ?')) return;
+    fetch(cartClearUrl, { method: 'POST' }).then(function(r){ return r.json(); }).then(function(){ location.reload(); });
+});
+
+document.getElementById('applyPromoBtn') && document.getElementById('applyPromoBtn').addEventListener('click', function(){
+    var codeInput = document.getElementById('promoCode');
+    var code = (codeInput && codeInput.value) ? codeInput.value.trim() : '';
+    var feedback = document.getElementById('promoFeedback');
+    if (feedback) { feedback.textContent = ''; feedback.classList.remove('text-success', 'text-danger'); }
+    var fd = new FormData(); fd.append('code', code);
+    fetch(cartPromoUrl, { method: 'POST', body: fd, headers: { 'X-Requested-With': 'XMLHttpRequest' } })
+        .then(function(r){ return r.json().then(function(data){ return { ok: r.ok, data: data }; }); })
+        .then(function(res){
+            if (res.ok && res.data.success) {
+                updateTotals(res.data);
+                if (feedback) { feedback.classList.add('text-success'); feedback.textContent = res.data.message || 'Code promo appliqué.'; }
+            } else {
+                if (feedback) { feedback.classList.add('text-danger'); feedback.textContent = (res.data && res.data.error) || 'Code promo invalide.'; }
+            }
+        })
+        .catch(function(){ if (feedback) { feedback.classList.add('text-danger'); feedback.textContent = 'Erreur.'; } });
+});
+</script>
+{% endblock %}

@@ -119,6 +119,10 @@ class ComposerStaticInit54c05e64f01f49eb136e9af7b3075bdd
             'Symfony\\Bridge\\Twig\\' => 20,
             'Symfony\\Bridge\\Monolog\\' => 23,
             'Symfony\\Bridge\\Doctrine\\' => 24,
+<<<<<<< HEAD
+=======
+            'Stripe\\' => 7,
+>>>>>>> a394a49d254c11c5d5c2968c663ca48ad0d8f7b9
             'StellaMaris\\Clock\\' => 18,
         ),
         'P' =>
@@ -493,6 +497,13 @@ class ComposerStaticInit54c05e64f01f49eb136e9af7b3075bdd
         array (
             0 => __DIR__ . '/..' . '/symfony/doctrine-bridge',
         ),
+<<<<<<< HEAD
+=======
+        'Stripe\\' =>
+        array (
+            0 => __DIR__ . '/..' . '/stripe/stripe-php/lib',
+        ),
+>>>>>>> a394a49d254c11c5d5c2968c663ca48ad0d8f7b9
         'StellaMaris\\Clock\\' =>
         array (
             0 => __DIR__ . '/..' . '/stella-maris/clock/src',

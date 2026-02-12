@@ -14,11 +14,13 @@ use Symfony\Component\Form\Extension\Core\Type\DateType;
 use Symfony\Component\Form\Extension\Core\Type\EmailType;
 use Symfony\Component\Form\Extension\Core\Type\EnumType;
 use Symfony\Component\Form\Extension\Core\Type\PasswordType;
+use Symfony\Component\Form\Extension\Core\Type\FileType;
 use Symfony\Component\Form\Extension\Core\Type\TelType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
+use Symfony\Component\Validator\Constraints\File;
 use Symfony\Component\Validator\Constraints\Length;
 use Symfony\Component\Validator\Constraints\NotBlank;
 
@@ -115,6 +117,30 @@ class ProfileSettingsFormType extends AbstractType
                     'attr' => ['class' => 'form-check-input'],
                 ]);
         }
+
+        // Photo de profil
+        $builder->add('photo', FileType::class, [
+            'label' => 'Photo de profil',
+            'mapped' => false,
+            'required' => false,
+            'attr' => [
+                'class' => 'form-control',
+                'accept' => 'image/*',
+            ],
+            'constraints' => [
+                new File([
+                    'maxSize' => '5M',
+                    'mimeTypes' => [
+                        'image/jpeg',
+                        'image/png',
+                        'image/gif',
+                        'image/webp',
+                    ],
+                    'mimeTypesMessage' => 'Veuillez télécharger une image valide (JPEG, PNG, GIF ou WebP)',
+                    'maxSizeMessage' => 'L\'image ne doit pas dépasser 5 Mo',
+                ]),
+            ],
+        ]);
 
         // Optionnel : changement de mot de passe
         $builder->add('plainPassword', PasswordType::class, [

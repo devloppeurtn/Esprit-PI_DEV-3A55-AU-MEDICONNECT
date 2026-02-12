@@ -3,7 +3,11 @@
         'name' => '__root__',
         'pretty_version' => 'dev-main',
         'version' => 'dev-main',
+<<<<<<< HEAD
         'reference' => '98baa00f7d7feca94f9b124f49ea7880ca052041',
+=======
+        'reference' => 'd04ef263490eb711fc3baabaa6cccf7bcb89c8eb',
+>>>>>>> a394a49d254c11c5d5c2968c663ca48ad0d8f7b9
         'type' => 'project',
         'install_path' => __DIR__ . '/../../',
         'aliases' => array(),
@@ -13,7 +17,11 @@
         '__root__' => array(
             'pretty_version' => 'dev-main',
             'version' => 'dev-main',
+<<<<<<< HEAD
             'reference' => '98baa00f7d7feca94f9b124f49ea7880ca052041',
+=======
+            'reference' => 'd04ef263490eb711fc3baabaa6cccf7bcb89c8eb',
+>>>>>>> a394a49d254c11c5d5c2968c663ca48ad0d8f7b9
             'type' => 'project',
             'install_path' => __DIR__ . '/../../',
             'aliases' => array(),
@@ -584,6 +592,18 @@
             'aliases' => array(),
             'dev_requirement' => false,
         ),
+<<<<<<< HEAD
+=======
+        'stripe/stripe-php' => array(
+            'pretty_version' => 'v19.3.0',
+            'version' => '19.3.0.0',
+            'reference' => '462272ae7560ee29bb891763fd0967d5a77784e5',
+            'type' => 'library',
+            'install_path' => __DIR__ . '/../stripe/stripe-php',
+            'aliases' => array(),
+            'dev_requirement' => false,
+        ),
+>>>>>>> a394a49d254c11c5d5c2968c663ca48ad0d8f7b9
         'symfony/asset' => array(
             'pretty_version' => 'v6.4.32',
             'version' => '6.4.32.0',

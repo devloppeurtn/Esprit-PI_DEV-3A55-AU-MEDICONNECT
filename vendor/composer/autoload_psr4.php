@@ -85,6 +85,10 @@ return array(
     'Symfony\\Bridge\\Twig\\' => array($vendorDir . '/symfony/twig-bridge'),
     'Symfony\\Bridge\\Monolog\\' => array($vendorDir . '/symfony/monolog-bridge'),
     'Symfony\\Bridge\\Doctrine\\' => array($vendorDir . '/symfony/doctrine-bridge'),
+<<<<<<< HEAD
+=======
+    'Stripe\\' => array($vendorDir . '/stripe/stripe-php/lib'),
+>>>>>>> a394a49d254c11c5d5c2968c663ca48ad0d8f7b9
     'StellaMaris\\Clock\\' => array($vendorDir . '/stella-maris/clock/src'),
     'Psr\\Log\\' => array($vendorDir . '/psr/log/src'),
     'Psr\\Link\\' => array($vendorDir . '/psr/link/src'),
