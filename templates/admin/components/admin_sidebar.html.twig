@@ -17,6 +17,7 @@
             <div class="sidebar-section">
                 <span class="sidebar-section-title">Principal</span>
                 <ul class="nav flex-column">
+                    {% if is_granted('ROLE_ADMIN') %}
                     <li class="nav-item">
                         <a class="nav-link {{ app.request.get('_route') == 'app_admin_dashboard' ? 'active' : '' }}" href="{{ path('app_admin_dashboard') }}" title="Tableau de bord">
                             <span class="nav-icon-wrap"><i class="bi bi-speedometer2"></i></span>
@@ -29,12 +30,84 @@
                             <span class="nav-text">Utilisateurs</span>
                         </a>
                     </li>
+                    {% elseif is_granted('ROLE_MEDECIN') %}
+                    <li class="nav-item">
+                        <a class="nav-link {{ app.request.get('_route') == 'app_medecin_index' ? 'active' : '' }}" href="{{ path('app_medecin_index') }}" title="Mon espace">
+                            <span class="nav-icon-wrap"><i class="bi bi-house-door-fill"></i></span>
+                            <span class="nav-text">Mon espace</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {{ app.request.get('_route') == 'app_medecin_secretaires' ? 'active' : '' }}" href="{{ path('app_medecin_secretaires') }}" title="Mes secrétaires">
+                            <span class="nav-icon-wrap"><i class="bi bi-person-badge-fill"></i></span>
+                            <span class="nav-text">Mes secrétaires</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {{ app.request.get('_route') == 'app_medecin_rendez_vous' ? 'active' : '' }}" href="{{ path('app_medecin_rendez_vous') }}" title="Mes rendez-vous">
+                            <span class="nav-icon-wrap"><i class="bi bi-calendar-event-fill"></i></span>
+                            <span class="nav-text">Mes rendez-vous</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {{ app.request.get('_route') == 'app_medecin_consultations' ? 'active' : '' }}" href="{{ path('app_medecin_consultations') }}" title="Mes consultations">
+                            <span class="nav-icon-wrap"><i class="bi bi-clipboard2-pulse-fill"></i></span>
+                            <span class="nav-text">Mes consultations</span>
+                        </a>
+                    </li>
+                    {% elseif is_granted('ROLE_SECRETAIRE') %}
+                    <li class="nav-item">
+                        <a class="nav-link {{ app.request.get('_route') == 'app_secretaire_index' ? 'active' : '' }}" href="{{ path('app_secretaire_index') }}" title="Mes invitations">
+                            <span class="nav-icon-wrap"><i class="bi bi-envelope-fill"></i></span>
+                            <span class="nav-text">Mes invitations</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {{ app.request.get('_route') == 'app_secretaire_rendez_vous' ? 'active' : '' }}" href="{{ path('app_secretaire_rendez_vous') }}" title="Rendez-vous à valider">
+                            <span class="nav-icon-wrap"><i class="bi bi-calendar-check-fill"></i></span>
+                            <span class="nav-text">Rendez-vous à valider</span>
+                        </a>
+                    </li>
+                    {% elseif is_granted('ROLE_PATIENT') %}
+                    <li class="nav-item">
+                        <a class="nav-link {{ app.request.get('_route') == 'app_patient_index' ? 'active' : '' }}" href="{{ path('app_patient_index') }}" title="Mon espace">
+                            <span class="nav-icon-wrap"><i class="bi bi-house-door-fill"></i></span>
+                            <span class="nav-text">Mon espace</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {{ app.request.get('_route') == 'app_patient_dossier' ? 'active' : '' }}" href="{{ path('app_patient_dossier') }}" title="Mon dossier médical">
+                            <span class="nav-icon-wrap"><i class="bi bi-folder2-open"></i></span>
+                            <span class="nav-text">Mon dossier médical</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {{ app.request.get('_route') == 'app_patient_medecins' ? 'active' : '' }}" href="{{ path('app_patient_medecins') }}" title="Nos médecins">
+                            <span class="nav-icon-wrap"><i class="bi bi-heart-pulse-fill"></i></span>
+                            <span class="nav-text">Nos médecins</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {{ app.request.get('_route') == 'app_patient_rendez_vous' ? 'active' : '' }}" href="{{ path('app_patient_rendez_vous') }}" title="Mes rendez-vous">
+                            <span class="nav-icon-wrap"><i class="bi bi-calendar-event-fill"></i></span>
+                            <span class="nav-text">Mes rendez-vous</span>
+                        </a>
+                    </li>
+                    {% endif %}
                 </ul>
             </div>
 
             <div class="sidebar-section">
                 <span class="sidebar-section-title">Compte</span>
                 <ul class="nav flex-column">
+                    {% if (is_granted('ROLE_MEDECIN') or is_granted('ROLE_SECRETAIRE') or is_granted('ROLE_PATIENT')) and not is_granted('ROLE_ADMIN') %}
+                    <li class="nav-item">
+                        <a class="nav-link {{ app.request.get('_route') == 'app_profile' ? 'active' : '' }}" href="{{ path('app_profile') }}" title="Mon profil">
+                            <span class="nav-icon-wrap"><i class="bi bi-person-fill"></i></span>
+                            <span class="nav-text">Mon profil</span>
+                        </a>
+                    </li>
+                    {% endif %}
                     <li class="nav-item">
                         <a class="nav-link nav-link-external" href="{{ path('app_home') }}" title="Voir le site">
                             <span class="nav-icon-wrap"><i class="bi bi-box-arrow-up-right"></i></span>

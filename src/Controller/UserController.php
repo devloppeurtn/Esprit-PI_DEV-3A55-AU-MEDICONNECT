@@ -35,6 +35,22 @@ class UserController extends AbstractController
         ]);
     }
 
+    #[Route('/profile/voir/{id}', name: 'app_user_profile_view', requirements: ['id' => '\d+'], methods: ['GET'])]
+    #[IsGranted('ROLE_USER')]
+    public function profileView(int $id): Response
+    {
+        $user = $this->entityManager->getRepository(Utilisateur::class)->find($id);
+        if (!$user) {
+            $this->addFlash('error', 'Utilisateur introuvable.');
+            return $this->redirectToRoute('app_profile');
+        }
+
+        return $this->render('user/profile.html.twig', [
+            'user' => $user,
+            'is_own_profile' => $user === $this->getUser(),
+        ]);
+    }
+
     #[Route('/parametres', name: 'app_settings', methods: ['GET', 'POST'])]
     #[IsGranted('ROLE_USER')]
     public function settings(Request $request): Response

@@ -1,0 +1,110 @@
+{% extends 'admin/base_admin.html.twig' %}
+
+{% block title %}Dossier médical - {{ patient.nomComplet }} - MediConnect{% endblock %}
+
+{% block body %}
+<div class="medecin-dossier-patient">
+    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+        <h1 class="h3 mb-0"><i class="bi bi-folder2-open me-2"></i>Dossier médical - {{ patient.nomComplet }}</h1>
+        <a href="{{ path('app_medecin_rendez_vous') }}" class="btn btn-outline-secondary"><i class="bi bi-arrow-left me-1"></i>Retour aux rendez-vous</a>
+    </div>
+
+    {% if dossier %}
+    {% if dossier.allergies or dossier.maladiesChroniques %}
+    <div class="card border-0 shadow-sm mb-4">
+        <div class="card-header"><h5 class="mb-0">Informations générales</h5></div>
+        <div class="card-body">
+            {% if dossier.allergies %}
+            <p class="mb-2"><strong>Allergies :</strong> {{ dossier.allergies|nl2br }}</p>
+            {% endif %}
+            {% if dossier.maladiesChroniques %}
+            <p class="mb-0"><strong>Maladies chroniques :</strong> {{ dossier.maladiesChroniques|nl2br }}</p>
+            {% endif %}
+        </div>
+    </div>
+    {% endif %}
+
+    <h5 class="mb-3">Consultations (tous médecins)</h5>
+    {% if consultations|length > 0 %}
+    <div class="row g-4 mb-4">
+        {% for c in consultations %}
+        <div class="col-lg-6 col-xl-4">
+            <div class="card border-0 shadow-sm h-100 consultation-card">
+                <div class="card-body">
+                    <div class="d-flex align-items-center gap-2 mb-3">
+                        <div class="consult-avatar">
+                            <i class="bi bi-heart-pulse-fill"></i>
+                        </div>
+                        <div>
+                            <h6 class="mb-0 fw-bold">{{ c.medecin.nomComplet }}</h6>
+                            <small class="text-muted">{{ c.medecin.specialite|default('Médecin généraliste') }}</small>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <i class="bi bi-calendar3 text-primary me-2"></i>
+                        <span>{{ c.date|date('d/m/Y H:i') }}</span>
+                    </div>
+                    {% if c.diagnostic %}
+                    <p class="text-muted small mb-3">{{ c.diagnostic|length > 80 ? c.diagnostic|slice(0, 80) ~ '...' : c.diagnostic }}</p>
+                    {% endif %}
+                    <a href="{{ path('app_medecin_consultation_voir', {id: c.id}) }}" class="btn btn-sm btn-primary" title="Voir uniquement si c'est votre consultation">
+                        <i class="bi bi-eye me-1"></i>Voir détail
+                    </a>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="card border-0 shadow-sm mb-4">
+        <div class="card-body text-center py-4">
+            <i class="bi bi-clipboard-pulse display-4 text-muted opacity-50 d-block mb-2"></i>
+            <p class="text-muted mb-0">Aucune consultation.</p>
+        </div>
+    </div>
+    {% endif %}
+
+    <h5 class="mb-3">Documents</h5>
+    {% if dossier.documents|length > 0 %}
+    <div class="card border-0 shadow-sm">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                    <thead class="table-light">
+                        <tr><th>Nom</th><th>Type</th><th>Date</th><th>Action</th></tr>
+                    </thead>
+                    <tbody>
+                        {% for doc in dossier.documents %}
+                        <tr>
+                            <td>{{ doc.nomFichier }}</td>
+                            <td>{{ doc.typeDocument|default('—') }}</td>
+                            <td>{{ doc.dateAjout|date('d/m/Y') }}</td>
+                            <td>
+                                <a href="{{ asset('uploads/documents/' ~ doc.cheminFichier) }}" target="_blank" class="btn btn-sm btn-outline-primary">Voir</a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    {% else %}
+    <p class="text-muted mb-4">Aucun document.</p>
+    {% endif %}
+
+    {% else %}
+    <div class="card border-0 shadow-sm">
+        <div class="card-body text-center py-5">
+            <i class="bi bi-folder-x display-4 text-muted opacity-50 d-block mb-3"></i>
+            <p class="text-muted mb-0">Ce patient n'a pas encore de dossier médical.</p>
+        </div>
+    </div>
+    {% endif %}
+</div>
+<style>
+.consultation-card { transition: transform 0.2s, box-shadow 0.2s; }
+.consultation-card:hover { transform: translateY(-2px); box-shadow: 0 0.5rem 1rem rgba(0,0,0,.1) !important; }
+.consult-avatar { width: 48px; height: 48px; border-radius: 50%; background: rgba(13, 110, 253, 0.15); color: #0d6efd; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+</style>
+{% endblock %}

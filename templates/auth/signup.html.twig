@@ -60,7 +60,7 @@
                     <a href="{{ path('app_login') }}" style="color: #175cdd;">Vous avez déjà un compte ? Se connecter</a>
                   </p>
                 {% else %}
-                  {{ form_start(form, {'attr': {'class': 'signup-form', 'id': 'signupForm'}}) }}
+                  {{ form_start(form, {'attr': {'class': 'signup-form', 'id': 'signupForm', 'novalidate': 'novalidate'}}) }}
                     <div class="d-flex align-items-center mb-3 pb-1">
                       <img src="{{ asset('assets/img/logomed.png') }}" alt="Logo MediConnect" class="auth-form-logo me-3">
                       <span class="h1 fw-bold mb-0" style="color: #112344;">MediConnect</span>

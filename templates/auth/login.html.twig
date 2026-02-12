@@ -28,7 +28,7 @@
             <div class="col-md-6 col-lg-7 d-flex align-items-center">
               <div class="card-body p-4 p-lg-5 text-black">
 
-                <form method="post" action="{{ path('app_login') }}">
+                <form method="post" action="{{ path('app_login') }}" novalidate>
                   <div class="d-flex align-items-center mb-3 pb-1">
                     <img src="{{ asset('assets/img/logomed.png') }}" alt="Logo MediConnect" class="auth-form-logo me-3">
                     <span class="h1 fw-bold mb-0" style="color: #112344;">MediConnect</span>
@@ -73,12 +73,12 @@
 
                   <div class="mb-4">
                     <label class="form-label" for="form2Example17">Adresse email</label>
-                    <input type="email" id="form2Example17" name="_username" value="{{ last_username }}" class="form-control form-control-lg" placeholder="exemple@email.com" required autofocus />
+                    <input type="text" id="form2Example17" name="_username" value="{{ last_username }}" class="form-control form-control-lg" placeholder="exemple@email.com" autofocus />
                   </div>
 
                   <div class="mb-4">
                     <label class="form-label" for="form2Example27">Mot de passe</label>
-                    <input type="password" id="form2Example27" name="_password" class="form-control form-control-lg" placeholder="Entrez votre mot de passe" required />
+                    <input type="password" id="form2Example27" name="_password" class="form-control form-control-lg" placeholder="Entrez votre mot de passe" />
                   </div>
 
                   <input type="hidden" name="_csrf_token" value="{{ csrf_token('authenticate') }}">
@@ -87,7 +87,7 @@
                     <button class="btn btn-primary btn-lg btn-block w-100" type="submit" style="background-color: #175cdd;">Se connecter</button>
                   </div>
 
-                  <a class="small text-muted" href="#!">Mot de passe oublié ?</a>
+                  <a class="small text-muted" href="{{ path('app_forgot_password') }}">Mot de passe oublié ?</a>
                   <p class="mb-5 pb-lg-2" style="color: #393f81;">Vous n'avez pas de compte ? <a href="{{ path('app_signup') }}"
                       style="color: #175cdd;">S'inscrire ici</a></p>
                   <div class="d-flex gap-3">

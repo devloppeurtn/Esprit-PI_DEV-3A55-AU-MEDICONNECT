@@ -33,12 +33,18 @@ class ProfileSettingsFormType extends AbstractType
             ->add('nomComplet', TextType::class, [
                 'label' => 'Nom complet',
                 'attr' => ['class' => 'form-control'],
-                'constraints' => [new NotBlank(['message' => 'Le nom est requis'])],
+                'constraints' => [
+                    new NotBlank(['message' => 'Le nom est requis']),
+                    new Length(['min' => 2, 'max' => 255, 'minMessage' => 'Le nom doit contenir au moins 2 caractères.', 'maxMessage' => 'Le nom ne doit pas dépasser 255 caractères.']),
+                ],
             ])
             ->add('email', EmailType::class, [
                 'label' => 'Adresse email',
                 'attr' => ['class' => 'form-control'],
-                'constraints' => [new NotBlank(['message' => 'L\'email est requis'])],
+                'constraints' => [
+                    new NotBlank(['message' => 'L\'email est requis']),
+                    new \Symfony\Component\Validator\Constraints\Email(['message' => 'Email invalide.']),
+                ],
             ]);
 
         // Champs selon le rôle
@@ -48,6 +54,7 @@ class ProfileSettingsFormType extends AbstractType
                     'label' => 'Téléphone',
                     'required' => false,
                     'attr' => ['class' => 'form-control', 'placeholder' => 'Ex: +216 12 345 678'],
+                    'constraints' => [new Length(['max' => 30, 'maxMessage' => 'Téléphone trop long.'])],
                 ])
                 ->add('dateNaissance', DateType::class, [
                     'label' => 'Date de naissance',
@@ -59,6 +66,7 @@ class ProfileSettingsFormType extends AbstractType
                     'label' => 'Adresse',
                     'required' => false,
                     'attr' => ['class' => 'form-control', 'rows' => 3, 'placeholder' => 'Adresse complète'],
+                    'constraints' => [new Length(['max' => 500, 'maxMessage' => 'Adresse trop longue.'])],
                 ]);
         } elseif ($user instanceof Medecin) {
             $builder
@@ -66,16 +74,19 @@ class ProfileSettingsFormType extends AbstractType
                     'label' => 'Spécialité',
                     'required' => false,
                     'attr' => ['class' => 'form-control', 'placeholder' => 'Ex: Cardiologie'],
+                    'constraints' => [new Length(['max' => 255, 'maxMessage' => 'Spécialité trop longue.'])],
                 ])
                 ->add('numeroLicence', TextType::class, [
                     'label' => 'Numéro de licence',
                     'required' => false,
                     'attr' => ['class' => 'form-control'],
+                    'constraints' => [new Length(['max' => 100, 'maxMessage' => 'Numéro de licence trop long.'])],
                 ])
                 ->add('adresseCabinet', TextareaType::class, [
                     'label' => 'Adresse du cabinet',
                     'required' => false,
                     'attr' => ['class' => 'form-control', 'rows' => 3],
+                    'constraints' => [new Length(['max' => 1000, 'maxMessage' => 'Adresse trop longue.'])],
                 ]);
         } elseif ($user instanceof Secretaire) {
             $builder
@@ -83,6 +94,7 @@ class ProfileSettingsFormType extends AbstractType
                     'label' => 'Téléphone',
                     'required' => false,
                     'attr' => ['class' => 'form-control'],
+                    'constraints' => [new Length(['max' => 30, 'maxMessage' => 'Téléphone trop long.'])],
                 ]);
         } elseif ($user instanceof Participation) {
             $builder

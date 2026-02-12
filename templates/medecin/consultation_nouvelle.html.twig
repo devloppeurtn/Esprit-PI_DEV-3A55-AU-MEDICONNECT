@@ -1,0 +1,20 @@
+{% extends 'admin/base_admin.html.twig' %}
+
+{% block title %}Nouvelle consultation - MediConnect{% endblock %}
+
+{% block body %}
+<div class="medecin-consultation-nouvelle">
+    <h1 class="h3 mb-4">Nouvelle consultation - {{ rdv.patient.nomComplet }}</h1>
+
+    {{ form_start(form, {'attr': {'novalidate': 'novalidate'}}) }}
+    <div class="card border-0 shadow-sm">
+        <div class="card-body">
+            {{ form_row(form.date) }}
+            {{ form_row(form.diagnostic) }}
+            {{ form_row(form.resume) }}
+            <button type="submit" class="btn btn-primary">Créer la consultation</button>
+        </div>
+    </div>
+    {{ form_end(form) }}
+</div>
+{% endblock %}

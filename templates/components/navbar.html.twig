@@ -29,7 +29,7 @@
                 </button>
             {% endif %}
 
-            <a href="{{ is_admin ? path('app_admin_dashboard') : path('app_home') }}" class="logo d-flex align-items-center">
+            <a href="{{ is_admin ? (is_granted('ROLE_ADMIN') ? path('app_admin_dashboard') : (is_granted('ROLE_SECRETAIRE') ? path('app_secretaire_index') : (is_granted('ROLE_MEDECIN') ? path('app_medecin_index') : (is_granted('ROLE_PATIENT') ? path('app_patient_index') : path('app_profile'))))) : path('app_home') }}" class="logo d-flex align-items-center">
                 <img src="{{ asset('assets/img/logomed.png') }}" alt="Logo MediConnect" {{ is_admin ? 'height="32"' : '' }}>
                 <h1 class="sitename">MediConnect</h1>
             </a>

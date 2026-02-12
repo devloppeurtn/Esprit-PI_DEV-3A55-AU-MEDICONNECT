@@ -329,6 +329,7 @@
                             <th @click="sortBy('email')" class="sortable">Email</th>
                             <th>Role</th>
                             <th>Status</th>
+                            <th>Email vérifié</th>
                             <th @click="sortBy('lastActive')" class="sortable">Last Active</th>
                             <th style="width: 120px;">Actions</th>
                         </tr>
@@ -354,6 +355,9 @@
                                 </td>
                                 <td>
                                     <span class="badge" :class="{'bg-success':user.statut==='ACTIF','bg-secondary':user.statut==='BANNI'||user.statut==='SUSPENDU'}" x-text="user.statut||'—'"></span>
+                                </td>
+                                <td>
+                                    <span class="badge" :class="user.emailVerified ? 'bg-success' : 'bg-warning text-dark'" x-text="user.emailVerified ? 'Vérifié' : 'Non vérifié'"></span>
                                 </td>
                                 <td x-text="user.lastActive || user.derniereConnexion || '—'"></td>
                                 <td>
@@ -410,20 +414,20 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
-                <form id="userForm">
+                <form id="userForm" novalidate>
                     <input type="hidden" name="userId" id="userId" value="">
                     <div class="row g-3">
                         <div class="col-12">
                             <label class="form-label">Nom complet</label>
-                            <input type="text" class="form-control" name="nomComplet" required>
+                            <input type="text" class="form-control" name="nomComplet">
                         </div>
                         <div class="col-12">
                             <label class="form-label">Email</label>
-                            <input type="email" class="form-control" name="email" required>
+                            <input type="text" class="form-control" name="email">
                         </div>
                         <div class="col-md-6">
                             <label class="form-label">Role</label>
-                            <select class="form-select" name="role" required>
+                            <select class="form-select" name="role">
                                 <option value="PATIENT">Patient</option>
                                 <option value="MEDECIN">Médecin</option>
                                 <option value="SECRETAIRE">Secrétaire</option>
@@ -582,7 +586,6 @@ document.addEventListener('alpine:init', () => {
             document.querySelector('[name="role"]').value = user.role || 'PATIENT';
             document.querySelector('[name="statut"]').value = user.statut || 'ACTIF';
             document.querySelector('[name="password"]').value = '';
-            document.querySelector('[name="password"]').required = false;
             new bootstrap.Modal(document.getElementById('userModal')).show();
         },
 
@@ -678,14 +681,10 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('userId').value = '';
         form.reset();
         document.getElementById('userModalLabel').textContent = 'Add New User';
-        document.querySelector('[name="password"]').required = true;
     });
     saveBtn.addEventListener('click', () => {
         const userId = document.getElementById('userId').value;
         const data = { nomComplet: form.querySelector('[name="nomComplet"]').value, email: form.querySelector('[name="email"]').value, role: form.querySelector('[name="role"]').value, statut: form.querySelector('[name="statut"]').value, password: form.querySelector('[name="password"]').value };
-        if (!data.nomComplet || !data.email) { alert('Nom et email requis'); return; }
-        if (!userId && (!data.password || data.password.length < 6)) { alert('Mot de passe min. 6 caractères requis'); return; }
-        if (data.password && data.password.length > 0 && data.password.length < 6) { alert('Mot de passe min. 6 caractères'); return; }
         const url = userId ? '{{ path('app_admin_users_update', {id: '__ID__'}) }}'.replace('__ID__', userId) : '{{ path('app_admin_users_create') }}';
         fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-Requested-With': 'XMLHttpRequest' }, body: JSON.stringify(data) })
             .then(r => r.json()).then(res => { if (res.success) { bootstrap.Modal.getInstance(modal).hide(); location.reload(); } else alert(res.error); }).catch(() => alert('Erreur'));
