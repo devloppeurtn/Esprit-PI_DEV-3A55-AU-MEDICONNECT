@@ -26,10 +26,11 @@
                     <li><a href="#!">À propos</a></li>
                     <li><a href="#!">Services</a></li>
                     <li><a href="#!">Contact</a></li>
+                    <li><a href="{{ path('app_evenement_index') }}" {% if app.request.get('_route') starts with 'app_evenement_' %}class="active"{% endif %}><i class="bi bi-calendar-event me-1"></i>Événements</a></li>
                     {% endif %}
                     <li><a href="{{ path('app_catalogue') }}" {% if app.request.get('_route') starts with 'app_catalogue' or app.request.get('_route') starts with 'app_product' %}class="active"{% endif %}><i class="bi bi-shop me-1"></i>Catalogue</a></li>
                     <li><a href="{{ path('app_cart') }}" {% if app.request.get('_route') == 'app_cart' %}class="active"{% endif %}><i class="bi bi-cart me-1"></i>Panier</a></li>
-                    {% if app.user and not is_granted('ROLE_ORGANISATEUR') %}
+                    {% if app.user %}
                     <li><a href="{{ path('app_evenement_index') }}" {% if app.request.get('_route') starts with 'app_evenement_' %}class="active"{% endif %}><i class="bi bi-calendar-event me-1"></i>Événements</a></li>
                     {% endif %}
                     {% if app.user %}

@@ -12,7 +12,7 @@
     <div class="row">
         <div class="col-lg-6">
             {% if produit.image %}
-                {% set imgPath = (produit.image starts with('http') or produit.image starts with('/') or produit.image starts with('assets')) ? produit.image : ('assets/img/' ~ produit.image) %}
+                {% set imgPath = (produit.image starts with('http') or produit.image starts with('/') or produit.image starts with('assets') or produit.image starts with('uploads')) ? produit.image : ('assets/img/' ~ produit.image) %}
                 <img src="{{ asset(imgPath) }}" class="img-fluid rounded w-100" style="height: 400px; object-fit: cover;" alt="{{ produit.nom }}">
             {% else %}
                 <div class="bg-light rounded d-flex align-items-center justify-content-center" style="height: 400px;"><i class="bi bi-image text-muted" style="font-size: 5rem;"></i></div>
@@ -37,6 +37,27 @@
                     <span class="ms-2 text-muted">({{ avis|length }} avis)</span>
                 </div>
             </div>
+            {% if produit.videoUrl %}
+                <div class="mb-3">
+                    <div class="card border-0">
+                        <div class="card-body p-0">
+                            <h3 class="h6 mb-2"><i class="bi bi-play-circle me-1"></i>Vidéo de présentation</h3>
+                            {% set v = produit.videoUrl %}
+                            {% if v ends with('.mp4') or v ends with('.webm') or v ends with('.ogg') %}
+                                {% set videoPath = (v starts with('http') or v starts with('/')) ? v : asset(v) %}
+                                <video controls class="w-100 rounded" style="max-height: 220px;">
+                                    <source src="{{ videoPath }}">
+                                    Votre navigateur ne supporte pas la lecture vidéo.
+                                </video>
+                            {% else %}
+                                <div class="ratio ratio-16x9" style="max-width: 100%; max-height: 220px;">
+                                    <iframe src="{{ v }}" title="Vidéo produit" allowfullscreen loading="lazy"></iframe>
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            {% endif %}
             {% if produit.categorie %}<span class="badge bg-info mb-3">{{ produit.categorie.nom }}</span>{% endif %}
             {% if produit.description %}<p class="text-muted">{{ produit.description|raw }}</p>{% endif %}
             <div class="card mb-4">
@@ -164,6 +185,13 @@
                     if (badge) badge.textContent = d.cartCount;
                     showNotification(d.message || 'Produit ajouté au panier', 'success');
                     quantityInput.value = 1;
+
+                    // Proposer d'aller au panier ou de continuer les achats
+                    setTimeout(function () {
+                        if (window.confirm('Produit ajouté au panier.\n\nVoulez-vous aller au panier ?\nCliquez sur \"OK\" pour voir le panier, ou \"Annuler\" pour continuer vos achats.')) {
+                            window.location.href = '{{ path('app_cart') }}';
+                        }
+                    }, 300);
                 } else {
                     showNotification(d.error || 'Erreur', 'error');
                 }

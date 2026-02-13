@@ -5,7 +5,7 @@
     <h1 class="h3 mb-0">{{ product.id ? 'Éditer le produit' : 'Nouveau produit' }}</h1>
     <a href="{{ path('app_admin_products') }}" class="btn btn-outline-secondary">Retour</a>
 </div>
-<form method="post" class="card shadow-sm">
+<form method="post" enctype="multipart/form-data" class="card shadow-sm">
     <div class="card-body">
         <div class="row mb-3">
             <div class="col-md-6">
@@ -31,13 +31,30 @@
             </select>
         </div>
         <div class="mb-3">
-            <label class="form-label">Image (chemin)</label>
-            <input type="text" name="image" class="form-control" value="{{ product.image|default('') }}">
-            <small class="text-muted">Ex: assets/img/products/mon-produit.jpg</small>
+            <label class="form-label">Image du produit</label>
+            <input type="hidden" name="current_image" value="{{ product.image|default('') }}">
+            <input type="file" name="imageFile" class="form-control">
+            {% if product.image %}
+                <small class="text-muted d-block mt-1">Image actuelle : {{ product.image }}</small>
+            {% endif %}
+            <small class="text-muted d-block">L'image sera enregistrée dans <code>uploads/products/</code>.</small>
         </div>
         <div class="mb-3">
             <label class="form-label">Description</label>
             <textarea name="description" rows="4" class="form-control">{{ product.description|default('') }}</textarea>
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Vidéo du produit (optionnel)</label>
+            <input type="file" name="videoFile" class="form-control" accept="video/*">
+            {% if product.videoUrl %}
+                <small class="text-muted d-block mt-1">Vidéo actuelle : {{ product.videoUrl }}</small>
+            {% endif %}
+            <small class="text-muted d-block">La vidéo sera enregistrée dans <code>uploads/videos/</code>. Taille raisonnable conseillée.</small>
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Ou lien vidéo externe (YouTube, etc.)</label>
+            <input type="url" name="video_url" class="form-control" placeholder="https://www.youtube.com/embed/..." value="{{ product.videoUrl starts with('http') ? product.videoUrl : '' }}">
+            <small class="text-muted d-block">Remplir ce champ seulement si vous n'uploadez pas de fichier vidéo.</small>
         </div>
     </div>
     <div class="card-footer d-flex justify-content-between">

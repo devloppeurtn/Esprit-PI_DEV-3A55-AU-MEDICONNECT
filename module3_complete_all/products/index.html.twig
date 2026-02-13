@@ -1,0 +1,35 @@
+{% extends 'admin/base_admin.html.twig' %}
+{% set title = 'Produits' %}
+{% block admin_content %}
+<div class="d-flex justify-content-end mb-3">
+    <a href="{{ path('admin_products_new') }}" class="btn btn-primary btn-sm">Nouveau produit</a>
+</div>
+<div class="table-responsive">
+    <table class="table table-striped align-middle">
+        <thead>
+        <tr>
+            <th>#</th><th>Nom</th><th>Catégorie</th><th>Prix</th><th>Stock</th><th></th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for p in products %}
+            <tr>
+                <td>{{ p.id }}</td>
+                <td>{{ p.nom }}</td>
+                <td>{{ p.categorie ? p.categorie.nom : '—' }}</td>
+                <td>{{ p.prix|number_format(2, ',', ' ') }} TND</td>
+                <td>{{ p.stock }}</td>
+                <td class="text-end">
+                    <a class="btn btn-outline-secondary btn-sm" href="{{ path('admin_products_edit', {id:p.id}) }}">Éditer</a>
+                    <form action="{{ path('admin_products_delete', {id:p.id}) }}" method="post" class="d-inline" onsubmit="return confirm('Supprimer ce produit ?');">
+                        <button class="btn btn-outline-danger btn-sm">Supprimer</button>
+                    </form>
+                </td>
+            </tr>
+        {% else %}
+            <tr><td colspan="6" class="text-center text-muted">Aucun produit</td></tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

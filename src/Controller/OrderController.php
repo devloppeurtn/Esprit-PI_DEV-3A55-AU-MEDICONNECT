@@ -59,9 +59,17 @@ class OrderController extends AbstractController
             if ($telephone === '') {
                 $telephone = trim((string) $request->request->get('telephone', ''));
             }
+            // Normaliser le téléphone : garder uniquement + et chiffres
+            $telephone = preg_replace('/[^+0-9]/', '', $telephone ?? '');
 
             if (empty($rue) || empty($telephone) || empty($pays)) {
                 $this->addFlash('error', 'Veuillez renseigner au minimum la rue, le numéro de téléphone et le pays.');
+                return $this->redirectToRoute('app_checkout');
+            }
+
+            // Contrôle serveur : format + chiffres uniquement, longueur raisonnable
+            if (!preg_match('/^\+?[0-9]{8,20}$/', $telephone)) {
+                $this->addFlash('error', 'Numéro de téléphone invalide. Utilisez uniquement les chiffres (et éventuellement +) avec une longueur entre 8 et 20.');
                 return $this->redirectToRoute('app_checkout');
             }
 

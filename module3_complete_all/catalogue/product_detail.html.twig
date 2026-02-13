@@ -1,0 +1,348 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ produit.nom }} - MediConnect{% endblock %}
+
+{% block body %}
+<style>
+    .review-stars-display i {
+        color: #f7b500;
+        margin-right: 2px;
+    }
+    .review-stars-input {
+        display: flex;
+        flex-direction: row-reverse;
+        justify-content: flex-end;
+        gap: 6px;
+    }
+    .review-stars-input input {
+        display: none;
+    }
+    .review-stars-input label {
+        font-size: 1.6rem;
+        color: #cfd4da;
+        cursor: pointer;
+        transition: color 0.2s ease;
+    }
+    .review-stars-input label:hover,
+    .review-stars-input label:hover ~ label,
+    .review-stars-input input:checked ~ label {
+        color: #f7b500;
+    }
+</style>
+
+{% set videoByProduct = {
+    'CrèmeSolairevideo': 'creme-solaire.mp4',
+    'Crème Solaire SPF50 100ml': 'creme-solaire.mp4',
+    'SiropEnfantvideo': 'SiropEnfantvideo.mp4',
+    'Sirop Enfant 100ml': 'SiropEnfantvideo.mp4',
+    'SiropZarbeilvideo': 'SiropZarbeilvideo.mp4',
+    'Sirop Toux 150ml': 'SiropZarbeilvideo.mp4',
+    'SprayNasal': 'SprayNasal.mp4',
+    'Spray Nasal 20ml': 'SprayNasal.mp4',
+    'Vitaminecomprimésvideo': 'Vitaminecomprimésvideo.mp4',
+    'Vitamine C 100 comprimés': 'Vitaminecomprimésvideo.mp4'
+} %}
+
+{% set normalizedName = produit.nom
+    | lower
+    | replace({
+        ' ': '',
+        '-': '',
+        '_': '',
+        'é': 'e', 'è': 'e', 'ê': 'e', 'ë': 'e',
+        'à': 'a', 'â': 'a', 'ä': 'a',
+        'î': 'i', 'ï': 'i',
+        'ô': 'o', 'ö': 'o',
+        'û': 'u', 'ü': 'u', 'ù': 'u',
+        'ç': 'c',
+        'œ': 'oe'
+    })
+%}
+
+{% set videoBySlug = {
+    'cremesolairespf50100ml': 'creme-solaire.mp4',
+    'siropenfant100ml': 'SiropEnfantvideo.mp4',
+    'siroptoux150ml': 'SiropZarbeilvideo.mp4',
+    'spraynasal20ml': 'SprayNasal.mp4',
+    'vitaminec100comprimes': 'Vitaminecomprimésvideo.mp4'
+} %}
+
+<div class="container py-5">
+    <div class="row">
+        <div class="col-lg-6">
+            {% if produit.image %}
+                {% set imgPath = (produit.image is not empty and (produit.image starts with('http') or produit.image starts with('/') or produit.image starts with('assets'))) ? produit.image : ('assets/img/' ~ produit.image) %}
+                <img src="{{ asset(imgPath) }}" class="img-fluid rounded w-100" style="height: 400px; object-fit: cover;" alt="{{ produit.nom }}">
+            {% else %}
+                <div class="bg-light rounded d-flex align-items-center justify-content-center" style="height: 400px;">
+                    <i class="bi bi-image text-muted" style="font-size: 5rem;"></i>
+                </div>
+            {% endif %}
+        </div>
+
+        <div class="col-lg-6">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{{ path('app_catalogue') }}">Catalogue</a></li>
+                    {% if produit.categorie %}
+                        <li class="breadcrumb-item">
+                            <a href="{{ path('app_catalogue_categorie', {id: produit.categorie.id}) }}">
+                                {{ produit.categorie.nom }}
+                            </a>
+                        </li>
+                    {% endif %}
+                    <li class="breadcrumb-item active">{{ produit.nom }}</li>
+                </ol>
+            </nav>
+
+            <h1 class="mb-3">{{ produit.nom }}</h1>
+
+            <div class="mb-3">
+                <div class="review-stars-display d-inline-flex align-items-center">
+                    {% set roundedAverage = moyenneNote is not null ? moyenneNote|round(0, 'common') : 0 %}
+                    {% for i in 1..5 %}
+                        <i class="bi {{ i <= roundedAverage ? 'bi-star-fill' : 'bi-star' }}"></i>
+                    {% endfor %}
+                    <span class="ms-2 fw-semibold">
+                        {% if moyenneNote is not null %}
+                            {{ moyenneNote|number_format(1, ',', ' ') }}/5
+                        {% else %}
+                            Pas encore note
+                        {% endif %}
+                    </span>
+                    <span class="ms-2 text-muted">({{ avis|length }} avis)</span>
+                </div>
+            </div>
+
+            {% if produit.categorie %}
+                <span class="badge bg-info mb-3">{{ produit.categorie.nom }}</span>
+            {% endif %}
+
+            <p class="text-muted">{{ produit.description }}</p>
+            {% set videoFile = videoByProduct[produit.nom] ?? videoBySlug[normalizedName] ?? null %}
+            {% if videoFile %}
+                <div class="mb-3 text-center">
+                    <video class="rounded d-block mx-auto" style="width: 100%; max-width: 480px; height: auto; max-height: 360px; object-fit: contain; object-position: center;" controls preload="metadata">
+                        <source src="{{ asset('assets/videos/' ~ (videoFile | url_encode)) }}" type="video/mp4">
+                        Votre navigateur ne supporte pas la video.
+                    </video>
+                </div>
+            {% endif %}
+
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h2 class="card-title mb-3">{{ produit.prix | number_format(2, ',', ' ') }} TND</h2>
+
+                    <div class="mb-3">
+                        <p class="mb-2">
+                            <strong>Stock disponible:</strong>
+                            <span class="{{ produit.stock > 0 ? 'text-success' : 'text-danger' }}">
+                                {{ produit.stock }} unite(s)
+                            </span>
+                            {% if produit.stock > 0 and produit.stock <= 5 %}
+                                <span class="badge bg-warning text-dark ms-2">Dépêche-toi, bientôt en rupture</span>
+                            {% endif %}
+                        </p>
+                    </div>
+
+                    {% if produit.stock > 0 %}
+                        <form id="addToCartForm">
+                            <div class="mb-3">
+                                <label for="quantity" class="form-label">Quantite:</label>
+                                <div class="input-group" style="max-width: 150px;">
+                                    <button class="btn btn-outline-secondary" type="button" id="decreaseQty">-</button>
+                                    <input type="number" class="form-control text-center" id="quantity" name="quantity" value="1" min="1" max="{{ produit.stock }}">
+                                    <button class="btn btn-outline-secondary" type="button" id="increaseQty">+</button>
+                                </div>
+                            </div>
+                            <button type="submit" class="btn btn-lg btn-primary w-100 mb-2">
+                                <i class="bi bi-cart-plus"></i> Ajouter au panier
+                            </button>
+                        </form>
+                    {% else %}
+                        <button class="btn btn-lg btn-secondary w-100" disabled>
+                            Stock epuise
+                        </button>
+                    {% endif %}
+
+                    <a href="{{ path('app_catalogue') }}" class="btn btn-outline-secondary w-100">
+                        <i class="bi bi-arrow-left"></i> Retour au catalogue
+                    </a>
+                </div>
+            </div>
+
+            <div class="sticky-top" style="top: 80px;">
+                <a href="{{ path('app_cart') }}" class="btn btn-outline-info w-100">
+                    <i class="bi bi-cart3"></i> Voir le panier
+                    <span class="badge bg-danger" id="cartBadge">{{ cartCount }}</span>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mt-4">
+        <div class="col-lg-8">
+            {% for type, messages in app.flashes(['success', 'error']) %}
+                {% for message in messages %}
+                    <div class="alert alert-{{ type == 'error' ? 'danger' : type }} mb-3">{{ message }}</div>
+                {% endfor %}
+            {% endfor %}
+
+            {% set monAvis = null %}
+            {% if app.user %}
+                {% for item in avis %}
+                    {% if item.utilisateur and item.utilisateur.id == app.user.id %}
+                        {% set monAvis = item %}
+                    {% endif %}
+                {% endfor %}
+            {% endif %}
+
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h3 class="h5 mb-3">{{ monAvis ? 'Modifier mon avis' : 'Ajouter un avis' }}</h3>
+
+                    {% if app.user %}
+                        <form method="post" action="{{ path('app_product_review_add', {id: produit.id}) }}">
+                            <input type="hidden" name="_token" value="{{ csrf_token('product_review_' ~ produit.id) }}">
+
+                            <div class="mb-3">
+                                <label class="form-label d-block">Note</label>
+                                <div class="review-stars-input">
+                                    {% for i in 5..1 %}
+                                        <input type="radio" id="note_{{ i }}" name="note" value="{{ i }}" {{ monAvis and monAvis.note == i ? 'checked' : '' }} {{ (not monAvis and i == 5) ? 'checked' : '' }}>
+                                        <label for="note_{{ i }}" title="{{ i }}/5">★</label>
+                                    {% endfor %}
+                                </div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="commentaire" class="form-label">Commentaire</label>
+                                <textarea id="commentaire" name="commentaire" rows="4" class="form-control" maxlength="1000" placeholder="Partage ton experience avec ce produit...">{{ monAvis ? monAvis.commentaire : '' }}</textarea>
+                            </div>
+
+                            <button type="submit" class="btn btn-primary">{{ monAvis ? 'Mettre a jour' : 'Publier' }}</button>
+                        </form>
+                    {% else %}
+                        <p class="mb-0">
+                            Connecte-toi pour laisser un commentaire et une note.
+                            <a href="{{ path('app_login') }}">Se connecter</a>
+                        </p>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-body">
+                    <h3 class="h5 mb-3">Commentaires ({{ avis|length }})</h3>
+
+                    {% if avis is empty %}
+                        <p class="text-muted mb-0">Aucun commentaire pour le moment.</p>
+                    {% else %}
+                        {% for item in avis %}
+                            <div class="border rounded p-3 mb-3">
+                                <div class="d-flex justify-content-between align-items-start">
+                                    <div>
+                                        <strong>{{ item.utilisateur ? item.utilisateur.nomComplet : 'Utilisateur' }}</strong>
+                                        <div class="review-stars-display mt-1">
+                                            {% for i in 1..5 %}
+                                                <i class="bi {{ i <= item.note ? 'bi-star-fill' : 'bi-star' }}"></i>
+                                            {% endfor %}
+                                        </div>
+                                        <small class="text-muted">{{ item.dateCreation ? item.dateCreation|date('d/m/Y H:i') : '' }}</small>
+                                    </div>
+                                    {% if app.user and (item.utilisateur and app.user.id == item.utilisateur.id or is_granted('ROLE_ADMIN')) %}
+                                        <form method="post" action="{{ path('app_product_review_delete', {id: produit.id, avisId: item.id}) }}">
+                                            <input type="hidden" name="_token" value="{{ csrf_token('delete_review_' ~ item.id) }}">
+                                            <button type="submit" class="btn btn-sm btn-outline-danger">Supprimer</button>
+                                        </form>
+                                    {% endif %}
+                                </div>
+                                {% if item.commentaire %}
+                                    <p class="mb-0 mt-2">{{ item.commentaire|nl2br }}</p>
+                                {% endif %}
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const quantityInput = document.getElementById('quantity');
+    const decreaseBtn = document.getElementById('decreaseQty');
+    const increaseBtn = document.getElementById('increaseQty');
+    const form = document.getElementById('addToCartForm');
+    const maxStock = {{ produit.stock }};
+
+    if (quantityInput && decreaseBtn && increaseBtn && form) {
+        decreaseBtn.addEventListener('click', () => {
+            const current = parseInt(quantityInput.value, 10);
+            if (current > 1) {
+                quantityInput.value = current - 1;
+            }
+        });
+
+        increaseBtn.addEventListener('click', () => {
+            const current = parseInt(quantityInput.value, 10);
+            if (current < maxStock) {
+                quantityInput.value = current + 1;
+            }
+        });
+
+        form.addEventListener('submit', (e) => {
+            e.preventDefault();
+
+            const quantity = parseInt(quantityInput.value, 10);
+            const productId = {{ produit.id }};
+
+            const formData = new FormData();
+            formData.append('quantity', quantity);
+
+            fetch(`{{ path('app_cart_add', {id: 0}) }}`.replace('0', productId), {
+                method: 'POST',
+                body: formData,
+                credentials: 'same-origin',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+            .then(response => {
+                if (!response.ok) return response.text().then(t => { throw new Error('HTTP ' + response.status + ': ' + t); });
+                return response.json();
+            })
+                    .then(data => {
+                        if (data.success) {
+                            document.getElementById('cartBadge').textContent = data.cartCount;
+                            showNotification(`${data.message}`, 'success');
+                            quantityInput.value = 1;
+                        } else {
+                            showNotification(data.error || 'Erreur', 'error');
+                        }
+                    })
+            .catch(error => {
+                console.error('Error:', error);
+                showNotification(error.message || 'Erreur lors de la requete', 'error');
+            });
+        });
+    }
+
+    function showNotification(message, type) {
+        const alertClass = type === 'success' ? 'alert-success' : 'alert-danger';
+        const alertHtml = `<div class="alert ${alertClass} alert-dismissible fade show position-fixed top-0 start-50 translate-middle-x mt-3" role="alert" style="z-index: 9999;">
+            ${message}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>`;
+
+        const alertContainer = document.createElement('div');
+        alertContainer.innerHTML = alertHtml;
+        document.body.appendChild(alertContainer.firstElementChild);
+
+        setTimeout(() => {
+            const alert = document.querySelector('.alert');
+            if (alert) alert.remove();
+        }, 3000);
+    }
+</script>
+{% endblock %}

@@ -18,12 +18,13 @@ class ComposerStaticInit54c05e64f01f49eb136e9af7b3075bdd
         'ffecb95d45175fd40f75be8a23b34f90' => __DIR__ . '/..' . '/twig/twig/src/Resources/debug.php',
         'c7baa00073ee9c61edf148c51917cfb4' => __DIR__ . '/..' . '/twig/twig/src/Resources/escaper.php',
         'f844ccf1d25df8663951193c3fc307c8' => __DIR__ . '/..' . '/twig/twig/src/Resources/string_loader.php',
-        'f598d06aa772fa33d905e87be6398fb1' => __DIR__ . '/..' . '/symfony/polyfill-intl-idn/bootstrap.php',
         '2203a247e6fda86070a5e4e07aed533a' => __DIR__ . '/..' . '/symfony/clock/Resources/now.php',
+        'f598d06aa772fa33d905e87be6398fb1' => __DIR__ . '/..' . '/symfony/polyfill-intl-idn/bootstrap.php',
+        '3109cb1a231dcd04bee1f9f620d46975' => __DIR__ . '/..' . '/paragonie/sodium_compat/autoload.php',
         '9d2b9fc6db0f153a0a149fefb182415e' => __DIR__ . '/..' . '/symfony/polyfill-php84/bootstrap.php',
+        '09f6b20656683369174dd6fa83b7e5fb' => __DIR__ . '/..' . '/symfony/polyfill-uuid/bootstrap.php',
         '6124b4c8570aa390c21fafd04a26c69f' => __DIR__ . '/..' . '/myclabs/deep-copy/src/DeepCopy/deep_copy.php',
         '6a47392539ca2329373e0d33e1dba053' => __DIR__ . '/..' . '/symfony/polyfill-intl-icu/bootstrap.php',
-        '09f6b20656683369174dd6fa83b7e5fb' => __DIR__ . '/..' . '/symfony/polyfill-uuid/bootstrap.php',
         'ec07570ca5a812141189b1fa81503674' => __DIR__ . '/..' . '/phpunit/phpunit/src/Framework/Assert/Functions.php',
         'a1105708a18b76903365ca1c4aa61b02' => __DIR__ . '/..' . '/symfony/translation/Resources/functions.php',
     );
@@ -36,6 +37,9 @@ class ComposerStaticInit54c05e64f01f49eb136e9af7b3075bdd
         'W' =>
         array (
             'Webmozart\\Assert\\' => 17,
+            'Webauthn\\MetadataService\\' => 25,
+            'Webauthn\\Bundle\\' => 16,
+            'Webauthn\\' => 9,
         ),
         'T' =>
         array (
@@ -117,21 +121,32 @@ class ComposerStaticInit54c05e64f01f49eb136e9af7b3075bdd
             'Symfony\\Bundle\\FrameworkBundle\\' => 31,
             'Symfony\\Bundle\\DebugBundle\\' => 27,
             'Symfony\\Bridge\\Twig\\' => 20,
+            'Symfony\\Bridge\\PsrHttpMessage\\' => 30,
             'Symfony\\Bridge\\Monolog\\' => 23,
             'Symfony\\Bridge\\Doctrine\\' => 24,
             'Stripe\\' => 7,
             'StellaMaris\\Clock\\' => 18,
+            'SpomkyLabs\\Pki\\' => 15,
+            'SpomkyLabs\\CborBundle\\' => 22,
         ),
         'P' =>
         array (
             'Psr\\Log\\' => 8,
             'Psr\\Link\\' => 9,
+            'Psr\\Http\\Message\\' => 17,
+            'Psr\\Http\\Client\\' => 16,
             'Psr\\EventDispatcher\\' => 20,
             'Psr\\Container\\' => 14,
             'Psr\\Clock\\' => 10,
             'Psr\\Cache\\' => 10,
             'PhpParser\\' => 10,
+            'ParagonIE\\Sodium\\' => 17,
+            'ParagonIE\\ConstantTime\\' => 23,
             'PHPStan\\PhpDocParser\\' => 21,
+        ),
+        'N' =>
+        array (
+            'Nyholm\\Psr7\\' => 12,
         ),
         'M' =>
         array (
@@ -142,6 +157,14 @@ class ComposerStaticInit54c05e64f01f49eb136e9af7b3075bdd
         array (
             'Lcobucci\\JWT\\' => 13,
             'Lcobucci\\Clock\\' => 15,
+        ),
+        'J' =>
+        array (
+            'Jose\\Component\\' => 15,
+        ),
+        'F' =>
+        array (
+            'FG\\' => 3,
         ),
         'E' =>
         array (
@@ -166,7 +189,13 @@ class ComposerStaticInit54c05e64f01f49eb136e9af7b3075bdd
         ),
         'C' =>
         array (
+            'Cose\\' => 5,
             'Composer\\Semver\\' => 16,
+            'CBOR\\' => 5,
+        ),
+        'B' =>
+        array (
+            'Brick\\Math\\' => 11,
         ),
         'A' =>
         array (
@@ -185,6 +214,18 @@ class ComposerStaticInit54c05e64f01f49eb136e9af7b3075bdd
         'Webmozart\\Assert\\' =>
         array (
             0 => __DIR__ . '/..' . '/webmozart/assert/src',
+        ),
+        'Webauthn\\MetadataService\\' =>
+        array (
+            0 => __DIR__ . '/..' . '/web-auth/metadata-service/src',
+        ),
+        'Webauthn\\Bundle\\' =>
+        array (
+            0 => __DIR__ . '/..' . '/web-auth/webauthn-symfony-bundle/src',
+        ),
+        'Webauthn\\' =>
+        array (
+            0 => __DIR__ . '/..' . '/web-auth/webauthn-lib/src',
         ),
         'Twig\\Extra\\TwigExtraBundle\\' =>
         array (
@@ -486,6 +527,10 @@ class ComposerStaticInit54c05e64f01f49eb136e9af7b3075bdd
         array (
             0 => __DIR__ . '/..' . '/symfony/twig-bridge',
         ),
+        'Symfony\\Bridge\\PsrHttpMessage\\' =>
+        array (
+            0 => __DIR__ . '/..' . '/symfony/psr-http-message-bridge',
+        ),
         'Symfony\\Bridge\\Monolog\\' =>
         array (
             0 => __DIR__ . '/..' . '/symfony/monolog-bridge',
@@ -502,6 +547,14 @@ class ComposerStaticInit54c05e64f01f49eb136e9af7b3075bdd
         array (
             0 => __DIR__ . '/..' . '/stella-maris/clock/src',
         ),
+        'SpomkyLabs\\Pki\\' =>
+        array (
+            0 => __DIR__ . '/..' . '/spomky-labs/pki-framework/src',
+        ),
+        'SpomkyLabs\\CborBundle\\' =>
+        array (
+            0 => __DIR__ . '/..' . '/spomky-labs/cbor-bundle/src',
+        ),
         'Psr\\Log\\' =>
         array (
             0 => __DIR__ . '/..' . '/psr/log/src',
@@ -509,6 +562,15 @@ class ComposerStaticInit54c05e64f01f49eb136e9af7b3075bdd
         'Psr\\Link\\' =>
         array (
             0 => __DIR__ . '/..' . '/psr/link/src',
+        ),
+        'Psr\\Http\\Message\\' =>
+        array (
+            0 => __DIR__ . '/..' . '/psr/http-factory/src',
+            1 => __DIR__ . '/..' . '/psr/http-message/src',
+        ),
+        'Psr\\Http\\Client\\' =>
+        array (
+            0 => __DIR__ . '/..' . '/psr/http-client/src',
         ),
         'Psr\\EventDispatcher\\' =>
         array (
@@ -530,9 +592,21 @@ class ComposerStaticInit54c05e64f01f49eb136e9af7b3075bdd
         array (
             0 => __DIR__ . '/..' . '/nikic/php-parser/lib/PhpParser',
         ),
+        'ParagonIE\\Sodium\\' =>
+        array (
+            0 => __DIR__ . '/..' . '/paragonie/sodium_compat/namespaced',
+        ),
+        'ParagonIE\\ConstantTime\\' =>
+        array (
+            0 => __DIR__ . '/..' . '/paragonie/constant_time_encoding/src',
+        ),
         'PHPStan\\PhpDocParser\\' =>
         array (
             0 => __DIR__ . '/..' . '/phpstan/phpdoc-parser/src',
+        ),
+        'Nyholm\\Psr7\\' =>
+        array (
+            0 => __DIR__ . '/..' . '/nyholm/psr7/src',
         ),
         'Monolog\\' =>
         array (
@@ -549,6 +623,14 @@ class ComposerStaticInit54c05e64f01f49eb136e9af7b3075bdd
         'Lcobucci\\Clock\\' =>
         array (
             0 => __DIR__ . '/..' . '/lcobucci/clock/src',
+        ),
+        'Jose\\Component\\' =>
+        array (
+            0 => __DIR__ . '/..' . '/web-token/jwt-library',
+        ),
+        'FG\\' =>
+        array (
+            0 => __DIR__ . '/..' . '/fgrosse/phpasn1/lib',
         ),
         'Egulias\\EmailValidator\\' =>
         array (
@@ -610,9 +692,21 @@ class ComposerStaticInit54c05e64f01f49eb136e9af7b3075bdd
         array (
             0 => __DIR__ . '/..' . '/myclabs/deep-copy/src/DeepCopy',
         ),
+        'Cose\\' =>
+        array (
+            0 => __DIR__ . '/..' . '/web-auth/cose-lib/src',
+        ),
         'Composer\\Semver\\' =>
         array (
             0 => __DIR__ . '/..' . '/composer/semver/src',
+        ),
+        'CBOR\\' =>
+        array (
+            0 => __DIR__ . '/..' . '/spomky-labs/cbor-php/src',
+        ),
+        'Brick\\Math\\' =>
+        array (
+            0 => __DIR__ . '/..' . '/brick/math/src',
         ),
         'App\\Tests\\' =>
         array (

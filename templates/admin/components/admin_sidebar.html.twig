@@ -55,6 +55,12 @@
                         </a>
                     </li>
                     <li class="nav-item">
+                        <a class="nav-link {{ app.request.get('_route') starts with 'app_admin_rendezvous_' ? 'active' : '' }}" href="{{ path('app_admin_rendezvous_index') }}" title="Rendez-vous (backoffice)">
+                            <span class="nav-icon-wrap"><i class="bi bi-calendar-check"></i></span>
+                            <span class="nav-text">Rendez-vous</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
                         <a class="nav-link {{ app.request.get('_route') == 'app_orders_list' or app.request.get('_route') starts with 'app_order_' ? 'active' : '' }}" href="{{ path('app_orders_list') }}" title="Mes commandes">
                             <span class="nav-icon-wrap"><i class="bi bi-bag"></i></span>
                             <span class="nav-text">Mes commandes</span>

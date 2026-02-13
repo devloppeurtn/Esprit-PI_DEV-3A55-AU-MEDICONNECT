@@ -1,0 +1,97 @@
+{% extends 'admin/base_admin.html.twig' %}
+
+{% block title %}Rendez-vous #{{ rdv.id }} - Backoffice{% endblock %}
+
+{% block body %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1 class="h3 mb-0"><i class="bi bi-calendar-check me-2"></i>Rendez-vous #{{ rdv.id }}</h1>
+    <a href="{{ path('app_admin_rendezvous_index') }}" class="btn btn-outline-secondary btn-sm">
+        ← Retour à la liste
+    </a>
+</div>
+
+<div class="row g-4">
+    <div class="col-lg-7">
+        <div class="card shadow-sm mb-3">
+            <div class="card-header bg-white border-bottom">
+                <h5 class="card-title mb-0">Informations principales</h5>
+            </div>
+            <div class="card-body">
+                <dl class="row mb-0">
+                    <dt class="col-sm-4">Patient</dt>
+                    <dd class="col-sm-8">{{ patientName }}</dd>
+
+                    <dt class="col-sm-4">Médecin</dt>
+                    <dd class="col-sm-8">{{ medecinName }}</dd>
+
+                    <dt class="col-sm-4">Date début</dt>
+                    <dd class="col-sm-8">
+                        {{ rdv.dateDebut ? rdv.dateDebut|date('d/m/Y H:i') : '—' }}
+                    </dd>
+
+                    <dt class="col-sm-4">Date fin</dt>
+                    <dd class="col-sm-8">
+                        {{ rdv.dateFin ? rdv.dateFin|date('d/m/Y H:i') : '—' }}
+                    </dd>
+
+                    <dt class="col-sm-4">Statut</dt>
+                    <dd class="col-sm-8">
+                        {% if rdv.statut.value == 'EN_ATTENTE' %}
+                            <span class="badge bg-secondary">En attente</span>
+                        {% elseif rdv.statut.value == 'CONFIRME' %}
+                            <span class="badge bg-primary">Confirmé</span>
+                        {% elseif rdv.statut.value == 'ANNULE' %}
+                            <span class="badge bg-danger">Annulé</span>
+                        {% elseif rdv.statut.value == 'TERMINE' %}
+                            <span class="badge bg-success">Terminé</span>
+                        {% else %}
+                            <span class="badge bg-light text-muted">{{ rdv.statut.value }}</span>
+                        {% endif %}
+                    </dd>
+
+                    <dt class="col-sm-4">Note</dt>
+                    <dd class="col-sm-8">
+                        {% if rdv.note %}
+                            {{ rdv.note|nl2br }}
+                        {% else %}
+                            <span class="text-muted">Aucune note</span>
+                        {% endif %}
+                    </dd>
+                </dl>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-5">
+        <div class="card shadow-sm mb-3">
+            <div class="card-header bg-white border-bottom">
+                <h5 class="card-title mb-0">Changer le statut</h5>
+            </div>
+            <div class="card-body">
+                <p class="text-muted small mb-3">
+                    Utilisez ces boutons pour mettre à jour le statut du rendez-vous.
+                </p>
+                <div class="d-flex flex-wrap gap-2">
+                    <form method="post" action="{{ path('app_admin_rendezvous_change_status', {id: rdv.id}) }}">
+                        <input type="hidden" name="statut" value="EN_ATTENTE">
+                        <button class="btn btn-sm btn-outline-secondary" type="submit">En attente</button>
+                    </form>
+                    <form method="post" action="{{ path('app_admin_rendezvous_change_status', {id: rdv.id}) }}">
+                        <input type="hidden" name="statut" value="CONFIRME">
+                        <button class="btn btn-sm btn-primary" type="submit">Confirmé</button>
+                    </form>
+                    <form method="post" action="{{ path('app_admin_rendezvous_change_status', {id: rdv.id}) }}">
+                        <input type="hidden" name="statut" value="ANNULE">
+                        <button class="btn btn-sm btn-danger" type="submit">Annulé</button>
+                    </form>
+                    <form method="post" action="{{ path('app_admin_rendezvous_change_status', {id: rdv.id}) }}">
+                        <input type="hidden" name="statut" value="TERMINE">
+                        <button class="btn btn-sm btn-success" type="submit">Terminé</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+

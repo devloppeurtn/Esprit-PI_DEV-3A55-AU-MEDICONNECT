@@ -20,6 +20,31 @@
 
     <div id="alerts"></div>
 
+    <div class="card mb-4">
+        <div class="card-body">
+            <form method="get" class="row g-3 align-items-end">
+                <div class="col-md-6">
+                    <label class="form-label mb-1">Recherche</label>
+                    <input type="text" name="q" class="form-control" placeholder="Nom ou description de l'événement..."
+                           value="{{ search|default('') }}">
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label mb-1">Période</label>
+                    <select name="periode" class="form-select">
+                        <option value="tous" {% if periode|default('tous') == 'tous' %}selected{% endif %}>Tous</option>
+                        <option value="avenir" {% if periode|default('tous') == 'avenir' %}selected{% endif %}>À venir</option>
+                        <option value="passes" {% if periode|default('tous') == 'passes' %}selected{% endif %}>Passés</option>
+                    </select>
+                </div>
+                <div class="col-md-2 d-flex gap-2">
+                    <button class="btn btn-primary w-100" type="submit">
+                        <i class="bi bi-search me-1"></i>Filtrer
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     {% if mesEvenements is defined and mesEvenements|length > 0 %}
         <div class="mb-5">
             <h4 class="mb-3"><i class="bi bi-calendar-check me-2"></i>Mes événements</h4>
@@ -82,7 +107,7 @@
                         </div>
 
                         <div class="col-md-4 d-flex flex-column justify-content-center">
-                            <a href="{{ path('app_evenement_show', {id: item.id}) }}" class="btn btn-success btn-lg mb-2">
+                            <a href="{{ path('app_evenement_participer_form', {id: item.id}) }}" class="btn btn-success btn-lg mb-2">
                                 <i class="bi bi-check-circle me-1"></i> Participer
                             </a>
                             

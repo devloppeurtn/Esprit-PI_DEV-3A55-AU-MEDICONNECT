@@ -15,7 +15,7 @@
                                 <div class="row align-items-center">
                                     <div class="col-md-2">
                                         {% if item.image %}
-                                            {% set imgPath = (item.image starts with('http') or item.image starts with('/') or item.image starts with('assets')) ? item.image : ('assets/img/' ~ item.image) %}
+                                            {% set imgPath = (item.image starts with('http') or item.image starts with('/') or item.image starts with('assets') or item.image starts with('uploads')) ? item.image : ('assets/img/' ~ item.image) %}
                                             <img src="{{ asset(imgPath) }}" class="img-fluid rounded" alt="{{ item.nom }}" style="height:80px;object-fit:cover;">
                                         {% else %}
                                             <div class="bg-light rounded d-flex align-items-center justify-content-center" style="height:80px;"><i class="bi bi-image text-muted"></i></div>

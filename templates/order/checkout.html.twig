@@ -1,5 +1,46 @@
 {% extends 'base.html.twig' %}
 {% block title %}Passer la commande - MediConnect{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    {# Champ téléphone avec drapeaux + liste de tous les pays (via jsDelivr, bon MIME type) #}
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/intl-tel-input@17.0.19/build/css/intlTelInput.css" integrity="sha256-rBXZ3qWb0PiQLYGF5s5ACx8D0L1+CZbd9yqY7JdSCFk=" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <style>
+        .iti { width: 100%; }
+        /* Améliore l'apparence de la liste de pays même si le CSS du CDN ne charge pas bien */
+        .iti__flag-container {
+            padding: 0;
+        }
+        .iti__country-list {
+            list-style: none;
+            margin: 4px 0 0 0;
+            padding: 4px 0;
+            background: #fff;
+            border-radius: 0.375rem;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            max-height: 260px;
+            overflow-y: auto;
+            position: absolute;
+            z-index: 10000;
+        }
+        .iti__country-list .iti__country {
+            padding: 4px 10px;
+            cursor: pointer;
+        }
+        .iti__country-list .iti__country:hover {
+            background-color: #f5f5f5;
+        }
+        .iti__dial-code {
+            color: #6c757d;
+            margin-left: 4px;
+        }
+        .phone-error {
+            display: none;
+            font-size: 0.875rem;
+        }
+    </style>
+{% endblock %}
+
 {% block body %}
 <div class="container py-5">
     <h1 class="mb-4">Valider votre commande</h1>
@@ -44,12 +85,24 @@
                                 <option value="France">France</option>
                                 <option value="Algérie">Algérie</option>
                                 <option value="Maroc">Maroc</option>
-                                <option value="Autre">Autre</option>
                             </select>
                         </div>
                         <div class="mb-3">
-                            <label class="form-label">Téléphone *</label>
-                            <input type="tel" class="form-control" name="telephone" required placeholder="+216 12 345 678" autocomplete="tel">
+                            <label class="form-label">Téléphone (format international) *</label>
+                            <input
+                                id="telephone"
+                                type="tel"
+                                class="form-control"
+                                name="telephone"
+                                required
+                                autocomplete="off"
+                                inputmode="tel"
+                                pattern="^[0-9+\s]{8,20}$"
+                            >
+                            <div id="telephoneError" class="phone-error text-danger mt-1"></div>
+                            <small class="text-muted">
+                                Choisissez le pays (drapeau) puis saisissez le numéro. Le code pays sera ajouté automatiquement.
+                            </small>
                         </div>
                         <hr class="my-4">
                         <h5 class="card-title mb-3">Articles de la commande</h5>
@@ -91,4 +144,165 @@
         </div>
     </div>
 </div>
+{% endblock %}
+
+{% block scripts %}
+    {{ parent() }}
+    <script src="https://cdn.jsdelivr.net/npm/intl-tel-input@17.0.19/build/js/intlTelInput.min.js" integrity="sha256-5I1+Ldsl2ticghxHLx/9PMAEDocqk6Z8M7CAAV0IYLw=" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="https://cdn.jsdelivr.net/npm/intl-tel-input@17.0.19/build/js/utils.js" integrity="sha256-TTgkB2nPbivPidwJ6j3mrlqMLyAv/xj3AxQXvv+v0lQ=" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            var input = document.querySelector("#telephone");
+            if (!input || !window.intlTelInput) return;
+
+            var errorEl = document.getElementById('telephoneError');
+
+            var iti = window.intlTelInput(input, {
+                // Tunisie par défaut, mais tous les pays disponibles
+                initialCountry: "tn",
+                preferredCountries: ["tn","fr","dz","ma"],
+                separateDialCode: true,
+                nationalMode: false,
+                utilsScript: "https://cdn.jsdelivr.net/npm/intl-tel-input@17.0.19/build/js/utils.js"
+            });
+
+            // Ajouter un bouton/ligne "Fermer" en haut de la liste des pays
+            setTimeout(function () {
+                try {
+                    var container = input.closest('.iti');
+                    if (!container) return;
+                    var countryList = container.querySelector('.iti__country-list');
+                    if (!countryList) return;
+
+                    // Ne pas dupliquer si déjà présent
+                    if (countryList.querySelector('.iti__country--close')) return;
+
+                    var closeItem = document.createElement('li');
+                    closeItem.className = 'iti__country iti__country--close';
+                    closeItem.style.borderBottom = '1px solid #e9ecef';
+                    closeItem.innerHTML = '<span style="font-size:0.85rem;color:#6c757d;">Fermer la liste</span>';
+                    closeItem.addEventListener('click', function (e) {
+                        e.preventDefault();
+                        if (iti && typeof iti.closeDropdown === 'function') {
+                            iti.closeDropdown();
+                        }
+                    });
+                    countryList.insertBefore(closeItem, countryList.firstChild);
+
+                    // Si on clique n'importe où dans la liste (sur un pays, ou dans le blanc),
+                    // on ferme la liste juste après le clic.
+                    countryList.addEventListener('click', function () {
+                        if (iti && typeof iti.closeDropdown === 'function') {
+                            setTimeout(function () {
+                                iti.closeDropdown();
+                            }, 50);
+                        }
+                    });
+                } catch (e) {
+                    // silencieux
+                }
+            }, 500);
+
+            // IMPORTANT : n'ouvrir la liste des pays QUE quand on clique sur l'icône (drapeau)
+            // Si l'utilisateur clique dans le champ, on ferme la liste.
+            input.addEventListener('click', function () {
+                if (iti && typeof iti.closeDropdown === 'function') {
+                    iti.closeDropdown();
+                }
+            });
+            input.addEventListener('focus', function () {
+                if (iti && typeof iti.closeDropdown === 'function') {
+                    iti.closeDropdown();
+                }
+            });
+
+            function clearError() {
+                if (!errorEl) return;
+                errorEl.style.display = 'none';
+                errorEl.textContent = '';
+            }
+
+            // Empêcher les lettres au clavier (on garde chiffres, + et navigation)
+            input.addEventListener('keydown', function (e) {
+                var allowedKeys = [
+                    'Backspace', 'Delete', 'ArrowLeft', 'ArrowRight',
+                    'Tab', 'Home', 'End'
+                ];
+                var isCtrlCombo = (e.ctrlKey || e.metaKey) && ['a','c','v','x'].includes(e.key.toLowerCase());
+
+                if (allowedKeys.includes(e.key) || isCtrlCombo) {
+                    return;
+                }
+
+                if (!/^[0-9+\s]$/.test(e.key)) {
+                    e.preventDefault();
+                }
+
+                // Touche Echap : fermer explicitement la liste des pays
+                if (e.key === 'Escape' || e.key === 'Esc') {
+                    if (iti && typeof iti.closeDropdown === 'function') {
+                        iti.closeDropdown();
+                    }
+                }
+            });
+
+            // Nettoyage après collage / auto-remplissage : ne garder que chiffres, espaces et +
+            input.addEventListener('input', function () {
+                this.value = this.value.replace(/[^0-9+\s]/g, '');
+                clearError();
+            });
+
+            var form = input.closest('form');
+            if (!form) return;
+
+            form.addEventListener('submit', function (e) {
+                clearError();
+
+                if (!iti.isValidNumber()) {
+                    e.preventDefault();
+
+                    var msg = "Merci de saisir un numéro valide pour le pays sélectionné.";
+                    if (window.intlTelInputUtils) {
+                        var vErr = window.intlTelInputUtils.validationError;
+                        switch (iti.getValidationError()) {
+                            case vErr.TOO_SHORT:
+                                msg = "Le numéro est trop court pour ce pays.";
+                                break;
+                            case vErr.TOO_LONG:
+                                msg = "Le numéro est trop long pour ce pays.";
+                                break;
+                            case vErr.INVALID_COUNTRY_CODE:
+                                msg = "L'indicatif pays est invalide.";
+                                break;
+                            case vErr.NOT_A_NUMBER:
+                                msg = "La valeur saisie n'est pas un numéro.";
+                                break;
+                        }
+                    }
+
+                    if (errorEl) {
+                        errorEl.textContent = msg;
+                        errorEl.style.display = 'block';
+                    } else {
+                        alert(msg);
+                    }
+                    input.focus();
+                    return false;
+                }
+
+                // On enregistre le téléphone au format international complet (+216....)
+                // et on le place aussi dans un champ caché telephone_e164 pour le serveur
+                var e164 = iti.getNumber();
+                input.value = e164;
+                var hidden = document.querySelector('input[name=\"telephone_e164\"]');
+                if (!hidden) {
+                    hidden = document.createElement('input');
+                    hidden.type = 'hidden';
+                    hidden.name = 'telephone_e164';
+                    form.appendChild(hidden);
+                }
+                hidden.value = e164;
+            });
+        });
+    </script>
 {% endblock %}
