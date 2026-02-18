@@ -1,0 +1,137 @@
+﻿{% extends 'admin/base_admin.html.twig' %}
+
+{% block title %}Nos medecins - MediConnect{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <link href="{{ asset('assets/css/patient_clinic.css') }}" rel="stylesheet">
+    <style>
+        #doctors-list-container.is-loading {
+            opacity: 0.6;
+            pointer-events: none;
+            transition: opacity 0.2s ease;
+        }
+    </style>
+{% endblock %}
+
+{% block admin_content %}
+<div class="patient-medecins">
+    <div class="page-title-section mb-4">
+        <h1 class="h3 mb-2">Nos medecins</h1>
+        <p class="text-muted">Consultez nos medecins et prenez rendez-vous en un clic.</p>
+    </div>
+
+    <form method="get" action="{{ path('app_patient_medecins') }}" id="medecins-filter-form" class="row g-3 mb-4" data-live-search="1">
+        <div class="col-md-4">
+            <label for="filtreNom" class="form-label visually-hidden">Rechercher par nom</label>
+            <input type="text" name="nom" id="filtreNom" class="form-control" placeholder="Rechercher par nom..." value="{{ filtres.nom }}" autocomplete="off">
+        </div>
+        <div class="col-md-3">
+            <label for="filtreSpecialite" class="form-label visually-hidden">Specialite</label>
+            <select name="specialite" id="filtreSpecialite" class="form-select">
+                <option value="">Toutes les specialites</option>
+                {% for s in specialites %}
+                <option value="{{ s }}" {{ filtres.specialite == s ? 'selected' : '' }}>{{ s }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="col-md-2">
+            <label for="filtreTri" class="form-label visually-hidden">Tri</label>
+            <select name="tri" id="filtreTri" class="form-select">
+                <option value="az" {{ filtres.tri == 'az' ? 'selected' : '' }}>A - Z</option>
+                <option value="za" {{ filtres.tri == 'za' ? 'selected' : '' }}>Z - A</option>
+            </select>
+        </div>
+        <div class="col-md-3">
+            <button type="submit" class="btn btn-primary me-2"><i class="bi bi-search me-1"></i>Rechercher</button>
+            <a href="{{ path('app_patient_medecins') }}" class="btn btn-outline-secondary" id="clear-medecins-filters">Effacer</a>
+        </div>
+    </form>
+
+    <section class="doctors section">
+        <div id="doctors-list-container">
+            {{ include('patient/_medecins_list.html.twig') }}
+        </div>
+    </section>
+</div>
+{% endblock %}
+
+{% block scripts %}
+    {{ parent() }}
+    <script>
+        (function () {
+            const form = document.getElementById('medecins-filter-form');
+            const listContainer = document.getElementById('doctors-list-container');
+            if (!form || !listContainer || typeof fetch !== 'function') {
+                return;
+            }
+
+            const nomInput = form.querySelector('#filtreNom');
+            const specialiteSelect = form.querySelector('#filtreSpecialite');
+            const triSelect = form.querySelector('#filtreTri');
+            const clearBtn = document.getElementById('clear-medecins-filters');
+            let debounceTimer = null;
+            let activeRequest = null;
+
+            const buildUrl = () => {
+                const params = new URLSearchParams(new FormData(form));
+                return form.action + '?' + params.toString();
+            };
+
+            const fetchDoctors = () => {
+                const url = buildUrl();
+                listContainer.classList.add('is-loading');
+
+                if (activeRequest) {
+                    activeRequest.abort();
+                }
+                activeRequest = new AbortController();
+
+                fetch(url, {
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                    signal: activeRequest.signal
+                })
+                    .then((response) => {
+                        if (!response.ok) {
+                            throw new Error('Request failed');
+                        }
+                        return response.text();
+                    })
+                    .then((html) => {
+                        listContainer.innerHTML = html;
+                        window.history.replaceState({}, '', url);
+                    })
+                    .catch((error) => {
+                        if (error.name !== 'AbortError') {
+                            console.error(error);
+                        }
+                    })
+                    .finally(() => {
+                        listContainer.classList.remove('is-loading');
+                    });
+            };
+
+            const scheduleFetch = () => {
+                window.clearTimeout(debounceTimer);
+                debounceTimer = window.setTimeout(fetchDoctors, 300);
+            };
+
+            form.addEventListener('submit', function (event) {
+                event.preventDefault();
+                fetchDoctors();
+            });
+
+            nomInput?.addEventListener('input', scheduleFetch);
+            specialiteSelect?.addEventListener('change', fetchDoctors);
+            triSelect?.addEventListener('change', fetchDoctors);
+
+            clearBtn?.addEventListener('click', function (event) {
+                event.preventDefault();
+                form.reset();
+                fetchDoctors();
+            });
+        })();
+    </script>
+{% endblock %}

@@ -5,6 +5,7 @@ namespace App\Controller;
 use App\Entity\CommandeProduit;
 use App\Enum\StatutCommande;
 use App\Service\CartService;
+use App\Service\StockReservationService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -23,11 +24,27 @@ class PaymentController extends AbstractController
         CommandeProduit $commande,
         Request $request,
         EntityManagerInterface $em,
-        CartService $cartService
+        CartService $cartService,
+        StockReservationService $stockReservationService
     ): Response {
         // ensure the order belongs to current user
         if ($commande->getUtilisateur() !== $this->getUser()) {
             throw $this->createAccessDeniedException();
+        }
+
+        if ($stockReservationService->releaseIfExpired($commande)) {
+            $this->addFlash(
+                'error',
+                sprintf(
+                    'Reservation expiree: le stock a ete libere apres %d minutes sans paiement.',
+                    $stockReservationService->getReservationDurationMinutes()
+                )
+            );
+            return $this->redirectToRoute('app_orders_list');
+        }
+
+        if ($commande->getStatut() !== StatutCommande::EN_ATTENTE) {
+            return $this->redirectToRoute('app_order_detail', ['id' => $commande->getId()]);
         }
 
         // detect stripe secret presence so template can disable UI when missing
@@ -43,8 +60,22 @@ class PaymentController extends AbstractController
     public function createSession(
         CommandeProduit $commande,
         Request $request,
-        UrlGeneratorInterface $urlGenerator
+        UrlGeneratorInterface $urlGenerator,
+        StockReservationService $stockReservationService
     ): JsonResponse {
+        if ($commande->getUtilisateur() !== $this->getUser()) {
+            return new JsonResponse(['error' => 'Acces non autorise'], 403);
+        }
+
+        if ($stockReservationService->releaseIfExpired($commande) || $commande->getStatut() !== StatutCommande::EN_ATTENTE) {
+            return new JsonResponse([
+                'error' => sprintf(
+                    'Reservation expiree (au-dela de %d minutes) ou commande non payable.',
+                    $stockReservationService->getReservationDurationMinutes()
+                ),
+            ], 409);
+        }
+
         $stripeSecret = $_ENV['STRIPE_SECRET_KEY'] ?? $_SERVER['STRIPE_SECRET_KEY'] ?? null;
         if (!$stripeSecret) {
             return new JsonResponse(['error' => 'Stripe not configured (STRIPE_SECRET_KEY missing)'], 500);
@@ -105,4 +136,3 @@ class PaymentController extends AbstractController
         return $this->render('order/payment_cancel.html.twig', ['commande' => $commande]);
     }
 }
-

@@ -35,6 +35,10 @@
                         <div class="text-end">
                             <p class="text-muted mb-1">Date de commande</p>
                             <h6>{{ commande.dateCommande | date('d/m/Y H:i') }}</h6>
+                            <p class="text-muted mb-1 mt-2">Estimation</p>
+                            <h6>{{ commande.estimatedDeliveryDays ?: '-' }} jours</h6>
+                            <p class="text-muted mb-1 mt-2">ETA committe</p>
+                            <h6>{{ commande.deliveryEtaAt ? commande.deliveryEtaAt|date('d/m/Y H:i') : '-' }}</h6>
                         </div>
                     </div>
 
@@ -137,6 +141,10 @@
                     <address>
                         {{ commande.adresseLivraison | nl2br }}
                     </address>
+                    <hr>
+                    <p class="mb-1"><strong>Ville:</strong> {{ commande.deliveryCity ?: '-' }}</p>
+                    <p class="mb-1"><strong>Trafic:</strong> {{ commande.deliveryTrafficLevel }}</p>
+                    <p class="mb-0"><strong>Cutoff applique:</strong> {{ commande.deliveryCutoffApplied ? 'Oui' : 'Non' }}</p>
                 </div>
             </div>
 
@@ -163,6 +171,12 @@
                         <p class="text-muted mb-1">Montant total</p>
                         <h4 class="text-primary">{{ commande.montantTotal | number_format(2, ',', ' ') }} TND</h4>
                     </div>
+
+                    {% if commande.deliverySlaBreached %}
+                        <div class="alert alert-warning py-2">
+                            SLA depassee - penalite interne: {{ commande.deliveryDelayPenaltyPoints }} points
+                        </div>
+                    {% endif %}
 
                     <button class="btn btn-primary w-100" onclick="window.print()">
                         <i class="bi bi-printer"></i> Imprimer

@@ -24,7 +24,11 @@
                             <div class="col-auto profile-avatar-col">
                                 <div class="profile-avatar-wrap">
                                     <div class="profile-avatar-circle">
-                                        <i class="bi bi-person-fill"></i>
+                                        {% if user.photo %}
+                                            <img src="{{ asset(user.photo) }}" alt="{{ user.nomComplet }}" class="profile-avatar-img">
+                                        {% else %}
+                                            <i class="bi bi-person-fill"></i>
+                                        {% endif %}
                                     </div>
                                     <div class="profile-status-indicator {% if user.statut == constant('App\\Entity\\StatutCompte::ACTIF') %}active{% elseif user.statut == constant('App\\Entity\\StatutCompte::SUSPENDU') %}suspended{% else %}banned{% endif %}"></div>
                                 </div>
@@ -40,6 +44,8 @@
                                         <span class="profile-role-badge patient"><i class="bi bi-person-fill me-1"></i>Patient</span>
                                     {% elseif user.role == constant('App\\Entity\\RoleUtilisateur::SECRETAIRE') %}
                                         <span class="profile-role-badge secretaire"><i class="bi bi-person-badge-fill me-1"></i>Secrétaire</span>
+                                    {% elseif user.role == constant('App\\Entity\\RoleUtilisateur::ORGANISATEUR') %}
+                                        <span class="profile-role-badge organisateur"><i class="bi bi-calendar-event-fill me-1"></i>Organisateur</span>
                                     {% elseif user.role == constant('App\\Entity\\RoleUtilisateur::PARTICIPATION') %}
                                         <span class="profile-role-badge participation"><i class="bi bi-people-fill me-1"></i>Participation</span>
                                     {% endif %}
@@ -67,6 +73,17 @@
                                     </div>
                                 </div>
                             </div>
+                            {% if user.telephone %}
+                            <div class="col-md-6 col-lg-4">
+                                <div class="profile-info-card h-100">
+                                    <div class="profile-info-icon"><i class="bi bi-telephone-fill"></i></div>
+                                    <div class="profile-info-content">
+                                        <span class="profile-info-label">Téléphone</span>
+                                        <span class="profile-info-value">{{ user.telephone }}</span>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endif %}
                             <div class="col-md-6 col-lg-4">
                                 <div class="profile-info-card h-100">
                                     <div class="profile-info-icon"><i class="bi bi-calendar-event-fill"></i></div>
@@ -133,6 +150,14 @@
                                         </div>
                                     </div>
                                     {% endif %}
+                                    {% if user.telephone %}
+                                    <div class="col-md-6">
+                                        <div class="profile-detail-item">
+                                            <i class="bi bi-telephone-fill"></i>
+                                            <div><span class="label">Téléphone</span><span class="value">{{ user.telephone }}</span></div>
+                                        </div>
+                                    </div>
+                                    {% endif %}
                                     {% if user.numeroLicence %}
                                     <div class="col-md-6">
                                         <div class="profile-detail-item">
@@ -149,7 +174,7 @@
                                         </div>
                                     </div>
                                     {% endif %}
-                                    {% if not user.specialite and not user.numeroLicence and not user.adresseCabinet %}
+                                    {% if not user.specialite and not user.numeroLicence and not user.adresseCabinet and not user.telephone %}
                                     <div class="col-12"><p class="text-muted mb-0"><em>Aucune information professionnelle</em></p></div>
                                     {% endif %}
                                 </div>
@@ -166,13 +191,54 @@
                                     {% endif %}
                                     {% if not user.telephone %}<div class="col-12"><p class="text-muted mb-0"><em>Aucune information complémentaire</em></p></div>{% endif %}
                                 </div>
+                            {% elseif user.role.value == 'ADMIN' %}
+                                <h5 class="profile-section-title"><i class="bi bi-shield-lock-fill me-2"></i>Informations Administrateur</h5>
+                                <div class="row g-4">
+                                    {% if user.telephone %}
+                                    <div class="col-md-6">
+                                        <div class="profile-detail-item">
+                                            <i class="bi bi-telephone-fill"></i>
+                                            <div><span class="label">Téléphone</span><span class="value">{{ user.telephone }}</span></div>
+                                        </div>
+                                    </div>
+                                    {% endif %}
+                                </div>
+                            {% elseif user.role.value == 'ORGANISATEUR' %}
+                                <h5 class="profile-section-title"><i class="bi bi-calendar-event-fill me-2"></i>Informations Organisateur</h5>
+                                <div class="row g-4">
+                                    {% if user.telephone %}
+                                    <div class="col-md-6">
+                                        <div class="profile-detail-item">
+                                            <i class="bi bi-telephone-fill"></i>
+                                            <div><span class="label">Téléphone</span><span class="value">{{ user.telephone }}</span></div>
+                                        </div>
+                                    </div>
+                                    {% endif %}
+                                    <div class="col-md-6">
+                                        <div class="profile-detail-item">
+                                            <i class="bi bi-calendar-event"></i>
+                                            <div><span class="label">Espace</span><span class="value"><a href="{{ path('app_evenement_index') }}">Mes événements</a></span></div>
+                                        </div>
+                                    </div>
+                                    {% if not user.telephone %}
+                                    <div class="col-12"><p class="text-muted mb-0"><em>Aucune information complémentaire</em></p></div>
+                                    {% endif %}
+                                </div>
                             {% elseif user.role.value == 'PARTICIPATION' %}
                                 <h5 class="profile-section-title"><i class="bi bi-people-fill me-2"></i>Informations Participation</h5>
                                 <div class="row g-4">
+                                    {% if user.telephone %}
+                                    <div class="col-md-6">
+                                        <div class="profile-detail-item">
+                                            <i class="bi bi-telephone-fill"></i>
+                                            <div><span class="label">Téléphone</span><span class="value">{{ user.telephone }}</span></div>
+                                        </div>
+                                    </div>
+                                    {% endif %}
                                     <div class="col-md-6">
                                         <div class="profile-detail-item">
                                             <i class="bi bi-person-badge"></i>
-                                            <div><span class="label">Rôle dans l'événement</span><span class="value">{{ user.roleDansEvenement.value ?? '—' }}</span></div>
+                                            <div><span class="label">R�le dans l'�v�nement</span><span class="value">{{ user.roleDansEvenement.value ?? '?' }}</span></div>
                                         </div>
                                     </div>
                                     <div class="col-md-6">
@@ -182,14 +248,12 @@
                                         </div>
                                     </div>
                                 </div>
-                            {% elseif user.role.value == 'ADMIN' %}
-                                <h5 class="profile-section-title"><i class="bi bi-shield-lock-fill me-2"></i>Administrateur MediConnect</h5>
-                                <p class="text-muted mb-0">Compte administrateur avec accès complet à la plateforme.</p>
                             {% endif %}
                         </div>
 
                         {# Actions #}
                         <div class="profile-actions mt-5 pt-4 border-top">
+                            {% if is_own_profile|default(true) %}
                             <a href="{{ path('app_settings') }}" class="btn btn-primary btn-lg px-4">
                                 <i class="bi bi-gear-fill me-2"></i>Paramètres
                             </a>
@@ -204,6 +268,14 @@
                             <a href="{{ path('app_logout') }}" class="btn btn-danger btn-lg px-4">
                                 <i class="bi bi-box-arrow-right me-2"></i>Déconnexion
                             </a>
+                            {% else %}
+                            <a href="javascript:history.back()" class="btn btn-outline-primary btn-lg px-4">
+                                <i class="bi bi-arrow-left me-2"></i>Retour
+                            </a>
+                            <a href="{{ path('app_home') }}" class="btn btn-outline-secondary btn-lg px-4">
+                                <i class="bi bi-house-door-fill me-2"></i>Accueil
+                            </a>
+                            {% endif %}
                         </div>
                     </div>
                 </div>

@@ -11,6 +11,12 @@
         </a>
     </div>
 
+    {% for type, messages in app.flashes %}
+        {% for message in messages %}
+            <div class="alert alert-{{ type == 'error' ? 'danger' : type }} mb-3">{{ message }}</div>
+        {% endfor %}
+    {% endfor %}
+
     {% if commandes | length > 0 %}
         <div class="row">
             {% for commande in commandes %}
@@ -35,6 +41,17 @@
                                 <strong>Montant:</strong>
                                 <span class="h5 text-primary">{{ commande.montantTotal | number_format(2, ',', ' ') }} TND</span>
                             </p>
+                            <p class="mb-0 mt-2">
+                                <strong>Estimation:</strong>
+                                {{ commande.estimatedDeliveryDays ?: '-' }} jours
+                            </p>
+                            <p class="mb-0">
+                                <strong>ETA:</strong>
+                                {{ commande.deliveryEtaAt ? commande.deliveryEtaAt|date('d/m/Y H:i') : '-' }}
+                            </p>
+                            {% if commande.deliverySlaBreached %}
+                                <span class="badge bg-warning text-dark mt-2">SLA depassee</span>
+                            {% endif %}
                         </div>
                         <div class="card-footer bg-white">
                             <div class="d-grid gap-2">

@@ -42,4 +42,34 @@ class CommandeProduitRepository extends ServiceEntityRepository
             ->getQuery()
             ->getResult();
     }
+
+    public function findExpiredPendingReservations(\DateTimeInterface $cutoff): array
+    {
+        return $this->createQueryBuilder('c')
+            ->where('c.statut = :status')
+            ->andWhere('c.dateCommande <= :cutoff')
+            ->setParameter('status', \App\Enum\StatutCommande::EN_ATTENTE)
+            ->setParameter('cutoff', $cutoff)
+            ->orderBy('c.dateCommande', 'ASC')
+            ->getQuery()
+            ->getResult();
+    }
+
+    public function findPastEtaWithoutPenalty(\DateTimeInterface $now): array
+    {
+        return $this->createQueryBuilder('c')
+            ->where('c.deliveryEtaAt IS NOT NULL')
+            ->andWhere('c.deliveryEtaAt < :now')
+            ->andWhere('c.deliverySlaBreached = :breached')
+            ->andWhere('c.statut NOT IN (:excludedStatuses)')
+            ->setParameter('now', $now)
+            ->setParameter('breached', false)
+            ->setParameter('excludedStatuses', [
+                \App\Enum\StatutCommande::LIVREE->value,
+                \App\Enum\StatutCommande::ANNULEE->value,
+            ])
+            ->orderBy('c.deliveryEtaAt', 'ASC')
+            ->getQuery()
+            ->getResult();
+    }
 }

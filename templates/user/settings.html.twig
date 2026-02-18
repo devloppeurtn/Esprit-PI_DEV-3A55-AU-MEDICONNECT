@@ -4,6 +4,7 @@
 
 {% block stylesheets %}
     <link href="{{ asset('assets/css/profile.css') }}" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css">
     <style>
         .settings-layout { max-width: 900px; }
         .settings-section { padding: 1.5rem 0; }
@@ -57,11 +58,41 @@
 
             <div class="card border-0 shadow-sm">
                 <div class="card-body p-4 p-lg-5">
-                    {{ form_start(form, {'attr': {'class': 'settings-form'}}) }}
+                    {{ form_start(form, {'attr': {'class': 'settings-form', 'novalidate': 'novalidate'}}) }}
 
                     <div class="settings-section">
                         <h5><i class="bi bi-person-fill me-2"></i>Informations générales</h5>
                         <p class="text-muted small">Vos informations de base utilisées sur la plateforme</p>
+                        
+                        {# Photo de profil #}
+                        <div class="mb-4">
+                            <label class="form-label">Photo de profil</label>
+                            <div class="d-flex align-items-center gap-4">
+                                <div class="photo-preview-container" style="position: relative; cursor: pointer;" onclick="openPhotoSelector();">
+                                    <div class="photo-preview-circle" style="width: 100px; height: 100px; border-radius: 50%; border: 3px solid #175cdd; background: #f8f9fa; display: flex; align-items: center; justify-content: center; overflow: hidden; position: relative; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
+                                        {% if user.photo %}
+                                            <img src="{{ asset(user.photo) }}" alt="Photo de profil" id="photoPreview" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">
+                                        {% else %}
+                                            <i class="bi bi-camera-fill" style="font-size: 2.5rem; color: #6c757d;"></i>
+                                        {% endif %}
+                                    </div>
+                                    <button type="button" class="btn btn-sm btn-primary position-absolute bottom-0 end-0 rounded-circle" style="width: 32px; height: 32px; padding: 0; border: 2px solid white; box-shadow: 0 2px 4px rgba(0,0,0,0.2); z-index: 10;" onclick="event.stopPropagation(); openPhotoSelector();">
+                                        <i class="bi bi-camera-fill"></i>
+                                    </button>
+                                </div>
+                                <div class="flex-grow-1">
+                                    {{ form_widget(form.photo, {'attr': {'class': 'form-control d-none photo-input-field', 'accept': 'image/*', 'onchange': 'previewPhoto(this)'}}) }}
+                                    <small class="form-text text-muted d-block">Cliquez sur la photo ou le bouton caméra pour ajouter/modifier votre photo de profil</small>
+                                    <small class="form-text text-muted d-block">Formats acceptés: JPEG, PNG, GIF, WebP (max 5 Mo)</small>
+                                    {% if user.photo %}
+                                        <button type="button" class="btn btn-sm btn-outline-danger mt-2" onclick="removePhoto()">
+                                            <i class="bi bi-trash me-1"></i>Supprimer la photo
+                                        </button>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                        
                         <div class="row g-3">
                             <div class="col-md-6">
                                 {{ form_row(form.nomComplet) }}
@@ -137,4 +168,322 @@
         </div>
     </div>
 </div>
+
+<!-- Modal pour rogner la photo -->
+<div class="modal fade" id="photoCropModal" tabindex="-1" aria-labelledby="photoCropModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" style="max-width: 650px;">
+        <div class="modal-content">
+            <div class="modal-header py-2">
+                <h6 class="modal-title mb-0" id="photoCropModalLabel">
+                    <i class="bi bi-scissors me-1"></i>Rogner votre photo
+                </h6>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body" style="padding: 0.75rem;">
+                <div class="text-center mb-2">
+                    <div class="d-flex justify-content-center gap-1 flex-wrap mb-2">
+                        <button type="button" class="btn btn-sm btn-outline-secondary" id="zoomInBtn">
+                            <i class="bi bi-zoom-in"></i>
+                        </button>
+                        <button type="button" class="btn btn-sm btn-outline-secondary" id="zoomOutBtn">
+                            <i class="bi bi-zoom-out"></i>
+                        </button>
+                        <button type="button" class="btn btn-sm btn-outline-secondary" id="resetZoomBtn">
+                            <i class="bi bi-arrow-clockwise"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="d-flex justify-content-center" style="height: 450px; align-items: center; background: #f8f9fa; border-radius: 6px; padding: 10px; overflow: hidden;">
+                    <div style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center;">
+                        <img id="photoCropImage" src="" alt="Photo à rogner" style="max-width: 100%; max-height: 100%; display: block;">
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer py-2">
+                <button type="button" class="btn btn-sm btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                <button type="button" class="btn btn-sm btn-primary" id="cropPhotoBtn">
+                    <i class="bi bi-check-lg me-1"></i>Valider
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
+<script>
+let cropper = null;
+let currentPhotoFile = null;
+
+function openPhotoSelector() {
+    // Chercher le champ de fichier par sa classe ou son type
+    const photoInput = document.querySelector('input[type="file"].photo-input-field') || 
+                       document.querySelector('input[type="file"][accept="image/*"]') ||
+                       document.querySelector('input[name*="photo"]');
+    
+    if (photoInput) {
+        photoInput.click();
+    } else {
+        console.error('Champ de fichier photo introuvable');
+        alert('Erreur : Impossible de trouver le champ de sélection de fichier. Veuillez recharger la page.');
+    }
+}
+
+function previewPhoto(input) {
+    if (input.files && input.files[0]) {
+        // Vérifier la taille du fichier (5 Mo max)
+        if (input.files[0].size > 5 * 1024 * 1024) {
+            alert('Le fichier est trop volumineux. La taille maximale autorisée est de 5 Mo.');
+            input.value = '';
+            return;
+        }
+        
+        // Vérifier le type de fichier
+        const allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+        if (!allowedTypes.includes(input.files[0].type)) {
+            alert('Type de fichier non autorisé. Veuillez sélectionner une image (JPEG, PNG, GIF ou WebP).');
+            input.value = '';
+            return;
+        }
+        
+        // Sauvegarder le fichier pour le rognage
+        currentPhotoFile = input.files[0];
+        
+        // Ouvrir la modal de rognage
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            const cropImage = document.getElementById('photoCropImage');
+            const modal = new bootstrap.Modal(document.getElementById('photoCropModal'));
+            
+            // Détruire l'instance cropper précédente si elle existe
+            if (cropper) {
+                cropper.destroy();
+                cropper = null;
+            }
+            
+            cropImage.src = e.target.result;
+            modal.show();
+            
+                        // Initialiser Cropper.js après l'ouverture de la modal
+                        cropImage.onload = function() {
+                            cropper = new Cropper(cropImage, {
+                                aspectRatio: 1, // Format carré pour photo de profil circulaire
+                                viewMode: 1,
+                                dragMode: 'move',
+                                autoCropArea: 0.9,
+                                restore: false,
+                                guides: true,
+                                center: true,
+                                highlight: false,
+                                cropBoxMovable: true,
+                                cropBoxResizable: true,
+                                toggleDragModeOnDblclick: false,
+                                zoomable: true,
+                                zoomOnTouch: true,
+                                zoomOnWheel: true,
+                                wheelZoomRatio: 0.1,
+                                minCropBoxWidth: 200,
+                                minCropBoxHeight: 200,
+                                ready: function() {
+                                    // Zoomer l'image pour qu'elle remplisse vraiment tout l'espace disponible
+                                    const containerData = this.cropper.getContainerData();
+                                    const imageData = this.cropper.getImageData();
+                                    
+                                    // Calculer le zoom pour que l'image remplisse complètement le conteneur
+                                    // On prend la dimension la plus grande pour remplir tout l'espace
+                                    const containerWidth = containerData.width;
+                                    const containerHeight = containerData.height;
+                                    const imageWidth = imageData.naturalWidth;
+                                    const imageHeight = imageData.naturalHeight;
+                                    
+                                    // Calculer le ratio pour remplir le conteneur (avec un peu de marge)
+                                    const scaleX = containerWidth / imageWidth;
+                                    const scaleY = containerHeight / imageHeight;
+                                    // Prendre le plus grand pour remplir complètement
+                                    let scale = Math.max(scaleX, scaleY) * 1.1; // 1.1 pour agrandir encore plus
+                                    
+                                    // Appliquer le zoom pour agrandir l'image
+                                    this.cropper.zoomTo(scale);
+                                    
+                                    // Ajuster la zone de rognage pour qu'elle soit très grande
+                                    const containerSize = Math.min(containerWidth, containerHeight);
+                                    const cropSize = containerSize * 0.85;
+                                    this.cropper.setCropBoxData({
+                                        width: cropSize,
+                                        height: cropSize
+                                    });
+                                }
+                            });
+                            
+                            // Boutons de contrôle du zoom
+                            document.getElementById('zoomInBtn').addEventListener('click', function() {
+                                cropper.zoom(0.2);
+                            });
+                            
+                            document.getElementById('zoomOutBtn').addEventListener('click', function() {
+                                cropper.zoom(-0.2);
+                            });
+                            
+                            document.getElementById('resetZoomBtn').addEventListener('click', function() {
+                                cropper.reset();
+                                const containerData = cropper.getContainerData();
+                                const imageData = cropper.getImageData();
+                                const containerWidth = containerData.width;
+                                const containerHeight = containerData.height;
+                                const imageWidth = imageData.naturalWidth;
+                                const imageHeight = imageData.naturalHeight;
+                                const scaleX = containerWidth / imageWidth;
+                                const scaleY = containerHeight / imageHeight;
+                                let scale = Math.max(scaleX, scaleY) * 1.1;
+                                cropper.zoomTo(scale);
+                                const containerSize = Math.min(containerWidth, containerHeight);
+                                const cropSize = containerSize * 0.85;
+                                cropper.setCropBoxData({
+                                    width: cropSize,
+                                    height: cropSize
+                                });
+                            });
+                        };
+        };
+        reader.readAsDataURL(input.files[0]);
+    }
+}
+
+function removePhoto() {
+    if (confirm('�tes-vous s�r de vouloir supprimer votre photo de profil ?')) {
+        const input = document.querySelector('input[type="file"].photo-input-field') || 
+                     document.querySelector('input[type="file"][accept="image/*"]') ||
+                     document.querySelector('input[name*="photo"]');
+        if (input) {
+            input.value = '';
+        }
+        const container = document.querySelector('.photo-preview-circle');
+        if (container) {
+            container.innerHTML = '<i class="bi bi-camera-fill" style="font-size: 2.5rem; color: #6c757d;"></i>';
+        }
+    }
+}
+
+// Gérer le bouton de validation du rognage
+document.addEventListener('DOMContentLoaded', function() {
+    const photoInput = document.querySelector('input[type="file"].photo-input-field') || 
+                      document.querySelector('input[type="file"][accept="image/*"]') ||
+                      document.querySelector('input[name*="photo"]');
+    if (photoInput) {
+        photoInput.addEventListener('change', function() {
+            previewPhoto(this);
+        });
+    }
+    
+    // Bouton pour valider le rognage
+    const cropPhotoBtn = document.getElementById('cropPhotoBtn');
+    if (cropPhotoBtn) {
+        cropPhotoBtn.addEventListener('click', function() {
+            if (cropper) {
+                try {
+                    // Obtenir l'image rognée
+                    const canvas = cropper.getCroppedCanvas({
+                        width: 400,
+                        height: 400,
+                        imageSmoothingEnabled: true,
+                        imageSmoothingQuality: 'high'
+                    });
+                    
+                    // Convertir en blob puis en File
+                    canvas.toBlob(function(blob) {
+                        if (!blob) {
+                            console.error('Erreur lors de la création du blob');
+                            alert('Erreur lors du rognage de l\'image. Veuillez réessayer.');
+                            return;
+                        }
+                        
+                        // Créer un nouveau File à partir du blob
+                        const croppedFile = new File([blob], currentPhotoFile.name, {
+                            type: currentPhotoFile.type,
+                            lastModified: Date.now()
+                        });
+                        
+                        // Créer un DataTransfer pour remplacer le fichier dans l'input
+                        const dataTransfer = new DataTransfer();
+                        dataTransfer.items.add(croppedFile);
+                        photoInput.files = dataTransfer.files;
+                        
+                        // Afficher la prévisualisation
+                        const preview = document.getElementById('photoPreview');
+                        const container = document.querySelector('.photo-preview-circle');
+                        const previewUrl = canvas.toDataURL();
+                        
+                        if (preview) {
+                            preview.src = previewUrl;
+                        } else if (container) {
+                            container.innerHTML = '<img src="' + previewUrl + '" id="photoPreview" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">';
+                        }
+                        
+                        // Détruire l'instance cropper AVANT de fermer la modal
+                        if (cropper) {
+                            cropper.destroy();
+                            cropper = null;
+                        }
+                        
+                        // Fermer la modal et supprimer le backdrop
+                        const modalElement = document.getElementById('photoCropModal');
+                        const modal = bootstrap.Modal.getInstance(modalElement);
+                        if (modal) {
+                            modal.hide();
+                        }
+                        
+                        // Forcer la suppression du backdrop si nécessaire
+                        setTimeout(function() {
+                            const backdrops = document.querySelectorAll('.modal-backdrop');
+                            backdrops.forEach(function(backdrop) {
+                                backdrop.remove();
+                            });
+                            document.body.classList.remove('modal-open');
+                            document.body.style.overflow = '';
+                            document.body.style.paddingRight = '';
+                        }, 100);
+                    }, currentPhotoFile.type, 0.9);
+                } catch (error) {
+                    console.error('Erreur lors du rognage:', error);
+                    alert('Erreur lors du rognage de l\'image. Veuillez réessayer.');
+                }
+            }
+        });
+    }
+    
+    // Nettoyer cropper quand la modal est fermée
+    const photoCropModal = document.getElementById('photoCropModal');
+    if (photoCropModal) {
+        photoCropModal.addEventListener('hidden.bs.modal', function() {
+            if (cropper) {
+                cropper.destroy();
+                cropper = null;
+            }
+            // S'assurer que le backdrop est supprimé
+            const backdrops = document.querySelectorAll('.modal-backdrop');
+            backdrops.forEach(function(backdrop) {
+                backdrop.remove();
+            });
+            document.body.classList.remove('modal-open');
+            document.body.style.overflow = '';
+            document.body.style.paddingRight = '';
+        });
+    }
+    
+    // Gérer aussi la fermeture avec le bouton Annuler
+    const photoCropModalCancel = photoCropModal?.querySelector('[data-bs-dismiss="modal"]');
+    if (photoCropModalCancel) {
+        photoCropModalCancel.addEventListener('click', function() {
+            setTimeout(function() {
+                const backdrops = document.querySelectorAll('.modal-backdrop');
+                backdrops.forEach(function(backdrop) {
+                    backdrop.remove();
+                });
+                document.body.classList.remove('modal-open');
+                document.body.style.overflow = '';
+                document.body.style.paddingRight = '';
+            }, 100);
+        });
+    }
+});
+</script>
 {% endblock %}

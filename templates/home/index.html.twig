@@ -1,4 +1,4 @@
-{% extends 'base.html.twig' %}
+﻿{% extends 'base.html.twig' %}
 
 {% block title %}Accueil - MediConnect{% endblock %}
 
@@ -6,13 +6,27 @@
 
 {% block stylesheets %}
   <!-- Vendor CSS Files -->
-  <link href="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.css" rel="stylesheet">
-  <link href="https://cdn.jsdelivr.net/npm/glightbox/dist/css/glightbox.min.css" rel="stylesheet">
-  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet">
-  <link href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" rel="stylesheet">
+  <link href="{{ asset('assets/vendor/bootstrap/css/bootstrap.min.css') }}" rel="stylesheet">
+  <link href="{{ asset('assets/vendor/aos/aos.css') }}" rel="stylesheet">
+  <link href="{{ asset('assets/vendor/glightbox/css/glightbox.min.css') }}" rel="stylesheet">
+  <link href="{{ asset('assets/vendor/fontawesome-free/css/all.min.css') }}" rel="stylesheet">
+  <link href="{{ asset('assets/vendor/swiper/swiper-bundle.min.css') }}" rel="stylesheet">
 {% endblock %}
 
 {% block body %}
+  {% if app.user and is_granted('ROLE_PATIENT') %}
+    {% set rdv_link = path('app_patient_medecins') %}
+  {% elseif app.user and is_granted('ROLE_ADMIN') %}
+    {% set rdv_link = path('app_admin_rendezvous_index') %}
+  {% elseif app.user and is_granted('ROLE_MEDECIN') %}
+    {% set rdv_link = path('app_medecin_rendez_vous') %}
+  {% elseif app.user and is_granted('ROLE_SECRETAIRE') %}
+    {% set rdv_link = path('app_secretaire_rendez_vous') %}
+  {% else %}
+    {% set rdv_link = path('app_login') %}
+  {% endif %}
+  {% set doctors_list_link = path('app_medecins_public') %}
+
   <main class="main">
 
     <!-- Hero Section -->
@@ -65,7 +79,7 @@
               </div>
 
               <div class="hero-actions" data-aos="fade-right" data-aos-delay="600">
-                <a href="#!" class="btn btn-primary">Prendre un Rendez-vous</a>
+                <a href="{{ rdv_link }}" class="btn btn-primary">Prendre un Rendez-vous</a>
                 <a href="https://www.youtube.com/watch?v=Y7f98aduVJ8" class="btn btn-outline glightbox">
                   <i class="bi bi-play-circle me-2"></i>
                   Découvrir la Plateforme
@@ -124,6 +138,41 @@
       </div>
 
     </section><!-- /Hero Section -->
+
+    <!-- Events Preview Section -->
+    <section id="home-events" class="home-events section py-5">
+      <div class="container" data-aos="fade-up">
+        <div class="section-title text-center mb-4">
+          <h2>?v?nements ? venir</h2>
+          <p>Découvrez nos prochains événements et inscrivez-vous sans créer de compte</p>
+        </div>
+        <div class="row g-4">
+          {% for item in events|default([]) %}
+            <div class="col-lg-4" data-aos="fade-up">
+              <div class="card event-card shadow-sm h-100">
+                <div class="card-body">
+                  <h5 class="card-title">{{ item.title }}</h5>
+                  {% if item.eventDate %}
+                    <p class="text-info small mb-2"><i class="bi bi-calendar-event"></i> {{ item.eventDate|date('d-m-Y') }}</p>
+                  {% endif %}
+                  <p class="card-text text-muted">{{ (item.content|length > 120) ? item.content|slice(0,120) ~ '...' : (item.content ?? '') }}</p>
+                </div>
+                <div class="card-footer bg-white border-0 d-flex justify-content-between align-items-center">
+                  <a href="{{ path('app_evenement_show', {id: item.id}) }}" class="btn btn-outline-primary btn-sm">Détails</a>
+                  <a href="{{ path('app_evenement_show', {id: item.id}) }}#participer" class="btn btn-success btn-sm">
+                    <i class="bi bi-check-circle me-1"></i> Participer
+                  </a>
+                </div>
+              </div>
+            </div>
+          {% else %}
+            <div class="col-12">
+              <div class="alert alert-info mb-0">Aucun événement à venir pour le moment.</div>
+            </div>
+          {% endfor %}
+        </div>
+      </div>
+    </section>
 
     <!-- Home About Section -->
     <section id="home-about" class="home-about section">
@@ -354,7 +403,7 @@
               <div class="service-details">
                 <h2>Plateforme Médicale Complète</h2>
                 <p>MediConnect offre une solution complète pour la gestion de votre santé. Que vous soyez patient ou médecin, bénéficiez d'outils modernes et sécurisés pour optimiser vos soins médicaux.</p>
-                <a href="#!" class="main-cta">Découvrir nos Services</a>
+                <a href="{{ path('app_home') }}#featured-services" class="main-cta">Découvrir nos Services</a>
               </div>
             </div>
           </div>
@@ -475,22 +524,19 @@
               <h3 class="search-title">Trouvez le Médecin Idéal</h3>
               <p class="search-subtitle">Recherchez parmi notre répertoire complet de professionnels de santé expérimentés
               </p>
-              <form class="search-form" action="#!" method="#">
+              <form class="search-form" action="{{ doctors_list_link }}" method="get">
                 <div class="search-input-group">
                   <div class="input-wrapper">
                     <i class="bi bi-person"></i>
-                    <input type="text" class="form-control" name="doctor_name" placeholder="Nom du médecin">
+                    <input type="text" class="form-control" name="nom" placeholder="Nom du médecin">
                   </div>
                   <div class="select-wrapper">
                     <i class="bi bi-heart-pulse"></i>
-                    <select class="form-select" name="specialty">
+                    <select class="form-select" name="specialite">
                       <option value="">Toutes les Spécialités</option>
-                      <option value="cardiology">Cardiologie</option>
-                      <option value="neurology">Neurologie</option>
-                      <option value="orthopedics">Orthopédie</option>
-                      <option value="pediatrics">Pédiatrie</option>
-                      <option value="dermatology">Dermatologie</option>
-                      <option value="oncology">Oncologie</option>
+                      {% for specialty in homeDoctorSpecialites|default([]) %}
+                        <option value="{{ specialty }}">{{ specialty }}</option>
+                      {% endfor %}
                     </select>
                   </div>
                   <button type="submit" class="search-btn">
@@ -504,202 +550,69 @@
         </div>
 
         <div class="doctors-grid" data-aos="fade-up" data-aos-delay="300">
-          <div class="doctor-profile" data-aos="zoom-in" data-aos-delay="100">
-            <div class="profile-header">
-              <div class="doctor-avatar">
-                <img src="{{ asset('assets/img/health/staff-2.webp') }}" alt="Dr. Amanda Foster" class="img-fluid">
-                <div class="status-indicator available"></div>
-              </div>
-              <div class="doctor-details">
-                <h4>Dr. Amanda Foster</h4>
-                <span class="specialty-tag">Spécialiste Cardiologie</span>
-                <div class="experience-info">
-                  <i class="bi bi-award"></i>
-                  <span>14 ans d'expérience</span>
+          {% set statusClasses = ['available', 'busy', 'available', 'offline', 'available', 'available'] %}
+          {% set ratingScores = ['4.9', '4.8', '5.0', '4.7', '4.5', '4.9'] %}
+          {% set reviewCounts = ['127', '89', '203', '156', '74', '194'] %}
+
+          {% for medecin in homeDoctors|default([]) %}
+            {% set imgIndex = loop.index0 % (staffImages|length) %}
+            {% set staffImg = staffImages[imgIndex] %}
+            {% set statusClass = statusClasses[loop.index0 % (statusClasses|length)] %}
+            {% set ratingScore = ratingScores[loop.index0 % (ratingScores|length)] %}
+            {% set reviewCount = reviewCounts[loop.index0 % (reviewCounts|length)] %}
+            {% set details_link = (app.user and is_granted('ROLE_USER')) ? path('app_user_profile_view', {id: medecin.id}) : path('app_login') %}
+            {% if app.user and is_granted('ROLE_PATIENT') %}
+              {% set booking_link = path('app_patient_prendre_rdv', {medecin: medecin.id}) %}
+            {% elseif app.user and is_granted('ROLE_USER') %}
+              {% set booking_link = details_link %}
+            {% else %}
+              {% set booking_link = path('app_login') %}
+            {% endif %}
+
+            <div class="doctor-profile" data-aos="zoom-in" data-aos-delay="{{ 100 + (loop.index0 * 100) }}">
+              <div class="profile-header">
+                <div class="doctor-avatar">
+                  {% if medecin.photo %}
+                    <img src="{{ asset(medecin.photo) }}" alt="{{ medecin.nomComplet }}" class="img-fluid">
+                  {% else %}
+                    <img src="{{ asset('assets/img/health/' ~ staffImg ~ '.webp') }}" alt="{{ medecin.nomComplet }}" class="img-fluid">
+                  {% endif %}
+                  <div class="status-indicator {{ statusClass }}"></div>
+                </div>
+                <div class="doctor-details">
+                  <h4>{{ medecin.nomComplet }}</h4>
+                  <span class="specialty-tag">{{ medecin.specialite|default('Médecin généraliste') }}</span>
+                  <div class="experience-info">
+                    <i class="bi bi-award"></i>
+                    <span>{{ medecin.adresseCabinet ? (medecin.adresseCabinet|length > 30 ? medecin.adresseCabinet|slice(0, 30) ~ '...' : medecin.adresseCabinet) : 'Cabinet MediConnect' }}</span>
+                  </div>
                 </div>
               </div>
-            </div>
-            <div class="rating-section">
-              <div class="stars">
-                <i class="bi bi-star-fill"></i>
-                <i class="bi bi-star-fill"></i>
-                <i class="bi bi-star-fill"></i>
-                <i class="bi bi-star-fill"></i>
-                <i class="bi bi-star-fill"></i>
-              </div>
-              <span class="rating-score">4.9</span>
-              <span class="review-count">(127 avis)</span>
-            </div>
-            <div class="action-buttons">
-              <a href="#!" class="btn-secondary">Voir Détails</a>
-              <a href="#!" class="btn-primary">Réserver</a>
-            </div>
-          </div><!-- End Doctor Profile -->
-
-          <div class="doctor-profile" data-aos="zoom-in" data-aos-delay="200">
-            <div class="profile-header">
-              <div class="doctor-avatar">
-                <img src="{{ asset('assets/img/health/staff-6.webp') }}" alt="Dr. Marcus Johnson" class="img-fluid">
-                <div class="status-indicator busy"></div>
-              </div>
-              <div class="doctor-details">
-                <h4>Dr. Marcus Johnson</h4>
-                <span class="specialty-tag">Expert Neurologie</span>
-                <div class="experience-info">
-                  <i class="bi bi-award"></i>
-                  <span>16 ans d'expérience</span>
+              <div class="rating-section">
+                <div class="stars">
+                  <i class="bi bi-star-fill"></i>
+                  <i class="bi bi-star-fill"></i>
+                  <i class="bi bi-star-fill"></i>
+                  <i class="bi bi-star-fill"></i>
+                  <i class="bi bi-star-fill"></i>
                 </div>
+                <span class="rating-score">{{ ratingScore }}</span>
+                <span class="review-count">({{ reviewCount }} avis)</span>
               </div>
-            </div>
-            <div class="rating-section">
-              <div class="stars">
-                <i class="bi bi-star-fill"></i>
-                <i class="bi bi-star-fill"></i>
-                <i class="bi bi-star-fill"></i>
-                <i class="bi bi-star-fill"></i>
-                <i class="bi bi-star-half"></i>
+              <div class="action-buttons">
+                <a href="{{ details_link }}" class="btn-secondary">Voir Détails</a>
+                <a href="{{ booking_link }}" class="btn-primary">Réserver</a>
               </div>
-              <span class="rating-score">4.8</span>
-              <span class="review-count">(89 avis)</span>
+            </div><!-- End Doctor Profile -->
+          {% else %}
+            <div class="alert alert-info mb-0">
+              Aucun médecin disponible pour le moment.
             </div>
-            <div class="action-buttons">
-              <a href="#!" class="btn-secondary">Voir Détails</a>
-              <a href="#!" class="btn-primary">Réserver</a>
-            </div>
-          </div><!-- End Doctor Profile -->
-
-          <div class="doctor-profile" data-aos="zoom-in" data-aos-delay="300">
-            <div class="profile-header">
-              <div class="doctor-avatar">
-                <img src="{{ asset('assets/img/health/staff-4.webp') }}" alt="Dr. Rachel Williams" class="img-fluid">
-                <div class="status-indicator available"></div>
-              </div>
-              <div class="doctor-details">
-                <h4>Dr. Rachel Williams</h4>
-                <span class="specialty-tag">Soins Pédiatriques</span>
-                <div class="experience-info">
-                  <i class="bi bi-award"></i>
-                  <span>11 ans d'expérience</span>
-                </div>
-              </div>
-            </div>
-            <div class="rating-section">
-              <div class="stars">
-                <i class="bi bi-star-fill"></i>
-                <i class="bi bi-star-fill"></i>
-                <i class="bi bi-star-fill"></i>
-                <i class="bi bi-star-fill"></i>
-                <i class="bi bi-star-fill"></i>
-              </div>
-              <span class="rating-score">5.0</span>
-              <span class="review-count">(203 avis)</span>
-            </div>
-            <div class="action-buttons">
-              <a href="#!" class="btn-secondary">Voir Détails</a>
-              <a href="#!" class="btn-primary">Réserver</a>
-            </div>
-          </div><!-- End Doctor Profile -->
-
-          <div class="doctor-profile" data-aos="zoom-in" data-aos-delay="400">
-            <div class="profile-header">
-              <div class="doctor-avatar">
-                <img src="{{ asset('assets/img/health/staff-8.webp') }}" alt="Dr. David Chen" class="img-fluid">
-                <div class="status-indicator offline"></div>
-              </div>
-              <div class="doctor-details">
-                <h4>Dr. David Chen</h4>
-                <span class="specialty-tag">Chirurgie Orthopédique</span>
-                <div class="experience-info">
-                  <i class="bi bi-award"></i>
-                  <span>22 ans d'expérience</span>
-                </div>
-              </div>
-            </div>
-            <div class="rating-section">
-              <div class="stars">
-                <i class="bi bi-star-fill"></i>
-                <i class="bi bi-star-fill"></i>
-                <i class="bi bi-star-fill"></i>
-                <i class="bi bi-star-fill"></i>
-                <i class="bi bi-star-half"></i>
-              </div>
-              <span class="rating-score">4.7</span>
-              <span class="review-count">(156 avis)</span>
-            </div>
-            <div class="action-buttons">
-              <a href="#!" class="btn-secondary">Voir Détails</a>
-              <a href="#!" class="btn-primary">Réserver</a>
-            </div>
-          </div><!-- End Doctor Profile -->
-
-          <div class="doctor-profile" data-aos="zoom-in" data-aos-delay="500">
-            <div class="profile-header">
-              <div class="doctor-avatar">
-                <img src="{{ asset('assets/img/health/staff-11.webp') }}" alt="Dr. Victoria Torres" class="img-fluid">
-                <div class="status-indicator available"></div>
-              </div>
-              <div class="doctor-details">
-                <h4>Dr. Victoria Torres</h4>
-                <span class="specialty-tag">Soins Dermatologiques</span>
-                <div class="experience-info">
-                  <i class="bi bi-award"></i>
-                  <span>9 ans d'expérience</span>
-                </div>
-              </div>
-            </div>
-            <div class="rating-section">
-              <div class="stars">
-                <i class="bi bi-star-fill"></i>
-                <i class="bi bi-star-fill"></i>
-                <i class="bi bi-star-fill"></i>
-                <i class="bi bi-star-fill"></i>
-                <i class="bi bi-star"></i>
-              </div>
-              <span class="rating-score">4.5</span>
-              <span class="review-count">(74 avis)</span>
-            </div>
-            <div class="action-buttons">
-              <a href="#!" class="btn-secondary">Voir Détails</a>
-              <a href="#!" class="btn-primary">Réserver</a>
-            </div>
-          </div><!-- End Doctor Profile -->
-
-          <div class="doctor-profile" data-aos="zoom-in" data-aos-delay="600">
-            <div class="profile-header">
-              <div class="doctor-avatar">
-                <img src="{{ asset('assets/img/health/staff-14.webp') }}" alt="Dr. Benjamin Lee" class="img-fluid">
-                <div class="status-indicator available"></div>
-              </div>
-              <div class="doctor-details">
-                <h4>Dr. Benjamin Lee</h4>
-                <span class="specialty-tag">Traitement Oncologique</span>
-                <div class="experience-info">
-                  <i class="bi bi-award"></i>
-                  <span>19 ans d'expérience</span>
-                </div>
-              </div>
-            </div>
-            <div class="rating-section">
-              <div class="stars">
-                <i class="bi bi-star-fill"></i>
-                <i class="bi bi-star-fill"></i>
-                <i class="bi bi-star-fill"></i>
-                <i class="bi bi-star-fill"></i>
-                <i class="bi bi-star-fill"></i>
-              </div>
-              <span class="rating-score">4.9</span>
-              <span class="review-count">(194 avis)</span>
-            </div>
-            <div class="action-buttons">
-              <a href="#!" class="btn-secondary">Voir Détails</a>
-              <a href="#!" class="btn-primary">Réserver</a>
-            </div>
-          </div><!-- End Doctor Profile -->
-
+          {% endfor %}
         </div>
 
         <div class="text-center mt-5" data-aos="fade-up" data-aos-delay="700">
-          <a href="#!" class="btn-view-all">
+          <a href="{{ doctors_list_link }}" class="btn-view-all">
             Voir Tous les Médecins
             <i class="bi bi-arrow-right"></i>
           </a>
@@ -723,11 +636,11 @@
                 <p>MediConnect transforme votre expérience médicale en vous offrant une plateforme complète pour gérer votre santé. Rejoignez des milliers de patients et médecins qui font confiance à notre solution numérique.</p>
 
                 <div class="cta-wrapper">
-                  <a href="#!" class="primary-cta">
+                  <a href="{{ rdv_link }}" class="primary-cta">
                     <span>Prendre un Rendez-vous</span>
                     <i class="bi bi-arrow-right"></i>
                   </a>
-                  <a href="#!" class="secondary-cta">
+                  <a href="{{ path('app_home') }}#featured-services" class="secondary-cta">
                     <span>Découvrir les Services</span>
                     <i class="bi bi-arrow-right"></i>
                   </a>
@@ -821,7 +734,7 @@
           <div class="col-lg-5">
             <div class="brand-section">
               <a href="{{ path('app_home') }}" class="logo d-flex align-items-center mb-4">
-                <img src="{{ asset('assets/img/logomed.png') }}" alt="Logo MediConnect" class="me-2">
+                <img src="{{ asset('assets/img/logomed.png') }}" alt="Logo MediConnect" class="me-2" style="max-width: 60px; height: auto;">
                 <span class="sitename">MediConnect</span>
               </a>
               <p class="brand-description">La plateforme numérique qui connecte patients et médecins pour une gestion médicale moderne, sécurisée et efficace.</p>
@@ -852,7 +765,7 @@
                     <h6>Pour les Patients</h6>
                     <nav class="footer-nav">
                       <a href="#!">Trouver un Médecin</a>
-                      <a href="#!">Prendre Rendez-vous</a>
+                      <a href="{{ rdv_link }}">Prendre Rendez-vous</a>
                       <a href="#!">Consultation en Ligne</a>
                       <a href="#!">Dossier Médical</a>
                       <a href="#!">Ordonnances</a>
@@ -944,11 +857,14 @@
 
 {% block scripts %}
   <!-- Vendor JS Files -->
-  <script src="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/glightbox/dist/js/glightbox.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@srexi/purecounterjs/dist/purecounter_vanilla.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+  <script src="{{ asset('assets/vendor/bootstrap/js/bootstrap.bundle.min.js') }}"></script>
+  <script src="{{ asset('assets/vendor/php-email-form/validate.js') }}"></script>
+  <script src="{{ asset('assets/vendor/aos/aos.js') }}"></script>
+  <script src="{{ asset('assets/vendor/glightbox/js/glightbox.min.js') }}"></script>
+  <script src="{{ asset('assets/vendor/purecounter/purecounter_vanilla.js') }}"></script>
+  <script src="{{ asset('assets/vendor/swiper/swiper-bundle.min.js') }}"></script>
 
   <!-- Main JS File -->
   <script src="{{ asset('assets/js/main.js') }}"></script>
 {% endblock %}
+

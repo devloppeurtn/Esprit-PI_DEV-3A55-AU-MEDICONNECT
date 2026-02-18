@@ -22,34 +22,28 @@ class SmsNotifier
         $fromNumber = $_ENV['TWILIO_FROM_NUMBER'] ?? $_SERVER['TWILIO_FROM_NUMBER'] ?? null;
 
         if (!$accountSid || !$authToken) {
-            $this->logger->warning('Twilio SMS not configured: missing account SID or auth token.');
+            $this->logger->warning('Twilio SMS non configuré : SID ou token manquant.');
             return;
         }
 
         if (!$messagingSid && !$fromNumber) {
-            $this->logger->warning('Twilio SMS not configured: missing MessagingServiceSid or From number.');
+            $this->logger->warning('Twilio SMS non configuré : MessagingServiceSid ou From manquant.');
             return;
         }
 
         $orderId = $commande->getId();
         $amount = number_format((float) $commande->getMontantTotal(), 2, '.', '');
-        $body = "MediConnect: Votre commande #{$orderId} est confirmée. Montant: {$amount} TND. Livraison prévue sous quelques jours. Merci !";
+        $body = "MediConnect : Votre commande #{$orderId} est confirmée. Montant : {$amount} TND. Merci !";
 
         $payload = [
             'To' => $to,
             'Body' => $body,
         ];
-
         if ($messagingSid) {
             $payload['MessagingServiceSid'] = $messagingSid;
         } else {
             $payload['From'] = $fromNumber;
         }
-
-        $this->logger->info('Twilio SMS send attempt', [
-            'to' => $to,
-            'orderId' => $commande->getId(),
-        ]);
 
         try {
             $response = $this->httpClient->request(
@@ -60,21 +54,9 @@ class SmsNotifier
                     'body' => $payload,
                 ]
             );
-
-            $status = $response->getStatusCode();
-            $responseBody = $response->getContent(false);
-            if ($status >= 300) {
-                $this->logger->error('Twilio SMS failed', [
-                    'status' => $status,
-                    'response' => $responseBody,
-                ]);
-                return;
+            if ($response->getStatusCode() >= 300) {
+                $this->logger->error('Twilio SMS échec', ['status' => $response->getStatusCode(), 'response' => $response->getContent(false)]);
             }
-
-            $this->logger->info('Twilio SMS sent', [
-                'status' => $status,
-                'response' => $responseBody,
-            ]);
         } catch (\Throwable $e) {
             $this->logger->error('Twilio SMS exception', ['error' => $e->getMessage()]);
         }

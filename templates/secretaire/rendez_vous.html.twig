@@ -1,0 +1,109 @@
+{% extends 'admin/base_admin.html.twig' %}
+
+{% block title %}Rendez-vous à valider - MediConnect{% endblock %}
+
+{% block admin_content %}
+<div class="secretaire-rendez-vous">
+    <h1 class="h3 mb-4"><i class="bi bi-calendar-check-fill me-2"></i>Rendez-vous à valider</h1>
+
+    {% if rdvsEnAttente|length > 0 %}
+    <h5 class="text-warning mb-3"><i class="bi bi-clock-history me-1"></i>En attente ({{ rdvsEnAttente|length }})</h5>
+    <div class="row g-4 mb-4">
+        {% for r in rdvsEnAttente %}
+        <div class="col-lg-6 col-xl-4">
+            <div class="card border-warning border-2 shadow-sm h-100 rdv-card">
+                <div class="card-body">
+                    <div class="d-flex align-items-center gap-2 mb-2">
+                        <div class="rdv-avatar rdv-avatar-patient">
+                            <i class="bi bi-person-fill"></i>
+                        </div>
+                        <div class="flex-grow-1">
+                            <h6 class="mb-0 fw-bold">{{ r.patient.nomComplet }}</h6>
+                            <small class="text-muted">{{ r.patient.email }}</small>
+                        </div>
+                    </div>
+                    <div class="d-flex align-items-center gap-2 mb-2 text-muted small">
+                        <i class="bi bi-heart-pulse-fill text-info"></i>
+                        <span>{{ r.medecin.nomComplet }} — {{ r.medecin.specialite|default('Médecin') }}</span>
+                    </div>
+                    <div class="mb-3">
+                        <i class="bi bi-calendar3 text-primary me-2"></i>
+                        <span>{{ r.dateDebut|date('d/m/Y H:i') }}</span>
+                    </div>
+                    {% if r.note %}
+                    <p class="text-muted small mb-3">{{ r.note|length > 80 ? r.note|slice(0, 80) ~ '...' : r.note }}</p>
+                    {% endif %}
+                    <div class="d-flex flex-wrap gap-2">
+                        <a href="{{ path('app_user_profile_view', {id: r.patient.id}) }}" class="btn btn-sm btn-outline-primary"><i class="bi bi-person me-1"></i>Profil patient</a>
+                        <a href="{{ path('app_user_profile_view', {id: r.medecin.id}) }}" class="btn btn-sm btn-outline-info"><i class="bi bi-person me-1"></i>Profil médecin</a>
+                        <form method="post" action="{{ path('app_secretaire_rdv_valider', {id: r.id}) }}" class="d-inline">
+                            <input type="hidden" name="_token" value="{{ csrf_token('valider_rdv_' ~ r.id) }}">
+                            <button type="submit" class="btn btn-sm btn-success">Valider</button>
+                        </form>
+                        <form method="post" action="{{ path('app_secretaire_rdv_refuser', {id: r.id}) }}" class="d-inline" onsubmit="return confirm('Refuser ce rendez-vous ?');">
+                            <input type="hidden" name="_token" value="{{ csrf_token('refuser_rdv_' ~ r.id) }}">
+                            <button type="submit" class="btn btn-sm btn-outline-danger">Refuser</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    {% if rdvsConfirmes|length > 0 %}
+    <h5 class="text-success mb-3"><i class="bi bi-check-circle me-1"></i>Confirmés ({{ rdvsConfirmes|length }})</h5>
+    <div class="row g-4">
+        {% for r in rdvsConfirmes %}
+        <div class="col-lg-6 col-xl-4">
+            <div class="card border-0 shadow-sm h-100 rdv-card">
+                <div class="card-body">
+                    <div class="d-flex align-items-center gap-2 mb-2">
+                        <div class="rdv-avatar rdv-avatar-patient">
+                            <i class="bi bi-person-fill"></i>
+                        </div>
+                        <div class="flex-grow-1">
+                            <h6 class="mb-0 fw-bold">{{ r.patient.nomComplet }}</h6>
+                            <small class="text-muted">{{ r.patient.email }}</small>
+                        </div>
+                        <span class="badge bg-success">Confirmé</span>
+                    </div>
+                    <div class="d-flex align-items-center gap-2 mb-2 text-muted small">
+                        <i class="bi bi-heart-pulse-fill text-info"></i>
+                        <span>{{ r.medecin.nomComplet }} — {{ r.medecin.specialite|default('Médecin') }}</span>
+                    </div>
+                    <div class="mb-3">
+                        <i class="bi bi-calendar3 text-primary me-2"></i>
+                        <span>{{ r.dateDebut|date('d/m/Y H:i') }}</span>
+                    </div>
+                    {% if r.note %}
+                    <p class="text-muted small mb-3">{{ r.note|length > 80 ? r.note|slice(0, 80) ~ '...' : r.note }}</p>
+                    {% endif %}
+                    <div class="d-flex flex-wrap gap-2">
+                        <a href="{{ path('app_user_profile_view', {id: r.patient.id}) }}" class="btn btn-sm btn-outline-primary"><i class="bi bi-person me-1"></i>Profil patient</a>
+                        <a href="{{ path('app_user_profile_view', {id: r.medecin.id}) }}" class="btn btn-sm btn-outline-info"><i class="bi bi-person me-1"></i>Profil médecin</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    {% if rdvsEnAttente|length == 0 and rdvsConfirmes|length == 0 %}
+    <div class="card border-0 shadow-sm">
+        <div class="card-body text-center py-5">
+            <i class="bi bi-calendar-x display-4 text-muted opacity-50 d-block mb-3"></i>
+            <p class="text-muted mb-0">Aucun rendez-vous à afficher.</p>
+        </div>
+    </div>
+    {% endif %}
+</div>
+<style>
+.rdv-card { transition: transform 0.2s, box-shadow 0.2s; }
+.rdv-card:hover { transform: translateY(-2px); box-shadow: 0 0.5rem 1rem rgba(0,0,0,.1) !important; }
+.rdv-avatar { width: 48px; height: 48px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.rdv-avatar-patient { background: rgba(25, 135, 84, 0.15); color: #198754; }
+</style>
+{% endblock %}

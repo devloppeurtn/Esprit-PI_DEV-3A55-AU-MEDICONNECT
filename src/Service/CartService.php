@@ -13,7 +13,8 @@ class CartService
 
     public function __construct(
         private RequestStack $requestStack,
-        private PromoCodeRepository $promoRepo
+        private PromoCodeRepository $promoRepo,
+        private ProductPricingService $pricingService
     ) {
     }
 
@@ -25,10 +26,14 @@ class CartService
         if (isset($cart[$productId])) {
             $cart[$productId]['quantity'] += $quantity;
         } else {
+            $pricing = $this->pricingService->calculateForProduct($produit);
             $cart[$productId] = [
                 'id' => $productId,
                 'nom' => $produit->getNom(),
-                'prix' => $produit->getPrix(),
+                'prix' => number_format((float) $pricing['final'], 2, '.', ''),
+                'prix_base' => number_format((float) $pricing['base'], 2, '.', ''),
+                'prix_dynamique' => (bool) $pricing['adjusted'],
+                'prix_regle' => $pricing['label'],
                 'image' => $produit->getImage(),
                 'quantity' => $quantity,
             ];
@@ -71,6 +76,16 @@ class CartService
             $count += $item['quantity'];
         }
         return $count;
+    }
+
+    public function getProductQuantity(int $productId): int
+    {
+        $cart = $this->getCart();
+        if (!isset($cart[$productId])) {
+            return 0;
+        }
+
+        return max(0, (int) ($cart[$productId]['quantity'] ?? 0));
     }
 
     public function getCartTotal(): float

@@ -3,98 +3,121 @@
 {% block title %}Catalogue - MediConnect{% endblock %}
 
 {% block body %}
+{% set currentQuery = app.request.query.all %}
 <div class="container py-5">
     <div class="row">
-        <!-- Sidebar - Categories -->
         <div class="col-lg-3">
             <div class="card mb-4">
                 <div class="card-header bg-primary text-white">
-                    <h5 class="mb-0">Catégories</h5>
+                    <h5 class="mb-0">Categories</h5>
                 </div>
                 <div class="list-group list-group-flush">
-                    <a href="{{ path('app_catalogue') }}" 
-                       class="list-group-item list-group-item-action {{ (categorieActive is defined and categorieActive) ? '' : 'active' }}">
+                    <a href="{{ path('app_catalogue', currentQuery|merge({'categorie': ''})) }}"
+                       class="list-group-item list-group-item-action {{ filters.categorieId ? '' : 'active' }}">
                         Tous les produits
                     </a>
                     {% for categorie in categories %}
-                        <a href="{{ path('app_catalogue_categorie', {id: categorie.id}) }}" 
-                           class="list-group-item list-group-item-action {{ (categorieActive is defined and categorieActive.id == categorie.id) ? 'active' : '' }}">
+                        <a href="{{ path('app_catalogue', currentQuery|merge({'categorie': categorie.id})) }}"
+                           class="list-group-item list-group-item-action {{ filters.categorieId is same as(categorie.id) ? 'active' : '' }}">
                             {{ categorie.nom }}
                         </a>
                     {% endfor %}
                 </div>
             </div>
-
-            <!-- Search Widget -->
-            <div class="card">
-                <div class="card-body">
-                    <h5 class="card-title">Rechercher</h5>
-                    <div class="input-group">
-                        <input type="text" id="searchInput" class="form-control" 
-                               placeholder="Nom du produit..."
-                               value="{{ searchTerm ?? '' }}">
-                        <button class="btn btn-primary" type="button" id="searchBtn">
-                            <i class="bi bi-search"></i>
-                        </button>
-                    </div>
-                </div>
-            </div>
         </div>
 
-        <!-- Main Content - Products -->
         <div class="col-lg-9">
-            <!-- Header with Cart -->
-                <div class="d-flex justify-content-between align-items-center mb-4">
-                <h2>{{ (categorieActive is defined and categorieActive) ? categorieActive.nom : 'Catalogue' }}</h2>
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h2 class="mb-0">{{ categorieActive ? categorieActive.nom : 'Catalogue' }}</h2>
                 <a href="{{ path('app_cart') }}" class="btn btn-outline-primary">
                     <i class="bi bi-cart3"></i> Panier <span class="badge bg-danger" id="cartBadge">{{ cartCount }}</span>
                 </a>
             </div>
 
-            <!-- Product List (AJAX container) -->
+            <form method="get" action="{{ path('app_catalogue') }}" class="card mb-4">
+                <div class="card-body">
+                    <div class="row g-3">
+                        <div class="col-md-4">
+                            <label for="catalogue_q" class="form-label mb-1">Recherche</label>
+                            <input
+                                id="catalogue_q"
+                                type="text"
+                                name="q"
+                                class="form-control"
+                                placeholder="Nom ou description..."
+                                value="{{ filters.q }}"
+                            >
+                        </div>
+                        <div class="col-md-3">
+                            <label for="catalogue_sort" class="form-label mb-1">Tri</label>
+                            <select id="catalogue_sort" name="sort" class="form-select">
+                                <option value="name_asc" {{ filters.sort == 'name_asc' ? 'selected' : '' }}>Nom A-Z</option>
+                                <option value="name_desc" {{ filters.sort == 'name_desc' ? 'selected' : '' }}>Nom Z-A</option>
+                                <option value="price_asc" {{ filters.sort == 'price_asc' ? 'selected' : '' }}>Prix croissant</option>
+                                <option value="price_desc" {{ filters.sort == 'price_desc' ? 'selected' : '' }}>Prix decroissant</option>
+                                <option value="stock_desc" {{ filters.sort == 'stock_desc' ? 'selected' : '' }}>Stock eleve</option>
+                                <option value="newest" {{ filters.sort == 'newest' ? 'selected' : '' }}>Plus recents</option>
+                            </select>
+                        </div>
+                        <div class="col-md-2">
+                            <label for="catalogue_min" class="form-label mb-1">Prix min</label>
+                            <input
+                                id="catalogue_min"
+                                type="number"
+                                step="0.01"
+                                min="0"
+                                name="minPrice"
+                                class="form-control"
+                                value="{{ filters.minPrice is not null ? filters.minPrice : '' }}"
+                            >
+                        </div>
+                        <div class="col-md-2">
+                            <label for="catalogue_max" class="form-label mb-1">Prix max</label>
+                            <input
+                                id="catalogue_max"
+                                type="number"
+                                step="0.01"
+                                min="0"
+                                name="maxPrice"
+                                class="form-control"
+                                value="{{ filters.maxPrice is not null ? filters.maxPrice : '' }}"
+                            >
+                        </div>
+                        <div class="col-md-4">
+                            <label for="catalogue_categorie" class="form-label mb-1">Categorie</label>
+                            <select id="catalogue_categorie" name="categorie" class="form-select">
+                                <option value="">Toutes</option>
+                                {% for categorie in categories %}
+                                    <option value="{{ categorie.id }}" {{ filters.categorieId is same as(categorie.id) ? 'selected' : '' }}>
+                                        {{ categorie.nom }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-3 d-flex align-items-center">
+                            <div class="form-check mt-4">
+                                <input class="form-check-input" type="checkbox" value="1" id="catalogue_stock" name="inStock" {{ filters.inStock ? 'checked' : '' }}>
+                                <label class="form-check-label" for="catalogue_stock">
+                                    En stock seulement
+                                </label>
+                            </div>
+                        </div>
+                        <div class="col-md-5 d-flex gap-2 align-items-end">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-funnel me-1"></i>Filtrer
+                            </button>
+                            <a href="{{ path('app_catalogue') }}" class="btn btn-outline-secondary">
+                                Reinitialiser
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </form>
+
             <div id="productList">
                 {% include 'catalogue/_product_list.html.twig' %}
             </div>
         </div>
     </div>
 </div>
-
-<script>
-    const searchInput = document.getElementById('searchInput');
-    const searchBtn = document.getElementById('searchBtn');
-    const productList = document.getElementById('productList');
-
-    // Debounce function
-    let searchTimeout;
-    function performSearch() {
-        const query = searchInput.value.trim();
-        
-        if (query.length < 2 && query.length > 0) {
-            return;
-        }
-
-        const url = query.length >= 2 
-            ? `{{ path('app_catalogue_search_ajax') }}?q=${encodeURIComponent(query)}`
-            : `{{ path('app_catalogue_search_ajax') }}?q=`;
-
-        fetch(url)
-            .then(response => response.text())
-            .then(html => {
-                productList.innerHTML = html;
-            })
-            .catch(error => console.error('Search error:', error));
-    }
-
-    searchInput.addEventListener('keyup', () => {
-        clearTimeout(searchTimeout);
-        searchTimeout = setTimeout(performSearch, 300);
-    });
-
-    searchBtn.addEventListener('click', performSearch);
-
-    // Update cart count and total
-    function updateCart(data) {
-        document.getElementById('cartBadge').textContent = data.cartCount;
-    }
-</script>
 {% endblock %}

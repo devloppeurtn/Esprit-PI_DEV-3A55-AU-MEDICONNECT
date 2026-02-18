@@ -8,7 +8,9 @@ use App\Enum\StatutCommande;
 use App\Repository\CommandeProduitRepository;
 use App\Repository\ProduitRepository;
 use App\Service\CartService;
+use App\Service\DeliverySlaService;
 use App\Service\SmsNotifier;
+use App\Service\StockReservationService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -59,8 +61,12 @@ class OrderController extends AbstractController
         CartService $cartService,
         ProduitRepository $produitRepo,
         EntityManagerInterface $em,
-        SmsNotifier $smsNotifier
+        SmsNotifier $smsNotifier,
+        StockReservationService $stockReservationService,
+        DeliverySlaService $deliverySlaService
     ): Response {
+        $stockReservationService->releaseExpiredReservations();
+
         $cart = $cartService->getCart();
         $user = $this->getUser();
 
@@ -76,11 +82,13 @@ class OrderController extends AbstractController
             $ville = trim($request->request->get('ville', ''));
             $codePostal = trim($request->request->get('code_postal', ''));
             $pays = trim($request->request->get('pays', ''));
+            $deliveryLatRaw = trim((string) $request->request->get('delivery_lat', ''));
+            $deliveryLngRaw = trim((string) $request->request->get('delivery_lng', ''));
             $telephoneRaw = trim($request->request->get('telephone', ''));
             $telephoneE164 = trim($request->request->get('telephone_e164', ''));
             $telephone = !empty($telephoneE164) ? $telephoneE164 : $telephoneRaw;
 
-            if (empty($rue) || empty($telephone) || empty($pays)) {
+            if (empty($rue) || empty($ville) || empty($telephone) || empty($pays)) {
                 $this->addFlash('error', 'Veuillez renseigner au minimum la rue, le numéro de téléphone et le pays.');
                 return $this->redirectToRoute('app_checkout');
             }
@@ -94,6 +102,12 @@ class OrderController extends AbstractController
             // Assemble full address
             $adresseParts = array_filter([$rue, $complement, $ville, $codePostal]);
             $adresseLivraison = implode(', ', $adresseParts);
+            $deliveryLat = is_numeric($deliveryLatRaw) ? (float) $deliveryLatRaw : null;
+            $deliveryLng = is_numeric($deliveryLngRaw) ? (float) $deliveryLngRaw : null;
+            if ($deliveryLat === null || $deliveryLng === null) {
+                $this->addFlash('error', 'Veuillez choisir votre position exacte sur la carte.');
+                return $this->redirectToRoute('app_checkout');
+            }
 
             // Validate stock before creating order
             foreach ($cart as $item) {
@@ -112,6 +126,22 @@ class OrderController extends AbstractController
             $commande->setAdresseLivraison($adresseLivraison);
             $commande->setTelephone($telephoneClean);
             $commande->setPays($pays);
+
+            $orderedAt = new \DateTimeImmutable();
+            $eta = $deliverySlaService->estimateEta(
+                $ville,
+                $orderedAt,
+                $deliveryLat,
+                $deliveryLng
+            );
+            $commande->setDeliveryCity($ville !== '' ? $ville : null);
+            $commande->setDeliveryCarrier($eta['carrier']);
+            $commande->setDeliveryTrafficLevel($eta['traffic_level']);
+            $commande->setDeliveryCutoffApplied($eta['cutoff_applied']);
+            $commande->setDeliveryEtaAt($eta['eta_at']);
+            $commande->setDeliveryCommittedAt($eta['committed_at']);
+            $commande->setDeliveryDelayPenaltyPoints(0);
+            $commande->setDeliverySlaBreached(false);
 
             $totalAmount = 0;
 
@@ -145,6 +175,17 @@ class OrderController extends AbstractController
             $em->persist($commande);
             $em->flush();
 
+            $this->addFlash(
+                'info',
+                sprintf(
+                    'Livraison estimee dans %d jours (le %s) via %s (%s).',
+                    $eta['eta_days'],
+                    $commande->getDeliveryEtaAt()?->format('d/m/Y H:i') ?? '-',
+                    $commande->getDeliveryCarrier(),
+                    $eta['source'] === 'osrm' ? 'OSRM' : 'regles internes'
+                )
+            );
+
             $smsNotifier->sendOrderCreated($commande->getTelephone(), $commande);
 
             // Redirect to review page where user chooses payment method
@@ -166,11 +207,27 @@ class OrderController extends AbstractController
         CommandeProduit $commande,
         Request $request,
         EntityManagerInterface $em,
-        CartService $cartService
+        CartService $cartService,
+        StockReservationService $stockReservationService
     ): Response {
         // ensure the order belongs to current user
         if ($commande->getUtilisateur() !== $this->getUser()) {
             throw $this->createAccessDeniedException();
+        }
+
+        if ($stockReservationService->releaseIfExpired($commande)) {
+            $this->addFlash(
+                'error',
+                sprintf(
+                    'Reservation expiree: le stock a ete libere apres %d minutes sans paiement.',
+                    $stockReservationService->getReservationDurationMinutes()
+                )
+            );
+            return $this->redirectToRoute('app_orders_list');
+        }
+
+        if ($commande->getStatut() !== StatutCommande::EN_ATTENTE) {
+            return $this->redirectToRoute('app_order_detail', ['id' => $commande->getId()]);
         }
 
         if ($request->isMethod('POST')) {

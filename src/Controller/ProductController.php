@@ -6,12 +6,12 @@ use App\Entity\AvisProduit;
 use App\Entity\Produit;
 use App\Entity\Utilisateur;
 use App\Repository\AvisProduitRepository;
-use App\Repository\ProduitRepository;
 use App\Repository\CategorieProduitRepository;
+use App\Repository\ProduitRepository;
 use App\Service\CartService;
+use App\Service\ProductPricingService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -21,43 +21,46 @@ class ProductController extends AbstractController
 {
     #[Route('/', name: 'app_catalogue', methods: ['GET'])]
     public function index(
+        Request $request,
         ProduitRepository $produitRepo,
         CategorieProduitRepository $categorieRepo,
-        CartService $cartService
+        CartService $cartService,
+        ProductPricingService $pricingService
     ): Response {
-        $categories = $categorieRepo->findAll();
-        $produits = $produitRepo->findAll();
-        $cartCount = $cartService->getCartCount();
+        $filters = $this->extractFilters($request);
 
-        return $this->render('catalogue/index.html.twig', [
-            'produits' => $produits,
-            'categories' => $categories,
-            'cartCount' => $cartCount,
-        ]);
+        return $this->renderCatalogue(
+            $filters,
+            $produitRepo,
+            $categorieRepo,
+            $cartService,
+            $pricingService
+        );
     }
 
     #[Route('/categorie/{id}', name: 'app_catalogue_categorie', methods: ['GET'])]
     public function byCategorie(
         int $id,
+        Request $request,
         ProduitRepository $produitRepo,
         CategorieProduitRepository $categorieRepo,
-        CartService $cartService
+        CartService $cartService,
+        ProductPricingService $pricingService
     ): Response {
         $categorie = $categorieRepo->find($id);
         if (!$categorie) {
-            throw $this->createNotFoundException('Catégorie non trouvée');
+            throw $this->createNotFoundException('Categorie non trouvee');
         }
 
-        $categories = $categorieRepo->findAll();
-        $produits = $produitRepo->findByCategorie($id);
-        $cartCount = $cartService->getCartCount();
+        $filters = $this->extractFilters($request, $id);
 
-        return $this->render('catalogue/index.html.twig', [
-            'produits' => $produits,
-            'categories' => $categories,
-            'categorieActive' => $categorie,
-            'cartCount' => $cartCount,
-        ]);
+        return $this->renderCatalogue(
+            $filters,
+            $produitRepo,
+            $categorieRepo,
+            $cartService,
+            $pricingService
+        );
     }
 
     #[Route('/search', name: 'app_catalogue_search', methods: ['GET'])]
@@ -65,40 +68,32 @@ class ProductController extends AbstractController
         Request $request,
         ProduitRepository $produitRepo,
         CategorieProduitRepository $categorieRepo,
-        CartService $cartService
+        CartService $cartService,
+        ProductPricingService $pricingService
     ): Response {
-        $term = $request->query->get('q', '');
-        $produits = [];
-        
-        if (strlen($term) >= 2) {
-            $produits = $produitRepo->findBySearchTerm($term);
-        }
+        $filters = $this->extractFilters($request);
 
-        $categories = $categorieRepo->findAll();
-        $cartCount = $cartService->getCartCount();
-
-        return $this->render('catalogue/index.html.twig', [
-            'produits' => $produits,
-            'categories' => $categories,
-            'searchTerm' => $term,
-            'cartCount' => $cartCount,
-        ]);
+        return $this->renderCatalogue(
+            $filters,
+            $produitRepo,
+            $categorieRepo,
+            $cartService,
+            $pricingService
+        );
     }
 
     #[Route('/search-ajax', name: 'app_catalogue_search_ajax', methods: ['GET'])]
     public function searchAjax(
         Request $request,
-        ProduitRepository $produitRepo
+        ProduitRepository $produitRepo,
+        ProductPricingService $pricingService
     ): Response {
-        $term = $request->query->get('q', '');
-        $produits = [];
-        
-        if (strlen($term) >= 2) {
-            $produits = $produitRepo->findBySearchTerm($term);
-        }
+        $filters = $this->extractFilters($request);
+        $produits = $produitRepo->findByFilters($filters);
 
         return $this->render('catalogue/_product_list.html.twig', [
             'produits' => $produits,
+            'dynamicPrices' => $this->buildDynamicPrices($produits, $pricingService),
         ]);
     }
 
@@ -106,17 +101,20 @@ class ProductController extends AbstractController
     public function detail(
         Produit $produit,
         CartService $cartService,
-        AvisProduitRepository $avisProduitRepo
+        AvisProduitRepository $avisProduitRepo,
+        ProductPricingService $pricingService
     ): Response {
         $cartCount = $cartService->getCartCount();
         $avis = $avisProduitRepo->findByProduitOrdered($produit);
         $moyenneNote = $avisProduitRepo->getAverageForProduit($produit);
+        $pricing = $pricingService->calculateForProduct($produit);
 
         return $this->render('catalogue/product_detail.html.twig', [
             'produit' => $produit,
             'cartCount' => $cartCount,
             'avis' => $avis,
             'moyenneNote' => $moyenneNote,
+            'dynamicPrice' => $pricing,
         ]);
     }
 
@@ -210,5 +208,85 @@ class ProductController extends AbstractController
 
         $this->addFlash('success', 'Avis supprime.');
         return $this->redirectToRoute('app_product_detail', ['id' => $produit->getId()]);
+    }
+
+    private function renderCatalogue(
+        array $filters,
+        ProduitRepository $produitRepo,
+        CategorieProduitRepository $categorieRepo,
+        CartService $cartService,
+        ProductPricingService $pricingService
+    ): Response {
+        $categories = $categorieRepo->findAll();
+        $produits = $produitRepo->findByFilters($filters);
+        $categorieActive = null;
+
+        if ($filters['categorieId'] !== null) {
+            $categorieActive = $categorieRepo->find($filters['categorieId']);
+        }
+
+        return $this->render('catalogue/index.html.twig', [
+            'produits' => $produits,
+            'categories' => $categories,
+            'categorieActive' => $categorieActive,
+            'cartCount' => $cartService->getCartCount(),
+            'filters' => $filters,
+            'dynamicPrices' => $this->buildDynamicPrices($produits, $pricingService),
+        ]);
+    }
+
+    private function buildDynamicPrices(array $produits, ProductPricingService $pricingService): array
+    {
+        $prices = [];
+        foreach ($produits as $produit) {
+            if (!$produit instanceof Produit || $produit->getId() === null) {
+                continue;
+            }
+            $prices[$produit->getId()] = $pricingService->calculateForProduct($produit);
+        }
+
+        return $prices;
+    }
+
+    private function extractFilters(Request $request, ?int $forcedCategorieId = null): array
+    {
+        $sort = (string) $request->query->get('sort', 'name_asc');
+        $allowedSorts = ['name_asc', 'name_desc', 'price_asc', 'price_desc', 'stock_desc', 'newest'];
+        if (!in_array($sort, $allowedSorts, true)) {
+            $sort = 'name_asc';
+        }
+
+        $categorieId = $forcedCategorieId;
+        if ($categorieId === null) {
+            $rawCategorie = $request->query->get('categorie');
+            if ($rawCategorie !== null && $rawCategorie !== '') {
+                $categorieId = max(1, (int) $rawCategorie);
+            }
+        }
+
+        $minPrice = $request->query->get('minPrice');
+        $maxPrice = $request->query->get('maxPrice');
+
+        $minPrice = ($minPrice !== null && $minPrice !== '') ? (float) $minPrice : null;
+        $maxPrice = ($maxPrice !== null && $maxPrice !== '') ? (float) $maxPrice : null;
+
+        if ($minPrice !== null && $minPrice < 0) {
+            $minPrice = 0.0;
+        }
+        if ($maxPrice !== null && $maxPrice < 0) {
+            $maxPrice = null;
+        }
+        if ($minPrice !== null && $maxPrice !== null && $minPrice > $maxPrice) {
+            [$minPrice, $maxPrice] = [$maxPrice, $minPrice];
+        }
+
+        return [
+            'q' => trim((string) $request->query->get('q', '')),
+            'categorieId' => $categorieId,
+            'minPrice' => $minPrice,
+            'maxPrice' => $maxPrice,
+            'inStock' => $request->query->getBoolean('inStock', false),
+            'sort' => $sort,
+        ];
     }
 }

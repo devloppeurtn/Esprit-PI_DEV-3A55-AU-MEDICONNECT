@@ -41,7 +41,7 @@ class StripeWebhookController extends AbstractController
             $orderId = $session->metadata->order_id ?? null;
             if ($orderId) {
                 $commande = $em->getRepository(CommandeProduit::class)->find((int)$orderId);
-                if ($commande) {
+                if ($commande && $commande->getStatut() === StatutCommande::EN_ATTENTE) {
                     $commande->setStatut(StatutCommande::VALIDEE);
                     $em->persist($commande);
                     $em->flush();

@@ -1,4 +1,4 @@
-{% extends 'admin/base_admin.html.twig' %}
+﻿{% extends 'admin/base_admin.html.twig' %}
 
 {% block title %}Tableau de bord - Admin MediConnect{% endblock %}
 
@@ -6,7 +6,7 @@
 <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-3 mb-4">
     <div>
         <h1 class="h3 mb-1">Tableau de bord</h1>
-        <p class="text-muted mb-0">Bienvenue, {{ app.user.nomComplet }} — <small class="text-muted"><i class="bi bi-broadcast"></i> Mise à jour instantanée (push temps réel)</small></p>
+        <p class="text-muted mb-0">Bienvenue, {{ app.user.nomComplet }} �?? <small class="text-muted"><i class="bi bi-broadcast"></i> Mise à jour instantanée (push temps réel)</small></p>
     </div>
 </div>
 
@@ -113,6 +113,43 @@
             </div>
         </div>
     </div>
+    <div class="col-sm-6 col-lg-4 col-xl-3">
+        <div class="card admin-stats-card border-0 shadow-sm">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <div class="flex-shrink-0">
+                        <div class="admin-stats-icon bg-info bg-opacity-10 text-info">
+                            <i class="bi bi-calendar-plus"></i>
+                        </div>
+                    </div>
+                    <div class="flex-grow-1 ms-3">
+                        <h6 class="mb-0 text-muted">Organisateurs</h6>
+                        <h3 class="mb-0">{{ countOrganisateurs|default(0) }}</h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-6 col-lg-4 col-xl-3">
+        <a href="{{ path('app_admin_evenements') }}" class="text-decoration-none">
+            <div class="card admin-stats-card border-0 shadow-sm border border-warning">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-shrink-0">
+                            <div class="admin-stats-icon bg-warning bg-opacity-25 text-warning">
+                                <i class="bi bi-hourglass-split"></i>
+                            </div>
+                        </div>
+                        <div class="flex-grow-1 ms-3">
+                            <h6 class="mb-0 text-muted">?v?nements en attente</h6>
+                            <h3 class="mb-0 text-warning">{{ pendingEvenements|default([])|length }}</h3>
+                            <small class="text-muted">Cliquer pour valider</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </a>
+    </div>
 </div>
 
 <div class="row g-4 mb-4">
@@ -211,6 +248,15 @@
                         <a href="{{ path('app_admin_users') }}" class="btn btn-outline-primary w-100 py-3">
                             <i class="bi bi-people me-2"></i>Gérer les utilisateurs
                         </a>
+                    </div>                    <div class="col-md-6">
+                        <a href="{{ path('admin_products') }}" class="btn btn-outline-primary w-100 py-3">
+                            <i class="bi bi-box-seam me-2"></i>Gerer les produits
+                        </a>
+                    </div>
+                    <div class="col-md-6">
+                        <a href="{{ path('admin_categories') }}" class="btn btn-outline-primary w-100 py-3">
+                            <i class="bi bi-tags me-2"></i>Gerer les categories
+                        </a>
                     </div>
                     <div class="col-md-6">
                         <a href="{{ path('app_home') }}" class="btn btn-outline-secondary w-100 py-3">
@@ -224,12 +270,90 @@
     <div class="col-lg-4">
         <div class="card border-0 shadow-sm">
             <div class="card-header bg-white border-bottom">
-                <h5 class="card-title mb-0">Informations</h5>
+                <h5 class="card-title mb-0">Dossier médical & consultations</h5>
             </div>
             <div class="card-body">
-                <p class="text-muted small mb-0">
-                    Utilisez le menu latéral pour naviguer dans les différentes sections de l'administration MediConnect.
-                </p>
+                <div class="mb-2">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span class="text-muted small">Dossiers médicaux</span>
+                        <span class="fw-semibold" data-stat="countDossiers">0</span>
+                    </div>
+                </div>
+                <div class="mb-2">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span class="text-muted small">Consultations</span>
+                        <span class="fw-semibold" data-stat="countConsultations">0</span>
+                    </div>
+                </div>
+                <div class="mb-2">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span class="text-muted small">Ordonnances</span>
+                        <span class="fw-semibold" data-stat="countOrdonnances">0</span>
+                    </div>
+                </div>
+                <div class="mb-2">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span class="text-muted small">Médicaments actuels</span>
+                        <span class="fw-semibold" data-stat="countMedicamentsActuels">0</span>
+                    </div>
+                </div>
+                <div class="mb-2">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span class="text-muted small">Rapports médicaux</span>
+                        <span class="fw-semibold" data-stat="countRapportsMedicaux">0</span>
+                    </div>
+                </div>
+                <div>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span class="text-muted small">Documents patients</span>
+                        <span class="fw-semibold" data-stat="countDocumentsPatient">0</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4 mb-4">
+    <div class="col-lg-7">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-white border-bottom d-flex justify-content-between align-items-center flex-wrap gap-2">
+                <h5 class="card-title mb-0">Rendez-vous</h5>
+            </div>
+            <div class="card-body">
+                <div class="row g-3 mb-3">
+                    <div class="col-6 col-md-4">
+                        <div class="small text-muted">Total</div>
+                        <div class="h4 mb-0" data-stat="countRendezVous">0</div>
+                    </div>
+                    <div class="col-6 col-md-4">
+                        <div class="small text-muted">Aujourd'hui</div>
+                        <div class="h4 mb-0" data-stat="countRdvToday">0</div>
+                    </div>
+                    <div class="col-6 col-md-4">
+                        <div class="small text-muted">? venir</div>
+                        <div class="h4 mb-0" data-stat="countRdvUpcoming">0</div>
+                    </div>
+                </div>
+                <hr>
+                <div class="row g-3">
+                    <div class="col-6 col-md-3">
+                        <span class="badge bg-secondary mb-1">En attente</span>
+                        <div class="fw-semibold" data-stat="countRdvEnAttente">0</div>
+                    </div>
+                    <div class="col-6 col-md-3">
+                        <span class="badge bg-primary mb-1">Confirmés</span>
+                        <div class="fw-semibold" data-stat="countRdvConfirmes">0</div>
+                    </div>
+                    <div class="col-6 col-md-3">
+                        <span class="badge bg-danger mb-1">Annulés</span>
+                        <div class="fw-semibold" data-stat="countRdvAnnules">0</div>
+                    </div>
+                    <div class="col-6 col-md-3">
+                        <span class="badge bg-success mb-1">Terminés</span>
+                        <div class="fw-semibold" data-stat="countRdvTermines">0</div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -445,3 +569,4 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 {% endblock %}
+

@@ -6,6 +6,12 @@
 <div class="container py-5">
     <h1 class="mb-4">Votre Panier</h1>
 
+    {% if hasStockIssue %}
+        <div class="alert alert-warning">
+            Certains produits depassent le stock disponible. Ajustez les quantites avant de continuer au paiement.
+        </div>
+    {% endif %}
+
     {% if cart | length > 0 %}
         <div class="row">
             <!-- Cart Items -->
@@ -19,7 +25,7 @@
                                         <div class="row">
                                             <div class="col-md-3">
                                                 {% if item.image %}
-                                                    {% set imgPath = (item.image is not empty and (item.image starts with('http') or item.image starts with('/') or item.image starts with('assets'))) ? item.image : ('assets/img/' ~ item.image) %}
+                                                    {% set imgPath = (item.image is not empty and (item.image starts with('http') or item.image starts with('/') or item.image starts with('assets') or item.image starts with('uploads'))) ? item.image : ('assets/img/' ~ item.image) %}
                                                     <img src="{{ asset(imgPath) }}" class="img-fluid rounded" alt="{{ item.nom }}">
                                                 {% else %}
                                                     <div class="bg-light rounded d-flex align-items-center justify-content-center" style="height: 150px;">
@@ -33,14 +39,20 @@
                                                 <p class="mb-0" id="lineTotal{{ productId }}">
                                                     Sous-total: <strong>{{ (item.prix * item.quantity) | number_format(2, ',', ' ') }} TND</strong>
                                                 </p>
+                                                <small class="d-block mt-1 {{ (item.stock|default(0)) > 0 ? 'text-muted' : 'text-danger' }}">
+                                                    Stock disponible: {{ item.stock|default(0) }}
+                                                    {% if stockIssues[productId] is defined %}
+                                                        - {{ stockIssues[productId] }}
+                                                    {% endif %}
+                                                </small>
                                             </div>
                                             <div class="col-md-4">
                                                 <div class="input-group mb-2">
                                                     <button class="btn btn-outline-secondary decrease-qty" data-product-id="{{ productId }}">−</button>
                                                     <input type="number" class="form-control text-center quantity-input" 
                                                            data-product-id="{{ productId }}" 
-                                                           value="{{ item.quantity }}" min="1">
-                                                    <button class="btn btn-outline-secondary increase-qty" data-product-id="{{ productId }}">+</button>
+                                                           value="{{ item.quantity }}" min="1" max="{{ item.stock|default(item.quantity) }}" data-max-stock="{{ item.stock|default(item.quantity) }}" {{ (item.stock|default(0)) <= 0 ? 'disabled' : '' }}>
+                                                    <button class="btn btn-outline-secondary increase-qty" data-product-id="{{ productId }}" {{ (item.stock|default(0)) <= item.quantity ? 'disabled' : '' }}>+</button>
                                                 </div>
                                                 <div class="d-grid gap-2">
                                                     <button class="btn btn-danger btn-sm remove-from-cart" data-product-id="{{ productId }}">
@@ -101,9 +113,15 @@
                         </div>
                         
                         {% if app.user %}
-                            <a href="{{ path('app_checkout') }}" class="btn btn-primary w-100 btn-lg mb-2">
-                                <i class="bi bi-credit-card"></i> Procéder au paiement
-                            </a>
+                            {% if hasStockIssue %}
+                                <button type="button" class="btn btn-secondary w-100 btn-lg mb-2" disabled>
+                                    <i class="bi bi-x-circle"></i> Stock insuffisant
+                                </button>
+                            {% else %}
+                                <a href="{{ path('app_checkout') }}" class="btn btn-primary w-100 btn-lg mb-2">
+                                    <i class="bi bi-credit-card"></i> Procéder au paiement
+                                </a>
+                            {% endif %}
                         {% else %}
                             <a href="{{ path('app_login') }}" class="btn btn-primary w-100 btn-lg mb-2">
                                 Se connecter pour commander
@@ -131,14 +149,29 @@
 </div>
 
 <script>
+    function getMaxStock(input) {
+        return parseInt(input.dataset.maxStock || input.max || '99999', 10);
+    }
+
+    function syncIncreaseButton(productId) {
+        const input = document.querySelector(`[data-product-id="${productId}"].quantity-input`);
+        const increaseBtn = document.querySelector(`.increase-qty[data-product-id="${productId}"]`);
+        if (!input || !increaseBtn) return;
+        const maxStock = getMaxStock(input);
+        const current = parseInt(input.value || '0', 10);
+        increaseBtn.disabled = current >= maxStock || maxStock <= 0;
+    }
+
     // Quantity buttons
     document.querySelectorAll('.decrease-qty').forEach(btn => {
         btn.addEventListener('click', () => {
             const productId = btn.dataset.productId;
             const input = document.querySelector(`[data-product-id="${productId}"].quantity-input`);
-            if (input.value > 1) {
-                input.value = parseInt(input.value) - 1;
-                updateCartItem(productId, parseInt(input.value));
+            if (!input) return;
+            const current = parseInt(input.value || '1', 10);
+            if (current > 1) {
+                input.value = current - 1;
+                updateCartItem(productId, parseInt(input.value, 10));
             }
         });
     });
@@ -147,8 +180,18 @@
         btn.addEventListener('click', () => {
             const productId = btn.dataset.productId;
             const input = document.querySelector(`[data-product-id="${productId}"].quantity-input`);
-            input.value = parseInt(input.value) + 1;
-            updateCartItem(productId, parseInt(input.value));
+            if (!input) return;
+            const maxStock = getMaxStock(input);
+            const current = parseInt(input.value || '1', 10);
+
+            if (current >= maxStock) {
+                showNotification(`Stock maximum atteint (${maxStock})`, 'error');
+                syncIncreaseButton(productId);
+                return;
+            }
+
+            input.value = current + 1;
+            updateCartItem(productId, parseInt(input.value, 10));
         });
     });
 
@@ -156,8 +199,17 @@
     document.querySelectorAll('.quantity-input').forEach(input => {
         input.addEventListener('change', () => {
             const productId = input.dataset.productId;
-            if (input.value < 1) input.value = 1;
-            updateCartItem(productId, parseInt(input.value));
+            const maxStock = getMaxStock(input);
+            let quantity = parseInt(input.value || '1', 10);
+
+            if (quantity < 1) quantity = 1;
+            if (quantity > maxStock) {
+                quantity = maxStock;
+                showNotification(`Stock maximum atteint (${maxStock})`, 'error');
+            }
+
+            input.value = quantity;
+            updateCartItem(productId, quantity);
         });
     });
 
@@ -171,7 +223,7 @@
 
     // Clear cart
     document.getElementById('clearCartBtn')?.addEventListener('click', () => {
-        if (confirm('Êtes-vous sûr de vouloir vider votre panier?')) {
+        if (confirm('Etes-vous sur de vouloir vider votre panier ?')) {
             clearCart();
         }
     });
@@ -186,23 +238,36 @@
             credentials: 'same-origin',
             headers: { 'X-Requested-With': 'XMLHttpRequest' }
         })
-        .then(response => {
-            if (!response.ok) return response.text().then(t => { throw new Error('HTTP ' + response.status + ': ' + t); });
-            return response.json();
-        })
-        .then(data => {
+        .then(response => response.json().then(data => ({ ok: response.ok, data })))
+        .then(({ ok, data }) => {
+            const input = document.querySelector(`[data-product-id="${productId}"].quantity-input`);
+            if (!ok) {
+                if (input && data.maxStock !== undefined) {
+                    const max = parseInt(data.maxStock, 10);
+                    input.value = max > 0 ? max : 1;
+                }
+                if (data.removed) {
+                    location.reload();
+                    return;
+                }
+                showNotification(data.error || 'Stock insuffisant pour ce produit', 'error');
+                syncIncreaseButton(productId);
+                return;
+            }
+
             if (data.success) {
                 const lineTotal = (parseFloat(data.itemTotal)).toLocaleString('fr-FR', {minimumFractionDigits: 2, maximumFractionDigits: 2});
-                const lineEl = document.getElementById(lineTotal);
-                if (lineEl) lineEl.innerHTML = Sous-total: <strong> TND</strong>;
+                const lineEl = document.getElementById(`lineTotal${productId}`);
+                if (lineEl) lineEl.innerHTML = `Sous-total: <strong>${lineTotal} TND</strong>`;
                 updateTotals(data);
+                syncIncreaseButton(productId);
             } else {
                 showNotification(data.error || 'Stock insuffisant pour ce produit', 'error');
             }
         })
         .catch(error => {
             console.error('Error:', error);
-            showNotification(error.message || 'Erreur lors de la requ�te', 'error');
+            showNotification(error.message || 'Erreur lors de la requete', 'error');
         });
     }
 function removeFromCart(productId) {
@@ -216,7 +281,8 @@ function removeFromCart(productId) {
         .then(data => {
             if (data.success) {
                 // Remove item from DOM
-                document.querySelector(`[data-product-id="${productId}"][class="card mb-3 cart-item"]`).remove();
+                const itemNode = document.querySelector(`.cart-item[data-product-id="${productId}"]`);
+                itemNode?.remove();
                 
                 updateTotals(data);
                 
@@ -228,6 +294,10 @@ function removeFromCart(productId) {
             }
         });
     }
+
+    document.querySelectorAll('.quantity-input').forEach(input => {
+        syncIncreaseButton(input.dataset.productId);
+    });
 
     function clearCart() {
         fetch(`{{ path('app_cart_clear') }}`, {
@@ -318,4 +388,5 @@ function removeFromCart(productId) {
     }
 </script>
 {% endblock %}
+
 

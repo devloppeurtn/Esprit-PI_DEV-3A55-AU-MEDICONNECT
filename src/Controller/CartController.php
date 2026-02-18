@@ -19,15 +19,44 @@ class CartController extends AbstractController
         $cart = $cartService->getCart();
         $cartTotals = $cartService->getTotals();
         $cartCount = $cartService->getCartCount();
+        $stockIssues = [];
+        $hasStockIssue = false;
 
         if (!empty($cart)) {
             $productIds = array_keys($cart);
             $products = $produitRepo->findBy(['id' => $productIds]);
+            $productsById = [];
 
             foreach ($products as $product) {
-                $productId = $product->getId();
-                if (isset($cart[$productId])) {
-                    $cart[$productId]['image'] = $product->getImage();
+                $productsById[$product->getId()] = $product;
+            }
+
+            foreach ($cart as $productId => $item) {
+                $product = $productsById[(int) $productId] ?? null;
+                if ($product === null) {
+                    $cart[$productId]['stock'] = 0;
+                    $stockIssues[$productId] = 'Produit indisponible.';
+                    $hasStockIssue = true;
+                    continue;
+                }
+
+                $stock = max(0, (int) $product->getStock());
+                $cart[$productId]['image'] = $product->getImage();
+                $cart[$productId]['stock'] = $stock;
+
+                if ($stock <= 0) {
+                    $stockIssues[$productId] = 'Rupture de stock.';
+                    $hasStockIssue = true;
+                    continue;
+                }
+
+                if ((int) $item['quantity'] > $stock) {
+                    $stockIssues[$productId] = sprintf(
+                        'Stock disponible: %d, quantite dans panier: %d.',
+                        $stock,
+                        (int) $item['quantity']
+                    );
+                    $hasStockIssue = true;
                 }
             }
         }
@@ -36,6 +65,8 @@ class CartController extends AbstractController
             'cart' => $cart,
             'cartTotals' => $cartTotals,
             'cartCount' => $cartCount,
+            'hasStockIssue' => $hasStockIssue,
+            'stockIssues' => $stockIssues,
         ]);
     }
 
@@ -48,14 +79,30 @@ class CartController extends AbstractController
     ): JsonResponse {
         $produit = $produitRepo->find($id);
         if (!$produit) {
-            return new JsonResponse(['error' => 'Produit non trouvÃ©'], 404);
+            return new JsonResponse(['error' => 'Produit non trouve'], 404);
         }
 
         $quantity = $request->request->getInt('quantity', 1);
-        
-        if ($quantity <= 0 || $quantity > $produit->getStock()) {
+        $stock = max(0, (int) $produit->getStock());
+        $currentInCart = $cartService->getProductQuantity($id);
+
+        if ($quantity <= 0) {
             return new JsonResponse([
-                'error' => 'Stock insuffisant pour ce produit'
+                'error' => 'Quantite invalide',
+            ], 400);
+        }
+
+        if ($stock <= 0) {
+            return new JsonResponse([
+                'error' => 'Produit en rupture de stock',
+            ], 400);
+        }
+
+        if (($currentInCart + $quantity) > $stock) {
+            return new JsonResponse([
+                'error' => sprintf('Stock insuffisant. Maximum disponible: %d.', $stock),
+                'maxStock' => $stock,
+                'currentInCart' => $currentInCart,
             ], 400);
         }
 
@@ -64,7 +111,7 @@ class CartController extends AbstractController
 
         return new JsonResponse([
             'success' => true,
-            'message' => $produit->getNom() . ' ajoutÃ© au panier',
+            'message' => $produit->getNom() . ' ajoute au panier',
             'cartCount' => $cartService->getCartCount(),
             'cartTotal' => number_format($totals['total'], 2, '.', ''),
             'subtotal' => number_format($totals['subtotal'], 2, '.', ''),
@@ -77,24 +124,52 @@ class CartController extends AbstractController
     public function update(
         int $id,
         Request $request,
+        ProduitRepository $produitRepo,
         CartService $cartService
     ): JsonResponse {
         $quantity = $request->request->getInt('quantity', 1);
 
         if ($quantity <= 0) {
             $cartService->removeFromCart($id);
-            $message = 'Produit retirÃ© du panier';
+            $message = 'Produit retire du panier';
         } else {
+            $produit = $produitRepo->find($id);
+            if (!$produit) {
+                return new JsonResponse([
+                    'success' => false,
+                    'error' => 'Produit introuvable',
+                ], 404);
+            }
+
+            $stock = max(0, (int) $produit->getStock());
+            if ($stock <= 0) {
+                $cartService->removeFromCart($id);
+                return new JsonResponse([
+                    'success' => false,
+                    'error' => 'Produit en rupture de stock. Il a ete retire du panier.',
+                    'maxStock' => 0,
+                    'removed' => true,
+                ], 400);
+            }
+
+            if ($quantity > $stock) {
+                return new JsonResponse([
+                    'success' => false,
+                    'error' => sprintf('Stock insuffisant. Maximum disponible: %d.', $stock),
+                    'maxStock' => $stock,
+                ], 400);
+            }
+
             $cartService->updateQuantity($id, $quantity);
-            $message = 'Panier mis Ã  jour';
+            $message = 'Panier mis a jour';
         }
 
         $cart = $cartService->getCart();
         $cartItem = $cart[$id] ?? null;
-        $itemTotal = 0;
+        $itemTotal = 0.0;
 
         if ($cartItem) {
-            $itemTotal = (float)$cartItem['prix'] * $quantity;
+            $itemTotal = (float) $cartItem['prix'] * (int) ($cartItem['quantity'] ?? $quantity);
         }
 
         $totals = $cartService->getTotals();
@@ -121,7 +196,7 @@ class CartController extends AbstractController
 
         return new JsonResponse([
             'success' => true,
-            'message' => 'Produit retirÃ© du panier',
+            'message' => 'Produit retire du panier',
             'cartTotal' => number_format($totals['total'], 2, '.', ''),
             'subtotal' => number_format($totals['subtotal'], 2, '.', ''),
             'discount' => number_format($totals['discount'], 2, '.', ''),
@@ -166,7 +241,7 @@ class CartController extends AbstractController
 
         return new JsonResponse([
             'success' => true,
-            'message' => 'Code promo appliquÃ© (-20%)',
+            'message' => 'Code promo applique (-20%)',
             'cartTotal' => number_format($totals['total'], 2, '.', ''),
             'subtotal' => number_format($totals['subtotal'], 2, '.', ''),
             'discount' => number_format($totals['discount'], 2, '.', ''),

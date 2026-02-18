@@ -31,16 +31,16 @@
 </style>
 
 {% set videoByProduct = {
-    'CrèmeSolairevideo': 'creme-solaire.mp4',
-    'Crème Solaire SPF50 100ml': 'creme-solaire.mp4',
+    'CrÃ¨meSolairevideo': 'creme-solaire.mp4',
+    'CrÃ¨me Solaire SPF50 100ml': 'creme-solaire.mp4',
     'SiropEnfantvideo': 'SiropEnfantvideo.mp4',
     'Sirop Enfant 100ml': 'SiropEnfantvideo.mp4',
     'SiropZarbeilvideo': 'SiropZarbeilvideo.mp4',
     'Sirop Toux 150ml': 'SiropZarbeilvideo.mp4',
     'SprayNasal': 'SprayNasal.mp4',
     'Spray Nasal 20ml': 'SprayNasal.mp4',
-    'Vitaminecomprimésvideo': 'Vitaminecomprimésvideo.mp4',
-    'Vitamine C 100 comprimés': 'Vitaminecomprimésvideo.mp4'
+    'VitaminecomprimÃ©svideo': 'VitaminecomprimÃ©svideo.mp4',
+    'Vitamine C 100 comprimÃ©s': 'VitaminecomprimÃ©svideo.mp4'
 } %}
 
 {% set normalizedName = produit.nom
@@ -49,13 +49,13 @@
         ' ': '',
         '-': '',
         '_': '',
-        'é': 'e', 'è': 'e', 'ê': 'e', 'ë': 'e',
+        'Ã©': 'e', 'Ã¨': 'e', 'Ãª': 'e', 'Ã«': 'e',
         'à': 'a', 'â': 'a', 'ä': 'a',
-        'î': 'i', 'ï': 'i',
-        'ô': 'o', 'ö': 'o',
-        'û': 'u', 'ü': 'u', 'ù': 'u',
-        'ç': 'c',
-        'œ': 'oe'
+        'Ã®': 'i', 'Ã¯': 'i',
+        'Ã´': 'o', 'Ã¶': 'o',
+        'Ã»': 'u', 'Ã¼': 'u', 'Ã¹': 'u',
+        'Ã§': 'c',
+        'Å“': 'oe'
     })
 %}
 
@@ -64,14 +64,14 @@
     'siropenfant100ml': 'SiropEnfantvideo.mp4',
     'siroptoux150ml': 'SiropZarbeilvideo.mp4',
     'spraynasal20ml': 'SprayNasal.mp4',
-    'vitaminec100comprimes': 'Vitaminecomprimésvideo.mp4'
+    'vitaminec100comprimes': 'VitaminecomprimÃ©svideo.mp4'
 } %}
 
 <div class="container py-5">
     <div class="row">
         <div class="col-lg-6">
             {% if produit.image %}
-                {% set imgPath = (produit.image is not empty and (produit.image starts with('http') or produit.image starts with('/') or produit.image starts with('assets'))) ? produit.image : ('assets/img/' ~ produit.image) %}
+                {% set imgPath = (produit.image is not empty and (produit.image starts with('http') or produit.image starts with('/') or produit.image starts with('assets') or produit.image starts with('uploads'))) ? produit.image : ('assets/img/' ~ produit.image) %}
                 <img src="{{ asset(imgPath) }}" class="img-fluid rounded w-100" style="height: 400px; object-fit: cover;" alt="{{ produit.nom }}">
             {% else %}
                 <div class="bg-light rounded d-flex align-items-center justify-content-center" style="height: 400px;">
@@ -131,7 +131,15 @@
 
             <div class="card mb-4">
                 <div class="card-body">
-                    <h2 class="card-title mb-3">{{ produit.prix | number_format(2, ',', ' ') }} TND</h2>
+                    {% if dynamicPrice.adjusted %}
+                        <h2 class="card-title mb-1">{{ dynamicPrice.final | number_format(2, ',', ' ') }} TND</h2>
+                        <p class="text-muted mb-2"><del>{{ dynamicPrice.base | number_format(2, ',', ' ') }} TND</del></p>
+                        {% if dynamicPrice.label %}
+                            <span class="badge bg-info-subtle text-info border mb-3">{{ dynamicPrice.label }}</span>
+                        {% endif %}
+                    {% else %}
+                        <h2 class="card-title mb-3">{{ dynamicPrice.final | number_format(2, ',', ' ') }} TND</h2>
+                    {% endif %}
 
                     <div class="mb-3">
                         <p class="mb-2">
@@ -140,7 +148,7 @@
                                 {{ produit.stock }} unite(s)
                             </span>
                             {% if produit.stock > 0 and produit.stock <= 5 %}
-                                <span class="badge bg-warning text-dark ms-2">Dépêche-toi, bientôt en rupture</span>
+                                <span class="badge bg-warning text-dark ms-2">DÃ©pÃªche-toi, bientÃ´t en rupture</span>
                             {% endif %}
                         </p>
                     </div>
@@ -210,7 +218,7 @@
                                 <div class="review-stars-input">
                                     {% for i in 5..1 %}
                                         <input type="radio" id="note_{{ i }}" name="note" value="{{ i }}" {{ monAvis and monAvis.note == i ? 'checked' : '' }} {{ (not monAvis and i == 5) ? 'checked' : '' }}>
-                                        <label for="note_{{ i }}" title="{{ i }}/5">★</label>
+                                        <label for="note_{{ i }}" title="{{ i }}/5">â˜…</label>
                                     {% endfor %}
                                 </div>
                             </div>

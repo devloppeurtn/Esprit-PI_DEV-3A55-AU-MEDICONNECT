@@ -1,12 +1,13 @@
-{% extends 'base.html.twig' %}
+{% extends 'admin/base_admin.html.twig' %}
 
-{% block title %}{{ isEdit ? 'Modifier' : 'Nouvelle' }} Cat√©gorie - MediConnect{% endblock %}
+{% block title %}{{ isEdit ? 'Modifier' : 'Nouvelle' }} CatÈgorie - MediConnect{% endblock %}
 
 {% block stylesheets %}
+    <link href="{{ asset('assets/vendor/bootstrap/css/bootstrap.min.css') }}" rel="stylesheet">
     <style>
         .form-header {
-            background: linear-gradient(135deg, #175cdd 0%, #1a4db5 100%);
-            color: white;
+            background: transparent;
+            color: #333;
             padding: 3rem 0;
             margin-bottom: 2rem;
         }
@@ -36,7 +37,7 @@
         }
         
         .btn-primary {
-            background: linear-gradient(135deg, #175cdd 0%, #1a4db5 100%);
+            background: #175cdd;
             border: none;
             padding: 0.75rem 2rem;
             border-radius: 8px;
@@ -44,6 +45,7 @@
         }
         
         .btn-primary:hover {
+            background: #1a4db5;
             transform: translateY(-2px);
             box-shadow: 0 5px 15px rgba(23, 92, 221, 0.3);
         }
@@ -53,14 +55,14 @@
 {% block body %}
 <div class="form-header">
     <div class="container">
-        <a href="{{ path('app_savoir_medical_index') }}" class="btn btn-light btn-sm mb-3">
+        <a href="{{ path('app_savoir_medical_index') }}" class="btn btn-outline-secondary btn-sm mb-3">
             <i class="bi bi-arrow-left me-1"></i>Retour aux cat√©gories
         </a>
         <h1 class="display-5 mb-2">
             <i class="bi bi-{{ isEdit ? 'pencil-square' : 'plus-circle' }} me-2"></i>
-            {{ isEdit ? 'Modifier la cat√©gorie' : 'Nouvelle cat√©gorie' }}
+            {{ isEdit ? 'Modifier la catÈgorie' : 'Nouvelle catÈgorie' }}
         </h1>
-        <p class="mb-0">{{ isEdit ? 'Modifiez les informations de la cat√©gorie' : 'Cr√©ez une nouvelle cat√©gorie de sant√©' }}</p>
+        <p class="mb-0">{{ isEdit ? 'Modifiez les informations de la catÈgorie' : 'CrÈez une nouvelle catÈgorie de santÈ' }}</p>
     </div>
 </div>
 
@@ -121,7 +123,7 @@
                     
                     <button type="submit" class="btn btn-primary">
                         <i class="bi bi-{{ isEdit ? 'check-circle' : 'plus-circle' }} me-2"></i>
-                        {{ isEdit ? 'Enregistrer les modifications' : 'Cr√©er la cat√©gorie' }}
+                        {{ isEdit ? 'Enregistrer les modifications' : 'CrÈer la catÈgorie' }}
                     </button>
                 </div>
 
@@ -136,7 +138,7 @@
                         <p class="text-muted small mb-3">
                             La suppression de cette cat√©gorie supprimera √©galement tous les cours et progressions associ√©s. Cette action est irr√©versible.
                         </p>
-                        <form method="post" action="{{ path('app_savoir_medical_supprimer_categorie', {id: categorie.id}) }}" onsubmit="return confirm('√ätes-vous s√ªr de vouloir supprimer cette cat√©gorie ? Cette action est irr√©versible.');">
+                        <form method="post" action="{{ path('app_savoir_medical_supprimer_categorie', {id: categorie.id}) }}" onsubmit="return confirm(' tes-vous s˚r de vouloir supprimer cette catÈgorie ? Cette action est irrÈversible.');">
                             <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ categorie.id) }}">
                             <button type="submit" class="btn btn-danger">
                                 <i class="bi bi-trash me-2"></i>Supprimer la cat√©gorie
