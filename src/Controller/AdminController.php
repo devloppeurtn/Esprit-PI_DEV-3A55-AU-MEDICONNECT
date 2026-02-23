@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Entity\Consultation;
+use App\Entity\CommandeProduit;
 use App\Entity\DocumentPatient;
 use App\Entity\DossierMedical;
 use App\Entity\Evenement;
@@ -14,8 +15,10 @@ use App\Entity\RoleUtilisateur;
 use App\Entity\StatutCompte;
 use App\Entity\StatutRendezVous;
 use App\Entity\Utilisateur;
+use App\Enum\StatutCommande;
 use App\Enum\StatutEvenement;
 use App\Repository\EvenementRepository;
+use App\Service\OrderWorkflowService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -62,6 +65,141 @@ class AdminController extends AbstractController
             'countOrganisateurs' => $countOrganisateurs,
             'pendingEvenements' => $pendingEvenements,
         ]);
+    }
+
+    #[Route('/delivery', name: 'app_admin_delivery_dashboard', methods: ['GET'])]
+    public function deliveryDashboard(): Response
+    {
+        $orders = $this->entityManager
+            ->getRepository(CommandeProduit::class)
+            ->createQueryBuilder('c')
+            ->leftJoin('c.utilisateur', 'u')
+            ->addSelect('u')
+            ->orderBy('c.dateCommande', 'DESC')
+            ->setMaxResults(200)
+            ->getQuery()
+            ->getResult();
+
+        $rows = [];
+        $totalOrders = count($orders);
+        $withEta = 0;
+        $breached = 0;
+        $overdueOpen = 0;
+        $deliveredWithEta = 0;
+        $onTimeDelivered = 0;
+        $lateDelivered = 0;
+        $sumAbsDelayDays = 0.0;
+        $sumEtaDays = 0.0;
+        $sumPenaltyPoints = 0;
+        $now = new \DateTimeImmutable('now');
+
+        foreach ($orders as $order) {
+            if (!$order instanceof CommandeProduit) {
+                continue;
+            }
+
+            $status = $order->getStatut();
+            $etaAt = $order->getDeliveryEtaAt();
+            $deliveredAt = $order->getDeliveredAt();
+            $estimatedDays = $order->getEstimatedDeliveryDays();
+            $delayDays = null;
+
+            if ($etaAt !== null) {
+                $withEta++;
+                if ($estimatedDays !== null) {
+                    $sumEtaDays += $estimatedDays;
+                }
+
+                if ($deliveredAt !== null) {
+                    $deliveredWithEta++;
+                    $secondsDiff = $deliveredAt->getTimestamp() - $etaAt->getTimestamp();
+                    $delayDays = (int) ceil($secondsDiff / 86400);
+                    if ($delayDays <= 0) {
+                        $onTimeDelivered++;
+                    } else {
+                        $lateDelivered++;
+                    }
+                    $sumAbsDelayDays += abs($secondsDiff) / 86400;
+                } elseif (!in_array($status, [StatutCommande::LIVREE, StatutCommande::ANNULEE], true) && $etaAt < $now) {
+                    $overdueOpen++;
+                }
+            }
+
+            if ($order->isDeliverySlaBreached()) {
+                $breached++;
+            }
+            $sumPenaltyPoints += $order->getDeliveryDelayPenaltyPoints();
+
+            $rows[] = [
+                'order' => $order,
+                'estimated_days' => $estimatedDays,
+                'delay_days' => $delayDays,
+                'delivered_on_time' => $delayDays !== null ? $delayDays <= 0 : null,
+                'eta_missing' => $etaAt === null,
+            ];
+        }
+
+        $avgEtaDays = $withEta > 0 ? round($sumEtaDays / $withEta, 2) : null;
+        $avgAbsDelayDays = $deliveredWithEta > 0 ? round($sumAbsDelayDays / $deliveredWithEta, 2) : null;
+        $onTimeRate = $deliveredWithEta > 0 ? round(($onTimeDelivered / $deliveredWithEta) * 100, 1) : null;
+
+        return $this->render('admin/delivery/index.html.twig', [
+            'rows' => $rows,
+            'stats' => [
+                'total_orders' => $totalOrders,
+                'with_eta' => $withEta,
+                'overdue_open' => $overdueOpen,
+                'sla_breached' => $breached,
+                'delivered_with_eta' => $deliveredWithEta,
+                'on_time_delivered' => $onTimeDelivered,
+                'late_delivered' => $lateDelivered,
+                'on_time_rate' => $onTimeRate,
+                'avg_eta_days' => $avgEtaDays,
+                'avg_abs_delay_days' => $avgAbsDelayDays,
+                'penalty_points_total' => $sumPenaltyPoints,
+            ],
+        ]);
+    }
+
+    #[Route('/delivery/{id}/mark-delivered', name: 'app_admin_delivery_mark_delivered', methods: ['POST'], requirements: ['id' => '\d+'])]
+    public function markDelivered(
+        Request $request,
+        CommandeProduit $commande,
+        OrderWorkflowService $orderWorkflowService
+    ): Response
+    {
+        if (!$this->isCsrfTokenValid('mark_delivered_' . $commande->getId(), (string) $request->request->get('_token'))) {
+            $this->addFlash('error', 'Jeton invalide.');
+            return $this->redirectToRoute('app_admin_delivery_dashboard');
+        }
+
+        if ($commande->getStatut() === StatutCommande::ANNULEE) {
+            $this->addFlash('warning', 'Commande annulee: impossible de marquer livree.');
+            return $this->redirectToRoute('app_admin_delivery_dashboard');
+        }
+
+        if ($commande->getStatut() === StatutCommande::LIVREE && $commande->getDeliveredAt() !== null) {
+            $this->addFlash('info', 'Cette commande est deja marquee comme livree.');
+            return $this->redirectToRoute('app_admin_delivery_dashboard');
+        }
+
+        $deliveredAt = new \DateTimeImmutable('now');
+        try {
+            $orderWorkflowService->apply($commande, 'deliver', $deliveredAt);
+        } catch (\DomainException) {
+            $this->addFlash('error', 'Transition non autorisee: commande doit etre validee ou preparee.');
+            return $this->redirectToRoute('app_admin_delivery_dashboard');
+        }
+
+        $eta = $commande->getDeliveryEtaAt();
+        if ($eta !== null && $deliveredAt > $eta) {
+            $commande->setDeliverySlaBreached(true);
+        }
+
+        $this->entityManager->flush();
+
+        $this->addFlash('success', sprintf('Commande #%d marquee comme livree.', $commande->getId()));
+        return $this->redirectToRoute('app_admin_delivery_dashboard');
     }
 
     #[Route('/evenements', name: 'app_admin_evenements', methods: ['GET'])]

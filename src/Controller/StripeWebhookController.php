@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use App\Entity\CommandeProduit;
 use App\Enum\StatutCommande;
+use App\Service\OrderWorkflowService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -13,7 +14,11 @@ use Symfony\Component\Routing\Annotation\Route;
 class StripeWebhookController extends AbstractController
 {
     #[Route('/payment/webhook', name: 'app_stripe_webhook', methods: ['POST'])]
-    public function webhook(Request $request, EntityManagerInterface $em): Response
+    public function webhook(
+        Request $request,
+        EntityManagerInterface $em,
+        OrderWorkflowService $orderWorkflowService
+    ): Response
     {
         $payload = $request->getContent();
         $sigHeader = $request->headers->get('Stripe-Signature');
@@ -42,7 +47,7 @@ class StripeWebhookController extends AbstractController
             if ($orderId) {
                 $commande = $em->getRepository(CommandeProduit::class)->find((int)$orderId);
                 if ($commande && $commande->getStatut() === StatutCommande::EN_ATTENTE) {
-                    $commande->setStatut(StatutCommande::VALIDEE);
+                    $orderWorkflowService->apply($commande, 'pay_success');
                     $em->persist($commande);
                     $em->flush();
                 }

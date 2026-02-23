@@ -72,4 +72,68 @@ class CommandeProduitRepository extends ServiceEntityRepository
             ->getQuery()
             ->getResult();
     }
+
+    /**
+     * Get orders within a date range with specific statuses.
+     * 
+     * @param \DateTimeInterface $from Start date
+     * @param \DateTimeInterface $to End date
+     * @param array $statuses Valid order statuses
+     * @return CommandeProduit[] Array of orders
+     */
+    public function findByDateRange(\DateTimeInterface $from, \DateTimeInterface $to, array $statuses = []): array
+    {
+        $qb = $this->createQueryBuilder('c')
+            ->where('c.dateCommande BETWEEN :from AND :to')
+            ->setParameter('from', $from)
+            ->setParameter('to', $to)
+            ->orderBy('c.dateCommande', 'DESC');
+
+        if (!empty($statuses)) {
+            $qb->andWhere('c.statut IN (:statuses)')
+                ->setParameter('statuses', $statuses);
+        }
+
+        return $qb->getQuery()->getResult();
+    }
+
+    /**
+     * Get all completed orders for analytics.
+     * 
+     * @return CommandeProduit[] Array of completed orders
+     */
+    public function findCompletedOrders(): array
+    {
+        return $this->createQueryBuilder('c')
+            ->where('c.statut IN (:statuses)')
+            ->setParameter('statuses', [
+                \App\Enum\StatutCommande::LIVREE,
+                \App\Enum\StatutCommande::CONFIRMEE,
+            ])
+            ->orderBy('c.dateCommande', 'DESC')
+            ->getQuery()
+            ->getResult();
+    }
+
+    /**
+     * Check if an order exists for a specific product and customer.
+     * 
+     * @param Utilisateur $customer The customer
+     * @param \App\Entity\Produit $product The product
+     * @return bool True if customer has purchased this product
+     */
+    public function hasCustomerPurchasedProduct(Utilisateur $customer, \App\Entity\Produit $product): bool
+    {
+        $result = $this->createQueryBuilder('c')
+            ->select('COUNT(c.id) as count')
+            ->innerJoin('c.lignesCommande', 'lc')
+            ->where('c.utilisateur = :customer')
+            ->andWhere('lc.produit = :product')
+            ->setParameter('customer', $customer)
+            ->setParameter('product', $product)
+            ->getQuery()
+            ->getSingleScalarResult();
+
+        return (int) $result > 0;
+    }
 }

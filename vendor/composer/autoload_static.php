@@ -66,6 +66,7 @@ class ComposerStaticInit5dc89dc78de726d3a7986435fcc6fcfa
             'Symfony\\Contracts\\EventDispatcher\\' => 34,
             'Symfony\\Contracts\\Cache\\' => 24,
             'Symfony\\Component\\Yaml\\' => 23,
+            'Symfony\\Component\\Workflow\\' => 27,
             'Symfony\\Component\\WebLink\\' => 26,
             'Symfony\\Component\\VarExporter\\' => 30,
             'Symfony\\Component\\VarDumper\\' => 28,
@@ -78,6 +79,7 @@ class ComposerStaticInit5dc89dc78de726d3a7986435fcc6fcfa
             'Symfony\\Component\\Security\\Http\\' => 32,
             'Symfony\\Component\\Security\\Csrf\\' => 32,
             'Symfony\\Component\\Security\\Core\\' => 32,
+            'Symfony\\Component\\Scheduler\\' => 28,
             'Symfony\\Component\\Runtime\\' => 26,
             'Symfony\\Component\\Routing\\' => 26,
             'Symfony\\Component\\PropertyInfo\\' => 31,
@@ -307,6 +309,10 @@ class ComposerStaticInit5dc89dc78de726d3a7986435fcc6fcfa
         array (
             0 => __DIR__ . '/..' . '/symfony/yaml',
         ),
+        'Symfony\\Component\\Workflow\\' =>
+        array (
+            0 => __DIR__ . '/..' . '/symfony/workflow',
+        ),
         'Symfony\\Component\\WebLink\\' =>
         array (
             0 => __DIR__ . '/..' . '/symfony/web-link',
@@ -354,6 +360,10 @@ class ComposerStaticInit5dc89dc78de726d3a7986435fcc6fcfa
         'Symfony\\Component\\Security\\Core\\' =>
         array (
             0 => __DIR__ . '/..' . '/symfony/security-core',
+        ),
+        'Symfony\\Component\\Scheduler\\' =>
+        array (
+            0 => __DIR__ . '/..' . '/symfony/scheduler',
         ),
         'Symfony\\Component\\Runtime\\' =>
         array (

@@ -13,7 +13,8 @@ class StockReservationService
 
     public function __construct(
         private EntityManagerInterface $entityManager,
-        private CommandeProduitRepository $commandeRepository
+        private CommandeProduitRepository $commandeRepository,
+        private OrderWorkflowService $orderWorkflowService
     ) {
     }
 
@@ -94,8 +95,7 @@ class StockReservationService
             $this->entityManager->persist($produit);
         }
 
-        $commande->setStatut(StatutCommande::ANNULEE);
+        $this->orderWorkflowService->apply($commande, 'cancel');
         $this->entityManager->persist($commande);
     }
 }
-

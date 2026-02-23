@@ -38,17 +38,17 @@ class StockForecastAlertsCommand extends Command
                 $item['stock'],
                 $item['forecast_next_7d'],
                 $item['days_until_stockout'] ?? '-',
+                strtoupper((string) ($item['forecast_source'] ?? 'rules')),
                 strtoupper($item['alert_level']),
             ];
         }
 
         $io->warning(sprintf('%d product(s) at risk detected.', count($rows)));
         $io->table(
-            ['ID', 'Product', 'Stock', 'Forecast 7d', 'Stockout (days)', 'Level'],
+            ['ID', 'Product', 'Stock', 'Forecast 7d', 'Stockout (days)', 'Source', 'Level'],
             $rows
         );
 
         return Command::SUCCESS;
     }
 }
-

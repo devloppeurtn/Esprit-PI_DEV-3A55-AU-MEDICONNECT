@@ -133,24 +133,12 @@
                         </p>
                     </div>
                     
-                        <div class="mb-3 pb-3 border-bottom">
-                            <div class="d-flex justify-content-between mb-2">
-                                <span>Sous-total:</span>
-                                <span>{{ cartTotals.subtotal | number_format(2, ',', ' ') }} TND</span>
-                            </div>
-                            <div class="d-flex justify-content-between mb-2" {% if (cartTotals.discount ?? 0) <= 0 %}style="display:none"{% endif %}>
-                                <span>Remise:</span>
-                                <span class="text-success">- {{ cartTotals.discount | number_format(2, ',', ' ') }} TND</span>
-                            </div>
-                            <div class="d-flex justify-content-between mb-2">
-                                <span>Frais de port:</span>
-                                <span class="text-success">Gratuit</span>
-                            </div>
-                            <div class="d-flex justify-content-between mb-2">
-                                <span>Taxes:</span>
-                                <span>0,00 TND</span>
-                            </div>
+                    <div class="mb-3 pb-3 border-bottom">
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>Frais de port:</span>
+                            <span class="text-success">Gratuit</span>
                         </div>
+                    </div>
 
                     <div class="mb-3">
                             <h5 class="d-flex justify-content-between">

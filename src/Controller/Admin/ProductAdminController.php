@@ -5,6 +5,7 @@ namespace App\Controller\Admin;
 use App\Entity\Produit;
 use App\Repository\CategorieProduitRepository;
 use App\Repository\ProduitRepository;
+use App\Service\ProductPricingService;
 use App\Service\StockDemandForecastService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -20,11 +21,13 @@ class ProductAdminController extends AbstractController
     #[Route('/', name: 'admin_products')]
     public function index(
         ProduitRepository $repo,
-        StockDemandForecastService $stockDemandForecastService
+        StockDemandForecastService $stockDemandForecastService,
+        ProductPricingService $productPricingService
     ): Response
     {
         $products = $repo->findAll();
         $forecastByProduct = $stockDemandForecastService->forecastForProducts($products);
+        $pricingByProduct = $productPricingService->calculateForProducts($products);
         $forecastAlerts = array_filter(
             $forecastByProduct,
             static fn (array $item): bool => $item['should_alert'] === true
@@ -43,6 +46,7 @@ class ProductAdminController extends AbstractController
         return $this->render('admin/products/index.html.twig', [
             'products' => $products,
             'forecastByProduct' => $forecastByProduct,
+            'pricingByProduct' => $pricingByProduct,
             'forecastAlerts' => array_slice($forecastAlerts, 0, 8, true),
         ]);
     }

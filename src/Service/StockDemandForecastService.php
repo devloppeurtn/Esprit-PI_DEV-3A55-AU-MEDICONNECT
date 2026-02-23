@@ -18,7 +18,8 @@ class StockDemandForecastService
 
     public function __construct(
         private LigneCommandeRepository $ligneCommandeRepository,
-        private ProduitRepository $produitRepository
+        private ProduitRepository $produitRepository,
+        private AiStockForecastModelService $aiStockForecastModelService
     ) {
     }
 
@@ -32,6 +33,7 @@ class StockDemandForecastService
      *   avg_daily_recent: float,
      *   trend_factor: float,
      *   forecast_next_7d: int,
+     *   forecast_source: string,
      *   safety_stock: int,
      *   days_until_stockout: ?int,
      *   should_alert: bool,
@@ -77,6 +79,7 @@ class StockDemandForecastService
      *   avg_daily_recent: float,
      *   trend_factor: float,
      *   forecast_next_7d: int,
+     *   forecast_source: string,
      *   safety_stock: int,
      *   days_until_stockout: ?int,
      *   should_alert: bool,
@@ -97,6 +100,7 @@ class StockDemandForecastService
      *   avg_daily_recent: float,
      *   trend_factor: float,
      *   forecast_next_7d: int,
+     *   forecast_source: string,
      *   safety_stock: int,
      *   days_until_stockout: ?int,
      *   should_alert: bool,
@@ -161,6 +165,7 @@ class StockDemandForecastService
      *   avg_daily_recent: float,
      *   trend_factor: float,
      *   forecast_next_7d: int,
+     *   forecast_source: string,
      *   safety_stock: int,
      *   days_until_stockout: ?int,
      *   should_alert: bool,
@@ -196,6 +201,20 @@ class StockDemandForecastService
         if ($forecastNext7d < 0) {
             $forecastNext7d = 0;
         }
+        $forecastSource = 'rules';
+
+        $aiPrediction = $this->aiStockForecastModelService->predictNext7Days(
+            $this->buildModelFeatures($dailySales, $asOf)
+        );
+
+        if ($aiPrediction !== null) {
+            $aiForecast = max(0, (int) round($aiPrediction));
+
+            // Guardrail to avoid unrealistic spikes on sparse datasets.
+            $maxAllowed = max(10, ($forecastNext7d * 5) + 20);
+            $forecastNext7d = min($aiForecast, $maxAllowed);
+            $forecastSource = 'ai';
+        }
 
         $safetyStock = max(2, (int) ceil($avgDailyRecent * 3));
         $stock = max(0, (int) ($produit->getStock() ?? 0));
@@ -219,6 +238,7 @@ class StockDemandForecastService
             'avg_daily_recent' => round($avgDailyRecent, 2),
             'trend_factor' => round($trendFactor, 2),
             'forecast_next_7d' => $forecastNext7d,
+            'forecast_source' => $forecastSource,
             'safety_stock' => $safetyStock,
             'days_until_stockout' => $daysUntilStockout,
             'should_alert' => $shouldAlert,
@@ -253,6 +273,30 @@ class StockDemandForecastService
             StatutCommande::VALIDEE->value,
             StatutCommande::PREPAREE->value,
             StatutCommande::LIVREE->value,
+        ];
+    }
+
+    /**
+     * @param array<string, int> $dailySales
+     * @return array<string, float|int>
+     */
+    private function buildModelFeatures(array $dailySales, \DateTimeImmutable $asOf): array
+    {
+        $last1d = $this->sumWindow($dailySales, $asOf, 1, 1);
+        $last3d = $this->sumWindow($dailySales, $asOf, 1, 3);
+        $last7d = $this->sumWindow($dailySales, $asOf, 1, 7);
+        $prev7d = $this->sumWindow($dailySales, $asOf, 8, 14);
+        $last14d = $this->sumWindow($dailySales, $asOf, 1, 14);
+
+        return [
+            'last_1d' => $last1d,
+            'last_3d' => $last3d,
+            'last_7d' => $last7d,
+            'prev_7d' => $prev7d,
+            'last_14d' => $last14d,
+            'trend_7d' => ($last7d + 1.0) / ($prev7d + 1.0),
+            'dow' => (int) $asOf->format('N'),
+            'month' => (int) $asOf->format('n'),
         ];
     }
 }

@@ -237,15 +237,7 @@ class ProductController extends AbstractController
 
     private function buildDynamicPrices(array $produits, ProductPricingService $pricingService): array
     {
-        $prices = [];
-        foreach ($produits as $produit) {
-            if (!$produit instanceof Produit || $produit->getId() === null) {
-                continue;
-            }
-            $prices[$produit->getId()] = $pricingService->calculateForProduct($produit);
-        }
-
-        return $prices;
+        return $pricingService->calculateForProducts($produits);
     }
 
     private function extractFilters(Request $request, ?int $forcedCategorieId = null): array

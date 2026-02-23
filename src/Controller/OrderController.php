@@ -9,6 +9,7 @@ use App\Repository\CommandeProduitRepository;
 use App\Repository\ProduitRepository;
 use App\Service\CartService;
 use App\Service\DeliverySlaService;
+use App\Service\OrderWorkflowService;
 use App\Service\SmsNotifier;
 use App\Service\StockReservationService;
 use Doctrine\ORM\EntityManagerInterface;
@@ -208,7 +209,8 @@ class OrderController extends AbstractController
         Request $request,
         EntityManagerInterface $em,
         CartService $cartService,
-        StockReservationService $stockReservationService
+        StockReservationService $stockReservationService,
+        OrderWorkflowService $orderWorkflowService
     ): Response {
         // ensure the order belongs to current user
         if ($commande->getUtilisateur() !== $this->getUser()) {
@@ -241,7 +243,7 @@ class OrderController extends AbstractController
             if ($paymentMethod === 'cod') {
                 // Cash on delivery: mark as prepared (business logic)
                 $commande->setModePaiement('cod');
-                $commande->setStatut(StatutCommande::PREPAREE);
+                $orderWorkflowService->apply($commande, 'prepare');
                 $em->persist($commande);
                 $em->flush();
 

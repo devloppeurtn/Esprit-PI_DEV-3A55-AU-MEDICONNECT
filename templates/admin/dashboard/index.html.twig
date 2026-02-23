@@ -1,4 +1,4 @@
-ï»¿{% extends 'admin/base_admin.html.twig' %}
+{% extends 'admin/base_admin.html.twig' %}
 
 {% block title %}Tableau de bord - Admin MediConnect{% endblock %}
 
@@ -6,7 +6,7 @@
 <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-3 mb-4">
     <div>
         <h1 class="h3 mb-1">Tableau de bord</h1>
-        <p class="text-muted mb-0">Bienvenue, {{ app.user.nomComplet }} â?? <small class="text-muted"><i class="bi bi-broadcast"></i> Mise Ã  jour instantanÃ©e (push temps rÃ©el)</small></p>
+        <p class="text-muted mb-0">Bienvenue, {{ app.user.nomComplet }} ??? <small class="text-muted"><i class="bi bi-broadcast"></i> Mise à jour instantanée (push temps réel)</small></p>
     </div>
 </div>
 
@@ -55,7 +55,7 @@
                         </div>
                     </div>
                     <div class="flex-grow-1 ms-3">
-                        <h6 class="mb-0 text-muted">MÃ©decins</h6>
+                        <h6 class="mb-0 text-muted">Médecins</h6>
                         <h3 class="mb-0" data-stat="countMedecins">{{ countMedecins|default(0) }}</h3>
                     </div>
                 </div>
@@ -72,7 +72,7 @@
                         </div>
                     </div>
                     <div class="flex-grow-1 ms-3">
-                        <h6 class="mb-0 text-muted">SecrÃ©taires</h6>
+                        <h6 class="mb-0 text-muted">Secrétaires</h6>
                         <h3 class="mb-0" data-stat="countSecretaires">{{ countSecretaires|default(0) }}</h3>
                     </div>
                 </div>
@@ -174,7 +174,7 @@
     <div class="col-lg-4">
         <div class="card border-0 shadow-sm">
             <div class="card-header bg-white border-bottom">
-                <h5 class="card-title mb-0">ActivitÃ© rÃ©cente</h5>
+                <h5 class="card-title mb-0">Activité récente</h5>
             </div>
             <div class="card-body">
                 <div class="activity-feed">
@@ -182,14 +182,14 @@
                         <div class="flex-shrink-0 rounded-circle bg-primary bg-opacity-10 text-primary p-2"><i class="bi bi-person-plus"></i></div>
                         <div>
                             <p class="mb-0 small">Nouveaux utilisateurs</p>
-                            <small class="text-muted">Inscriptions en temps rÃ©el</small>
+                            <small class="text-muted">Inscriptions en temps réel</small>
                         </div>
                     </div>
                     <div class="activity-item d-flex align-items-start gap-3 mb-3">
                         <div class="flex-shrink-0 rounded-circle bg-success bg-opacity-10 text-success p-2"><i class="bi bi-graph-up"></i></div>
                         <div>
                             <p class="mb-0 small">Statistiques</p>
-                            <small class="text-muted">RafraÃ®chies toutes les 15 s</small>
+                            <small class="text-muted">Rafraîchies toutes les 15 s</small>
                         </div>
                     </div>
                     <div class="activity-item d-flex align-items-start gap-3">
@@ -225,7 +225,7 @@
     <div class="col-lg-6">
         <div class="card border-0 shadow-sm">
             <div class="card-header bg-white border-bottom">
-                <h5 class="card-title mb-0">RÃ©partition des utilisateurs</h5>
+                <h5 class="card-title mb-0">Répartition des utilisateurs</h5>
             </div>
             <div class="card-body">
                 <div style="height: 220px;">
@@ -246,7 +246,7 @@
                 <div class="row g-3">
                     <div class="col-md-6">
                         <a href="{{ path('app_admin_users') }}" class="btn btn-outline-primary w-100 py-3">
-                            <i class="bi bi-people me-2"></i>GÃ©rer les utilisateurs
+                            <i class="bi bi-people me-2"></i>Gérer les utilisateurs
                         </a>
                     </div>                    <div class="col-md-6">
                         <a href="{{ path('admin_products') }}" class="btn btn-outline-primary w-100 py-3">
@@ -256,6 +256,11 @@
                     <div class="col-md-6">
                         <a href="{{ path('admin_categories') }}" class="btn btn-outline-primary w-100 py-3">
                             <i class="bi bi-tags me-2"></i>Gerer les categories
+                        </a>
+                    </div>
+                                        <div class="col-md-6">
+                        <a href="{{ path('app_admin_delivery_dashboard') }}" class="btn btn-outline-primary w-100 py-3">
+                            <i class="bi bi-truck me-2"></i>Suivi livraison ETA
                         </a>
                     </div>
                     <div class="col-md-6">
@@ -270,12 +275,12 @@
     <div class="col-lg-4">
         <div class="card border-0 shadow-sm">
             <div class="card-header bg-white border-bottom">
-                <h5 class="card-title mb-0">Dossier mÃ©dical & consultations</h5>
+                <h5 class="card-title mb-0">Dossier médical & consultations</h5>
             </div>
             <div class="card-body">
                 <div class="mb-2">
                     <div class="d-flex justify-content-between align-items-center">
-                        <span class="text-muted small">Dossiers mÃ©dicaux</span>
+                        <span class="text-muted small">Dossiers médicaux</span>
                         <span class="fw-semibold" data-stat="countDossiers">0</span>
                     </div>
                 </div>
@@ -293,13 +298,13 @@
                 </div>
                 <div class="mb-2">
                     <div class="d-flex justify-content-between align-items-center">
-                        <span class="text-muted small">MÃ©dicaments actuels</span>
+                        <span class="text-muted small">Médicaments actuels</span>
                         <span class="fw-semibold" data-stat="countMedicamentsActuels">0</span>
                     </div>
                 </div>
                 <div class="mb-2">
                     <div class="d-flex justify-content-between align-items-center">
-                        <span class="text-muted small">Rapports mÃ©dicaux</span>
+                        <span class="text-muted small">Rapports médicaux</span>
                         <span class="fw-semibold" data-stat="countRapportsMedicaux">0</span>
                     </div>
                 </div>
@@ -342,15 +347,15 @@
                         <div class="fw-semibold" data-stat="countRdvEnAttente">0</div>
                     </div>
                     <div class="col-6 col-md-3">
-                        <span class="badge bg-primary mb-1">ConfirmÃ©s</span>
+                        <span class="badge bg-primary mb-1">Confirmés</span>
                         <div class="fw-semibold" data-stat="countRdvConfirmes">0</div>
                     </div>
                     <div class="col-6 col-md-3">
-                        <span class="badge bg-danger mb-1">AnnulÃ©s</span>
+                        <span class="badge bg-danger mb-1">Annulés</span>
                         <div class="fw-semibold" data-stat="countRdvAnnules">0</div>
                     </div>
                     <div class="col-6 col-md-3">
-                        <span class="badge bg-success mb-1">TerminÃ©s</span>
+                        <span class="badge bg-success mb-1">Terminés</span>
                         <div class="fw-semibold" data-stat="countRdvTermines">0</div>
                     </div>
                 </div>
@@ -368,7 +373,7 @@
 document.addEventListener('DOMContentLoaded', function() {
     const STATS_URL = '{{ path('app_admin_stats') }}';
     const CHARTS_BASE_URL = '{{ path('app_admin_charts') }}';
-    const REFRESH_INTERVAL = 60000; // Fallback 60s si Mercure dÃ©connectÃ©
+    const REFRESH_INTERVAL = 60000; // Fallback 60s si Mercure déconnecté
     const MERCURE_URL = (() => { try { return JSON.parse(document.getElementById('mercure-dashboard-url')?.textContent || '""'); } catch(e) { return null; } })();
 
     let userGrowthChart = null;
@@ -453,7 +458,7 @@ document.addEventListener('DOMContentLoaded', function() {
                                     fill: true
                                 },
                                 {
-                                    label: 'MÃ©decins',
+                                    label: 'Médecins',
                                     data: data.overview.medecins,
                                     borderColor: 'rgb(34, 197, 94)',
                                     backgroundColor: 'rgba(34, 197, 94, 0.1)',
@@ -478,7 +483,7 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         }
 
-        // Graphique donut - RÃ©partition
+        // Graphique donut - Répartition
         if (userDistributionChart) {
             userDistributionChart.data.datasets[0].data = data.distribution.data;
             userDistributionChart.update('none');
@@ -545,7 +550,7 @@ document.addEventListener('DOMContentLoaded', function() {
         fetchAndUpdateCharts();
     }
 
-    // Abonnement Mercure : mise Ã  jour instantanÃ©e dÃ¨s qu'un utilisateur change
+    // Abonnement Mercure : mise à jour instantanée dès qu'un utilisateur change
     let mercureEventSource = null;
     if (MERCURE_URL) {
         try {
@@ -559,7 +564,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 } catch (e) {}
             };
             mercureEventSource.onerror = function() {
-                // Reconnexion automatique gÃ©rÃ©e par EventSource
+                // Reconnexion automatique gérée par EventSource
             };
         } catch (e) {}
     }
@@ -569,4 +574,5 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 {% endblock %}
+
 

@@ -29,21 +29,48 @@
             <th>#</th>
             <th>Nom</th>
             <th>Categorie</th>
-            <th>Prix</th>
+            <th>Prix base</th>
+            <th>Prix final</th>
+            <th>Pricing details</th>
             <th>Stock</th>
             <th>Forecast 7j</th>
-            <th>Risque</th>
+            <th>Rupture estimée</th>
             <th></th>
         </tr>
         </thead>
         <tbody>
         {% for p in products %}
             {% set forecast = forecastByProduct[p.id] ?? null %}
+            {% set pricing = pricingByProduct[p.id] ?? null %}
             <tr>
                 <td>{{ p.id }}</td>
                 <td>{{ p.nom }}</td>
                 <td>{{ p.categorie ? p.categorie.nom : '?' }}</td>
                 <td>{{ p.prix|number_format(2, ',', ' ') }} TND</td>
+                <td>
+                    {% if pricing %}
+                        {{ pricing.final|number_format(2, ',', ' ') }} TND
+                    {% else %}
+                        {{ p.prix|number_format(2, ',', ' ') }} TND
+                    {% endif %}
+                </td>
+                <td>
+                    {% if pricing %}
+                        {% if pricing.adjusted %}
+                            {% if pricing.source == 'ai_real' %}
+                                <span class="badge bg-info text-dark">IA REELLE</span>
+                            {% else %}
+                                <span class="badge bg-secondary">{{ pricing.source|upper }}</span>
+                            {% endif %}
+                            <div class="small mt-1">{{ pricing.label }}</div>
+                            <div class="small text-muted">x{{ pricing.multiplier }}</div>
+                        {% else %}
+                            <span class="badge bg-secondary">Stable</span>
+                        {% endif %}
+                    {% else %}
+                        <span class="text-muted">-</span>
+                    {% endif %}
+                </td>
                 <td>{{ p.stock }}</td>
                 <td>
                     {% if forecast %}
@@ -53,14 +80,10 @@
                     {% endif %}
                 </td>
                 <td>
-                    {% if forecast and forecast.should_alert %}
-                        {% if forecast.alert_level == 'critical' %}
-                            <span class="badge bg-danger">Critique</span>
-                        {% else %}
-                            <span class="badge bg-warning text-dark">A surveiller</span>
-                        {% endif %}
+                    {% if forecast and forecast.days_until_stockout is not null %}
+                        {{ forecast.days_until_stockout }} j
                     {% else %}
-                        <span class="badge bg-success">OK</span>
+                        -
                     {% endif %}
                 </td>
                 <td class="text-end">
@@ -71,10 +94,9 @@
                 </td>
             </tr>
         {% else %}
-            <tr><td colspan="8" class="text-center text-muted">Aucun produit</td></tr>
+            <tr><td colspan="10" class="text-center text-muted">Aucun produit</td></tr>
         {% endfor %}
         </tbody>
     </table>
 </div>
 {% endblock %}
-

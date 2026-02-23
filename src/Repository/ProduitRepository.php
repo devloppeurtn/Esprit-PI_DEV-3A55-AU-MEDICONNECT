@@ -118,4 +118,118 @@ class ProduitRepository extends ServiceEntityRepository
 
         return $qb->getQuery()->getResult();
     }
+
+    /**
+     * Get products frequently bought together (co-purchase analysis).
+     * 
+     * @param Produit $product Reference product
+     * @param int $limit Maximum number of results
+     * @return array<string, mixed> Array of co-purchased products
+     */
+    public function findCoProductsForProduct(Produit $product, int $limit = 5): array
+    {
+        return $this->getEntityManager()->createQueryBuilder()
+            ->select('p.id, p.nom, p.prix, p.image, COUNT(lc2.id) as frequency')
+            ->from('App\Entity\LigneCommande', 'lc1')
+            ->innerJoin('lc1.commande', 'c1')
+            ->innerJoin('App\Entity\LigneCommande', 'lc2', 'WITH', 'c1.id = lc2.commande')
+            ->innerJoin('lc2.produit', 'p', 'WITH', 'p.id = lc2.produit')
+            ->where('lc1.produit = :product')
+            ->andWhere('p.id != :productId')
+            ->setParameter('product', $product)
+            ->setParameter('productId', $product->getId())
+            ->groupBy('p.id')
+            ->orderBy('frequency', 'DESC')
+            ->setMaxResults($limit)
+            ->getQuery()
+            ->getResult();
+    }
+
+    /**
+     * Get top-selling products.
+     * 
+     * @param int $limit Maximum number of results
+     * @return array Product statistics
+     */
+    public function findTopSellers(int $limit = 10): array
+    {
+        return $this->getEntityManager()->createQueryBuilder()
+            ->select('p.id, p.nom, p.prix, p.image, SUM(lc.quantite) as totalSold')
+            ->from('App\Entity\LigneCommande', 'lc')
+            ->innerJoin('lc.produit', 'p')
+            ->groupBy('p.id')
+            ->orderBy('totalSold', 'DESC')
+            ->setMaxResults($limit)
+            ->getQuery()
+            ->getResult();
+    }
+
+    /**
+     * Get trending products (recent sales).
+     * 
+     * @param int $limit Maximum number of results
+     * @param int $daysBack Number of days to look back
+     * @return array Product statistics
+     */
+    public function findTrendingProducts(int $limit = 5, int $daysBack = 7): array
+    {
+        $dateFrom = (new \DateTime())->modify("-{$daysBack} days");
+
+        return $this->getEntityManager()->createQueryBuilder()
+            ->select('p.id, p.nom, p.prix, p.image, SUM(lc.quantite) as recentSales')
+            ->from('App\Entity\LigneCommande', 'lc')
+            ->innerJoin('lc.produit', 'p')
+            ->innerJoin('lc.commande', 'c')
+            ->where('c.dateCommande >= :dateFrom')
+            ->setParameter('dateFrom', $dateFrom)
+            ->groupBy('p.id')
+            ->orderBy('recentSales', 'DESC')
+            ->setMaxResults($limit)
+            ->getQuery()
+            ->getResult();
+    }
+
+    /**
+     * Find products not yet purchased by a customer.
+     * 
+     * @param \App\Entity\Utilisateur $customer The customer
+     * @param int $limit Maximum number of results
+     * @return Produit[] Array of products
+     */
+    public function findUnpurchasedByCustomer(\App\Entity\Utilisateur $customer, int $limit = 5): array
+    {
+        return $this->createQueryBuilder('p')
+            ->where('p.stock > 0')
+            ->andWhere('p.id NOT IN (
+                SELECT DISTINCT lc.produit
+                FROM App\Entity\LigneCommande lc
+                WHERE lc.commande IN (
+                    SELECT c.id FROM App\Entity\CommandeProduit c
+                    WHERE c.utilisateur = :customerId
+                )
+            )')
+            ->setParameter('customerId', $customer->getId())
+            ->orderBy('p.nom', 'ASC')
+            ->setMaxResults($limit)
+            ->getQuery()
+            ->getResult();
+    }
+
+    /**
+     * Get product sales statistics.
+     * 
+     * @return array Product statistics
+     */
+    public function findProductSalesStatistics(): array
+    {
+        return $this->getEntityManager()->createQueryBuilder()
+            ->select('p.id, p.nom, COUNT(lc.id) as orderCount, SUM(lc.quantite) as totalQuantity, 
+                     SUM(CAST(lc.prixUnitaire as FLOAT) * lc.quantite) as totalRevenue')
+            ->from('App\Entity\Produit', 'p')
+            ->leftJoin('p.lignesCommande', 'lc')
+            ->groupBy('p.id')
+            ->orderBy('totalRevenue', 'DESC')
+            ->getQuery()
+            ->getResult();
+    }
 }
