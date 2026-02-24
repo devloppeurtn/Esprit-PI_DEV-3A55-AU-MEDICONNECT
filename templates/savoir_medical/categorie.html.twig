@@ -212,7 +212,7 @@
                         <i class="bi bi-pencil me-2"></i>Modifier
                     </a>
                     <form method="post" action="{{ path('app_savoir_medical_supprimer_categorie', {id: categorie.id}) }}" 
-                          onsubmit="return confirm('√ätes-vous s√ªr de vouloir supprimer cette cat√©gorie ? Tous les cours associ√©s seront √©galement supprim√©s. Cette action est irr√©versible.')" 
+                          onsubmit="return confirm(' tes-vous s˚r de vouloir supprimer cette catÈgorie ? Tous les cours associÈs seront Ègalement supprimÈs. Cette action est irrÈversible.')" 
                           class="d-inline">
                         <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ categorie.id) }}">
                         <button type="submit" class="btn btn-outline-danger">
@@ -229,12 +229,6 @@
     <div class="row">
         <div class="col-lg-8">
             <div class="d-flex justify-content-between align-items-center mb-4">
-<<<<<<< HEAD
-                <h3 class="mb-0">Cours disponibles</h3>
-                {% if is_granted('ROLE_MEDECIN') %}
-                    <a href="{{ path('app_savoir_medical_cours_nouveau', {categorie: categorie.id}) }}" class="btn btn-primary">
-                        <i class="bi bi-plus-lg me-1"></i>Nouveau cours
-=======
                 <div>
                     <h2 class="section-title mb-0">
                         <i class="bi bi-book"></i>
@@ -244,21 +238,11 @@
                 {% if is_granted('ROLE_MEDECIN') %}
                     <a href="{{ path('app_savoir_medical_nouveau_cours', {categorieId: categorie.id}) }}" class="btn btn-primary">
                         <i class="bi bi-plus-circle me-2"></i>Ajouter un cours
->>>>>>> a394a49d254c11c5d5c2968c663ca48ad0d8f7b9
                     </a>
                 {% endif %}
             </div>
             
             {% if cours is empty %}
-<<<<<<< HEAD
-                <div class="text-center py-5">
-                    <i class="bi bi-book" style="font-size: 4rem; color: #e9ecef;"></i>
-                    <h5 class="mt-3 text-muted">Aucun cours disponible</h5>
-                    <p class="text-muted mb-4">{% if is_granted('ROLE_MEDECIN') %}Cr√©ez le premier cours de cette cat√©gorie.{% else %}Les cours seront bient√¥t ajout√©s.{% endif %}</p>
-                    {% if is_granted('ROLE_MEDECIN') %}
-                        <a href="{{ path('app_savoir_medical_cours_nouveau', {categorie: categorie.id}) }}" class="btn btn-primary">
-                            <i class="bi bi-plus-lg me-1"></i>Nouveau cours
-=======
                 <div class="empty-state">
                     <i class="bi bi-book"></i>
                     <h4 class="text-muted mb-3">Aucun cours disponible</h4>
@@ -266,7 +250,6 @@
                     {% if is_granted('ROLE_MEDECIN') %}
                         <a href="{{ path('app_savoir_medical_nouveau_cours', {categorieId: categorie.id}) }}" class="btn btn-primary">
                             <i class="bi bi-plus-circle me-2"></i>Cr√©er le premier cours
->>>>>>> a394a49d254c11c5d5c2968c663ca48ad0d8f7b9
                         </a>
                     {% endif %}
                 </div>
@@ -287,36 +270,6 @@
                                         {{ coursItem.contenu|length > 150 ? coursItem.contenu|slice(0, 150) ~ '...' : coursItem.contenu }}
                                     </p>
                                     
-<<<<<<< HEAD
-                                    <div class="d-flex justify-content-between align-items-center mt-3 flex-wrap gap-2">
-                                        <div>
-                                            <small class="text-muted">
-                                                <i class="bi bi-question-circle me-1"></i>
-                                                {{ coursItem.questions|length }} questions
-                                            </small>
-                                            <br>
-                                            <small class="text-muted">
-                                                <i class="bi bi-trophy me-1"></i>
-                                                {{ coursItem.scorePourBadge }} pts pour badge
-                                            </small>
-                                        </div>
-                                        <div class="d-flex gap-1">
-                                            {% if is_granted('ROLE_MEDECIN') %}
-                                                <a href="{{ path('app_savoir_medical_cours_modifier', {id: coursItem.id}) }}" class="btn btn-outline-secondary btn-sm">
-                                                    <i class="bi bi-pencil"></i>
-                                                </a>
-                                                <form method="post" action="{{ path('app_savoir_medical_cours_supprimer', {id: coursItem.id}) }}" class="d-inline" onsubmit="return confirm('Supprimer ce cours ? Les questions associ√©es seront √©galement supprim√©es.');">
-                                                    <input type="hidden" name="_token" value="{{ csrf_token('supprimer_cours_' ~ coursItem.id) }}">
-                                                    <button type="submit" class="btn btn-outline-danger btn-sm">
-                                                        <i class="bi bi-trash"></i>
-                                                    </button>
-                                                </form>
-                                            {% endif %}
-                                            <a href="{{ path('app_savoir_medical_cours', {id: coursItem.id}) }}" class="btn btn-primary btn-sm">
-                                                Commencer
-                                            </a>
-                                        </div>
-=======
                                     <div class="cours-meta">
                                         <div class="meta-item">
                                             <i class="bi bi-question-circle"></i>
@@ -350,7 +303,7 @@
                                             </a>
                                             <form method="post" 
                                                   action="{{ path('app_savoir_medical_supprimer_cours', {id: coursItem.id}) }}" 
-                                                  onsubmit="return confirm('√ätes-vous s√ªr de vouloir supprimer ce cours ?')" 
+                                                  onsubmit="return confirm(' tes-vous s˚r de vouloir supprimer ce cours ?')" 
                                                   class="d-inline">
                                                 <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ coursItem.id) }}">
                                                 <button type="submit" class="btn btn-action btn-outline-danger" title="Supprimer">
@@ -363,7 +316,6 @@
                                                 <i class="bi bi-book me-2"></i>Voir le cours
                                             </a>
                                         {% endif %}
->>>>>>> a394a49d254c11c5d5c2968c663ca48ad0d8f7b9
                                     </div>
                                 </div>
                             </div>

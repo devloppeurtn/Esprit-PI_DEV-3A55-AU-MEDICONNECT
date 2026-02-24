@@ -37,7 +37,7 @@ class ProfileSettingsFormType extends AbstractType
                 'attr' => ['class' => 'form-control'],
                 'constraints' => [
                     new NotBlank(['message' => 'Le nom est requis']),
-                    new Length(['min' => 2, 'max' => 255, 'minMessage' => 'Le nom doit contenir au moins 2 caractères.', 'maxMessage' => 'Le nom ne doit pas dépasser 255 caractères.']),
+                    new Length(['min' => 2, 'max' => 255, 'minMessage' => 'Le nom doit contenir au moins 2 caractÃ¨res.', 'maxMessage' => 'Le nom ne doit pas dÃ©passer 255 caractÃ¨res.']),
                 ],
             ])
             ->add('email', EmailType::class, [
@@ -49,14 +49,14 @@ class ProfileSettingsFormType extends AbstractType
                 ],
             ]);
 
-        // Champs selon le rôle
+        // Champs selon le rÃ´le
         if ($user instanceof Patient) {
             $builder
                 ->add('telephone', TelType::class, [
-                    'label' => 'Téléphone',
+                    'label' => 'TÃ©lÃ©phone',
                     'required' => false,
                     'attr' => ['class' => 'form-control', 'placeholder' => 'Ex: +216 12 345 678'],
-                    'constraints' => [new Length(['max' => 30, 'maxMessage' => 'Téléphone trop long.'])],
+                    'constraints' => [new Length(['max' => 30, 'maxMessage' => 'TÃ©lÃ©phone trop long.'])],
                 ])
                 ->add('dateNaissance', DateType::class, [
                     'label' => 'Date de naissance',
@@ -67,22 +67,22 @@ class ProfileSettingsFormType extends AbstractType
                 ->add('adresse', TextareaType::class, [
                     'label' => 'Adresse',
                     'required' => false,
-                    'attr' => ['class' => 'form-control', 'rows' => 3, 'placeholder' => 'Adresse complète'],
+                    'attr' => ['class' => 'form-control', 'rows' => 3, 'placeholder' => 'Adresse complÃ¨te'],
                     'constraints' => [new Length(['max' => 500, 'maxMessage' => 'Adresse trop longue.'])],
                 ]);
         } elseif ($user instanceof Medecin) {
             $builder
                 ->add('specialite', TextType::class, [
-                    'label' => 'Spécialité',
+                    'label' => 'SpÃ©cialitÃ©',
                     'required' => false,
                     'attr' => ['class' => 'form-control', 'placeholder' => 'Ex: Cardiologie'],
-                    'constraints' => [new Length(['max' => 255, 'maxMessage' => 'Spécialité trop longue.'])],
+                    'constraints' => [new Length(['max' => 255, 'maxMessage' => 'SpÃ©cialitÃ© trop longue.'])],
                 ])
                 ->add('numeroLicence', TextType::class, [
-                    'label' => 'Numéro de licence',
+                    'label' => 'NumÃ©ro de licence',
                     'required' => false,
                     'attr' => ['class' => 'form-control'],
-                    'constraints' => [new Length(['max' => 100, 'maxMessage' => 'Numéro de licence trop long.'])],
+                    'constraints' => [new Length(['max' => 100, 'maxMessage' => 'NumÃ©ro de licence trop long.'])],
                 ])
                 ->add('adresseCabinet', TextareaType::class, [
                     'label' => 'Adresse du cabinet',
@@ -93,15 +93,15 @@ class ProfileSettingsFormType extends AbstractType
         } elseif ($user instanceof Secretaire) {
             $builder
                 ->add('telephone', TelType::class, [
-                    'label' => 'Téléphone',
+                    'label' => 'TÃ©lÃ©phone',
                     'required' => false,
                     'attr' => ['class' => 'form-control'],
-                    'constraints' => [new Length(['max' => 30, 'maxMessage' => 'Téléphone trop long.'])],
+                    'constraints' => [new Length(['max' => 30, 'maxMessage' => 'TÃ©lÃ©phone trop long.'])],
                 ]);
         } elseif ($user instanceof Participation) {
             $builder
                 ->add('roleDansEvenement', EnumType::class, [
-                    'label' => 'Rôle dans l\'événement',
+                    'label' => 'RÃ´le dans l\'Ã©vÃ©nement',
                     'class' => RoleParticipation::class,
                     'choice_label' => fn ($choice) => match ($choice) {
                         RoleParticipation::ORGANISATEUR => 'Organisateur',
@@ -112,7 +112,7 @@ class ProfileSettingsFormType extends AbstractType
                     'attr' => ['class' => 'form-select'],
                 ])
                 ->add('presenceConfirmee', CheckboxType::class, [
-                    'label' => 'Présence confirmée',
+                    'label' => 'PrÃ©sence confirmÃ©e',
                     'required' => false,
                     'attr' => ['class' => 'form-check-input'],
                 ]);
@@ -130,14 +130,7 @@ class ProfileSettingsFormType extends AbstractType
             'constraints' => [
                 new File([
                     'maxSize' => '5M',
-                    'mimeTypes' => [
-                        'image/jpeg',
-                        'image/png',
-                        'image/gif',
-                        'image/webp',
-                    ],
-                    'mimeTypesMessage' => 'Veuillez télécharger une image valide (JPEG, PNG, GIF ou WebP)',
-                    'maxSizeMessage' => 'L\'image ne doit pas dépasser 5 Mo',
+                    'maxSizeMessage' => 'L\'image ne doit pas dÃ©passer 5 Mo',
                 ]),
             ],
         ]);
@@ -147,9 +140,9 @@ class ProfileSettingsFormType extends AbstractType
             'label' => 'Nouveau mot de passe (laisser vide pour ne pas changer)',
             'mapped' => false,
             'required' => false,
-            'attr' => ['class' => 'form-control', 'placeholder' => '••••••••'],
+            'attr' => ['class' => 'form-control', 'placeholder' => 'â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢'],
             'constraints' => [
-                new Length(['min' => 6, 'minMessage' => 'Le mot de passe doit faire au moins {{ limit }} caractères']),
+                new Length(['min' => 6, 'minMessage' => 'Le mot de passe doit faire au moins {{ limit }} caractÃ¨res']),
             ],
         ]);
     }
@@ -163,3 +156,4 @@ class ProfileSettingsFormType extends AbstractType
         $resolver->setRequired('user');
     }
 }
+

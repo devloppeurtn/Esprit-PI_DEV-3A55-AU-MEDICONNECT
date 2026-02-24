@@ -1,10 +1,6 @@
 {% extends 'admin/base_admin.html.twig' %}
-{% block title %}{{ category.id ? 'Éditer catégorie' : 'Nouvelle catégorie' }} - Administration{% endblock %}
-{% block body %}
-<div class="d-flex justify-content-between align-items-center mb-4">
-    <h1 class="h3 mb-0">{{ category.id ? 'Éditer la catégorie' : 'Nouvelle catégorie' }}</h1>
-    <a href="{{ path('app_admin_categories') }}" class="btn btn-outline-secondary">Retour</a>
-</div>
+{% set title = category.id ? '�diter cat�gorie' : 'Nouvelle cat�gorie' %}
+{% block admin_content %}
 <form method="post" class="card shadow-sm">
     <div class="card-body">
         <div class="mb-3">
@@ -13,15 +9,15 @@
         </div>
         <div class="mb-3">
             <label class="form-label">Description</label>
-            <textarea name="description" rows="3" class="form-control">{{ category.description|default('') }}</textarea>
+            <textarea name="description" rows="3" class="form-control">{{ category.description }}</textarea>
         </div>
         <div class="mb-3">
             <label class="form-label">Image (optionnel)</label>
-            <input type="text" name="image" class="form-control" value="{{ category.image|default('') }}">
+            <input type="text" name="image" class="form-control" value="{{ category.image }}">
         </div>
     </div>
     <div class="card-footer d-flex justify-content-between">
-        <a href="{{ path('app_admin_categories') }}" class="btn btn-outline-secondary">Annuler</a>
+        <a href="{{ path('admin_categories') }}" class="btn btn-outline-secondary">Annuler</a>
         <button class="btn btn-primary">Enregistrer</button>
     </div>
 </form>

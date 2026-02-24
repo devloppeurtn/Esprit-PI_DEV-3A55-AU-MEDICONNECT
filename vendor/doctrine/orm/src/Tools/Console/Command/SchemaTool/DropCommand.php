@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Doctrine\ORM\Tools\Console\Command\SchemaTool;
 
+use Doctrine\ORM\Tools\Console\CommandCompatibility;
 use Doctrine\ORM\Tools\SchemaTool;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -20,7 +21,9 @@ use function sprintf;
  */
 class DropCommand extends AbstractCommand
 {
-    protected function configure(): void
+    use CommandCompatibility;
+
+    private function doConfigure(): void
     {
         $this->setName('orm:schema-tool:drop')
              ->setDescription('Drop the complete database schema of EntityManager Storage Connection or generate the corresponding SQL output')
@@ -43,13 +46,19 @@ on a global level:
 
         return !str_starts_with($assetName, 'audit_');
     });
-EOT);
+EOT
+             );
+    }
+
+    private function doExecute(InputInterface $input, OutputInterface $output): int
+    {
+        return parent::execute($input, $output);
     }
 
     /**
      * {@inheritDoc}
      */
-    protected function executeSchemaCommand(InputInterface $input, OutputInterface $output, SchemaTool $schemaTool, array $metadatas, SymfonyStyle $ui): int
+    protected function executeSchemaCommand(InputInterface $input, OutputInterface $output, SchemaTool $schemaTool, array $metadatas, SymfonyStyle $ui)
     {
         $isFullDatabaseDrop = $input->getOption('full-database');
         $dumpSql            = $input->getOption('dump-sql') === true;
@@ -108,7 +117,7 @@ EOT);
                 '',
                 sprintf('    <info>%s --force</info> to execute the command', $this->getName()),
                 sprintf('    <info>%s --dump-sql</info> to dump the SQL statements to the screen', $this->getName()),
-            ],
+            ]
         );
 
         return 1;

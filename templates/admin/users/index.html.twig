@@ -365,7 +365,7 @@
                                     <span class="badge" :class="{'bg-success':user.statut==='ACTIF','bg-secondary':user.statut==='BANNI'||user.statut==='SUSPENDU'}" x-text="user.statut||'â€”'"></span>
                                 </td>
                                 <td>
-                                    <span class="badge" :class="user.emailVerified ? 'bg-success' : 'bg-warning text-dark'" x-text="user.emailVerified ? 'VÃ©rifiÃ©' : 'Non vÃ©rifiÃ©'"></span>
+                                    <span class="badge" :class="user.emailVerified ? 'bg-success' : 'bg-warning text-dark'" x-text="user.emailVerified ? 'Vérifié' : 'Non vérifié'"></span>
                                 </td>
                                 <td x-text="user.lastActive || user.derniereConnexion || 'â€”'"></td>
                                 <td>

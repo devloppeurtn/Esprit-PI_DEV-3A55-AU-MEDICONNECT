@@ -1,8 +1,4 @@
-<<<<<<< HEAD
-{% extends 'base.html.twig' %}
-=======
 {% extends 'admin/base_admin.html.twig' %}
->>>>>>> a394a49d254c11c5d5c2968c663ca48ad0d8f7b9
 
 {% block title %}{{ isEdit ? 'Modifier' : 'Nouveau' }} cours - MediConnect{% endblock %}
 
@@ -10,18 +6,6 @@
     <link href="{{ asset('assets/vendor/bootstrap/css/bootstrap.min.css') }}" rel="stylesheet">
     <style>
         .form-header {
-<<<<<<< HEAD
-            background: linear-gradient(135deg, #175cdd 0%, #1a4db5 100%);
-            color: white;
-            padding: 3rem 0;
-            margin-bottom: 2rem;
-        }
-        .form-container {
-            background: white;
-            border-radius: 15px;
-            padding: 2rem;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-=======
             background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
             color: #333;
             padding: 2.5rem 0;
@@ -178,7 +162,6 @@
         .required-indicator {
             color: #dc3545;
             font-weight: 700;
->>>>>>> a394a49d254c11c5d5c2968c663ca48ad0d8f7b9
         }
     </style>
 {% endblock %}
@@ -186,16 +169,6 @@
 {% block body %}
 <div class="form-header">
     <div class="container">
-<<<<<<< HEAD
-        <a href="{{ path('app_savoir_medical_categorie', {id: categorie.id}) }}" class="btn btn-light btn-sm mb-3">
-            <i class="bi bi-arrow-left me-1"></i>Retour à {{ categorie.nom }}
-        </a>
-        <h1 class="display-5 mb-2">
-            <i class="bi bi-{{ isEdit ? 'pencil-square' : 'plus-circle' }} me-2"></i>
-            {{ isEdit ? 'Modifier le cours' : 'Nouveau cours' }}
-        </h1>
-        <p class="mb-0">{{ isEdit ? 'Modifiez le contenu du cours' : 'Créez un nouveau cours dans la catégorie ' ~ categorie.nom }}</p>
-=======
         <div class="d-flex align-items-center justify-content-between">
             <div>
                 <a href="{{ path('app_savoir_medical_categorie', {id: categorie.id}) }}" class="btn btn-outline-secondary btn-sm mb-3">
@@ -212,59 +185,16 @@
             <div class="d-none d-md-block">
                 <div class="text-end">
                     <div class="badge bg-primary fs-6 px-3 py-2">
-                        <i class="bi bi-book me-1"></i>{{ isEdit ? 'Modification' : 'Création' }}
+                        <i class="bi bi-book me-1"></i>{{ isEdit ? 'Modification' : 'Cr�ation' }}
                     </div>
                 </div>
             </div>
         </div>
->>>>>>> a394a49d254c11c5d5c2968c663ca48ad0d8f7b9
     </div>
 </div>
 
 <div class="container mb-5">
     <div class="row justify-content-center">
-<<<<<<< HEAD
-        <div class="col-lg-8">
-            <div class="form-container">
-                {% for message in app.flashes('success') %}
-                    <div class="alert alert-success alert-dismissible fade show" role="alert">
-                        <i class="bi bi-check-circle me-2"></i>{{ message }}
-                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                    </div>
-                {% endfor %}
-                {% for message in app.flashes('error') %}
-                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                        <i class="bi bi-exclamation-circle me-2"></i>{{ message }}
-                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                    </div>
-                {% endfor %}
-
-                {{ form_start(form, {'attr': {'novalidate': 'novalidate'}}) }}
-                {% if form.categorieSante is defined %}
-                    <div class="mb-4">
-                        {{ form_row(form.categorieSante) }}
-                    </div>
-                {% endif %}
-                <div class="mb-4">
-                    {{ form_row(form.titre) }}
-                </div>
-                <div class="mb-4">
-                    {{ form_row(form.contenu) }}
-                </div>
-                <div class="mb-4">
-                    {{ form_row(form.scorePourBadge) }}
-                </div>
-                <div class="d-flex justify-content-between align-items-center pt-3 border-top">
-                    <a href="{{ path('app_savoir_medical_categorie', {id: categorie.id}) }}" class="btn btn-outline-secondary">
-                        <i class="bi bi-x-circle me-1"></i>Annuler
-                    </a>
-                    <button type="submit" class="btn btn-primary">
-                        <i class="bi bi-{{ isEdit ? 'check-circle' : 'plus-circle' }} me-2"></i>
-                        {{ isEdit ? 'Enregistrer' : 'Créer le cours' }}
-                    </button>
-                </div>
-                {{ form_end(form) }}
-=======
         <div class="col-lg-10">
             <div class="card form-card">
                 <div class="card-body">
@@ -302,7 +232,7 @@ Vous pouvez structurer votre cours avec :
 • Des sections claires
 • Des explications détaillées
 • Des exemples pratiques
-• Des points importants à retenir">{{ cours.contenu ?? '' }}</textarea>
+? Des points importants � retenir">{{ cours.contenu ?? '' }}</textarea>
                             <div class="form-text">
                                 <i class="bi bi-lightbulb"></i>
                                 Expliquez les concepts de manière claire et pédagogique. Utilisez des paragraphes pour structurer votre contenu.
@@ -357,18 +287,15 @@ Vous pouvez structurer votre cours avec :
                             </a>
                             <button type="submit" class="btn btn-primary btn-lg">
                                 <i class="bi bi-{{ isEdit ? 'check-circle' : 'plus-circle' }} me-2"></i>
-                                {{ isEdit ? 'Enregistrer les modifications' : 'Créer le cours' }}
+                                {{ isEdit ? 'Enregistrer les modifications' : 'Cr�er le cours' }}
                             </button>
                         </div>
                     </form>
                 </div>
->>>>>>> a394a49d254c11c5d5c2968c663ca48ad0d8f7b9
             </div>
         </div>
     </div>
 </div>
-<<<<<<< HEAD
-=======
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
@@ -419,5 +346,4 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 </script>
->>>>>>> a394a49d254c11c5d5c2968c663ca48ad0d8f7b9
 {% endblock %}

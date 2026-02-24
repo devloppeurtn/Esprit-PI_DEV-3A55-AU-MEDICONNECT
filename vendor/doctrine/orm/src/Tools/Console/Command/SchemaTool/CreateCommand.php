@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Doctrine\ORM\Tools\Console\Command\SchemaTool;
 
+use Doctrine\ORM\Tools\Console\CommandCompatibility;
 use Doctrine\ORM\Tools\SchemaTool;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -19,7 +20,9 @@ use function sprintf;
  */
 class CreateCommand extends AbstractCommand
 {
-    protected function configure(): void
+    use CommandCompatibility;
+
+    private function doConfigure(): void
     {
         $this->setName('orm:schema-tool:create')
              ->setDescription('Processes the schema and either create it directly on EntityManager Storage Connection or generate the SQL output')
@@ -39,13 +42,19 @@ on a global level:
 
         return !str_starts_with($assetName, 'audit_');
     });
-EOT);
+EOT
+             );
+    }
+
+    private function doExecute(InputInterface $input, OutputInterface $output): int
+    {
+        return parent::execute($input, $output);
     }
 
     /**
      * {@inheritDoc}
      */
-    protected function executeSchemaCommand(InputInterface $input, OutputInterface $output, SchemaTool $schemaTool, array $metadatas, SymfonyStyle $ui): int
+    protected function executeSchemaCommand(InputInterface $input, OutputInterface $output, SchemaTool $schemaTool, array $metadatas, SymfonyStyle $ui)
     {
         $dumpSql = $input->getOption('dump-sql') === true;
 

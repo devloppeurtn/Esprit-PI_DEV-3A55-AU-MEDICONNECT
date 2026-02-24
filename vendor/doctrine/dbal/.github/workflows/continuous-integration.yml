@@ -1,0 +1,297 @@
+name: "Continuous Integration"
+
+on:
+  pull_request:
+    branches:
+      - "*.x"
+    paths:
+      - .github/workflows/continuous-integration.yml
+      - .github/workflows/phpunit-*.yml
+      - ci/**
+      - composer.*
+      - phpunit.xml.dist
+      - src/**
+      - tests/**
+  push:
+    branches:
+      - "*.x"
+    paths:
+      - .github/workflows/continuous-integration.yml
+      - .github/workflows/phpunit-*.yml
+      - ci/**
+      - composer.*
+      - phpunit.xml.dist
+      - src/**
+      - tests/**
+  schedule:
+    - cron: "42 3 * * *"
+
+jobs:
+  phpunit-smoke-check:
+    name: "PHPUnit with SQLite"
+    uses: ./.github/workflows/phpunit-sqlite.yml
+    with:
+      os: ${{ matrix.os }}
+      php-version: ${{ matrix.php-version }}
+      extension: ${{ matrix.extension }}
+      dependency-versions: ${{ matrix.dependency-versions }}
+
+    strategy:
+      matrix:
+        os:
+          - "ubuntu-24.04"
+        php-version:
+          - "7.4"
+          - "8.5"
+        dependency-versions:
+          - "highest"
+        extension:
+          - "sqlite3"
+          - "pdo_sqlite"
+        include:
+          - os: "ubuntu-22.04"
+            php-version: "7.4"
+            dependency-versions: "lowest"
+            extension: "pdo_sqlite"
+          - os: "ubuntu-24.04"
+            php-version: "8.5"
+            dependency-versions: "minimal"
+            extension: "sqlite3"
+
+  phpunit-oracle:
+    name: "PHPUnit with Oracle"
+    needs: "phpunit-smoke-check"
+    uses: ./.github/workflows/phpunit-oracle.yml
+    with:
+      php-version: ${{ matrix.php-version }}
+      oracle-version: ${{ matrix.oracle-version }}
+      extension: ${{ matrix.extension }}
+
+    strategy:
+      matrix:
+        php-version:
+          # TODO: Switch to PHP 8.5
+          # see https://github.com/shivammathur/setup-php/issues/1028
+          - "8.4"
+        oracle-version:
+          - "21"
+          - "23"
+        extension:
+          - oci8
+          - pdo_oci
+        include:
+          - php-version: "7.4"
+            oracle-version: "23"
+            extension: oci8
+          - php-version: "7.4"
+            oracle-version: "23"
+            extension: pdo_oci
+          - php-version: "8.5"
+            oracle-version: "23"
+            extension: oci8
+
+  phpunit-postgres:
+    name: "PHPUnit with PostgreSQL"
+    needs: "phpunit-smoke-check"
+    uses: ./.github/workflows/phpunit-postgres.yml
+    with:
+      php-version: ${{ matrix.php-version }}
+      postgres-version: ${{ matrix.postgres-version }}
+      extension: ${{ matrix.extension }}
+
+    strategy:
+      matrix:
+        php-version:
+          - "8.5"
+        postgres-version:
+          - "9.4"
+          - "11" # We have code specific to 10.0-12.0
+          - "17"
+        extension:
+          - "pgsql"
+          - "pdo_pgsql"
+        include:
+          - php-version: "7.4"
+            postgres-version: "17"
+            extension: "pgsql"
+          - php-version: "7.4"
+            postgres-version: "17"
+            extension: "pdo_pgsql"
+
+  phpunit-mariadb:
+    name: "PHPUnit with MariaDB"
+    needs: "phpunit-smoke-check"
+    uses: ./.github/workflows/phpunit-mariadb.yml
+    with:
+      php-version: ${{ matrix.php-version }}
+      mariadb-version: ${{ matrix.mariadb-version }}
+      extension: ${{ matrix.extension }}
+
+    strategy:
+      matrix:
+        php-version:
+          - "8.5"
+        mariadb-version:
+          # keep in sync with https://mariadb.org/about/#maintenance-policy
+          - "10.0"  # Oldest version supported by DBAL
+          - "10.4"  # LTS (Jun 2024) We have code specific to 10.4.3-10.5.2
+          - "10.5"  # LTS (Jun 2025) We have code specific to 10.5.2-10.6.0
+          - "10.6"  # LTS (Jul 2026) We have code specific to 10.6.0-10.10.0
+          - "10.11" # LTS (Feb 2028) We have code specific to ^10.10
+          - "11.4"  # LTS (May 2029)
+          - "11.8"  # LTS (Jun 2028)
+          - "12.0"  # Rolling Release (Q4 2025)
+        extension:
+          - "mysqli"
+          - "pdo_mysql"
+        include:
+          - php-version: "7.4"
+            mariadb-version: "11.4"
+            extension: "mysqli"
+          - php-version: "7.4"
+            mariadb-version: "11.4"
+            extension: "pdo_mysql"
+
+  phpunit-mysql:
+    name: "PHPUnit with MySQL"
+    needs: "phpunit-smoke-check"
+    uses: ./.github/workflows/phpunit-mysql.yml
+    with:
+      php-version: ${{ matrix.php-version }}
+      mysql-version: ${{ matrix.mysql-version }}
+      extension: ${{ matrix.extension }}
+      config-file-suffix: ${{ matrix.config-file-suffix }}
+
+    strategy:
+      matrix:
+        php-version:
+          - "8.5"
+        mysql-version:
+          - "5.7"
+          - "8.0" # We have code specific to ^8.0
+          - "8.4" # LTS
+          - "9.4"
+        extension:
+          - "mysqli"
+          - "pdo_mysql"
+        include:
+          - config-file-suffix: "-tls"
+            php-version: "7.4"
+            mysql-version: "9.4"
+            extension: "mysqli"
+          - php-version: "7.4"
+            mysql-version: "9.4"
+            extension: "mysqli"
+          - php-version: "7.4"
+            mysql-version: "9.4"
+            extension: "pdo_mysql"
+
+  phpunit-mssql:
+    name: "PHPUnit with SQL Server"
+    needs: "phpunit-smoke-check"
+    uses: ./.github/workflows/phpunit-sqlserver.yml
+    with:
+      php-version: ${{ matrix.php-version }}
+      extension: ${{ matrix.extension }}
+      collation: ${{ matrix.collation }}
+
+    strategy:
+      matrix:
+        php-version:
+          - "7.4"
+          - "8.5"
+        extension:
+          - "sqlsrv"
+          - "pdo_sqlsrv"
+        collation:
+          - "Latin1_General_100_CI_AS_SC_UTF8"
+        include:
+          - collation: "Latin1_General_100_CS_AS_SC_UTF8"
+            php-version: "7.4"
+            extension: "sqlsrv"
+          - collation: "Latin1_General_100_CS_AS_SC_UTF8"
+            php-version: "7.4"
+            extension: "pdo_sqlsrv"
+
+  phpunit-db2:
+    name: "PHPUnit with Db2"
+    needs: "phpunit-smoke-check"
+    uses: ./.github/workflows/phpunit-db2.yml
+    with:
+      php-version: ${{ matrix.php-version }}
+
+    strategy:
+      matrix:
+        php-version:
+          - "7.4"
+          # TODO: Running the tests on PHP 8.5 causes a seqfault. Switch as soon as this is fixed.
+          - "8.4"
+
+  development-deps:
+    name: "PHPUnit with PDO_SQLite and development dependencies"
+    runs-on: "ubuntu-24.04"
+
+    strategy:
+      matrix:
+        php-version:
+          - "8.5"
+
+    steps:
+      - name: "Checkout"
+        uses: "actions/checkout@v6"
+
+      - name: "Install PHP"
+        uses: "shivammathur/setup-php@v2"
+        with:
+          php-version: "${{ matrix.php-version }}"
+        env:
+          fail-fast: true
+
+      - name: "Lower minimum stability"
+        run: |
+          composer config minimum-stability dev
+
+      - name: "Install development dependencies with Composer"
+        uses: "ramsey/composer-install@v3"
+        with:
+          composer-options: "--prefer-dist"
+
+      - name: "Run PHPUnit"
+        run: "vendor/bin/phpunit -c ci/github/phpunit/pdo_sqlite.xml"
+
+  upload_coverage:
+    name: "Upload coverage to Codecov"
+    runs-on: "ubuntu-24.04"
+    if: "github.event.pull_request.head.repo.full_name != github.repository || !contains(github.event.pull_request.head.ref, '.x')"
+    needs:
+      - "phpunit-smoke-check"
+      - "phpunit-oracle"
+      - "phpunit-postgres"
+      - "phpunit-mariadb"
+      - "phpunit-mysql"
+      - "phpunit-mssql"
+      - "phpunit-db2"
+
+    steps:
+      - name: "Checkout"
+        uses: "actions/checkout@v6"
+        with:
+          fetch-depth: 2
+
+      - name: "Download coverage files"
+        uses: "actions/download-artifact@v6"
+        with:
+          path: "reports"
+
+      - name: "Display structure of downloaded files"
+        run: ls -R
+        working-directory: reports
+
+      - name: "Upload to Codecov"
+        uses: "codecov/codecov-action@v5"
+        with:
+          directory: reports
+          fail_ci_if_error: true
+          name: github-action
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}

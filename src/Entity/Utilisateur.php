@@ -65,15 +65,12 @@ class Utilisateur implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(type: Types::BOOLEAN, options: ['default' => false])]
     private bool $emailVerified = false;
 
-<<<<<<< HEAD
-=======
     #[ORM\Column(type: Types::STRING, length: 255, nullable: true)]
     private ?string $photo = null;
 
     #[ORM\OneToMany(mappedBy: 'utilisateur', targetEntity: CommandeProduit::class, cascade: ['persist'])]
     private Collection $commandes;
 
->>>>>>> a394a49d254c11c5d5c2968c663ca48ad0d8f7b9
     public function __construct()
     {
         $this->dateCreation = new \DateTimeImmutable();
@@ -250,8 +247,6 @@ class Utilisateur implements UserInterface, PasswordAuthenticatedUserInterface
         $this->emailVerified = $emailVerified;
         return $this;
     }
-<<<<<<< HEAD
-=======
 
     public function getPhoto(): ?string
     {
@@ -290,5 +285,4 @@ class Utilisateur implements UserInterface, PasswordAuthenticatedUserInterface
         }
         return $this;
     }
->>>>>>> a394a49d254c11c5d5c2968c663ca48ad0d8f7b9
 }

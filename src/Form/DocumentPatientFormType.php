@@ -26,14 +26,14 @@ class DocumentPatientFormType extends AbstractType
                 'constraints' => [
                     new NotBlank(['message' => 'Veuillez sélectionner un fichier.']),
                     new File([
-                        'maxSize' => '5M',
+                        'maxSize' => '25M',
                         'mimeTypes' => [
                             'application/pdf',
                             'image/jpeg',
                             'image/png',
                             'image/gif',
                         ],
-                        'mimeTypesMessage' => 'Formats autorisés : PDF, JPEG, PNG, GIF (max 5 Mo).',
+                        'mimeTypesMessage' => 'Formats autorisés : PDF, JPEG, PNG, GIF (max 25 Mo).',
                     ]),
                 ],
             ])
@@ -68,3 +68,5 @@ class DocumentPatientFormType extends AbstractType
         ]);
     }
 }
+
+

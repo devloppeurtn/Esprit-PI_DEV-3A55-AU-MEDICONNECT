@@ -27,9 +27,33 @@ class EvenementController extends AbstractController
     }
 
     #[Route('/', name: 'app_evenement_index')]
-    public function index(): Response
+    public function index(Request $request): Response
     {
-        $items = $this->evenementRepository->findValides();
+        $search = trim((string) $request->query->get('q', ''));
+        $period = $request->query->get('periode', 'tous'); // tous, avenir, passes
+
+        $qb = $this->evenementRepository->createQueryBuilder('e')
+            ->andWhere('e.statut = :statut')
+            ->andWhere('e.isActive = :active')
+            ->setParameter('statut', StatutEvenement::VALIDE)
+            ->setParameter('active', true)
+            ->orderBy('e.eventDate', 'ASC');
+
+        if ($search !== '') {
+            $qb->andWhere('LOWER(e.title) LIKE :q OR LOWER(e.content) LIKE :q')
+               ->setParameter('q', '%' . mb_strtolower($search) . '%');
+        }
+
+        $today = new \DateTimeImmutable('today');
+        if ($period === 'avenir') {
+            $qb->andWhere('e.eventDate >= :today')
+               ->setParameter('today', $today);
+        } elseif ($period === 'passes') {
+            $qb->andWhere('e.eventDate < :today')
+               ->setParameter('today', $today);
+        }
+
+        $items = $qb->getQuery()->getResult();
         $mesEvenements = [];
         if ($this->isGranted('ROLE_ORGANISATEUR')) {
             $mesEvenements = $this->evenementRepository->findByOrganisateur($this->getUser());
@@ -38,6 +62,8 @@ class EvenementController extends AbstractController
         return $this->render('evenement/index.html.twig', [
             'items' => $items,
             'mesEvenements' => $mesEvenements,
+            'search' => $search,
+            'periode' => $period,
         ]);
     }
 
@@ -103,6 +129,17 @@ class EvenementController extends AbstractController
         }
         $participants = $this->participantRepository->findByEvenement($item);
         return $this->render('evenement/show.html.twig', ['item' => $item, 'participants' => $participants]);
+    }
+
+    #[Route('/{id}/participer-page', name: 'app_evenement_participer_form', methods: ['GET'], requirements: ['id' => '[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}'])]
+    public function participerPage(Evenement $item): Response
+    {
+        if ($item->getStatut() !== StatutEvenement::VALIDE && !$this->canManageEvent($item)) {
+            throw $this->createAccessDeniedException('Cet événement n\'est pas encore publié.');
+        }
+        return $this->render('evenement/participer.html.twig', [
+            'item' => $item,
+        ]);
     }
 
     #[Route('/{id}/modifier', name: 'app_evenement_edit', requirements: ['id' => '[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}'])]

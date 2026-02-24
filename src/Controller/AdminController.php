@@ -2,9 +2,17 @@
 
 namespace App\Controller;
 
+use App\Entity\Consultation;
+use App\Entity\DocumentPatient;
+use App\Entity\DossierMedical;
 use App\Entity\Evenement;
+use App\Entity\MedicamentActuel;
+use App\Entity\Ordonnance;
+use App\Entity\RapportMedical;
+use App\Entity\RendezVous;
 use App\Entity\RoleUtilisateur;
 use App\Entity\StatutCompte;
+use App\Entity\StatutRendezVous;
 use App\Entity\Utilisateur;
 use App\Enum\StatutEvenement;
 use App\Repository\EvenementRepository;
@@ -148,13 +156,52 @@ class AdminController extends AbstractController
     public function stats(): JsonResponse
     {
         $userRepo = $this->entityManager->getRepository(Utilisateur::class);
+        $em = $this->entityManager;
+
+        $rdvRepo = $em->getRepository(RendezVous::class);
+        $now = new \DateTimeImmutable('now');
+        $startOfDay = $now->setTime(0, 0, 0);
+        $endOfDay = $now->setTime(23, 59, 59);
+
+        // Rendez-vous aujourd'hui et à venir
+        $qbToday = $rdvRepo->createQueryBuilder('r_today')
+            ->select('COUNT(r_today.id)')
+            ->andWhere('r_today.dateDebut BETWEEN :start AND :end')
+            ->setParameter('start', $startOfDay)
+            ->setParameter('end', $endOfDay);
+        $rdvToday = (int) $qbToday->getQuery()->getSingleScalarResult();
+
+        $qbUpcoming = $rdvRepo->createQueryBuilder('r_up')
+            ->select('COUNT(r_up.id)')
+            ->andWhere('r_up.dateDebut > :endNow')
+            ->setParameter('endNow', $endOfDay);
+        $rdvUpcoming = (int) $qbUpcoming->getQuery()->getSingleScalarResult();
+
         return new JsonResponse([
+            // Utilisateurs
             'totalUsers' => $userRepo->count([]),
             'countPatients' => $userRepo->count(['role' => RoleUtilisateur::PATIENT]),
             'countMedecins' => $userRepo->count(['role' => RoleUtilisateur::MEDECIN]),
             'countSecretaires' => $userRepo->count(['role' => RoleUtilisateur::SECRETAIRE]),
             'countAdmins' => $userRepo->count(['role' => RoleUtilisateur::ADMIN]),
             'countParticipations' => $userRepo->count(['role' => RoleUtilisateur::PARTICIPATION]),
+
+            // Dossier médical / consultations
+            'countDossiers' => $em->getRepository(DossierMedical::class)->count([]),
+            'countConsultations' => $em->getRepository(Consultation::class)->count([]),
+            'countOrdonnances' => $em->getRepository(Ordonnance::class)->count([]),
+            'countMedicamentsActuels' => $em->getRepository(MedicamentActuel::class)->count([]),
+            'countRapportsMedicaux' => $em->getRepository(RapportMedical::class)->count([]),
+            'countDocumentsPatient' => $em->getRepository(DocumentPatient::class)->count([]),
+
+            // Rendez-vous
+            'countRendezVous' => $rdvRepo->count([]),
+            'countRdvToday' => $rdvToday,
+            'countRdvUpcoming' => $rdvUpcoming,
+            'countRdvEnAttente' => $rdvRepo->count(['statut' => StatutRendezVous::EN_ATTENTE]),
+            'countRdvConfirmes' => $rdvRepo->count(['statut' => StatutRendezVous::CONFIRME]),
+            'countRdvAnnules' => $rdvRepo->count(['statut' => StatutRendezVous::ANNULE]),
+            'countRdvTermines' => $rdvRepo->count(['statut' => StatutRendezVous::TERMINE]),
         ]);
     }
 

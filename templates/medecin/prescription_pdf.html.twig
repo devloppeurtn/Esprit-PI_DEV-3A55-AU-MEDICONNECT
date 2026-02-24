@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Ordonnance Médicale - {{ consultation.medecin.nomComplet }}</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'Arial', 'Helvetica', sans-serif;
+            font-size: 11pt;
+            color: #222;
+            background: #fff;
+        }
+        .page {
+            width: 100%;
+            padding: 30px 40px;
+        }
+
+        /* ===== EN-TÊTE ===== */
+        .header {
+            display: table;
+            width: 100%;
+            border-bottom: 3px solid #1a6fa8;
+            padding-bottom: 18px;
+            margin-bottom: 22px;
+        }
+        .header-left {
+            display: table-cell;
+            width: 65%;
+            vertical-align: top;
+        }
+        .header-right {
+            display: table-cell;
+            width: 35%;
+            vertical-align: top;
+            text-align: right;
+        }
+        .clinic-logo {
+            font-size: 9pt;
+            color: #1a6fa8;
+            font-weight: bold;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            margin-bottom: 6px;
+        }
+        .doctor-name {
+            font-size: 20pt;
+            font-weight: bold;
+            color: #0d4f7c;
+            margin-bottom: 4px;
+        }
+        .doctor-specialty {
+            font-size: 12pt;
+            color: #1a6fa8;
+            font-style: italic;
+            margin-bottom: 8px;
+        }
+        .doctor-contact {
+            font-size: 9pt;
+            color: #555;
+            line-height: 1.7;
+        }
+        .doctor-contact span {
+            display: block;
+        }
+        .doctor-licence {
+            font-size: 8pt;
+            color: #888;
+            margin-top: 6px;
+            font-style: italic;
+        }
+        .date-box {
+            background: #f0f7ff;
+            border: 1px solid #c2dff7;
+            border-radius: 6px;
+            padding: 12px 16px;
+            display: inline-block;
+            text-align: center;
+            min-width: 150px;
+        }
+        .date-label {
+            font-size: 8pt;
+            color: #888;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        .date-value {
+            font-size: 14pt;
+            font-weight: bold;
+            color: #0d4f7c;
+            margin-top: 4px;
+        }
+        .date-location {
+            font-size: 9pt;
+            color: #666;
+            margin-top: 6px;
+        }
+
+        /* ===== PATIENT ===== */
+        .patient-section {
+            background: #f5f9fe;
+            border-left: 4px solid #1a6fa8;
+            border-radius: 4px;
+            padding: 14px 20px;
+            margin-bottom: 24px;
+        }
+        .patient-title {
+            font-size: 9pt;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #1a6fa8;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        .patient-grid {
+            display: table;
+            width: 100%;
+        }
+        .patient-col {
+            display: table-cell;
+            width: 50%;
+            vertical-align: top;
+        }
+        .patient-row {
+            margin-bottom: 5px;
+            font-size: 10.5pt;
+        }
+        .patient-row .label {
+            font-weight: bold;
+            color: #555;
+            min-width: 120px;
+            display: inline-block;
+        }
+        .patient-row .value {
+            color: #222;
+        }
+
+        /* ===== ORDONNANCE TITLE ===== */
+        .prescription-header {
+            text-align: center;
+            margin: 22px 0 20px;
+        }
+        .prescription-header h2 {
+            font-size: 15pt;
+            font-weight: bold;
+            color: #0d4f7c;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            display: inline-block;
+            border-bottom: 2px solid #1a6fa8;
+            padding-bottom: 6px;
+        }
+
+        /* ===== DIAGNOSTIC ===== */
+        .diagnostic-box {
+            background: #fffbf0;
+            border: 1px solid #f0d870;
+            border-radius: 4px;
+            padding: 10px 16px;
+            margin-bottom: 20px;
+            font-size: 10pt;
+        }
+        .diagnostic-label {
+            font-weight: bold;
+            color: #7a6000;
+            margin-bottom: 3px;
+        }
+        .diagnostic-value {
+            color: #444;
+        }
+
+        /* ===== MÉDICAMENTS ===== */
+        .meds-list {
+            margin-bottom: 30px;
+        }
+        .med-item {
+            display: table;
+            width: 100%;
+            margin-bottom: 14px;
+            padding-bottom: 14px;
+            border-bottom: 1px dashed #ccc;
+        }
+        .med-number {
+            display: table-cell;
+            width: 32px;
+            vertical-align: top;
+            padding-top: 2px;
+        }
+        .med-number-badge {
+            background: #1a6fa8;
+            color: #fff;
+            font-size: 9pt;
+            font-weight: bold;
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 22px;
+        }
+        .med-content {
+            display: table-cell;
+            vertical-align: top;
+        }
+        .med-name {
+            font-size: 13pt;
+            font-weight: bold;
+            color: #0d4f7c;
+            margin-bottom: 4px;
+        }
+        .med-posologie {
+            color: #333;
+            font-size: 10.5pt;
+            margin-bottom: 4px;
+            line-height: 1.5;
+        }
+        .med-instructions {
+            font-size: 9.5pt;
+            color: #666;
+            font-style: italic;
+            margin-top: 4px;
+        }
+        .med-instructions strong {
+            font-style: normal;
+            color: #444;
+        }
+
+        /* ===== SIGNATURE ===== */
+        .signature-row {
+            display: table;
+            width: 100%;
+            margin-top: 30px;
+        }
+        .signature-left {
+            display: table-cell;
+            width: 60%;
+            vertical-align: bottom;
+            font-size: 9pt;
+            color: #888;
+        }
+        .signature-right {
+            display: table-cell;
+            width: 40%;
+            text-align: center;
+        }
+        .signature-box {
+            border-top: 1px solid #333;
+            padding-top: 8px;
+            font-size: 9.5pt;
+            color: #333;
+        }
+        .signature-name {
+            font-weight: bold;
+            font-size: 11pt;
+            color: #0d4f7c;
+        }
+
+        /* ===== PIED DE PAGE ===== */
+        .footer {
+            margin-top: 40px;
+            border-top: 1px solid #ddd;
+            padding-top: 10px;
+            text-align: center;
+            font-size: 8pt;
+            color: #aaa;
+        }
+    </style>
+</head>
+<body>
+<div class="page">
+
+    <!-- EN-TÊTE -->
+    <div class="header">
+        <div class="header-left">
+            <div class="clinic-logo">&#9679; MediConnect – Plateforme Médicale</div>
+            <div class="doctor-name">Dr. {{ consultation.medecin.nomComplet }}</div>
+            <div class="doctor-specialty">{{ consultation.medecin.specialite|default('Médecin Généraliste') }}</div>
+            <div class="doctor-contact">
+                {% if consultation.medecin.adresseCabinet %}
+                    <span>&#128205; {{ consultation.medecin.adresseCabinet }}</span>
+                {% endif %}
+                {% if consultation.medecin.telephone %}
+                    <span>&#128222; {{ consultation.medecin.telephone }}</span>
+                {% endif %}
+                <span>&#9993; {{ consultation.medecin.email }}</span>
+            </div>
+            {% if consultation.medecin.numeroLicence %}
+                <div class="doctor-licence">N° Ordre : {{ consultation.medecin.numeroLicence }}</div>
+            {% endif %}
+        </div>
+        <div class="header-right">
+            <div class="date-box">
+                <div class="date-label">Date</div>
+                <div class="date-value">{{ consultation.date|date('d/m/Y') }}</div>
+                <div class="date-location">Tunis, Tunisie</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- INFORMATIONS PATIENT -->
+    <div class="patient-section">
+        <div class="patient-title">&#128100; Informations du patient</div>
+        <div class="patient-grid">
+            <div class="patient-col">
+                <div class="patient-row">
+                    <span class="label">Nom complet :</span>
+                    <span class="value"><strong>{{ consultation.dossierMedical.patient.nomComplet }}</strong></span>
+                </div>
+            </div>
+            <div class="patient-col">
+                {% if consultation.dossierMedical.patient.adresse %}
+                <div class="patient-row">
+                    <span class="label">Adresse :</span>
+                    <span class="value">{{ consultation.dossierMedical.patient.adresse }}</span>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- TITRE ORDONNANCE -->
+    <div class="prescription-header">
+        <h2>Ordonnance Médicale</h2>
+    </div>
+
+    <!-- MOTIF / DIAGNOSTIC -->
+
+    <!-- LISTE DES MÉDICAMENTS -->
+    <div class="meds-list">
+        {% set list_ordonnances = ordonnances|default(ordonnance is defined and ordonnance is not null ? [ordonnance] : consultation.ordonnances|default([])) %}
+        {% for loop_index, ordonnance in list_ordonnances %}
+        <div class="med-item">
+            <div class="med-number">
+                <div class="med-number-badge">{{ loop.index }}</div>
+            </div>
+            <div class="med-content">
+                <div class="med-name">{{ ordonnance.medicament }}</div>
+                {% if ordonnance.contenuPrescription %}
+                    <div class="med-posologie">{{ ordonnance.contenuPrescription }}</div>
+                {% endif %}
+                {% if ordonnance.methodeUtilisation %}
+                    <div class="med-instructions"><strong>Mode d'emploi :</strong> {{ ordonnance.methodeUtilisation }}</div>
+                {% endif %}
+                {% if ordonnance.instructions %}
+                    <div class="med-instructions"><strong>Instructions :</strong> {{ ordonnance.instructions }}</div>
+                {% endif %}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- SIGNATURE -->
+    <div class="signature-row">
+        <div class="signature-left">
+        </div>
+        <div class="signature-right">
+            <div class="signature-box">
+                <div>Signature et Cachet du Médecin</div>
+                <div class="signature-name" style="margin-top:8px;">Dr. {{ consultation.medecin.nomComplet }}</div>
+                <div style="font-size:9pt; color:#888;">{{ consultation.medecin.specialite|default('') }}</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- PIED DE PAGE -->
+    <div class="footer">
+        MediConnect – Votre plateforme de santé numérique &nbsp;|&nbsp;
+        Document généré électroniquement le {{ "now"|date('d/m/Y à H:i') }}
+    </div>
+
+</div>
+</body>
+</html>

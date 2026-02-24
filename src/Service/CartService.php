@@ -8,12 +8,13 @@ use Symfony\Component\HttpFoundation\RequestStack;
 
 class CartService
 {
-    public const CART_SESSION_KEY = 'cart_items';
-    public const PROMO_SESSION_KEY = 'cart_promo';
+    const CART_SESSION_KEY = 'cart_items';
+    const PROMO_SESSION_KEY = 'cart_promo';
 
     public function __construct(
         private RequestStack $requestStack,
-        private PromoCodeRepository $promoRepo
+        private PromoCodeRepository $promoRepo,
+        private ProductPricingService $pricingService
     ) {
     }
 
@@ -25,14 +26,19 @@ class CartService
         if (isset($cart[$productId])) {
             $cart[$productId]['quantity'] += $quantity;
         } else {
+            $pricing = $this->pricingService->calculateForProduct($produit);
             $cart[$productId] = [
                 'id' => $productId,
                 'nom' => $produit->getNom(),
-                'prix' => $produit->getPrix(),
+                'prix' => number_format((float) $pricing['final'], 2, '.', ''),
+                'prix_base' => number_format((float) $pricing['base'], 2, '.', ''),
+                'prix_dynamique' => (bool) $pricing['adjusted'],
+                'prix_regle' => $pricing['label'],
                 'image' => $produit->getImage(),
                 'quantity' => $quantity,
             ];
         }
+
         $this->saveCart($cart);
     }
 
@@ -46,6 +52,7 @@ class CartService
     public function updateQuantity(int $productId, int $quantity): void
     {
         $cart = $this->getCart();
+
         if (isset($cart[$productId])) {
             if ($quantity <= 0) {
                 $this->removeFromCart($productId);
@@ -71,6 +78,16 @@ class CartService
         return $count;
     }
 
+    public function getProductQuantity(int $productId): int
+    {
+        $cart = $this->getCart();
+        if (!isset($cart[$productId])) {
+            return 0;
+        }
+
+        return max(0, (int) ($cart[$productId]['quantity'] ?? 0));
+    }
+
     public function getCartTotal(): float
     {
         $cart = $this->getCart();
@@ -90,19 +107,21 @@ class CartService
     public function applyPromo(string $code): bool
     {
         $normalized = strtoupper(trim($code));
+
         $promo = $this->promoRepo->findActiveByCode($normalized);
         if ($promo) {
             if ($promo->getUsageLimit() !== null && $promo->getUsedCount() >= $promo->getUsageLimit()) {
                 $this->clearPromo();
                 return false;
             }
-            $rate = (float) $promo->getRate() / 100;
+            $rate = (float) $promo->getRate() / 100; // stored as percent
             $this->requestStack->getSession()->set(self::PROMO_SESSION_KEY, [
                 'code' => $promo->getCode(),
                 'rate' => $rate,
             ]);
             return true;
         }
+
         $this->clearPromo();
         return false;
     }
@@ -139,6 +158,7 @@ class CartService
         $subtotal = $this->getCartTotal();
         $discount = $this->getDiscountAmount($subtotal);
         $total = max(0, $subtotal - $discount);
+
         return [
             'subtotal' => $subtotal,
             'discount' => $discount,

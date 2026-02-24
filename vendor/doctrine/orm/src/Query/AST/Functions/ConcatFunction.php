@@ -16,13 +16,17 @@ use Doctrine\ORM\Query\TokenType;
  */
 class ConcatFunction extends FunctionNode
 {
-    public Node $firstStringPrimary;
-    public Node $secondStringPrimary;
+    /** @var Node */
+    public $firstStringPrimary;
+
+    /** @var Node */
+    public $secondStringPrimary;
 
     /** @phpstan-var list<Node> */
-    public array $concatExpressions = [];
+    public $concatExpressions = [];
 
-    public function getSql(SqlWalker $sqlWalker): string
+    /** @inheritDoc */
+    public function getSql(SqlWalker $sqlWalker)
     {
         $platform = $sqlWalker->getConnection()->getDatabasePlatform();
 
@@ -35,7 +39,8 @@ class ConcatFunction extends FunctionNode
         return $platform->getConcatExpression(...$args);
     }
 
-    public function parse(Parser $parser): void
+    /** @inheritDoc */
+    public function parse(Parser $parser)
     {
         $parser->match(TokenType::T_IDENTIFIER);
         $parser->match(TokenType::T_OPEN_PARENTHESIS);

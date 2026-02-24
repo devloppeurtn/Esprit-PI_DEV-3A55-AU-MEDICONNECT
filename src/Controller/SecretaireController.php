@@ -2,12 +2,19 @@
 
 namespace App\Controller;
 
+use App\Entity\Medecin;
+use App\Entity\Patient;
+use App\Entity\PlanningMedecin;
 use App\Entity\RendezVous;
 use App\Entity\Secretaire;
 use App\Entity\StatutRendezVous;
+use App\Form\PlanningMedecinType;
+use App\Repository\PlanningMedecinRepository;
 use App\Repository\RendezVousRepository;
+use App\Service\DisponibiliteService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
@@ -18,118 +25,256 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 class SecretaireController extends AbstractController
 {
     public function __construct(
-        private EntityManagerInterface $em,
-        private RendezVousRepository $rdvRepo,
-    ) {
-    }
+        private EntityManagerInterface    $em,
+        private RendezVousRepository      $rdvRepo,
+        private PlanningMedecinRepository $planningRepo,
+        private DisponibiliteService      $dispoService,
+    ) {}
 
     #[Route('', name: 'app_secretaire_index', methods: ['GET'])]
     public function index(): Response
     {
-        /** @var Secretaire $secretaire */
-        $secretaire = $this->getUser();
-        if (!$secretaire instanceof Secretaire) {
-            return $this->redirectToRoute('app_profile');
-        }
+        $s = $this->getUser();
+        if (!$s instanceof Secretaire) return $this->redirectToRoute('app_profile');
+        $m = $s->getMedecin();
+        $invitations = $s->getInvitations();
 
-        $medecin = $secretaire->getMedecin();
-        $invitations = $secretaire->getInvitations();
-        $invitationsEnAttente = $invitations->filter(fn ($i) => $i->getStatut()->value === 'EN_ATTENTE');
-        $invitationsAcceptees = $invitations->filter(fn ($i) => $i->getStatut()->value === 'ACCEPTEE');
-        $invitationsRefusees = $invitations->filter(fn ($i) => $i->getStatut()->value === 'REFUSEE');
+        // Données pour le tableau de bord simplifié
+        $planning = $m ? $m->getPlanning() : null;
+        $rdvsAujourdhui = $m ? $this->rdvRepo->findByMedecinAndDate($m, new \DateTime()) : [];
 
         return $this->render('secretaire/index.html.twig', [
-            'secretaire' => $secretaire,
-            'medecin' => $medecin,
-            'invitationsEnAttente' => $invitationsEnAttente,
-            'invitationsAcceptees' => $invitationsAcceptees,
-            'invitationsRefusees' => $invitationsRefusees,
+            'secretaire' => $s,
+            'medecin' => $m,
+            'planning' => $planning,
+            'rdvsAujourdhui' => $rdvsAujourdhui,
+            'invitationsEnAttente' => $invitations->filter(fn($i) => $i->getStatut()->value === 'EN_ATTENTE'),
+            'invitationsAcceptees' => $invitations->filter(fn($i) => $i->getStatut()->value === 'ACCEPTEE'),
+            'invitationsRefusees'  => $invitations->filter(fn($i) => $i->getStatut()->value === 'REFUSEE'),
         ]);
     }
 
     #[Route('/rendez-vous', name: 'app_secretaire_rendez_vous', methods: ['GET'])]
-    public function rendezVous(): Response
+    public function rendez_vous(): Response
     {
-        /** @var Secretaire $secretaire */
-        $secretaire = $this->getUser();
-        if (!$secretaire instanceof Secretaire) {
-            return $this->redirectToRoute('app_profile');
-        }
-
-        $medecin = $secretaire->getMedecin();
-        if (!$medecin) {
-            $this->addFlash('warning', 'Vous n\'êtes associé à aucun médecin.');
+        $s = $this->getUser();
+        if (!$s instanceof Secretaire) return $this->redirectToRoute('app_profile');
+        $m = $s->getMedecin();
+        if (!$m) {
+            $this->addFlash('warning', 'Aucun médecin associé.');
             return $this->render('secretaire/rendez_vous.html.twig', [
-                'secretaire' => $secretaire,
-                'rdvsEnAttente' => [],
-                'rdvsConfirmes' => [],
+                'secretaire' => $s, 'rdvsEnAttente' => [], 'rdvsConfirmes' => [],
             ]);
         }
-
-        $rdvsEnAttente = $this->rdvRepo->findEnAttenteByMedecin($medecin);
-        $rdvsConfirmes = array_filter(
-            $this->rdvRepo->findByMedecin($medecin),
-            fn (RendezVous $r) => $r->getStatut() === StatutRendezVous::CONFIRME
-        );
+        $rdvsEnAttente = $this->rdvRepo->findEnAttenteByMedecin($m);
+        $rdvsConfirmes = array_filter($this->rdvRepo->findByMedecin($m), fn($r) => $r->getStatut() === StatutRendezVous::CONFIRME);
 
         return $this->render('secretaire/rendez_vous.html.twig', [
-            'secretaire' => $secretaire,
-            'rdvsEnAttente' => $rdvsEnAttente,
-            'rdvsConfirmes' => $rdvsConfirmes,
+            'secretaire' => $s, 'rdvsEnAttente' => $rdvsEnAttente, 'rdvsConfirmes' => $rdvsConfirmes,
         ]);
     }
 
     #[Route('/rendez-vous/{id}/valider', name: 'app_secretaire_rdv_valider', methods: ['POST'])]
     public function validerRdv(Request $request, RendezVous $rdv): Response
     {
-        /** @var Secretaire $secretaire */
-        $secretaire = $this->getUser();
-        if (!$secretaire instanceof Secretaire || $secretaire->getMedecin() !== $rdv->getMedecin()) {
-            $this->addFlash('error', 'Action non autorisée.');
-            return $this->redirectToRoute('app_secretaire_rendez_vous');
+        $s = $this->getUser();
+        if (!$s instanceof Secretaire || $s->getMedecin() !== $rdv->getMedecin()) return $this->redirectToRoute('app_secretaire_rendez_vous');
+        if ($this->isCsrfTokenValid('valider_rdv_' . $rdv->getId(), $request->request->get('_token'))) {
+            $rdv->setStatut(StatutRendezVous::CONFIRME);
+            $this->em->flush();
+            $this->addFlash('success', 'Rendez-vous confirmé.');
         }
-
-        if ($rdv->getStatut() !== StatutRendezVous::EN_ATTENTE) {
-            $this->addFlash('error', 'Ce rendez-vous n\'est plus en attente.');
-            return $this->redirectToRoute('app_secretaire_rendez_vous');
-        }
-
-        $token = $request->request->get('_token');
-        if (!$token || !is_string($token) || !$this->isCsrfTokenValid('valider_rdv_' . $rdv->getId(), $token)) {
-            $this->addFlash('error', 'Token invalide.');
-            return $this->redirectToRoute('app_secretaire_rendez_vous');
-        }
-
-        $rdv->setStatut(StatutRendezVous::CONFIRME);
-        $this->em->flush();
-        $this->addFlash('success', 'Rendez-vous confirmé.');
         return $this->redirectToRoute('app_secretaire_rendez_vous');
     }
 
     #[Route('/rendez-vous/{id}/refuser', name: 'app_secretaire_rdv_refuser', methods: ['POST'])]
     public function refuserRdv(Request $request, RendezVous $rdv): Response
     {
-        /** @var Secretaire $secretaire */
-        $secretaire = $this->getUser();
-        if (!$secretaire instanceof Secretaire || $secretaire->getMedecin() !== $rdv->getMedecin()) {
-            $this->addFlash('error', 'Action non autorisée.');
-            return $this->redirectToRoute('app_secretaire_rendez_vous');
+        $s = $this->getUser();
+        if (!$s instanceof Secretaire || $s->getMedecin() !== $rdv->getMedecin()) return $this->redirectToRoute('app_secretaire_rendez_vous');
+        if ($this->isCsrfTokenValid('refuser_rdv_' . $rdv->getId(), $request->request->get('_token'))) {
+            $rdv->setStatut(StatutRendezVous::ANNULE);
+            $this->em->flush();
+            $this->addFlash('success', 'Rendez-vous refusé.');
         }
-
-        if ($rdv->getStatut() !== StatutRendezVous::EN_ATTENTE) {
-            $this->addFlash('error', 'Ce rendez-vous n\'est plus en attente.');
-            return $this->redirectToRoute('app_secretaire_rendez_vous');
-        }
-
-        $token = $request->request->get('_token');
-        if (!$token || !is_string($token) || !$this->isCsrfTokenValid('refuser_rdv_' . $rdv->getId(), $token)) {
-            $this->addFlash('error', 'Token invalide.');
-            return $this->redirectToRoute('app_secretaire_rendez_vous');
-        }
-
-        $rdv->setStatut(StatutRendezVous::ANNULE);
-        $this->em->flush();
-        $this->addFlash('success', 'Rendez-vous refusé.');
         return $this->redirectToRoute('app_secretaire_rendez_vous');
+    }
+
+    #[Route('/planning/configurer', name: 'app_secretaire_planning_config', methods: ['GET', 'POST'])]
+    public function planningConfigurer(Request $request): Response
+    {
+        $s = $this->getUser();
+        if (!$s instanceof Secretaire) return $this->redirectToRoute('app_profile');
+        $m = $s->getMedecin();
+        if (!$m) return $this->redirectToRoute('app_secretaire_index');
+
+        // Récupérer le planning via le médecin pour assurer la synchronisation
+        $p = $m->getPlanning() ?: (new PlanningMedecin())->setMedecin($m);
+        $form = $this->createForm(PlanningMedecinType::class, $p);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $this->em->persist($p);
+            $m->setPlanning($p); // Assurer la liaison bidirectionnelle
+            $this->em->flush();
+            $this->addFlash('success', 'Planning mis à jour.');
+            return $this->redirectToRoute('app_secretaire_agenda');
+        }
+        
+        return $this->render('secretaire/planning_config.html.twig', [
+            'form' => $form->createView(), 'medecin' => $m, 'planning' => $p, 'secretaire' => $s,
+        ]);
+    }
+
+    #[Route('/agenda', name: 'app_secretaire_agenda', methods: ['GET'])]
+    public function agenda(Request $request): Response
+    {
+        $s = $this->getUser();
+        if (!$s instanceof Secretaire) return $this->redirectToRoute('app_profile');
+        $m = $s->getMedecin();
+        if (!$m) return $this->redirectToRoute('app_secretaire_index');
+        
+        $dateStr = $request->query->get('date', date('Y-m-d'));
+        try { 
+            $date = new \DateTime($dateStr); 
+        } catch (\Exception) { 
+            $date = new \DateTime(); 
+        }
+        
+        // Calcul du début de la semaine (Lundi)
+        $monday = clone $date;
+        if ($monday->format('N') !== '1') {
+            $monday->modify('last monday');
+        }
+        $monday->setTime(0, 0, 0);
+
+        $weekData = [];
+        $p = $m->getPlanning();
+        
+        for ($i = 0; $i < 7; $i++) {
+            $currentDate = (clone $monday)->modify("+$i days");
+            $dayGrid = $p ? $this->dispoService->getAgendaGrid($m, $currentDate, $p) : [];
+            $processedGrid = $this->processGridForWeeklyView($dayGrid, $p);
+            
+            $weekData[] = [
+                'date' => $currentDate,
+                'grid' => $processedGrid,
+                'stats' => [
+                    'libres' => count(array_filter($dayGrid, fn($s) => $s['type'] === 'libre')),
+                    'occupes' => count(array_unique(array_filter(array_map(fn($s) => $s['rdv']?->getId(), $dayGrid)))),
+                ]
+            ];
+        }
+
+        return $this->render('secretaire/agenda.html.twig', [
+            'secretaire' => $s, 'medecin' => $m, 'planning' => $p, 
+            'date' => $date,
+            'monday' => $monday,
+            'weekData' => $weekData,
+            'patients' => $this->em->getRepository(Patient::class)->findBy([], ['nomComplet' => 'ASC']),
+        ]);
+    }
+
+    private function processGridForWeeklyView(array $grid, ?PlanningMedecin $p): array
+    {
+        if (empty($grid)) return [];
+        $processed = [];
+        $currentFreeBlock = null;
+        
+        $morningEnd = $p ? $p->getHeureFinMatin() : null;
+        $afternoonStart = $p ? $p->getHeureDebutApresMidi() : null;
+        
+        foreach ($grid as $slot) {
+            $slot['plage'] = $slot['de']->format('H:i') . ' → ' . $slot['a']->format('H:i');
+
+            if ($slot['type'] === 'libre') {
+                if ($currentFreeBlock === null) {
+                    $currentFreeBlock = $slot;
+                } else {
+                    $currentFreeBlock['a'] = $slot['a'];
+                    $currentFreeBlock['plage'] = $currentFreeBlock['de']->format('H:i') . ' → ' . $currentFreeBlock['a']->format('H:i');
+                }
+            } else {
+                if ($currentFreeBlock !== null) {
+                    $currentFreeBlock['duree'] = $this->calculateDuration($currentFreeBlock['de'], $currentFreeBlock['a']);
+                    $processed[] = $currentFreeBlock;
+                    $currentFreeBlock = null;
+                }
+                $slot['duree'] = $this->calculateDuration($slot['de'], $slot['a']);
+                $processed[] = $slot;
+            }
+
+            // Détection de la pause déjeuner
+            if ($morningEnd && $afternoonStart && $slot['a']->format('H:i') === $morningEnd->format('H:i')) {
+                if ($currentFreeBlock !== null) {
+                    $currentFreeBlock['duree'] = $this->calculateDuration($currentFreeBlock['de'], $currentFreeBlock['a']);
+                    $processed[] = $currentFreeBlock;
+                    $currentFreeBlock = null;
+                }
+                
+                $diffLunch = $morningEnd->diff($afternoonStart);
+                if ($diffLunch->h > 0 || $diffLunch->i > 0) {
+                    $processed[] = [
+                        'type' => 'pause',
+                        'plage' => $morningEnd->format('H:i') . ' → ' . $afternoonStart->format('H:i'),
+                        'duree' => $this->calculateDuration($morningEnd, $afternoonStart),
+                        'de' => $morningEnd,
+                        'a' => $afternoonStart
+                    ];
+                }
+            }
+        }
+        
+        if ($currentFreeBlock !== null) {
+            $currentFreeBlock['duree'] = $this->calculateDuration($currentFreeBlock['de'], $currentFreeBlock['a']);
+            $processed[] = $currentFreeBlock;
+        }
+        return $processed;
+    }
+
+    private function calculateDuration(\DateTimeInterface $start, \DateTimeInterface $end): string
+    {
+        $diff = $start->diff($end);
+        $h = $diff->h;
+        $m = $diff->i;
+        if ($h > 0) return $m > 0 ? sprintf('%d:%02d', $h, $m) : $h . 'h';
+        return $m . 'min';
+    }
+
+    #[Route('/agenda/disponibilites', name: 'app_secretaire_disponibilites', methods: ['GET'])]
+    public function disponibilitesJson(Request $request): JsonResponse
+    {
+        $s = $this->getUser();
+        if (!$s instanceof Secretaire || !$s->getMedecin()) return $this->json(['error'=>'Accès refusé'], 403);
+        $m = $s->getMedecin(); $dateStr = $request->query->get('date', date('Y-m-d'));
+        try { $date = new \DateTime($dateStr); } catch (\Exception) { return $this->json(['error'=>'Date invalide'], 400); }
+        
+        $p = $m->getPlanning();
+        $dispos = $this->dispoService->findDispoByDate($m, $date, $p);
+        
+        return $this->json(['date'=>$date->format('Y-m-d'), 'dispos'=>array_map(fn($d)=>$d['heure'], $dispos)]);
+    }
+
+    #[Route('/agenda/rdv/creer', name: 'app_secretaire_rdv_creer', methods: ['POST'])]
+    public function creerRdv(Request $request): Response
+    {
+        $s = $this->getUser();
+        if (!$s instanceof Secretaire || !$s->getMedecin()) return $this->json(['error'=>'Accès refusé'], 403);
+        $m = $s->getMedecin(); 
+        $p = $m->getPlanning();
+        if (!$p) return $this->redirectToRoute('app_secretaire_planning_config');
+        
+        $pat = $this->em->getRepository(Patient::class)->find($request->request->get('patient_id'));
+        if (!$pat || !$this->isCsrfTokenValid('creer_rdv_agenda', $request->request->get('_token'))) {
+            $this->addFlash('error', 'Invalide'); return $this->redirectToRoute('app_secretaire_agenda');
+        }
+        
+        $start = new \DateTime($request->request->get('date').' '.$request->request->get('heure'));
+        $end = (clone $start)->modify("+".($p ? $p->getDureeConsultation() : 30)." minutes");
+        
+        $rdv = (new RendezVous())->setMedecin($m)->setPatient($pat)->setDateDebut($start)->setDateFin($end)->setStatut(StatutRendezVous::CONFIRME)->setNote($request->request->get('note'));
+        $this->em->persist($rdv); $this->em->flush();
+        $this->addFlash('success', 'RDV créé');
+        return $this->redirectToRoute('app_secretaire_agenda', ['date'=>$request->request->get('date')]);
     }
 }

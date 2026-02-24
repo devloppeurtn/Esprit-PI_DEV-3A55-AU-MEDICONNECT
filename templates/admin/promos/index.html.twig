@@ -1,9 +1,8 @@
 {% extends 'admin/base_admin.html.twig' %}
-{% block title %}Codes promo - Administration{% endblock %}
-{% block body %}
-<div class="d-flex justify-content-between align-items-center mb-4">
-    <h1 class="h3 mb-0"><i class="bi bi-percent me-2"></i>Codes promo</h1>
-    <a href="{{ path('app_admin_promos_new') }}" class="btn btn-primary btn-sm">Nouveau code</a>
+{% set title = 'Codes promo' %}
+{% block admin_content %}
+<div class="d-flex justify-content-end mb-3">
+    <a href="{{ path('admin_promos_new') }}" class="btn btn-primary btn-sm">Nouveau code</a>
 </div>
 <div class="table-responsive">
     <table class="table table-striped align-middle">
@@ -16,13 +15,12 @@
                 <td>{{ p.rate }}%</td>
                 <td>
                     {% if p.startAt %}{{ p.startAt|date('d/m/Y') }}{% endif %}
-                    {% if p.endAt %} → {{ p.endAt|date('d/m/Y') }}{% endif %}
-                    {% if not p.startAt and not p.endAt %}—{% endif %}
+                    {% if p.endAt %}→ {{ p.endAt|date('d/m/Y') }}{% endif %}
                 </td>
                 <td>{{ p.active ? 'Oui' : 'Non' }}</td>
                 <td class="text-end">
-                    <a class="btn btn-outline-secondary btn-sm" href="{{ path('app_admin_promos_edit', {id: p.id}) }}">Éditer</a>
-                    <form action="{{ path('app_admin_promos_delete', {id: p.id}) }}" method="post" class="d-inline" onsubmit="return confirm('Supprimer ce code promo ?');">
+                    <a class="btn btn-outline-secondary btn-sm" href="{{ path('admin_promos_edit', {id:p.id}) }}">Éditer</a>
+                    <form action="{{ path('admin_promos_delete', {id:p.id}) }}" method="post" class="d-inline" onsubmit="return confirm('Supprimer ce code promo ?');">
                         <button class="btn btn-outline-danger btn-sm">Supprimer</button>
                     </form>
                 </td>

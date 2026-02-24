@@ -61,6 +61,7 @@ class Produit
     public function setNom(string $nom): static
     {
         $this->nom = $nom;
+
         return $this;
     }
 
@@ -72,6 +73,7 @@ class Produit
     public function setDescription(?string $description): static
     {
         $this->description = $description;
+
         return $this;
     }
 
@@ -83,6 +85,7 @@ class Produit
     public function setPrix(string $prix): static
     {
         $this->prix = $prix;
+
         return $this;
     }
 
@@ -94,6 +97,7 @@ class Produit
     public function setStock(int $stock): static
     {
         $this->stock = $stock;
+
         return $this;
     }
 
@@ -105,6 +109,7 @@ class Produit
     public function setImage(?string $image): static
     {
         $this->image = $image;
+
         return $this;
     }
 
@@ -116,6 +121,7 @@ class Produit
     public function setCategorie(?CategorieProduit $categorie): static
     {
         $this->categorie = $categorie;
+
         return $this;
     }
 
@@ -133,6 +139,7 @@ class Produit
             $this->lignesCommande->add($ligneCommande);
             $ligneCommande->setProduit($this);
         }
+
         return $this;
     }
 
@@ -143,6 +150,7 @@ class Produit
                 $ligneCommande->setProduit(null);
             }
         }
+
         return $this;
     }
 
@@ -160,6 +168,7 @@ class Produit
             $this->avisProduits->add($avisProduit);
             $avisProduit->setProduit($this);
         }
+
         return $this;
     }
 
@@ -170,6 +179,7 @@ class Produit
                 $avisProduit->setProduit(null);
             }
         }
+
         return $this;
     }
 

@@ -11,10 +11,11 @@ namespace Doctrine\ORM\Query\Expr;
  */
 class Andx extends Composite
 {
-    protected string $separator = ' AND ';
+    /** @var string */
+    protected $separator = ' AND ';
 
     /** @var string[] */
-    protected array $allowedClasses = [
+    protected $allowedClasses = [
         Comparison::class,
         Func::class,
         Orx::class,
@@ -22,10 +23,10 @@ class Andx extends Composite
     ];
 
     /** @phpstan-var list<string|Comparison|Func|Orx|self> */
-    protected array $parts = [];
+    protected $parts = [];
 
     /** @phpstan-return list<string|Comparison|Func|Orx|self> */
-    public function getParts(): array
+    public function getParts()
     {
         return $this->parts;
     }

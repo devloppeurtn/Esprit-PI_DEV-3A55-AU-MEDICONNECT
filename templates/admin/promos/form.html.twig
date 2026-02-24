@@ -1,10 +1,6 @@
 {% extends 'admin/base_admin.html.twig' %}
-{% block title %}{{ promo.id ? 'Éditer code promo' : 'Nouveau code promo' }} - Administration{% endblock %}
-{% block body %}
-<div class="d-flex justify-content-between align-items-center mb-4">
-    <h1 class="h3 mb-0">{{ promo.id ? 'Éditer le code promo' : 'Nouveau code promo' }}</h1>
-    <a href="{{ path('app_admin_promos') }}" class="btn btn-outline-secondary">Retour</a>
-</div>
+{% set title = promo.id ? '�diter code promo' : 'Nouveau code promo' %}
+{% block admin_content %}
 <form method="post" class="card shadow-sm">
     <div class="card-body">
         <div class="row mb-3">
@@ -33,12 +29,12 @@
         </div>
         <div class="mb-3">
             <label class="form-label">Limite d'utilisation (optionnel)</label>
-            <input type="number" min="1" name="usageLimit" class="form-control" value="{{ promo.usageLimit|default('') }}">
+            <input type="number" min="1" name="usageLimit" class="form-control" value="{{ promo.usageLimit }}">
             <small class="text-muted">Laissez vide pour illimité.</small>
         </div>
     </div>
     <div class="card-footer d-flex justify-content-between">
-        <a href="{{ path('app_admin_promos') }}" class="btn btn-outline-secondary">Annuler</a>
+        <a href="{{ path('admin_promos') }}" class="btn btn-outline-secondary">Annuler</a>
         <button class="btn btn-primary">Enregistrer</button>
     </div>
 </form>

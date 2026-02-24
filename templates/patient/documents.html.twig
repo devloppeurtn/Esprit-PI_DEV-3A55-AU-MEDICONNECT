@@ -2,7 +2,7 @@
 
 {% block title %}Mes documents - MediConnect{% endblock %}
 
-{% block body %}
+{% block admin_content %}
 <div class="patient-documents">
     <h1 class="h3 mb-4"><i class="bi bi-file-earmark-medical-fill me-2"></i>Mes documents</h1>
 
@@ -33,7 +33,7 @@
                         <td>{{ doc.typeDocument|default('—') }}</td>
                         <td>{{ doc.dateAjout|date('d/m/Y') }}</td>
                         <td>
-                            <a href="{{ asset('uploads/documents/' ~ doc.cheminFichier) }}" target="_blank" class="btn btn-sm btn-outline-primary">Voir</a>
+                            <a href="{{ path('app_patient_document_voir', {id: doc.id}) }}" target="_blank" class="btn btn-sm btn-outline-primary">Voir</a>
                             {% if doc.ajouteParPatient %}
                             <form method="post" action="{{ path('app_patient_document_supprimer', {id: doc.id}) }}" class="d-inline" onsubmit="return confirm('Supprimer ce document ?');">
                                 <input type="hidden" name="_token" value="{{ csrf_token('delete_document_' ~ doc.id) }}">
@@ -52,3 +52,5 @@
     </div>
 </div>
 {% endblock %}
+
+

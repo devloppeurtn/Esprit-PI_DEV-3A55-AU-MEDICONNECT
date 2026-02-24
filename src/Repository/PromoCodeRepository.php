@@ -19,6 +19,7 @@ class PromoCodeRepository extends ServiceEntityRepository
     public function findActiveByCode(string $code): ?PromoCode
     {
         $now = new \DateTime();
+
         return $this->createQueryBuilder('p')
             ->andWhere('UPPER(p.code) = UPPER(:code)')
             ->andWhere('p.active = true')

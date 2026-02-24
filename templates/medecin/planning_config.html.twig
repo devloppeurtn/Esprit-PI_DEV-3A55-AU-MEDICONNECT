@@ -1,0 +1,201 @@
+{% extends 'admin/base_admin.html.twig' %}
+
+{% block title %}Configurer mon planning — MediConnect{% endblock %}
+
+{% block admin_content %}
+<div class="planning-config-page">
+
+    {# En-tête #}
+    <div class="d-flex align-items-center justify-content-between flex-wrap gap-3 mb-4">
+        <div>
+            <h1 class="h3 mb-1"><i class="bi bi-calendar-week-fill me-2 text-primary"></i>Configuration de mon planning</h1>
+            <p class="text-muted mb-0">Définissez vos horaires de consultation</p>
+        </div>
+        <div class="d-flex gap-2">
+            <a href="{{ path('app_medecin_agenda') }}" class="btn btn-outline-secondary">
+                <i class="bi bi-calendar3 me-1"></i>Voir l'agenda
+            </a>
+            <a href="{{ path('app_medecin_index') }}" class="btn btn-outline-secondary">
+                <i class="bi bi-arrow-left me-1"></i>Retour
+            </a>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        {# ── Formulaire principal ── #}
+        <div class="col-lg-8">
+            {{ form_start(form, {attr: {class: 'needs-validation', novalidate: 'novalidate'}}) }}
+
+            {# Plages horaires #}
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-header bg-transparent border-0 py-3">
+                    <h5 class="mb-0"><i class="bi bi-clock-fill me-2 text-primary"></i>Plages horaires</h5>
+                </div>
+                <div class="card-body p-4">
+                    <div class="row g-4">
+                        {# Matin #}
+                        <div class="col-md-6">
+                            <div class="p-3 rounded-3 border bg-light">
+                                <h6 class="fw-semibold mb-3"><i class="bi bi-sunrise me-1 text-warning"></i>Matinée</h6>
+                                <div class="mb-3">
+                                    <label class="form-label small fw-medium">{{ form_label(form.heureDebutMatin) }}</label>
+                                    {{ form_widget(form.heureDebutMatin) }}
+                                    {{ form_errors(form.heureDebutMatin) }}
+                                </div>
+                                <div class="mb-0">
+                                    <label class="form-label small fw-medium">{{ form_label(form.heureFinMatin) }}</label>
+                                    {{ form_widget(form.heureFinMatin) }}
+                                    {{ form_errors(form.heureFinMatin) }}
+                                </div>
+                            </div>
+                        </div>
+                        {# Après-midi #}
+                        <div class="col-md-6">
+                            <div class="p-3 rounded-3 border bg-light">
+                                <h6 class="fw-semibold mb-3"><i class="bi bi-sunset me-1 text-orange"></i>Après-midi</h6>
+                                <div class="mb-3">
+                                    <label class="form-label small fw-medium">{{ form_label(form.heureDebutApresMidi) }}</label>
+                                    {{ form_widget(form.heureDebutApresMidi) }}
+                                    {{ form_errors(form.heureDebutApresMidi) }}
+                                </div>
+                                <div class="mb-0">
+                                    <label class="form-label small fw-medium">{{ form_label(form.heureFinApresMidi) }}</label>
+                                    {{ form_widget(form.heureFinApresMidi) }}
+                                    {{ form_errors(form.heureFinApresMidi) }}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {# Durée consultation #}
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-header bg-transparent border-0 py-3">
+                    <h5 class="mb-0"><i class="bi bi-stopwatch-fill me-2 text-info"></i>Durée de consultation</h5>
+                </div>
+                <div class="card-body p-4">
+                    <div class="d-flex flex-wrap gap-2">
+                        {% for choice in form.dureeConsultation %}
+                            <div class="duration-choice">
+                                <input type="radio" 
+                                       class="btn-check" 
+                                       name="{{ choice.vars.full_name }}" 
+                                       id="{{ choice.vars.id }}" 
+                                       value="{{ choice.vars.value }}" 
+                                       {% if choice.vars.checked %}checked{% endif %}>
+                                <label class="btn btn-outline-primary" for="{{ choice.vars.id }}">
+                                    {{ choice.vars.label }}
+                                </label>
+                            </div>
+                        {% endfor %}
+                    </div>
+                    {{ form_errors(form.dureeConsultation) }}
+                </div>
+            </div>
+
+            {# Jours de travail #}
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-header bg-transparent border-0 py-3">
+                    <h5 class="mb-0"><i class="bi bi-calendar-check-fill me-2 text-success"></i>Jours de travail</h5>
+                </div>
+                <div class="card-body p-4">
+                    <div class="d-flex flex-wrap gap-2">
+                        {% set jourColors = {lundi: 'primary', mardi: 'info', mercredi: 'success', jeudi: 'warning', vendredi: 'orange', samedi: 'secondary', dimanche: 'danger'} %}
+                        {% for choice in form.joursOuverture %}
+                            {% set color = jourColors[choice.vars.value] ?? 'primary' %}
+                            <div class="form-check" style="display:none;">{{ form_widget(choice) }}</div>
+                            <button type="button"
+                                    class="btn jour-btn {{ choice.vars.checked ? 'btn-' ~ color : 'btn-outline-' ~ color }}"
+                                    data-input-id="{{ choice.vars.id }}"
+                                    data-color="{{ color }}"
+                                    onclick="toggleJour(this)">
+                                {{ choice.vars.label }}
+                            </button>
+                        {% endfor %}
+                    </div>
+                    {{ form_errors(form.joursOuverture) }}
+                </div>
+            </div>
+
+            <div class="d-flex gap-2">
+                <button type="submit" class="btn btn-primary btn-lg px-4">
+                    <i class="bi bi-check-circle-fill me-2"></i>Enregistrer mon planning
+                </button>
+                <a href="{{ path('app_medecin_agenda') }}" class="btn btn-outline-secondary btn-lg">Annuler</a>
+            </div>
+
+            {% do form.dureeConsultation.setRendered %}
+            {% do form.joursOuverture.setRendered %}
+            {{ form_rest(form) }}
+            {{ form_end(form) }}
+        </div>
+
+        {# ── Résumé actuel ── #}
+        <div class="col-lg-4">
+            <div class="card border-0 shadow-sm position-sticky" style="top: 1.5rem;">
+                <div class="card-header bg-transparent border-0 py-3">
+                    <h5 class="mb-0"><i class="bi bi-info-circle-fill me-2 text-primary"></i>Planning actuel</h5>
+                </div>
+                <div class="card-body p-4">
+                    {% if planning.id %}
+                        <div class="mb-3">
+                            <span class="text-muted small d-block mb-1">Matinée</span>
+                            {% if planning.heureDebutMatin %}
+                                <strong>{{ planning.heureDebutMatin|date('H:i') }} → {{ planning.heureFinMatin|date('H:i') }}</strong>
+                            {% else %}
+                                <span class="text-muted fst-italic">Non configurée</span>
+                            {% endif %}
+                        </div>
+                        <div class="mb-3">
+                            <span class="text-muted small d-block mb-1">Après-midi</span>
+                            {% if planning.heureDebutApresMidi %}
+                                <strong>{{ planning.heureDebutApresMidi|date('H:i') }} → {{ planning.heureFinApresMidi|date('H:i') }}</strong>
+                            {% else %}
+                                <span class="text-muted fst-italic">Non configurée</span>
+                            {% endif %}
+                        </div>
+                        <div class="mb-3">
+                            <span class="text-muted small d-block mb-1">Durée / consultation</span>
+                            <strong>{{ planning.dureeConsultation }} minutes</strong>
+                        </div>
+                        <div class="mb-0">
+                            <span class="text-muted small d-block mb-2">Jours de travail</span>
+                            {% for jour in planning.joursOuverture %}
+                                <span class="badge bg-primary me-1 mb-1">{{ jour|capitalize }}</span>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="text-center text-muted py-3">
+                            <i class="bi bi-calendar-x display-5 opacity-40 d-block mb-2"></i>
+                            <p class="small mb-0">Aucun planning existant.<br>Remplissez le formulaire pour en créer un.</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+{{ parent() }}
+<script>
+function toggleJour(btn) {
+    const inputId = btn.dataset.inputId;
+    const color   = btn.dataset.color;
+    const input   = document.getElementById(inputId);
+    if (!input) return;
+
+    if (input.checked) {
+        input.checked = false;
+        btn.classList.remove('btn-' + color);
+        btn.classList.add('btn-outline-' + color);
+    } else {
+        input.checked = true;
+        btn.classList.remove('btn-outline-' + color);
+        btn.classList.add('btn-' + color);
+    }
+}
+</script>
+{% endblock %}

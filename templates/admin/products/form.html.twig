@@ -1,28 +1,28 @@
 {% extends 'admin/base_admin.html.twig' %}
-{% block title %}{{ product.id ? 'Éditer produit' : 'Nouveau produit' }} - Administration{% endblock %}
-{% block body %}
-<div class="d-flex justify-content-between align-items-center mb-4">
-    <h1 class="h3 mb-0">{{ product.id ? 'Éditer le produit' : 'Nouveau produit' }}</h1>
-    <a href="{{ path('app_admin_products') }}" class="btn btn-outline-secondary">Retour</a>
-</div>
-<form method="post" class="card shadow-sm">
+{% set title = product.id ? 'Editer produit' : 'Nouveau produit' %}
+{% block admin_content %}
+{% set currentIsUrl = product.image and (product.image starts with('http://') or product.image starts with('https://')) %}
+<form method="post" enctype="multipart/form-data" class="card shadow-sm">
     <div class="card-body">
+        <p class="text-muted small mb-3"><span class="text-danger">*</span> = obligatoire (mandatory)</p>
+
         <div class="row mb-3">
             <div class="col-md-6">
                 <label class="form-label">Nom</label>
                 <input type="text" name="nom" class="form-control" required value="{{ product.nom }}">
             </div>
             <div class="col-md-3">
-                <label class="form-label">Prix (TND)</label>
+                <label class="form-label">Prix (TND) <span class="text-danger">*</span></label>
                 <input type="number" step="0.01" min="0" name="prix" class="form-control" required value="{{ product.prix }}">
             </div>
             <div class="col-md-3">
-                <label class="form-label">Stock</label>
+                <label class="form-label">Stock <span class="text-danger">*</span></label>
                 <input type="number" min="0" name="stock" class="form-control" required value="{{ product.stock }}">
             </div>
         </div>
+
         <div class="mb-3">
-            <label class="form-label">Catégorie</label>
+            <label class="form-label">Cat&eacute;gorie <span class="text-danger">*</span></label>
             <select name="categorie" class="form-select" required>
                 <option value="">-- Choisir --</option>
                 {% for c in categories %}
@@ -30,19 +30,62 @@
                 {% endfor %}
             </select>
         </div>
+
         <div class="mb-3">
-            <label class="form-label">Image (chemin)</label>
-            <input type="text" name="image" class="form-control" value="{{ product.image|default('') }}">
-            <small class="text-muted">Ex: assets/img/products/mon-produit.jpg</small>
+            <label class="form-label d-block">Image (2 choix)</label>
+
+            <div class="form-check">
+                <input class="form-check-input" type="radio" name="image_source" id="image_source_url" value="url" {{ currentIsUrl or not product.image ? 'checked' : '' }}>
+                <label class="form-check-label" for="image_source_url">URL</label>
+            </div>
+            <div class="form-check mb-2">
+                <input class="form-check-input" type="radio" name="image_source" id="image_source_upload" value="upload" {{ product.image and not currentIsUrl ? 'checked' : '' }}>
+                <label class="form-check-label" for="image_source_upload">Upload depuis le laptop</label>
+            </div>
+
+            <div id="image_url_group" class="mb-2">
+                <label class="form-label">URL de l'image</label>
+                <input type="url" name="image_url" class="form-control"
+                       value="{{ currentIsUrl ? product.image : '' }}"
+                       placeholder="https://...">
+            </div>
+
+            <div id="image_upload_group" class="mb-2">
+                <label class="form-label">Fichier image</label>
+                <input type="file" name="image_file" class="form-control" accept="image/*">
+                {% if product.image and not currentIsUrl %}
+                    <small class="text-muted">Image actuelle: {{ product.image }}</small>
+                {% endif %}
+            </div>
         </div>
+
         <div class="mb-3">
             <label class="form-label">Description</label>
-            <textarea name="description" rows="4" class="form-control">{{ product.description|default('') }}</textarea>
+            <textarea name="description" rows="4" class="form-control">{{ product.description }}</textarea>
         </div>
     </div>
     <div class="card-footer d-flex justify-content-between">
-        <a href="{{ path('app_admin_products') }}" class="btn btn-outline-secondary">Annuler</a>
+        <a href="{{ path('admin_products') }}" class="btn btn-outline-secondary">Annuler</a>
         <button class="btn btn-primary">Enregistrer</button>
     </div>
 </form>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const urlRadio = document.getElementById('image_source_url');
+    const uploadRadio = document.getElementById('image_source_upload');
+    const urlGroup = document.getElementById('image_url_group');
+    const uploadGroup = document.getElementById('image_upload_group');
+
+    function toggleImageInputs() {
+        const isUrl = urlRadio.checked;
+        urlGroup.style.display = isUrl ? 'block' : 'none';
+        uploadGroup.style.display = isUrl ? 'none' : 'block';
+    }
+
+    urlRadio.addEventListener('change', toggleImageInputs);
+    uploadRadio.addEventListener('change', toggleImageInputs);
+    toggleImageInputs();
+});
+</script>
 {% endblock %}

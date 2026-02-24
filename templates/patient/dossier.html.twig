@@ -2,7 +2,7 @@
 
 {% block title %}Mon dossier médical - MediConnect{% endblock %}
 
-{% block body %}
+{% block admin_content %}
 <div class="patient-dossier">
     <h1 class="h3 mb-4"><i class="bi bi-folder2-open me-2"></i>Mon dossier médical</h1>
 
@@ -17,7 +17,7 @@
                         <h6 class="mb-1">{{ m.medicament }}</h6>
                         {% if m.methodeUtilisation %}<p class="mb-0 text-muted small">{{ m.methodeUtilisation }}</p>{% endif %}
                     </div>
-                    <form method="post" action="{{ path('app_patient_medicament_supprimer', {id: m.id}) }}" class="ms-2" onsubmit="return confirm('Retirer ce médicament de votre liste ?');">
+                    <form method="post" action="{{ path('app_patient_medicament_supprimer', {id: m.id}) }}" class="ms-2" onsubmit="return confirm('Retirer ce m�dicament de votre liste ?');">
                         <input type="hidden" name="_token" value="{{ csrf_token('supprimer_medicament_' ~ m.id) }}">
                         <button type="submit" class="btn btn-sm btn-outline-danger">Retirer</button>
                     </form>
@@ -102,7 +102,7 @@
                             <td>{{ doc.typeDocument|default('—') }}</td>
                             <td>{{ doc.dateAjout|date('d/m/Y') }}</td>
                             <td>
-                                <a href="{{ asset('uploads/documents/' ~ doc.cheminFichier) }}" target="_blank" class="btn btn-sm btn-outline-primary">Voir</a>
+                                <a href="{{ path('app_patient_document_voir', {id: doc.id}) }}" target="_blank" class="btn btn-sm btn-outline-primary">Voir</a>
                                 {% if doc.ajouteParPatient %}
                                 <form method="post" action="{{ path('app_patient_document_supprimer', {id: doc.id}) }}" class="d-inline" onsubmit="return confirm('Supprimer ce document ?');">
                                     <input type="hidden" name="_token" value="{{ csrf_token('delete_document_' ~ doc.id) }}">
@@ -127,3 +127,5 @@
 .consult-avatar { width: 48px; height: 48px; border-radius: 50%; background: rgba(13, 110, 253, 0.15); color: #0d6efd; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
 </style>
 {% endblock %}
+
+

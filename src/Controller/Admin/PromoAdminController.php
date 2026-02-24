@@ -8,14 +8,12 @@ use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Attribute\Route;
-use Symfony\Component\Security\Http\Attribute\IsGranted;
+use Symfony\Component\Routing\Annotation\Route;
 
 #[Route('/admin/promos')]
-#[IsGranted('ROLE_ADMIN')]
 class PromoAdminController extends AbstractController
 {
-    #[Route('/', name: 'app_admin_promos', methods: ['GET'])]
+    #[Route('/', name: 'admin_promos')]
     public function index(PromoCodeRepository $repo): Response
     {
         return $this->render('admin/promos/index.html.twig', [
@@ -23,8 +21,8 @@ class PromoAdminController extends AbstractController
         ]);
     }
 
-    #[Route('/new', name: 'app_admin_promos_new', methods: ['GET', 'POST'])]
-    #[Route('/{id}/edit', name: 'app_admin_promos_edit', methods: ['GET', 'POST'], requirements: ['id' => '\d+'])]
+    #[Route('/new', name: 'admin_promos_new')]
+    #[Route('/{id}/edit', name: 'admin_promos_edit', requirements: ['id' => '\d+'])]
     public function form(Request $request, EntityManagerInterface $em, ?PromoCode $promo = null): Response
     {
         $promo = $promo ?? new PromoCode();
@@ -47,7 +45,7 @@ class PromoAdminController extends AbstractController
             $em->flush();
 
             $this->addFlash('success', 'Code promo enregistré.');
-            return $this->redirectToRoute('app_admin_promos');
+            return $this->redirectToRoute('admin_promos');
         }
 
         return $this->render('admin/promos/form.html.twig', [
@@ -55,12 +53,12 @@ class PromoAdminController extends AbstractController
         ]);
     }
 
-    #[Route('/{id}/delete', name: 'app_admin_promos_delete', methods: ['POST'], requirements: ['id' => '\d+'])]
+    #[Route('/{id}/delete', name: 'admin_promos_delete', methods: ['POST'], requirements: ['id' => '\d+'])]
     public function delete(PromoCode $promo, EntityManagerInterface $em): Response
     {
         $em->remove($promo);
         $em->flush();
         $this->addFlash('success', 'Code promo supprimé.');
-        return $this->redirectToRoute('app_admin_promos');
+        return $this->redirectToRoute('admin_promos');
     }
 }

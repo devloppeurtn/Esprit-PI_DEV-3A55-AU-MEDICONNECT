@@ -555,11 +555,6 @@ h6 {
   text-decoration: none;
 }
 
-.footer-16 .brand-section .logo img {
-  max-width: 60px;
-  height: auto;
-}
-
 .footer-16 .brand-section .logo .sitename {
   font-family: var(--heading-font);
   font-size: 32px;

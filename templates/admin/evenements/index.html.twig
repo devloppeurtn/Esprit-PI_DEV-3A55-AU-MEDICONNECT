@@ -154,7 +154,7 @@
                 fetch(url, { method: 'POST', body: formData, headers: { 'X-Requested-With': 'XMLHttpRequest' } })
                     .then(function(r) { return r.json(); })
                     .then(function(data) {
-                        showAlert(data.message || 'AcceptÃ©.', data.success ? 'success' : 'warning');
+                        showAlert(data.message || 'Accepté.', data.success ? 'success' : 'warning');
                         loadList(document.querySelector('#filterTabs .nav-link.active').getAttribute('data-statut') || '');
                     })
                     .catch(function() { showAlert('Erreur.', 'danger'); btn.disabled = false; });
@@ -162,7 +162,7 @@
         });
         tbody.querySelectorAll('.btn-refuse').forEach(function(btn) {
             btn.addEventListener('click', function() {
-                if (!confirm('Refuser cet Ã©vÃ©nement ?')) return;
+                if (!confirm('Refuser cet événement ?')) return;
                 const id = btn.getAttribute('data-id');
                 const token = btn.getAttribute('data-token');
                 const url = refuseUrl.replace(uuidPl, id);
@@ -172,7 +172,7 @@
                 fetch(url, { method: 'POST', body: formData, headers: { 'X-Requested-With': 'XMLHttpRequest' } })
                     .then(function(r) { return r.json(); })
                     .then(function(data) {
-                        showAlert(data.message || 'RefusÃ©.', data.success ? 'success' : 'warning');
+                        showAlert(data.message || 'Refusé.', data.success ? 'success' : 'warning');
                         loadList(document.querySelector('#filterTabs .nav-link.active').getAttribute('data-statut') || '');
                     })
                     .catch(function() { showAlert('Erreur.', 'danger'); btn.disabled = false; });

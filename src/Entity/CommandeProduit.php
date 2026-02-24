@@ -36,7 +36,6 @@ class CommandeProduit
 
     #[ORM\Column(type: Types::TEXT, nullable: true)]
     private ?string $adresseLivraison = null;
-
     #[ORM\Column(length: 32, nullable: true)]
     private ?string $telephone = null;
 
@@ -45,6 +44,33 @@ class CommandeProduit
 
     #[ORM\Column(length: 32, nullable: true)]
     private ?string $modePaiement = null;
+
+    #[ORM\Column(length: 128, nullable: true)]
+    private ?string $deliveryCity = null;
+
+    #[ORM\Column(length: 32, options: ['default' => 'STANDARD'])]
+    private string $deliveryCarrier = 'STANDARD';
+
+    #[ORM\Column(length: 16, options: ['default' => 'MEDIUM'])]
+    private string $deliveryTrafficLevel = 'MEDIUM';
+
+    #[ORM\Column(options: ['default' => false])]
+    private bool $deliveryCutoffApplied = false;
+
+    #[ORM\Column(type: Types::DATETIME_IMMUTABLE, nullable: true)]
+    private ?\DateTimeImmutable $deliveryEtaAt = null;
+
+    #[ORM\Column(type: Types::DATETIME_IMMUTABLE, nullable: true)]
+    private ?\DateTimeImmutable $deliveryCommittedAt = null;
+
+    #[ORM\Column(options: ['default' => 0])]
+    private int $deliveryDelayPenaltyPoints = 0;
+
+    #[ORM\Column(options: ['default' => false])]
+    private bool $deliverySlaBreached = false;
+
+    #[ORM\Column(type: Types::DATETIME_IMMUTABLE, nullable: true)]
+    private ?\DateTimeImmutable $deliveredAt = null;
 
     public function __construct()
     {
@@ -65,6 +91,7 @@ class CommandeProduit
     public function setUtilisateur(?Utilisateur $utilisateur): static
     {
         $this->utilisateur = $utilisateur;
+
         return $this;
     }
 
@@ -76,6 +103,7 @@ class CommandeProduit
     public function setDateCommande(\DateTimeInterface $dateCommande): static
     {
         $this->dateCommande = $dateCommande;
+
         return $this;
     }
 
@@ -87,6 +115,7 @@ class CommandeProduit
     public function setStatut(StatutCommande $statut): static
     {
         $this->statut = $statut;
+
         return $this;
     }
 
@@ -98,6 +127,7 @@ class CommandeProduit
     public function setMontantTotal(?string $montantTotal): static
     {
         $this->montantTotal = $montantTotal;
+
         return $this;
     }
 
@@ -115,6 +145,7 @@ class CommandeProduit
             $this->lignesCommande->add($ligneCommande);
             $ligneCommande->setCommande($this);
         }
+
         return $this;
     }
 
@@ -125,6 +156,7 @@ class CommandeProduit
                 $ligneCommande->setCommande(null);
             }
         }
+
         return $this;
     }
 
@@ -136,6 +168,7 @@ class CommandeProduit
     public function setAdresseLivraison(?string $adresseLivraison): static
     {
         $this->adresseLivraison = $adresseLivraison;
+
         return $this;
     }
 
@@ -147,6 +180,7 @@ class CommandeProduit
     public function setTelephone(?string $telephone): static
     {
         $this->telephone = $telephone;
+
         return $this;
     }
 
@@ -158,6 +192,7 @@ class CommandeProduit
     public function setPays(?string $pays): static
     {
         $this->pays = $pays;
+
         return $this;
     }
 
@@ -169,6 +204,7 @@ class CommandeProduit
     public function setModePaiement(?string $modePaiement): static
     {
         $this->modePaiement = $modePaiement;
+
         return $this;
     }
 
@@ -179,5 +215,128 @@ class CommandeProduit
             $total += (float)$ligne->getPrixUnitaire() * $ligne->getQuantite();
         }
         return number_format($total, 2, '.', '');
+    }
+
+    public function getDeliveryCity(): ?string
+    {
+        return $this->deliveryCity;
+    }
+
+    public function setDeliveryCity(?string $deliveryCity): static
+    {
+        $this->deliveryCity = $deliveryCity;
+
+        return $this;
+    }
+
+    public function getDeliveryCarrier(): string
+    {
+        return $this->deliveryCarrier;
+    }
+
+    public function setDeliveryCarrier(string $deliveryCarrier): static
+    {
+        $this->deliveryCarrier = strtoupper(trim($deliveryCarrier));
+
+        return $this;
+    }
+
+    public function getDeliveryTrafficLevel(): string
+    {
+        return $this->deliveryTrafficLevel;
+    }
+
+    public function setDeliveryTrafficLevel(string $deliveryTrafficLevel): static
+    {
+        $this->deliveryTrafficLevel = strtoupper(trim($deliveryTrafficLevel));
+
+        return $this;
+    }
+
+    public function isDeliveryCutoffApplied(): bool
+    {
+        return $this->deliveryCutoffApplied;
+    }
+
+    public function setDeliveryCutoffApplied(bool $deliveryCutoffApplied): static
+    {
+        $this->deliveryCutoffApplied = $deliveryCutoffApplied;
+
+        return $this;
+    }
+
+    public function getDeliveryEtaAt(): ?\DateTimeImmutable
+    {
+        return $this->deliveryEtaAt;
+    }
+
+    public function setDeliveryEtaAt(?\DateTimeImmutable $deliveryEtaAt): static
+    {
+        $this->deliveryEtaAt = $deliveryEtaAt;
+
+        return $this;
+    }
+
+    public function getDeliveryCommittedAt(): ?\DateTimeImmutable
+    {
+        return $this->deliveryCommittedAt;
+    }
+
+    public function setDeliveryCommittedAt(?\DateTimeImmutable $deliveryCommittedAt): static
+    {
+        $this->deliveryCommittedAt = $deliveryCommittedAt;
+
+        return $this;
+    }
+
+    public function getDeliveryDelayPenaltyPoints(): int
+    {
+        return $this->deliveryDelayPenaltyPoints;
+    }
+
+    public function setDeliveryDelayPenaltyPoints(int $deliveryDelayPenaltyPoints): static
+    {
+        $this->deliveryDelayPenaltyPoints = max(0, $deliveryDelayPenaltyPoints);
+
+        return $this;
+    }
+
+    public function isDeliverySlaBreached(): bool
+    {
+        return $this->deliverySlaBreached;
+    }
+
+    public function setDeliverySlaBreached(bool $deliverySlaBreached): static
+    {
+        $this->deliverySlaBreached = $deliverySlaBreached;
+
+        return $this;
+    }
+
+    public function getDeliveredAt(): ?\DateTimeImmutable
+    {
+        return $this->deliveredAt;
+    }
+
+    public function setDeliveredAt(?\DateTimeImmutable $deliveredAt): static
+    {
+        $this->deliveredAt = $deliveredAt;
+
+        return $this;
+    }
+
+    public function getEstimatedDeliveryDays(): ?int
+    {
+        if ($this->deliveryEtaAt === null || $this->dateCommande === null) {
+            return null;
+        }
+
+        $orderedAt = \DateTimeImmutable::createFromInterface($this->dateCommande);
+        $seconds = $this->deliveryEtaAt->getTimestamp() - $orderedAt->getTimestamp();
+        if ($seconds <= 0) {
+            return 1;
+        }
+
+        return (int) ceil($seconds / 86400);
     }
 }

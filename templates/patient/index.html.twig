@@ -2,7 +2,7 @@
 
 {% block title %}Mon espace - MediConnect{% endblock %}
 
-{% block body %}
+{% block admin_content %}
 <div class="patient-espace">
     <h1 class="h3 mb-4">Bienvenue {{ patient.nomComplet }}</h1>
 
@@ -89,4 +89,8 @@
 .rdv-avatar { width: 48px; height: 48px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
 .rdv-avatar-medecin { background: rgba(13, 110, 253, 0.15); color: #0d6efd; }
 </style>
+
+{# ── Chatbot Assistante RDV ── #}
+{{ include('components/chatbot_rdv.html.twig') }}
 {% endblock %}
+

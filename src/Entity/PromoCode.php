@@ -19,7 +19,7 @@ class PromoCode
     private ?string $code = null;
 
     #[ORM\Column(type: Types::DECIMAL, precision: 5, scale: 2)]
-    private ?string $rate = null;
+    private ?string $rate = null; // percent e.g. 20.00
 
     #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
     private ?\DateTimeInterface $startAt = null;

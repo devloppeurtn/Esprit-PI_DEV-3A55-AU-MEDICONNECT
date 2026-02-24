@@ -9,6 +9,11 @@ use Doctrine\Persistence\ManagerRegistry;
 
 /**
  * @extends ServiceEntityRepository<AvisProduit>
+ *
+ * @method AvisProduit|null find($id, $lockMode = null, $lockVersion = null)
+ * @method AvisProduit|null findOneBy(array $criteria, array $orderBy = null)
+ * @method AvisProduit[]    findAll()
+ * @method AvisProduit[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
  */
 class AvisProduitRepository extends ServiceEntityRepository
 {
@@ -39,6 +44,7 @@ class AvisProduitRepository extends ServiceEntityRepository
         if ($result === null) {
             return null;
         }
+
         return round((float) $result, 1);
     }
 }

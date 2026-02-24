@@ -1,0 +1,243 @@
+{% extends 'admin/base_admin.html.twig' %}
+
+{% block title %}Agenda Hebdomadaire — MediConnect{% endblock %}
+
+{% block stylesheets %}
+{{ parent() }}
+<style>
+/* ── Global Agenda ── */
+.agenda-page { background: #f1f5f9; min-height: 100vh; padding-bottom: 3rem; }
+.agenda-header { background: #1e3a8a; border-radius: 0 0 1.5rem 1.5rem; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+
+/* ── Weekly Container ── */
+.weekly-wrapper { overflow-x: auto; padding: 1rem 0; }
+.weekly-container { display: flex; gap: 0.75rem; min-width: 1200px; padding: 0 1rem; }
+
+/* ── Day Column ── */
+.day-column { flex: 1; background: #ffffff; border-radius: 1rem; box-shadow: 0 2px 8px rgba(0,0,0,0.05); overflow: hidden; border: 1px solid #e2e8f0; transition: border-color 0.2s; }
+.day-column.today { border: 2px solid #2563eb; ring: 4px rgba(37, 99, 235, 0.1); }
+.day-header { background: #f8fafc; padding: 0.75rem 0.5rem; text-align: center; border-bottom: 1px solid #e2e8f0; }
+.day-header .day-name { font-size: 0.75rem; font-weight: 700; text-transform: uppercase; color: #64748b; letter-spacing: 0.05em; }
+.day-header .day-date { font-size: 1.1rem; font-weight: 800; color: #1e293b; }
+
+/* ── Slots ── */
+.slots-container { padding: 0.5rem; min-height: 400px; }
+.slot-weekly { padding: 0.6rem 0.75rem; margin-bottom: 0.5rem; border-radius: 0.6rem; font-size: 0.85rem; cursor: pointer; transition: transform 0.1s, box-shadow 0.1s; border-left: 4px solid transparent; position: relative; }
+.slot-weekly:hover { transform: scale(1.02); box-shadow: 0 4px 12px rgba(0,0,0,0.08); z-index: 10; }
+
+.slot-weekly-libre { background: #e0f2fe; border-left-color: #0ea5e9; color: #0369a1; }
+.slot-weekly-confirme { background: #1e3a8a; border-left-color: #1d4ed8; color: #ffffff; }
+.slot-weekly-attente { background: #fef3c7; border-left-color: #f59e0b; color: #92400e; }
+.slot-weekly-pause { background: #f1f5f9; border-left-color: #94a3b8; color: #64748b; font-style: italic; cursor: default; }
+
+.slot-time { font-weight: 800; }
+.slot-duration { font-size: 0.7rem; font-weight: 600; background: rgba(0,0,0,0.05); padding: 1px 5px; border-radius: 4px; }
+.slot-weekly-confirme .slot-duration { background: rgba(255,255,255,0.2); }
+.slot-patient { margin-top: 0.2rem; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+/* ── Navigation ── */
+.nav-week-btn { border-radius: 0.5rem; font-weight: 600; }
+.week-range { font-size: 1.1rem; font-weight: 700; }
+
+/* ── Scroll Custom ── */
+.weekly-wrapper::-webkit-scrollbar { height: 8px; }
+.weekly-wrapper::-webkit-scrollbar-track { background: #f1f5f9; }
+.weekly-wrapper::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+</style>
+{% endblock %}
+
+{% block admin_content %}
+{% set joursFr = {1: 'LUN', 2: 'MAR', 3: 'MER', 4: 'JEU', 5: 'VEN', 6: 'SAM', 7: 'DIM'} %}
+{% set moisFr  = {1: 'Jan', 2: 'Fév', 3: 'Mars', 4: 'Avr', 5: 'Mai', 6: 'Juin', 7: 'Juil', 8: 'Août', 9: 'Sep', 10: 'Oct', 11: 'Nov', 12: 'Déc'} %}
+
+<div class="agenda-page">
+
+    {# ── Header ── #}
+    <div class="agenda-header text-white p-4 mb-4">
+        <div class="container-fluid d-flex align-items-center justify-content-between flex-wrap gap-3">
+            <div>
+                <h1 class="h3 mb-1 fw-bold"><i class="bi bi-calendar-range me-2"></i>Agenda Hebdomadaire</h1>
+                <p class="mb-0 opacity-75">Dr. {{ medecin.nomComplet }}{% if medecin.specialite %} — {{ medecin.specialite }}{% endif %}</p>
+            </div>
+            
+            <div class="d-flex align-items-center gap-3">
+                <div class="d-flex align-items-center bg-white bg-opacity-10 p-1 rounded-3">
+                    <a href="{{ path('app_secretaire_agenda', {date: monday|date_modify('-7 days')|date('Y-m-d')}) }}" 
+                       class="btn btn-link text-white nav-week-btn" title="Semaine précédente">
+                        <i class="bi bi-arrow-left"></i>
+                    </a>
+                    <span class="week-range px-3">
+                        {{ monday|date('d') }} {{ moisFr[monday|date('n')] }} — 
+                        {{ monday|date_modify('+6 days')|date('d') }} {{ moisFr[monday|date_modify('+6 days')|date('n')] }}
+                    </span>
+                    <a href="{{ path('app_secretaire_agenda', {date: monday|date_modify('+7 days')|date('Y-m-d')}) }}" 
+                       class="btn btn-link text-white nav-week-btn" title="Semaine suivante">
+                        <i class="bi bi-arrow-right"></i>
+                    </a>
+                </div>
+                <a href="{{ path('app_secretaire_agenda') }}" class="btn btn-light fw-bold px-3">Aujourd'hui</a>
+                <a href="{{ path('app_secretaire_planning_config') }}" class="btn btn-outline-light d-none d-md-block">
+                    <i class="bi bi-gear-fill"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    {# ── Info ── #}
+    <div class="container-fluid px-4">
+        <div class="d-flex align-items-center gap-3 mb-3 flex-wrap">
+            <h2 class="h5 mb-0 fw-semibold text-slate-700">Semaine {{ monday|date('W') }}</h2>
+            <div class="d-flex gap-2">
+                <span class="d-flex align-items-center gap-1 badge bg-white text-dark shadow-sm px-2 py-1">
+                    <span class="badge bg-info p-1">&nbsp;</span> Libre
+                </span>
+                <span class="d-flex align-items-center gap-1 badge bg-white text-dark shadow-sm px-2 py-1">
+                    <span class="badge bg-primary p-1">&nbsp;</span> Confirmé
+                </span>
+                <span class="d-flex align-items-center gap-1 badge bg-white text-dark shadow-sm px-2 py-1">
+                    <span class="badge bg-warning p-1">&nbsp;</span> En attente
+                </span>
+                <span class="d-flex align-items-center gap-1 badge bg-white text-dark shadow-sm px-2 py-1">
+                    <span class="badge bg-secondary p-1">&nbsp;</span> Pause
+                </span>
+            </div>
+            <div class="ms-auto">
+                <form action="{{ path('app_secretaire_agenda') }}" method="get" class="d-flex align-items-center gap-1">
+                    <input type="date" name="date" class="form-control form-control-sm border-0 shadow-sm" value="{{ date|date('Y-m-d') }}" onchange="this.form.submit()">
+                </form>
+            </div>
+        </div>
+
+                {# ── Weekly Grid ── #}
+        <div class="weekly-wrapper">
+            <div class="weekly-container">
+
+                {% for day in weekData %}
+                <div class="day-column {{ day.date|date('Y-m-d') == "now"|date('Y-m-d') ? 'today' : '' }}">
+                    <div class="day-header">
+                        <div class="day-name">{{ joursFr[day.date|date('N')] }}</div>
+                        <div class="day-date">{{ day.date|date('d') }} {{ moisFr[day.date|date('n')] }}</div>
+                    </div>
+                    
+                    <div class="slots-container">
+                        {% if day.grid|length == 0 %}
+                            <div class="text-center py-5 text-muted small opacity-50">
+                                <i class="bi bi-moon-stars d-block fs-4 mb-2"></i>Repos
+                            </div>
+                        {% else %}
+                            {% for creneau in day.grid %}
+                                {% set isLibre = creneau.type == 'libre' %}
+                                {% set isPause = creneau.type == 'pause' %}
+                                {% set status = isLibre ? 'libre' : (isPause ? 'pause' : (creneau.rdv.statut.value == 'CONFIRME' ? 'confirme' : 'attente')) %}
+                                
+                                <div class="slot-weekly slot-weekly-{{ status }}" 
+                                     {% if isLibre %}
+                                     data-bs-toggle="modal" data-bs-target="#modalRdvRapide" 
+                                     data-date="{{ day.date|date('Y-m-d') }}" 
+                                     data-heure="{{ creneau.heure }}"
+                                     onclick="prepareModal('{{ day.date|date('Y-m-d') }}', '{{ creneau.heure }}')"
+                                     {% endif %}>
+                                    
+                                    <div class="d-flex justify-content-between align-items-start">
+                                        <span class="slot-time">{{ creneau.plage }}</span>
+                                        <span class="slot-duration">{{ creneau.duree }}</span>
+                                    </div>
+                                    
+                                    {% if isLibre %}
+                                        <div class="small opacity-75">Disponible</div>
+                                    {% elseif isPause %}
+                                        <div class="small fw-bold"><i class="bi bi-cup-hot me-1"></i>Pause déjeuner</div>
+                                    {% else %}
+                                        <div class="slot-patient" title="{{ creneau.rdv.patient.nomComplet }}">
+                                            {{ creneau.rdv.patient.nomComplet }}
+                                        </div>
+                                        {% if status == 'attente' %}
+                                            <div class="small opacity-75"><i class="bi bi-clock-history me-1"></i>En attente</div>
+                                        {% endif %}
+                                    {% endif %}
+                                </div>
+                            {% endfor %}
+                        {% endif %}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        {# ── Footer Links ── #}
+        <div class="d-flex justify-content-center gap-3 mt-4">
+            <a href="{{ path('app_secretaire_rendez_vous') }}" class="btn btn-outline-primary border-0 bg-white shadow-sm">
+                <i class="bi bi-list-task me-2"></i>Liste des rendez-vous
+            </a>
+            <a href="{{ path('app_secretaire_index') }}" class="btn btn-outline-secondary border-0 bg-white shadow-sm">
+                <i class="bi bi-grid-1x2 me-2"></i>Tableau de bord
+            </a>
+        </div>
+    </div>
+</div>
+
+{# ── Modal Prise de RDV ── #}
+<div class="modal fade" id="modalRdvRapide" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg">
+            <form action="{{ path('app_secretaire_rdv_creer') }}" method="post">
+                <div class="modal-header border-0 pb-0">
+                    <h5 class="modal-title fw-bold"><i class="bi bi-plus-circle-fill text-primary me-2"></i>Fixer un rendez-vous</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body pt-3">
+                    <input type="hidden" name="date" id="modal_input_date">
+                    <input type="hidden" name="_token" value="{{ csrf_token('creer_rdv_agenda') }}">
+
+                    <div class="mb-3 bg-light p-3 rounded-3 d-flex justify-content-between align-items-center">
+                        <div>
+                            <div class="small text-muted mb-1">Date & Heure sélectionnées</div>
+                            <div class="fw-bold fs-5 text-primary" id="modal_display_datetime"></div>
+                        </div>
+                        <i class="bi bi-calendar-check fs-2 text-primary opacity-25"></i>
+                    </div>
+
+                    <input type="hidden" name="heure" id="modal_input_heure">
+
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Patient</label>
+                        <select name="patient_id" class="form-select form-select-lg border-2" required>
+                            <option value="">— Sélectionner un patient —</option>
+                            {% for patient in patients %}
+                            <option value="{{ patient.id }}">{{ patient.nomComplet }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="mb-0">
+                        <label class="form-label fw-bold">Motif / Note</label>
+                        <textarea name="note" class="form-control" rows="2" placeholder="Ex: Première consultation, Urgence..."></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer border-0">
+                    <button type="button" class="btn btn-light fw-bold" data-bs-dismiss="modal">Annuler</button>
+                    <button type="submit" class="btn btn-primary fw-bold px-4">Confirmer le RDV</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+{{ parent() }}
+<script>
+function prepareModal(date, heure) {
+    document.getElementById('modal_input_date').value = date;
+    document.getElementById('modal_input_heure').value = heure;
+    
+    // Formatage français pour l'affichage
+    const d = new Date(date);
+    const options = { weekday: 'long', day: 'numeric', month: 'long' };
+    const dateFormatted = d.toLocaleDateString('fr-FR', options);
+    
+    document.getElementById('modal_display_datetime').innerText = dateFormatted + " à " + heure;
+}
+</script>
+{% endblock %}

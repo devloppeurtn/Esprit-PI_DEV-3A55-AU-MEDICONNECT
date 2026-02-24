@@ -107,14 +107,10 @@
                   </div>
                   
                   <p class="mb-0 text-center">
-                    <a href="{{ path('app_login') }}" style="color: #175cdd;">Vous avez déjà un compte ? Se connecter</a>
+                    <a href="{{ path('app_login') }}" style="color: #175cdd;">Vous avez d�j� un compte ? Se connecter</a>
                   </p>
                 {% else %}
-<<<<<<< HEAD
-                  {{ form_start(form, {'attr': {'class': 'signup-form', 'id': 'signupForm', 'novalidate': 'novalidate'}}) }}
-=======
                   {{ form_start(form, {'attr': {'class': 'signup-form', 'id': 'signupForm', 'novalidate': 'novalidate'}, 'name': 'signup'}) }}
->>>>>>> a394a49d254c11c5d5c2968c663ca48ad0d8f7b9
                     <div class="d-flex align-items-center mb-3 pb-1">
                       <img src="{{ asset('assets/img/logomed.png') }}" alt="Logo MediConnect" class="auth-form-logo me-3">
                       <span class="h1 fw-bold mb-0" style="color: #112344;">MediConnect</span>
@@ -311,7 +307,7 @@
                     </div>
 
                     <p class="mb-0 text-center">
-                      <a href="{{ path('app_login') }}" style="color: #175cdd;">Vous avez déjà un compte ? Se connecter</a>
+                      <a href="{{ path('app_login') }}" style="color: #175cdd;">Vous avez d�j� un compte ? Se connecter</a>
                     </p>
                   {{ form_end(form) }}
                 {% endif %}
@@ -846,12 +842,12 @@
         
         // Debug: vérifier que les champs sont trouvés
         console.log('Champs trouvés pour validation:', {
-            nomComplet: nomCompletInput ? '✓' : '✗',
-            email: emailInput ? '✓' : '✗',
-            telephone: telephoneInput ? '✓' : '✗',
-            password: passwordInput ? '✓' : '✗',
-            confirmPassword: confirmPasswordInput ? '✓' : '✗',
-            specialite: specialiteInput ? '✓' : '✗'
+            nomComplet: nomCompletInput ? '?' : '?',
+            email: emailInput ? '?' : '?',
+            telephone: telephoneInput ? '?' : '?',
+            password: passwordInput ? '?' : '?',
+            confirmPassword: confirmPasswordInput ? '?' : '?',
+            specialite: specialiteInput ? '?' : '?'
         });
         
         if (nomCompletInput) {
@@ -1157,7 +1153,7 @@
             
             reader.onload = function(e) {
                 console.log('=== FileReader onload déclenché ===');
-                console.log('Résultat:', e.target.result ? 'Données présentes' : 'Pas de données');
+                console.log('R�sultat:', e.target.result ? 'Donn�es pr�sentes' : 'Pas de donn�es');
                 
                 const cropImage = document.getElementById('photoCropImage');
                 const modalElement = document.getElementById('photoCropModal');
@@ -1362,8 +1358,8 @@
                             
                             if (currentPhotoInput) {
                                 currentPhotoInput.files = dataTransfer.files;
-                                console.log('Fichier rogné mis à jour dans l\'input:', currentPhotoInput.files[0] ? currentPhotoInput.files[0].name : 'aucun');
-                                console.log('Taille du fichier rogné:', currentPhotoInput.files[0] ? currentPhotoInput.files[0].size : 'N/A');
+                                console.log('Fichier rogn� mis � jour dans l\'input:', currentPhotoInput.files[0] ? currentPhotoInput.files[0].name : 'aucun');
+                                console.log('Taille du fichier rogn�:', currentPhotoInput.files[0] ? currentPhotoInput.files[0].size : 'N/A');
                             } else {
                                 console.error('ERREUR: Impossible de trouver le champ photo pour mettre à jour le fichier rogné');
                             }

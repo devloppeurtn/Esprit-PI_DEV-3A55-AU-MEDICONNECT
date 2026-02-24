@@ -1,6 +1,6 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}{{ isEdit ? 'Modifier' : 'Nouvel' }} Ã©vÃ©nement{% endblock %}
+{% block title %}{{ isEdit ? 'Modifier' : 'Nouvel' }} événement{% endblock %}
 
 {% block body %}
 <div class="container mt-4">
@@ -48,7 +48,7 @@
 
             <div class="d-flex justify-content-between">
                 <a href="{{ path('app_evenement_index') }}" class="btn btn-outline-secondary">Annuler</a>
-                <button class="btn btn-primary" type="submit">{{ isEdit ? 'Enregistrer' : 'CrÃ©er' }}</button>
+                <button class="btn btn-primary" type="submit">{{ isEdit ? 'Enregistrer' : 'Créer' }}</button>
             </div>
 
             {{ form_end(form) }}

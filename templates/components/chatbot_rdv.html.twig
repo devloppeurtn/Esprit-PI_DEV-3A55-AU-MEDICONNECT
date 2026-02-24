@@ -1,0 +1,833 @@
+{# ============================================================
+   Chatbot RDV – fichier : templates/components/chatbot_rdv.html.twig
+   Inclure dans n'importe quel template patient avec :
+       {{ include('components/chatbot_rdv.html.twig') }}
+   ============================================================ #}
+
+{# ── Routes Twig → JS ── #}
+{% set url_medecins = path('app_patient_chatbot_medecins') %}
+{% set url_rdv      = path('app_patient_chatbot_rdv') %}
+
+{# ── Styles ── #}
+<style>
+/* ── Bulle flottante ── */
+#chatbot-toggle {
+    position: fixed;
+    bottom: 28px;
+    right: 28px;
+    z-index: 9999;
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #2563eb, #1d4ed8);
+    border: none;
+    cursor: pointer;
+    box-shadow: 0 6px 24px rgba(37,99,235,.45);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform .25s, box-shadow .25s;
+    color: #fff;
+    font-size: 1.6rem;
+}
+#chatbot-toggle:hover { transform: scale(1.1); box-shadow: 0 10px 32px rgba(37,99,235,.55); }
+
+#chatbot-badge {
+    position: absolute;
+    top: 4px;
+    right: 4px;
+    width: 14px;
+    height: 14px;
+    background: #ef4444;
+    border-radius: 50%;
+    border: 2px solid #fff;
+    display: none;
+    animation: pulse-badge 1.4s infinite;
+}
+@keyframes pulse-badge { 0%,100%{transform:scale(1)} 50%{transform:scale(1.3)} }
+
+/* ── Fenêtre de chat ── */
+#chatbot-window {
+    position: fixed;
+    bottom: 102px;
+    right: 28px;
+    z-index: 9998;
+    width: 370px;
+    max-width: calc(100vw - 32px);
+    border-radius: 18px;
+    background: #fff;
+    box-shadow: 0 12px 48px rgba(0,0,0,.18);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    transform: scale(.85) translateY(30px);
+    opacity: 0;
+    pointer-events: none;
+    transition: transform .28s cubic-bezier(.34,1.56,.64,1), opacity .22s;
+}
+#chatbot-window.open {
+    transform: scale(1) translateY(0);
+    opacity: 1;
+    pointer-events: auto;
+}
+
+/* ── Header ── */
+#chatbot-header {
+    background: linear-gradient(135deg, #2563eb, #1d4ed8);
+    color: #fff;
+    padding: 14px 16px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+#chatbot-header .bot-avatar {
+    width: 36px; height: 36px; border-radius: 50%;
+    background: rgba(255,255,255,.2);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.2rem; flex-shrink: 0;
+}
+#chatbot-header-info { flex: 1; }
+#chatbot-header-info strong { display: block; font-size: .95rem; }
+#chatbot-header-info small { opacity: .8; font-size: .78rem; }
+#chatbot-close {
+    background: none; border: none; color: #fff; opacity: .75;
+    cursor: pointer; font-size: 1.2rem; line-height: 1;
+    padding: 0 4px;
+}
+#chatbot-close:hover { opacity: 1; }
+
+/* ── Corps messages ── */
+#chatbot-messages {
+    flex: 1;
+    overflow-y: auto;
+    padding: 16px 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    min-height: 280px;
+    max-height: 340px;
+    background: #f8faff;
+}
+
+/* ── Bulles ── */
+.cb-msg {
+    display: flex;
+    align-items: flex-end;
+    gap: 8px;
+    max-width: 90%;
+    animation: cb-appear .2s ease;
+}
+@keyframes cb-appear { from{opacity:0;transform:translateY(6px)} to{opacity:1;transform:none} }
+
+.cb-msg.bot { align-self: flex-start; }
+.cb-msg.user { align-self: flex-end; flex-direction: row-reverse; }
+
+.cb-msg .avatar {
+    width: 28px; height: 28px; border-radius: 50%; flex-shrink: 0;
+    background: linear-gradient(135deg,#2563eb,#1d4ed8);
+    display: flex; align-items: center; justify-content: center;
+    color: #fff; font-size: .8rem;
+}
+.cb-msg.user .avatar { background: #e2e8f0; color: #64748b; }
+
+.cb-bubble {
+    padding: 9px 13px;
+    border-radius: 16px;
+    font-size: .87rem;
+    line-height: 1.45;
+    word-break: break-word;
+}
+.cb-msg.bot  .cb-bubble { background: #fff; border: 1px solid #e2e8f0; border-bottom-left-radius: 4px; color: #1e293b; }
+.cb-msg.user .cb-bubble { background: linear-gradient(135deg,#2563eb,#1d4ed8); color: #fff; border-bottom-right-radius: 4px; }
+
+/* ── Typing indicator ── */
+.cb-typing { align-self: flex-start; display: flex; align-items: flex-end; gap: 8px; }
+.cb-typing .cb-bubble { display: flex; gap: 5px; padding: 12px 14px; }
+.cb-typing .dot { width: 7px; height: 7px; border-radius: 50%; background: #94a3b8; animation: bounce .9s infinite; }
+.cb-typing .dot:nth-child(2){ animation-delay:.2s }
+.cb-typing .dot:nth-child(3){ animation-delay:.4s }
+@keyframes bounce { 0%,60%,100%{transform:translateY(0)} 30%{transform:translateY(-6px)} }
+
+/* ── Cartes médecin ── */
+.cb-doctor-cards { display: flex; flex-direction: column; gap: 6px; width: 100%; }
+.cb-doctor-card {
+    background: #fff;
+    border: 1.5px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 10px 12px;
+    cursor: pointer;
+    transition: border-color .2s, box-shadow .2s, background .2s;
+    text-align: left;
+}
+.cb-doctor-card:hover { border-color: #2563eb; background: #eff6ff; box-shadow: 0 2px 10px rgba(37,99,235,.12); }
+.cb-doctor-card strong { display: block; font-size: .86rem; color: #1e40af; }
+.cb-doctor-card span   { font-size: .78rem; color: #64748b; }
+
+/* ── Boutons rapides ── */
+.cb-quick-btns { display: flex; gap: 7px; flex-wrap: wrap; }
+.cb-quick-btn {
+    background: #eff6ff; color: #2563eb; border: 1.5px solid #bfdbfe;
+    border-radius: 20px; padding: 5px 14px; font-size: .82rem; cursor: pointer;
+    transition: background .2s, color .2s;
+}
+.cb-quick-btn:hover { background: #2563eb; color: #fff; border-color: #2563eb; }
+
+/* ── Zone de saisie ── */
+#chatbot-input-area {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 12px;
+    border-top: 1px solid #e2e8f0;
+    background: #fff;
+}
+#chatbot-input {
+    flex: 1;
+    border: 1.5px solid #e2e8f0;
+    border-radius: 24px;
+    padding: 8px 14px;
+    font-size: .88rem;
+    outline: none;
+    transition: border-color .2s;
+    resize: none;
+    font-family: inherit;
+    max-height: 80px;
+    overflow-y: auto;
+}
+#chatbot-input:focus { border-color: #2563eb; }
+#chatbot-send {
+    width: 38px; height: 38px; border-radius: 50%;
+    background: linear-gradient(135deg,#2563eb,#1d4ed8);
+    border: none; cursor: pointer; color: #fff; font-size: 1rem;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0; transition: transform .2s;
+}
+#chatbot-send:hover { transform: scale(1.1); }
+#chatbot-send:disabled { opacity: .45; cursor: default; transform: none; }
+</style>
+
+{# ── HTML ── #}
+<button id="chatbot-toggle" title="Prendre un rendez-vous" aria-label="Ouvrir le chatbot">
+    <i class="bi bi-robot"></i>
+    <span id="chatbot-badge"></span>
+</button>
+
+<div id="chatbot-window" role="dialog" aria-label="Assistant rendez-vous" aria-modal="true">
+    <div id="chatbot-header">
+        <div class="bot-avatar"><i class="bi bi-robot"></i></div>
+        <div id="chatbot-header-info">
+            <strong>Assistant MediConnect</strong>
+            <small>Prise de rendez-vous</small>
+        </div>
+        <button id="chatbot-close" aria-label="Fermer" title="Fermer">&#x2715;</button>
+    </div>
+
+    <div id="chatbot-messages" role="log" aria-live="polite" aria-label="Messages du chatbot"></div>
+
+    <div id="chatbot-input-area">
+        <textarea id="chatbot-input" rows="1" placeholder="Écrivez votre message…" aria-label="Votre message"></textarea>
+        <button id="chatbot-send" title="Envoyer" aria-label="Envoyer">
+            <i class="bi bi-send-fill"></i>
+        </button>
+    </div>
+</div>
+
+{# ── JavaScript ── #}
+<script>
+(function () {
+    'use strict';
+
+    // ── Config ──────────────────────────────────────────────────────────────
+    const URL_MEDECINS = {{ url_medecins | json_encode | raw }};
+    const URL_RDV      = {{ url_rdv      | json_encode | raw }};
+
+    // ── État global ─────────────────────────────────────────────────────────
+    let state = {
+        step     : 'WELCOME',   // WELCOME | INTENT | EXPLORE | RDV_DOCTOR | RDV_DATE | RDV_TIME | CONFIRM | DONE
+        medecin  : null,        // { id, nom, specialite }
+        date     : null,        // string YYYY-MM-DD
+        heure    : null,        // string HH:MM
+        allDoctors: [],
+        allSpecialites: [],
+        loaded   : false,
+    };
+
+    // ── DOM ─────────────────────────────────────────────────────────────────
+    const toggle  = document.getElementById('chatbot-toggle');
+    const win     = document.getElementById('chatbot-window');
+    const closeBtn= document.getElementById('chatbot-close');
+    const msgs    = document.getElementById('chatbot-messages');
+    const input   = document.getElementById('chatbot-input');
+    const sendBtn = document.getElementById('chatbot-send');
+    const badge   = document.getElementById('chatbot-badge');
+
+    // ── Ouvrir / Fermer ──────────────────────────────────────────────────────
+    let isOpen = false;
+    function openChat() {
+        isOpen = true;
+        win.classList.add('open');
+        input.focus();
+        badge.style.display = 'none';
+        if (!state.loaded) { preloadDoctors(); }
+        if (state.step === 'WELCOME') { startWelcome(); }
+    }
+    function closeChat() {
+        isOpen = false;
+        win.classList.remove('open');
+    }
+    toggle.addEventListener('click', () => isOpen ? closeChat() : openChat());
+    closeBtn.addEventListener('click', closeChat);
+
+    // ── Pré-chargement des médecins ──────────────────────────────────────────
+    async function preloadDoctors() {
+        try {
+            const resp = await fetch(URL_MEDECINS);
+            if (!resp.ok) return;
+            const json = await resp.json();
+            if (json.success) {
+                state.allDoctors     = json.medecins    || [];
+                state.allSpecialites = json.specialites || [];
+                state.loaded = true;
+            }
+        } catch (_) {}
+    }
+
+    // ────────────────────────────────────────────────────────────────────────
+    // AFFICHAGE MESSAGES
+    // ────────────────────────────────────────────────────────────────────────
+    function addMsg(who, content, htmlContent = false) {
+        /* who = 'bot' | 'user' */
+        const wrap = document.createElement('div');
+        wrap.className = 'cb-msg ' + who;
+
+        const avatar = document.createElement('div');
+        avatar.className = 'avatar';
+        avatar.innerHTML = (who === 'bot') ? '<i class="bi bi-robot"></i>' : '<i class="bi bi-person-fill"></i>';
+
+        const bubble = document.createElement('div');
+        bubble.className = 'cb-bubble';
+        if (htmlContent) {
+            bubble.innerHTML = content;
+        } else {
+            bubble.textContent = content;
+        }
+
+        wrap.appendChild(avatar);
+        wrap.appendChild(bubble);
+        msgs.appendChild(wrap);
+        scrollBottom();
+        return bubble;
+    }
+
+    function addBotHtml(htmlContent) {
+        const wrap = document.createElement('div');
+        wrap.className = 'cb-msg bot';
+
+        const avatar = document.createElement('div');
+        avatar.className = 'avatar';
+        avatar.innerHTML = '<i class="bi bi-robot"></i>';
+
+        const bubble = document.createElement('div');
+        bubble.className = 'cb-bubble';
+        bubble.innerHTML = htmlContent;
+
+        wrap.appendChild(avatar);
+        wrap.appendChild(bubble);
+        msgs.appendChild(wrap);
+        scrollBottom();
+        return wrap;
+    }
+
+    function addDoctorCards(doctors) {
+        const wrap = document.createElement('div');
+        wrap.className = 'cb-msg bot';
+
+        const avatar = document.createElement('div');
+        avatar.className = 'avatar';
+        avatar.innerHTML = '<i class="bi bi-robot"></i>';
+
+        const cards = document.createElement('div');
+        cards.className = 'cb-doctor-cards';
+
+        if (doctors.length === 0) {
+            const empty = document.createElement('div');
+            empty.className = 'cb-bubble';
+            empty.style.background = '#fff';
+            empty.style.border = '1px solid #e2e8f0';
+            empty.textContent = 'Aucun médecin trouvé pour cette spécialité.';
+            cards.appendChild(empty);
+        } else {
+            doctors.forEach(doc => {
+                const card = document.createElement('button');
+                card.className = 'cb-doctor-card';
+                card.innerHTML = `<strong>Dr ${doc.nom}</strong><span>${doc.specialite}</span>`;
+                card.addEventListener('click', () => selectDoctorFromCard(doc));
+                cards.appendChild(card);
+            });
+        }
+
+        wrap.appendChild(avatar);
+        wrap.appendChild(cards);
+        msgs.appendChild(wrap);
+        scrollBottom();
+    }
+
+    function addQuickButtons(btns) {
+        /* btns = [{label, action}] */
+        const wrap = document.createElement('div');
+        wrap.className = 'cb-msg bot';
+
+        const avatar = document.createElement('div');
+        avatar.className = 'avatar';
+        avatar.innerHTML = '<i class="bi bi-robot"></i>';
+
+        const btnWrap = document.createElement('div');
+        btnWrap.className = 'cb-quick-btns';
+        btns.forEach(b => {
+            const btn = document.createElement('button');
+            btn.className = 'cb-quick-btn';
+            btn.textContent = b.label;
+            btn.addEventListener('click', () => {
+                btnWrap.querySelectorAll('.cb-quick-btn').forEach(x => x.disabled = true);
+                addMsg('user', b.label);
+                b.action();
+            });
+            btnWrap.appendChild(btn);
+        });
+
+        wrap.appendChild(avatar);
+        wrap.appendChild(btnWrap);
+        msgs.appendChild(wrap);
+        scrollBottom();
+    }
+
+    function showTyping() {
+        const wrap = document.createElement('div');
+        wrap.className = 'cb-msg bot cb-typing';
+        wrap.id = 'typing-indicator';
+        const avatar = document.createElement('div');
+        avatar.className = 'avatar';
+        avatar.innerHTML = '<i class="bi bi-robot"></i>';
+        const bubble = document.createElement('div');
+        bubble.className = 'cb-bubble';
+        bubble.innerHTML = '<span class="dot"></span><span class="dot"></span><span class="dot"></span>';
+        wrap.appendChild(avatar);
+        wrap.appendChild(bubble);
+        msgs.appendChild(wrap);
+        scrollBottom();
+        return wrap;
+    }
+    function hideTyping() {
+        const t = document.getElementById('typing-indicator');
+        if (t) t.remove();
+    }
+
+    function scrollBottom() {
+        msgs.scrollTop = msgs.scrollHeight;
+    }
+
+    async function botSay(text, delay = 700) {
+        const t = showTyping();
+        await sleep(delay);
+        t.remove();
+        addMsg('bot', text);
+    }
+
+    function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+
+    // ────────────────────────────────────────────────────────────────────────
+    // FLUX PRINCIPAL
+    // ────────────────────────────────────────────────────────────────────────
+    async function startWelcome() {
+        state.step = 'INTENT';
+        const t = showTyping();
+        await sleep(900);
+        t.remove();
+        addMsg('bot', 'Bonjour 👋 Je suis votre assistant MediConnect. Je peux vous aider à :');
+        await sleep(400);
+        addQuickButtons([
+            { label: '🔍 Voir les médecins par spécialité', action: askSpecialiteExplore },
+            { label: '📅 Prendre un rendez-vous',          action: askDoctor },
+        ]);
+    }
+
+    // ── Mode exploration ────────────────────────────────────────────────────
+    function askSpecialiteExplore() {
+        state.step = 'EXPLORE';
+        if (!state.loaded) {
+            addMsg('bot', 'Veuillez patienter, je charge les données…');
+            preloadDoctors().then(() => doAskSpecialiteExplore());
+        } else {
+            doAskSpecialiteExplore();
+        }
+    }
+
+    function doAskSpecialiteExplore() {
+        if (state.allSpecialites.length > 0) {
+            const list = state.allSpecialites.slice(0, 6).join(', ');
+            addMsg('bot', `Quelle spécialité vous intéresse ? (ex: ${list}…)`);
+        } else {
+            addMsg('bot', 'Quelle spécialité médicale recherchez-vous ?');
+        }
+        input.placeholder = 'Tapez une spécialité…';
+    }
+
+    async function handleExplore(text) {
+        const typed = showTyping();
+        await sleep(800);
+        typed.remove();
+
+        // cherche la spécialité dans le texte
+        const matchedSpec = findSpecialite(text);
+        let doctors;
+
+        if (matchedSpec) {
+            try {
+                const resp = await fetch(URL_MEDECINS + '?specialite=' + encodeURIComponent(matchedSpec));
+                const json = await resp.json();
+                doctors = json.success ? json.medecins : [];
+            } catch (_) { doctors = []; }
+
+            addMsg('bot', `Voici les médecins spécialistes en ${matchedSpec} :`);
+        } else {
+            // texte libre → cherche par nom
+            try {
+                const resp = await fetch(URL_MEDECINS + '?nom=' + encodeURIComponent(text));
+                const json = await resp.json();
+                doctors = json.success ? json.medecins : [];
+            } catch (_) { doctors = []; }
+
+            addMsg('bot', `Résultats pour "${text}" :`);
+        }
+
+        addDoctorCards(doctors);
+        await sleep(300);
+
+        if (doctors.length > 0) {
+            addMsg('bot', 'Cliquez sur un médecin pour prendre rendez-vous, ou posez une autre question.');
+        }
+
+        addQuickButtons([
+            { label: '🔍 Chercher une autre spécialité', action: askSpecialiteExplore },
+            { label: '📅 Prendre un rendez-vous',        action: askDoctor },
+            { label: '⬆️ Retour au menu',                action: backToMenu },
+        ]);
+        state.step = 'EXPLORE_RESULT';
+    }
+
+    function selectDoctorFromCard(doc) {
+        state.medecin = doc;
+        addMsg('user', 'Dr ' + doc.nom + ' – ' + doc.specialite);
+        state.step = 'RDV_DATE';
+        addMsg('bot', `Parfait ! Vous avez choisi Dr ${doc.nom} (${doc.specialite}).\n\nÀ quelle date souhaitez-vous venir ? (ex: 25 mars, 25/03/2026)`);
+        input.placeholder = 'Entrez la date…';
+    }
+
+    // ── Mode prise de RDV ───────────────────────────────────────────────────
+    function askDoctor() {
+        state.step = 'RDV_DOCTOR';
+        addMsg('bot', 'Quel médecin ou quelle spécialité recherchez-vous ?');
+        input.placeholder = 'Nom du médecin ou spécialité…';
+    }
+
+    async function handleRdvDoctor(text) {
+        if (!state.loaded) { await preloadDoctors(); }
+
+        const typed = showTyping();
+        await sleep(800);
+        typed.remove();
+
+        // tenter de matcher un médecin ou une spécialité
+        const found = findDoctor(text);
+
+        if (found.length === 1) {
+            state.medecin = found[0];
+            addMsg('bot', `J'ai trouvé Dr ${found[0].nom} (${found[0].specialite}). Parfait !`);
+            await sleep(400);
+            state.step = 'RDV_DATE';
+            addMsg('bot', 'À quelle date souhaitez-vous venir ? (ex: 25 mars, 25/03/2026)');
+            input.placeholder = 'Entrez la date…';
+        } else if (found.length > 1 && found.length <= 6) {
+            addMsg('bot', 'Plusieurs médecins correspondent. Cliquez sur celui de votre choix :');
+            addDoctorCards(found);
+            state.step = 'RDV_DOCTOR';
+        } else if (found.length > 6) {
+            addMsg('bot', `J'ai trouvé ${found.length} médecins. Voici les premiers :`);
+            addDoctorCards(found.slice(0, 6));
+            state.step = 'RDV_DOCTOR';
+        } else {
+            addMsg('bot', `Je n'ai trouvé aucun médecin pour "${text}". Essayez un autre nom ou une spécialité.`);
+            if (state.allSpecialites.length > 0) {
+                addMsg('bot', 'Spécialités disponibles : ' + state.allSpecialites.join(', '));
+            }
+        }
+    }
+
+    async function handleRdvDate(text) {
+        const parsed = parseDate(text);
+        if (!parsed) {
+            addMsg('bot', 'Je n\'ai pas compris cette date. Essayez par exemple : "25 mars", "25/03/2026" ou "25-03-2026".');
+            return;
+        }
+        state.date = parsed;
+        const typed = showTyping();
+        await sleep(600);
+        typed.remove();
+        state.step = 'RDV_TIME';
+        addMsg('bot', `Date retenue : ${formatDateFr(parsed)} ✅\n\nQuelle heure vous convient ? (ex: 14h30, 09:00)`);
+        input.placeholder = 'Entrez l\'heure…';
+    }
+
+    async function handleRdvTime(text) {
+        const parsed = parseTime(text);
+        if (!parsed) {
+            addMsg('bot', 'Je n\'ai pas compris l\'heure. Essayez : "14h30", "14:30" ou "9h".');
+            return;
+        }
+        state.heure = parsed;
+        const typed = showTyping();
+        await sleep(600);
+        typed.remove();
+        state.step = 'CONFIRM';
+
+        const recap =
+            `📋 <strong>Récapitulatif de votre demande :</strong><br><br>` +
+            `👨‍⚕️ Médecin : <strong>Dr ${state.medecin.nom}</strong><br>` +
+            `🏥 Spécialité : ${state.medecin.specialite}<br>` +
+            `📅 Date : <strong>${formatDateFr(state.date)}</strong><br>` +
+            `🕐 Heure : <strong>${state.heure}</strong><br><br>` +
+            `Confirmez-vous cette demande ?`;
+
+        addBotHtml(recap);
+        await sleep(300);
+        addQuickButtons([
+            {
+                label: '✅ Oui, confirmer',
+                action: () => submitRdv()
+            },
+            {
+                label: '✏️ Modifier',
+                action: () => restartBooking()
+            },
+            {
+                label: '❌ Annuler',
+                action: () => {
+                    state.step = 'INTENT';
+                    addMsg('bot', 'Demande annulée. Puis-je vous aider autrement ?');
+                    addQuickButtons([
+                        { label: '🔍 Voir les médecins',   action: askSpecialiteExplore },
+                        { label: '📅 Nouveau rendez-vous', action: askDoctor },
+                    ]);
+                }
+            },
+        ]);
+    }
+
+    async function submitRdv() {
+        const typed = showTyping();
+        await sleep(1000);
+        typed.remove();
+
+        const dateTime = state.date + ' ' + state.heure;
+
+        try {
+            const resp = await fetch(URL_RDV, {
+                method : 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body   : JSON.stringify({ medecinId: state.medecin.id, dateDebut: dateTime }),
+            });
+            const json = await resp.json();
+
+            if (json.success) {
+                addMsg('bot', '🎉 ' + json.message);
+                await sleep(500);
+                addMsg('bot', 'La secrétaire vous confirmera bientôt votre rendez-vous. Vous pouvez le suivre dans "Mes rendez-vous".');
+                state.step = 'DONE';
+                await sleep(400);
+                addQuickButtons([
+                    { label: '📅 Prendre un autre RDV', action: () => resetAndBook() },
+                    { label: '🏠 Menu principal',       action: backToMenu },
+                ]);
+            } else {
+                addMsg('bot', '⚠️ ' + (json.message || 'Une erreur est survenue. Veuillez réessayer.'));
+                state.step = 'CONFIRM';
+                addQuickButtons([
+                    { label: '🔄 Réessayer',   action: submitRdv },
+                    { label: '✏️ Modifier',    action: restartBooking },
+                ]);
+            }
+        } catch (_) {
+            hideTyping();
+            addMsg('bot', '⚠️ Erreur de connexion. Veuillez rafraîchir la page et réessayer.');
+        }
+    }
+
+    function restartBooking() {
+        state.step = 'RDV_DOCTOR';
+        addMsg('bot', 'Pas de problème ! Recommençons. Quel médecin ou quelle spécialité recherchez-vous ?');
+        input.placeholder = 'Nom du médecin ou spécialité…';
+    }
+
+    function resetAndBook() {
+        state.medecin = null;
+        state.date    = null;
+        state.heure   = null;
+        askDoctor();
+    }
+
+    function backToMenu() {
+        state.step = 'INTENT';
+        addMsg('bot', 'Que puis-je faire pour vous ?');
+        addQuickButtons([
+            { label: '🔍 Voir les médecins par spécialité', action: askSpecialiteExplore },
+            { label: '📅 Prendre un rendez-vous',           action: askDoctor },
+        ]);
+    }
+
+    // ────────────────────────────────────────────────────────────────────────
+    // DISPATCH MESSAGES DE L'UTILISATEUR
+    // ────────────────────────────────────────────────────────────────────────
+    function handleUserInput(text) {
+        text = text.trim();
+        if (!text) return;
+
+        addMsg('user', text);
+        input.value = '';
+        input.style.height = 'auto';
+
+        switch (state.step) {
+            case 'INTENT':
+                // détection d'intention
+                if (/liste|quels|voir|médecins de|spécialit|chercher/i.test(text)) {
+                    askSpecialiteExplore();
+                } else if (/rendez.?vous|rdv|réserver|prendre/i.test(text)) {
+                    askDoctor();
+                } else {
+                    // traitement générique : tenter de trouver un médecin/spécialité
+                    state.step = 'RDV_DOCTOR';
+                    handleRdvDoctor(text);
+                }
+                break;
+            case 'EXPLORE':
+                handleExplore(text);
+                break;
+            case 'EXPLORE_RESULT':
+                // nouvelle recherche ou transition
+                if (/rendez.?vous|rdv|réserver/i.test(text)) {
+                    askDoctor();
+                } else {
+                    handleExplore(text);
+                }
+                break;
+            case 'RDV_DOCTOR':
+                handleRdvDoctor(text);
+                break;
+            case 'RDV_DATE':
+                handleRdvDate(text);
+                break;
+            case 'RDV_TIME':
+                handleRdvTime(text);
+                break;
+            default:
+                // fallback
+                backToMenu();
+        }
+    }
+
+    // ────────────────────────────────────────────────────────────────────────
+    // HELPERS : RECHERCHE MÉDECIN / PARSERS
+    // ────────────────────────────────────────────────────────────────────────
+    function normalize(s) {
+        return s.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+    }
+
+    function findDoctor(text) {
+        const q = normalize(text);
+        // d'abord par nom exact
+        const byName = state.allDoctors.filter(d => normalize(d.nom).includes(q));
+        if (byName.length) return byName;
+        // puis par spécialité
+        const spec = findSpecialite(text);
+        if (spec) {
+            return state.allDoctors.filter(d => normalize(d.specialite).includes(normalize(spec)));
+        }
+        return [];
+    }
+
+    function findSpecialite(text) {
+        const q = normalize(text);
+        return state.allSpecialites.find(s => q.includes(normalize(s))) || null;
+    }
+
+    // Parse "25 mars", "25 mars 2026", "25/03", "25/03/2026", "25-03-2026"
+    const MOIS = {
+        janvier:0,fevrier:1,février:1,mars:2,avril:3,mai:4,juin:5,
+        juillet:6,aout:7,août:7,septembre:8,octobre:9,novembre:10,decembre:11,décembre:11
+    };
+
+    function parseDate(text) {
+        const t = text.trim().toLowerCase();
+        const year = new Date().getFullYear();
+
+        // dd/mm ou dd/mm/yyyy
+        let m = t.match(/^(\d{1,2})[\/\-](\d{1,2})(?:[\/\-](\d{4}))?$/);
+        if (m) {
+            const Y = m[3] ? parseInt(m[3]) : year;
+            return pad(Y, 4) + '-' + pad(m[2]) + '-' + pad(m[1]);
+        }
+
+        // dd mois ou dd mois yyyy
+        m = t.match(/^(\d{1,2})\s+([a-zéûàè]+)(?:\s+(\d{4}))?$/);
+        if (m) {
+            const mo = MOIS[m[2]];
+            if (mo !== undefined) {
+                const Y = m[3] ? parseInt(m[3]) : year;
+                return pad(Y, 4) + '-' + pad(mo + 1) + '-' + pad(m[1]);
+            }
+        }
+
+        return null;
+    }
+
+    function parseTime(text) {
+        const t = text.trim().toLowerCase().replace(/\s/g, '');
+        // 14h30, 14h, 9h, 14:30
+        let m = t.match(/^(\d{1,2})h(\d{2})?$/);
+        if (m) return pad(m[1]) + ':' + (m[2] || '00');
+        m = t.match(/^(\d{1,2}):(\d{2})$/);
+        if (m) return pad(m[1]) + ':' + pad(m[2]);
+        return null;
+    }
+
+    function pad(n, len = 2) { return String(n).padStart(len, '0'); }
+
+    function formatDateFr(ymd) {
+        const [y, m, d] = ymd.split('-');
+        const names = ['janvier','février','mars','avril','mai','juin','juillet','août','septembre','octobre','novembre','décembre'];
+        return parseInt(d) + ' ' + names[parseInt(m) - 1] + ' ' + y;
+    }
+
+    // ────────────────────────────────────────────────────────────────────────
+    // EVENTS
+    // ────────────────────────────────────────────────────────────────────────
+    sendBtn.addEventListener('click', () => handleUserInput(input.value));
+
+    input.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' && !e.shiftKey) {
+            e.preventDefault();
+            handleUserInput(input.value);
+        }
+    });
+
+    // Auto-resize textarea
+    input.addEventListener('input', () => {
+        input.style.height = 'auto';
+        input.style.height = Math.min(input.scrollHeight, 80) + 'px';
+    });
+
+    // Badge discret si le chat est fermé après 3s
+    setTimeout(() => {
+        if (!isOpen) { badge.style.display = 'block'; }
+    }, 3000);
+})();
+</script>

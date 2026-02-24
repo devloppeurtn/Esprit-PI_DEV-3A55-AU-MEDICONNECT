@@ -42,11 +42,7 @@
             <div class="col-md-6 col-lg-7 d-flex align-items-center">
               <div class="card-body p-4 p-lg-5 text-black">
 
-<<<<<<< HEAD
-                <form method="post" action="{{ path('app_login') }}" novalidate>
-=======
                 <form id="loginForm" method="post" action="{{ path('app_login') }}" novalidate>
->>>>>>> a394a49d254c11c5d5c2968c663ca48ad0d8f7b9
                   <div class="d-flex align-items-center mb-3 pb-1">
                     <img src="{{ asset('assets/img/logomed.png') }}" alt="Logo MediConnect" class="auth-form-logo me-3">
                     <span class="h1 fw-bold mb-0" style="color: #112344;">MediConnect</span>
@@ -93,22 +89,14 @@
 
                   <div class="mb-4">
                     <label class="form-label" for="form2Example17">Adresse email</label>
-<<<<<<< HEAD
-                    <input type="text" id="form2Example17" name="_username" value="{{ last_username }}" class="form-control form-control-lg" placeholder="exemple@email.com" autofocus />
-=======
                     <input type="text" id="form2Example17" name="_username" value="{{ last_username }}" class="form-control form-control-lg" placeholder="exemple@email.com" autofocus required />
                     <div class="invalid-feedback"></div>
->>>>>>> a394a49d254c11c5d5c2968c663ca48ad0d8f7b9
                   </div>
 
                   <div class="mb-4">
                     <label class="form-label" for="form2Example27">Mot de passe</label>
-<<<<<<< HEAD
-                    <input type="password" id="form2Example27" name="_password" class="form-control form-control-lg" placeholder="Entrez votre mot de passe" />
-=======
                     <input type="password" id="form2Example27" name="_password" class="form-control form-control-lg" placeholder="Entrez votre mot de passe" required />
                     <div class="invalid-feedback"></div>
->>>>>>> a394a49d254c11c5d5c2968c663ca48ad0d8f7b9
                   </div>
 
                   <input type="hidden" name="_csrf_token" value="{{ csrf_token('authenticate') }}">
@@ -120,7 +108,7 @@
                     </button>
                   </div>
 
-                  <a class="small text-muted" href="{{ path('app_forgot_password') }}">Mot de passe oubliÃ© ?</a>
+                  <a class="small text-muted" href="{{ path('app_forgot_password') }}">Mot de passe oublié ?</a>
                   <p class="mb-5 pb-lg-2" style="color: #393f81;">Vous n'avez pas de compte ? <a href="{{ path('app_signup') }}"
                       style="color: #175cdd;">S'inscrire ici</a></p>
                   <div class="d-flex gap-3">

@@ -2,7 +2,7 @@
 
 {% block title %}Mes secrétaires - MediConnect{% endblock %}
 
-{% block body %}
+{% block admin_content %}
 <div class="medecin-secretaires">
     <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
         <div>
@@ -52,12 +52,6 @@
                         <tr>
                             <td class="ps-4">
                                 <div class="d-flex align-items-center">
-<<<<<<< HEAD
-                                    <div class="rounded-circle bg-warning bg-opacity-10 text-warning d-flex align-items-center justify-content-center me-3" style="width: 40px; height: 40px;">
-                                        <i class="bi bi-hourglass-split"></i>
-                                    </div>
-                                    <span class="fw-medium">{{ inv.secretaire.nomComplet }}</span>
-=======
                                     <a href="{{ path('app_user_profile_view', {id: inv.secretaire.id}) }}" class="text-decoration-none text-dark d-flex align-items-center">
                                         {% if inv.secretaire.photo %}
                                             <img src="{{ asset(inv.secretaire.photo) }}" 
@@ -77,7 +71,6 @@
                                         {% endif %}
                                         <span class="fw-medium">{{ inv.secretaire.nomComplet }}</span>
                                     </a>
->>>>>>> a394a49d254c11c5d5c2968c663ca48ad0d8f7b9
                                 </div>
                             </td>
                             <td>{{ inv.secretaire.email }}</td>
@@ -114,12 +107,6 @@
                         <tr>
                             <td class="ps-4">
                                 <div class="d-flex align-items-center">
-<<<<<<< HEAD
-                                    <div class="rounded-circle bg-primary bg-opacity-10 text-primary d-flex align-items-center justify-content-center me-3" style="width: 40px; height: 40px;">
-                                        <i class="bi bi-person-fill"></i>
-                                    </div>
-                                    <span class="fw-medium">{{ secretaire.nomComplet }}</span>
-=======
                                     <a href="{{ path('app_user_profile_view', {id: secretaire.id}) }}" class="text-decoration-none text-dark d-flex align-items-center">
                                         {% if secretaire.photo %}
                                             <img src="{{ asset(secretaire.photo) }}" 
@@ -139,11 +126,10 @@
                                         {% endif %}
                                         <span class="fw-medium">{{ secretaire.nomComplet }}</span>
                                     </a>
->>>>>>> a394a49d254c11c5d5c2968c663ca48ad0d8f7b9
                                 </div>
                             </td>
                             <td>{{ secretaire.email }}</td>
-                            <td>{{ secretaire.telephone ?? '—' }}</td>
+                            <td>{{ secretaire.telephone ?? '?' }}</td>
                             <td>
                                 {% if secretaire.statut.value == 'ACTIF' %}
                                     <span class="badge bg-success">Actif</span>
@@ -154,7 +140,7 @@
                                 {% endif %}
                             </td>
                             <td class="text-end pe-4">
-                                <form method="post" action="{{ path('app_medecin_secretaire_retirer', {id: secretaire.id}) }}" class="d-inline" onsubmit="return confirm('Retirer ce secrétaire de votre équipe ?');">
+                                <form method="post" action="{{ path('app_medecin_secretaire_retirer', {id: secretaire.id}) }}" class="d-inline" onsubmit="return confirm('Retirer ce secr�taire de votre �quipe ?');">
                                     <input type="hidden" name="_token" value="{{ csrf_token('retirer_secretaire_' ~ secretaire.id) }}">
                                     <button type="submit" class="btn btn-sm btn-outline-danger" title="Retirer de l'équipe">
                                         <i class="bi bi-person-dash"></i> Retirer
@@ -177,3 +163,4 @@
     </div>
 </div>
 {% endblock %}
+

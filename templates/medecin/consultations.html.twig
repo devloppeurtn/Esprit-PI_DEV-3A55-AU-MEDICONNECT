@@ -2,7 +2,7 @@
 
 {% block title %}Mes consultations - MediConnect{% endblock %}
 
-{% block body %}
+{% block admin_content %}
 <div class="medecin-consultations">
     <h1 class="h3 mb-4"><i class="bi bi-clipboard2-pulse-fill me-2"></i>Mes consultations</h1>
 
@@ -18,7 +18,7 @@
                     <tr>
                         <td>{{ c.dossierMedical.patient.nomComplet }}</td>
                         <td>{{ c.date|date('d/m/Y H:i') }}</td>
-                        <td>{% set d = c.diagnostic|default('—') %}{{ d|length > 40 ? d|slice(0, 40) ~ '...' : d }}</td>
+                        <td>{% set d = c.diagnostic|default('?') %}{{ d|length > 40 ? d|slice(0, 40) ~ '...' : d }}</td>
                         <td>
                             <a href="{{ path('app_medecin_consultation_voir', {id: c.id}) }}" class="btn btn-sm btn-primary">Voir</a>
                         </td>
@@ -33,3 +33,4 @@
     </div>
 </div>
 {% endblock %}
+

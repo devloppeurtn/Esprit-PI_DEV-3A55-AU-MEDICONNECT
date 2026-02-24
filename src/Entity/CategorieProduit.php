@@ -46,6 +46,7 @@ class CategorieProduit
     public function setNom(string $nom): static
     {
         $this->nom = $nom;
+
         return $this;
     }
 
@@ -57,6 +58,7 @@ class CategorieProduit
     public function setDescription(?string $description): static
     {
         $this->description = $description;
+
         return $this;
     }
 
@@ -68,6 +70,7 @@ class CategorieProduit
     public function setImage(?string $image): static
     {
         $this->image = $image;
+
         return $this;
     }
 
@@ -85,6 +88,7 @@ class CategorieProduit
             $this->produits->add($produit);
             $produit->setCategorie($this);
         }
+
         return $this;
     }
 
@@ -95,6 +99,7 @@ class CategorieProduit
                 $produit->setCategorie(null);
             }
         }
+
         return $this;
     }
 

@@ -42,6 +42,7 @@ class LigneCommande
     public function setCommande(?CommandeProduit $commande): static
     {
         $this->commande = $commande;
+
         return $this;
     }
 
@@ -53,6 +54,7 @@ class LigneCommande
     public function setProduit(?Produit $produit): static
     {
         $this->produit = $produit;
+
         return $this;
     }
 
@@ -64,6 +66,7 @@ class LigneCommande
     public function setQuantite(int $quantite): static
     {
         $this->quantite = $quantite;
+
         return $this;
     }
 
@@ -75,6 +78,7 @@ class LigneCommande
     public function setPrixUnitaire(string $prixUnitaire): static
     {
         $this->prixUnitaire = $prixUnitaire;
+
         return $this;
     }
 

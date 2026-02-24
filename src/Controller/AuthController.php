@@ -19,11 +19,6 @@ use App\Form\SignupFormType;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Bridge\Twig\Mime\TemplatedEmail;
-<<<<<<< HEAD
-use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Mailer\MailerInterface;
-=======
 use Symfony\Component\HttpFoundation\File\Exception\FileException;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -31,7 +26,6 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Mailer\MailerInterface;
 use Symfony\Component\String\Slugger\SluggerInterface;
->>>>>>> a394a49d254c11c5d5c2968c663ca48ad0d8f7b9
 use Symfony\Component\Mailer\Exception\TransportExceptionInterface;
 use Symfony\Component\Mime\Address;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
@@ -44,13 +38,9 @@ class AuthController extends AbstractController
     public function __construct(
         private EntityManagerInterface $entityManager,
         private UserPasswordHasherInterface $passwordHasher,
-<<<<<<< HEAD
-        private MailerInterface $mailer
-=======
         private MailerInterface $mailer,
         private SluggerInterface $slugger,
         private string $photosDirectory
->>>>>>> a394a49d254c11c5d5c2968c663ca48ad0d8f7b9
     ) {
     }
 
@@ -64,15 +54,11 @@ class AuthController extends AbstractController
         $error = $authenticationUtils->getLastAuthenticationError();
         $lastUsername = $authenticationUtils->getLastUsername();
 
-        // Gérer les messages d'erreur spécifiques
-        // Les comptes SUSPENDU/BANNI : le message est déjà ajouté par LoginFailureHandler.
-        // Pour les autres erreurs, on ajoute le flash ici.
         if ($error) {
             $accountStatusError = $error instanceof AccountStatusException
                 ? $error
                 : (($previous = $error->getPrevious()) instanceof AccountStatusException ? $previous : null);
 
-            // Ne pas ajouter de flash pour AccountStatusException (déjà fait par LoginFailureHandler)
             if (!$accountStatusError) {
                 $errorMessage = $error->getMessageKey();
                 switch ($errorMessage) {
@@ -117,7 +103,6 @@ class AuthController extends AbstractController
             $email = $form->get('email')->getData();
             $user = $this->entityManager->getRepository(Utilisateur::class)->findOneBy(['email' => $email]);
 
-            // Toujours afficher le même message pour éviter l'enumération d'emails
             if ($user) {
                 $token = bin2hex(random_bytes(32));
                 $user->setResetToken($token);
@@ -138,7 +123,6 @@ class AuthController extends AbstractController
                 try {
                     $this->mailer->send($emailMessage);
                 } catch (TransportExceptionInterface $e) {
-                    // Logger sans révéler si le compte existe (sécurité)
                     error_log('[MediConnect] Erreur envoi email reset password: ' . $e->getMessage());
                 }
             }
@@ -207,8 +191,6 @@ class AuthController extends AbstractController
         return $this->redirectToRoute('app_login');
     }
 
-
-
     #[Route('/signup/{role?}', name: 'app_signup', defaults: ['role' => null])]
     public function signup(Request $request, ?string $role = null): Response
     {
@@ -216,7 +198,6 @@ class AuthController extends AbstractController
             return $this->redirectToRoute('app_home');
         }
 
-        // Valider le rôle
         $roleEnum = null;
         if ($role) {
             try {
@@ -237,7 +218,6 @@ class AuthController extends AbstractController
             $data = $form->getData();
             $confirmPassword = $form->get('confirmPassword')->getData();
 
-            // Vérifier si l'email existe déjà
             $existingUser = $this->entityManager->getRepository(Utilisateur::class)
                 ->findOneBy(['email' => $data['email']]);
 
@@ -249,7 +229,6 @@ class AuthController extends AbstractController
                 ]);
             }
 
-            // Vérifier la confirmation du mot de passe
             if ($data['password'] !== $confirmPassword) {
                 $this->addFlash('error', 'Les mots de passe ne correspondent pas.');
                 return $this->render('auth/signup.html.twig', [
@@ -258,7 +237,6 @@ class AuthController extends AbstractController
                 ]);
             }
 
-            // Gérer l'upload de photo si présent
             $photoFile = $form->get('photo')->getData();
             $photoPath = null;
             if ($photoFile instanceof UploadedFile) {
@@ -272,33 +250,27 @@ class AuthController extends AbstractController
                 }
             }
 
-            // Créer l'utilisateur selon le rôle
             $user = $this->createUserByRole($roleEnum ?? RoleUtilisateur::PATIENT, $data);
             
-            // Définir la photo si uploadée
             if ($photoPath) {
                 $user->setPhoto($photoPath);
             }
 
-            // Les admins inscrits restent SUSPENDU jusqu'à validation par un autre admin
             if ($user instanceof Admin) {
                 $user->setStatut(StatutCompte::SUSPENDU);
             }
 
-            // Vérification email : token + envoi
             $user->setEmailVerified(false);
             $verifyToken = bin2hex(random_bytes(32));
             $user->setVerificationToken($verifyToken);
             $user->setVerificationTokenExpiresAt(new \DateTimeImmutable('+24 hours'));
 
-            // Hasher le mot de passe
             $hashedPassword = $this->passwordHasher->hashPassword($user, $data['password']);
             $user->setPassword($hashedPassword);
 
             $this->entityManager->persist($user);
             $this->entityManager->flush();
 
-            // Envoyer l'email de vérification
             try {
                 $fromAddress = $_ENV['MAILER_FROM'] ?? getenv('MAILER_FROM') ?: 'MediConnect <noreply@mediconnect.com>';
                 $emailMessage = (new TemplatedEmail())
@@ -330,10 +302,6 @@ class AuthController extends AbstractController
         ]);
     }
 
-
-
-
-
     #[Route('/api/login', name: 'app_api_login', methods: ['POST'])]
     public function apiLogin(Request $request, AuthenticationUtils $authenticationUtils): JsonResponse
     {
@@ -350,12 +318,10 @@ class AuthController extends AbstractController
             return new JsonResponse(['success' => false, 'error' => 'Email et mot de passe requis'], 400);
         }
 
-        // Vérifier le token CSRF
         if (!$this->isCsrfTokenValid('authenticate', $csrfToken)) {
             return new JsonResponse(['success' => false, 'error' => 'Token CSRF invalide'], 403);
         }
 
-        // Vérifier si l'utilisateur existe et son statut
         $user = $this->entityManager->getRepository(Utilisateur::class)->findOneBy(['email' => $username]);
         if ($user) {
             if ($user->getStatut() === StatutCompte::SUSPENDU) {
@@ -366,8 +332,6 @@ class AuthController extends AbstractController
             }
         }
 
-        // Note: L'authentification réelle sera gérée par Symfony Security via form_login
-        // On retourne une indication que le formulaire doit être soumis
         return new JsonResponse([
             'success' => false,
             'error' => 'Veuillez utiliser le formulaire de connexion standard',
@@ -382,7 +346,6 @@ class AuthController extends AbstractController
             return new JsonResponse(['success' => false, 'error' => 'Vous êtes déjà connecté'], 400);
         }
 
-        // Pour les requêtes avec fichiers, utiliser request->request->all() au lieu de JSON
         $isMultipart = $request->request->has('email') || $request->files->has('photo');
         $data = $isMultipart ? $request->request->all() : (json_decode($request->getContent(), true) ?? []);
         
@@ -393,7 +356,6 @@ class AuthController extends AbstractController
         $telephone = isset($data['telephone']) ? trim($data['telephone']) : '';
         $roleValue = $data['role'] ?? 'PATIENT';
 
-        // Validation email
         if (empty($email)) {
             return new JsonResponse(['success' => false, 'error' => 'L\'email est requis'], 400);
         }
@@ -404,7 +366,6 @@ class AuthController extends AbstractController
             return new JsonResponse(['success' => false, 'error' => 'Format d\'email invalide'], 400);
         }
 
-        // Validation nom complet
         if (empty($nomComplet)) {
             return new JsonResponse(['success' => false, 'error' => 'Le nom complet est requis'], 400);
         }
@@ -416,7 +377,6 @@ class AuthController extends AbstractController
             return new JsonResponse(['success' => false, 'error' => 'Le nom complet ne doit pas dépasser 255 caractères'], 400);
         }
 
-        // Validation mot de passe
         if (empty($password)) {
             return new JsonResponse(['success' => false, 'error' => 'Le mot de passe est requis'], 400);
         }
@@ -428,7 +388,6 @@ class AuthController extends AbstractController
             return new JsonResponse(['success' => false, 'error' => 'Le mot de passe est trop long'], 400);
         }
 
-        // Validation confirmation mot de passe
         if (empty($confirmPassword)) {
             return new JsonResponse(['success' => false, 'error' => 'Veuillez confirmer votre mot de passe'], 400);
         }
@@ -436,7 +395,6 @@ class AuthController extends AbstractController
             return new JsonResponse(['success' => false, 'error' => 'Les mots de passe ne correspondent pas'], 400);
         }
 
-        // Validation téléphone (obligatoire pour tous)
         if (empty($telephone)) {
             return new JsonResponse(['success' => false, 'error' => 'Le numéro de téléphone est requis'], 400);
         }
@@ -444,7 +402,6 @@ class AuthController extends AbstractController
             return new JsonResponse(['success' => false, 'error' => 'Le numéro de téléphone est trop long (maximum 20 caractères)'], 400);
         }
 
-        // Validation spécialité (obligatoire pour médecins)
         if ($roleValue === 'MEDECIN') {
             $specialite = isset($data['specialite']) ? trim($data['specialite']) : '';
             if (empty($specialite)) {
@@ -455,20 +412,17 @@ class AuthController extends AbstractController
             }
         }
 
-        // Vérifier si l'email existe déjà
         $existingUser = $this->entityManager->getRepository(Utilisateur::class)->findOneBy(['email' => $email]);
         if ($existingUser) {
             return new JsonResponse(['success' => false, 'error' => 'Cet email est déjà utilisé'], 400);
         }
 
-        // Valider le rôle
         try {
             $roleEnum = RoleUtilisateur::from($roleValue);
         } catch (\ValueError) {
             return new JsonResponse(['success' => false, 'error' => 'Rôle invalide'], 400);
         }
 
-        // Gérer l'upload de photo si présent
         $photoPath = null;
         if ($request->files->has('photo')) {
             $photoFile = $request->files->get('photo');
@@ -480,7 +434,6 @@ class AuthController extends AbstractController
             }
         }
 
-        // Créer l'utilisateur avec toutes les données
         $userData = array_merge($data, [
             'email' => $email,
             'nomComplet' => $nomComplet,
@@ -488,14 +441,12 @@ class AuthController extends AbstractController
             'telephone' => $telephone
         ]);
         
-        // Ajouter spécialité pour médecins
         if ($roleValue === 'MEDECIN' && isset($data['specialite'])) {
             $userData['specialite'] = trim($data['specialite']);
         }
         
         $user = $this->createUserByRole($roleEnum, $userData);
 
-        // Définir la photo si uploadée
         if ($photoPath) {
             $user->setPhoto($photoPath);
         }
@@ -513,7 +464,6 @@ class AuthController extends AbstractController
         $this->entityManager->persist($user);
         $this->entityManager->flush();
 
-        // Envoyer l'email de vérification
         try {
             $fromAddress = $_ENV['MAILER_FROM'] ?? getenv('MAILER_FROM') ?: 'MediConnect <noreply@mediconnect.com>';
             $emailMessage = (new TemplatedEmail())
@@ -552,7 +502,6 @@ class AuthController extends AbstractController
         $data = json_decode($request->getContent(), true) ?? $request->request->all();
         $email = isset($data['email']) ? trim($data['email']) : '';
 
-        // Validation email
         if (empty($email)) {
             return new JsonResponse(['success' => false, 'error' => 'L\'email est requis'], 400);
         }
@@ -565,7 +514,6 @@ class AuthController extends AbstractController
 
         $user = $this->entityManager->getRepository(Utilisateur::class)->findOneBy(['email' => $email]);
 
-        // Toujours afficher le même message pour éviter l'enumération d'emails
         if ($user) {
             $token = bin2hex(random_bytes(32));
             $user->setResetToken($token);
@@ -617,7 +565,6 @@ class AuthController extends AbstractController
         $data = json_decode($request->getContent(), true) ?? $request->request->all();
         $password = $data['password'] ?? '';
 
-        // Validation mot de passe
         if (empty($password)) {
             return new JsonResponse(['success' => false, 'error' => 'Le mot de passe est requis'], 400);
         }
@@ -644,41 +591,8 @@ class AuthController extends AbstractController
     #[Route('/logout', name: 'app_logout')]
     public function logout(): void
     {
-        throw new \LogicException('Cette méthode peut être vide - elle sera interceptée par la clé logout de votre firewall.');
+        throw new \LogicException('Cette méthode peut être vide.');
     }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
     private function getResetUrl(string $token): string
     {
@@ -714,18 +628,24 @@ class AuthController extends AbstractController
         $user->setEmail($data['email']);
         $user->setNomComplet($data['nomComplet']);
 
-        // Téléphone obligatoire pour tous les types d'utilisateurs (sauf Médecin géré ailleurs si besoin)
         if (isset($data['telephone']) && !empty($data['telephone'])) {
             if ($user instanceof Patient || $user instanceof Secretaire || $user instanceof Admin || $user instanceof Participation || $user instanceof Organisateur) {
                 $user->setTelephone($data['telephone']);
             }
         }
 
-        // Remplir les champs spécifiques selon le rôle
         if ($user instanceof Patient) {
-            // Téléphone déjà géré ci-dessus
-            if (isset($data['dateNaissance'])) {
-                $user->setDateNaissance($data['dateNaissance']);
+            if (isset($data['dateNaissance']) && !empty($data['dateNaissance'])) {
+                $dateValue = $data['dateNaissance'];
+                if (is_string($dateValue)) {
+                    try {
+                        $dateValue = new \DateTime($dateValue);
+                    } catch (\Exception $e) {
+                        error_log('[MediConnect] Format de date invalide pour dateNaissance: ' . $data['dateNaissance']);
+                        $dateValue = null;
+                    }
+                }
+                $user->setDateNaissance($dateValue);
             }
             if (isset($data['adresse'])) {
                 $user->setAdresse($data['adresse']);
@@ -760,30 +680,39 @@ class AuthController extends AbstractController
 
     private function handlePhotoUpload(UploadedFile $file): ?string
     {
-        // Vérifier le type MIME
         $allowedMimes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
-        if (!in_array($file->getMimeType(), $allowedMimes, true)) {
+        $allowedExtensions = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
+
+        $clientMime = strtolower((string) $file->getClientMimeType());
+        $clientExtension = strtolower((string) $file->getClientOriginalExtension());
+
+        if ($clientExtension === '' || !in_array($clientExtension, $allowedExtensions, true)) {
             return null;
         }
 
-        // Vérifier la taille (5 Mo max)
+        if ($clientMime !== '' && !in_array($clientMime, $allowedMimes, true)) {
+            return null;
+        }
+
         if ($file->getSize() > 5 * 1024 * 1024) {
             return null;
         }
 
-        // Créer le répertoire s'il n'existe pas
         if (!is_dir($this->photosDirectory)) {
             mkdir($this->photosDirectory, 0755, true);
         }
 
-        // Générer un nom de fichier unique
         $originalFilename = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
         $safeFilename = $this->slugger->slug($originalFilename)->toString();
-        $newFilename = $safeFilename . '-' . uniqid() . '.' . $file->guessExtension();
+        if ($safeFilename === '') {
+            $safeFilename = 'photo';
+        }
+
+        $extension = in_array($clientExtension, $allowedExtensions, true) ? $clientExtension : 'bin';
+        $newFilename = $safeFilename . '-' . uniqid() . '.' . $extension;
 
         try {
             $file->move($this->photosDirectory, $newFilename);
-            // Retourner le chemin relatif depuis public/
             return 'uploads/photos/' . $newFilename;
         } catch (FileException $e) {
             error_log('[MediConnect] Erreur upload photo: ' . $e->getMessage());

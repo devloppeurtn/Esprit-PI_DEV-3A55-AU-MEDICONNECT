@@ -313,7 +313,7 @@
                 <i class="bi bi-grid-3x3-gap me-2 text-primary"></i>
                 Cat√©gories disponibles
             </h2>
-            <p>{{ categories|length }} cat√©gorie{{ categories|length > 1 ? 's' : '' }} √† explorer</p>
+            <p>{{ categories|length }} catÈgorie{{ categories|length > 1 ? 's' : '' }} ‡ explorer</p>
         </div>
         
         <div class="row g-4">
@@ -393,7 +393,7 @@
                                             <i class="bi bi-pencil me-1"></i>Modifier
                                         </a>
                                         <form method="post" action="{{ path('app_savoir_medical_supprimer_categorie', {id: categorie.id}) }}" 
-                                              onsubmit="return confirm('√ätes-vous s√ªr de vouloir supprimer cette cat√©gorie ? Cette action est irr√©versible.')" 
+                                              onsubmit="return confirm(' tes-vous s˚r de vouloir supprimer cette catÈgorie ? Cette action est irrÈversible.')" 
                                               class="flex-fill">
                                             <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ categorie.id) }}">
                                             <button type="submit" class="btn btn-outline-danger btn-sm w-100">

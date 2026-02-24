@@ -1,5 +1,5 @@
 {% extends 'base.html.twig' %}
-{% block title %}Paiement reçu - MediConnect{% endblock %}
+
 {% block body %}
 <div class="container py-5">
     <div class="row">
@@ -9,7 +9,6 @@
                 <p>Merci ! Votre paiement pour la commande #{{ commande.id }} a été reçu.</p>
                 <hr>
                 <a href="{{ path('app_orders_list') }}" class="btn btn-primary">Voir mes commandes</a>
-                <a href="{{ path('app_order_detail', {id: commande.id}) }}" class="btn btn-outline-primary">Détail de la commande</a>
             </div>
         </div>
     </div>

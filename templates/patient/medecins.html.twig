@@ -1,28 +1,35 @@
-{% extends 'admin/base_admin.html.twig' %}
+﻿{% extends 'admin/base_admin.html.twig' %}
 
-{% block title %}Nos médecins - MediConnect{% endblock %}
+{% block title %}Nos medecins - MediConnect{% endblock %}
 
 {% block stylesheets %}
     {{ parent() }}
     <link href="{{ asset('assets/css/patient_clinic.css') }}" rel="stylesheet">
+    <style>
+        #doctors-list-container.is-loading {
+            opacity: 0.6;
+            pointer-events: none;
+            transition: opacity 0.2s ease;
+        }
+    </style>
 {% endblock %}
 
-{% block body %}
+{% block admin_content %}
 <div class="patient-medecins">
     <div class="page-title-section mb-4">
-        <h1 class="h3 mb-2">Nos médecins</h1>
-        <p class="text-muted">Consultez nos médecins et prenez rendez-vous en un clic.</p>
+        <h1 class="h3 mb-2">Nos medecins</h1>
+        <p class="text-muted">Consultez nos medecins et prenez rendez-vous en un clic.</p>
     </div>
 
-    <form method="get" class="row g-3 mb-4">
+    <form method="get" action="{{ path('app_patient_medecins') }}" id="medecins-filter-form" class="row g-3 mb-4" data-live-search="1">
         <div class="col-md-4">
             <label for="filtreNom" class="form-label visually-hidden">Rechercher par nom</label>
-            <input type="text" name="nom" id="filtreNom" class="form-control" placeholder="Rechercher par nom..." value="{{ filtres.nom }}">
+            <input type="text" name="nom" id="filtreNom" class="form-control" placeholder="Rechercher par nom..." value="{{ filtres.nom }}" autocomplete="off">
         </div>
         <div class="col-md-3">
-            <label for="filtreSpecialite" class="form-label visually-hidden">Spécialité</label>
+            <label for="filtreSpecialite" class="form-label visually-hidden">Specialite</label>
             <select name="specialite" id="filtreSpecialite" class="form-select">
-                <option value="">Toutes les spécialités</option>
+                <option value="">Toutes les specialites</option>
                 {% for s in specialites %}
                 <option value="{{ s }}" {{ filtres.specialite == s ? 'selected' : '' }}>{{ s }}</option>
                 {% endfor %}
@@ -31,78 +38,100 @@
         <div class="col-md-2">
             <label for="filtreTri" class="form-label visually-hidden">Tri</label>
             <select name="tri" id="filtreTri" class="form-select">
-                <option value="az" {{ filtres.tri == 'az' ? 'selected' : '' }}>A → Z</option>
-                <option value="za" {{ filtres.tri == 'za' ? 'selected' : '' }}>Z → A</option>
+                <option value="az" {{ filtres.tri == 'az' ? 'selected' : '' }}>A - Z</option>
+                <option value="za" {{ filtres.tri == 'za' ? 'selected' : '' }}>Z - A</option>
             </select>
         </div>
         <div class="col-md-3">
             <button type="submit" class="btn btn-primary me-2"><i class="bi bi-search me-1"></i>Rechercher</button>
-            {% if filtres.nom or filtres.specialite or filtres.tri != 'az' %}
-            <a href="{{ path('app_patient_medecins') }}" class="btn btn-outline-secondary">Effacer</a>
-            {% endif %}
+            <a href="{{ path('app_patient_medecins') }}" class="btn btn-outline-secondary" id="clear-medecins-filters">Effacer</a>
         </div>
     </form>
 
     <section class="doctors section">
-        <div class="row gy-4" id="doctors-list">
-            {% for medecin in medecins %}
-            {% set imgIndex = loop.index0 % staffImages|length %}
-            {% set staffImg = staffImages[imgIndex] %}
-            <div class="col-lg-3 col-md-6">
-                <div class="doctor-card">
-<<<<<<< HEAD
-                    <div class="doctor-image">
-                        <img src="{{ asset('assets/img/health/' ~ staffImg ~ '.webp') }}" alt="{{ medecin.nomComplet }}" class="img-fluid">
-                        <div class="doctor-overlay">
-                            <div class="social-links">
-=======
-                    <div class="doctor-image" style="cursor: pointer;" onclick="window.location.href='{{ path('app_user_profile_view', {id: medecin.id}) }}'">
-                        {% if medecin.photo %}
-                            <img src="{{ asset(medecin.photo) }}" alt="{{ medecin.nomComplet }}" class="img-fluid" style="width: 100%; height: 100%; object-fit: cover;">
-                        {% else %}
-                            <img src="{{ asset('assets/img/health/' ~ staffImg ~ '.webp') }}" alt="{{ medecin.nomComplet }}" class="img-fluid">
-                        {% endif %}
-                        <div class="doctor-overlay">
-                            <div class="social-links">
-                                <a href="{{ path('app_user_profile_view', {id: medecin.id}) }}" title="Voir le profil"><i class="bi bi-person-circle"></i></a>
->>>>>>> a394a49d254c11c5d5c2968c663ca48ad0d8f7b9
-                                <a href="mailto:{{ medecin.email }}" title="Email"><i class="bi bi-envelope"></i></a>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="doctor-content">
-                        <h4>{{ medecin.nomComplet }}</h4>
-                        <span class="specialty">{{ medecin.specialite|default('Médecin généraliste') }}</span>
-                        <p>{% set addr = medecin.adresseCabinet|default('Cabinet MediConnect') %}{{ addr|length > 80 ? addr|slice(0, 80) ~ '...' : addr }}</p>
-                        <div class="doctor-meta">
-                            <div class="department">
-                                <i class="bi bi-building"></i>
-                                <span>{{ medecin.specialite|default('Consultation') }}</span>
-                            </div>
-                        </div>
-<<<<<<< HEAD
-                        <a href="{{ path('app_patient_prendre_rdv', {medecin: medecin.id}) }}" class="btn-appointment">
-                            Prendre rendez-vous
-                        </a>
-=======
-                        <div class="d-flex gap-2">
-                            <a href="{{ path('app_user_profile_view', {id: medecin.id}) }}" class="btn btn-outline-primary btn-sm flex-grow-1">
-                                <i class="bi bi-eye me-1"></i>Voir profil
-                            </a>
-                            <a href="{{ path('app_patient_prendre_rdv', {medecin: medecin.id}) }}" class="btn-appointment flex-grow-1">
-                                Prendre rendez-vous
-                            </a>
-                        </div>
->>>>>>> a394a49d254c11c5d5c2968c663ca48ad0d8f7b9
-                    </div>
-                </div>
-            </div>
-            {% else %}
-            <div class="col-12">
-                <p class="text-center text-muted py-5">Aucun médecin disponible pour le moment.</p>
-            </div>
-            {% endfor %}
+        <div id="doctors-list-container">
+            {{ include('patient/_medecins_list.html.twig') }}
         </div>
     </section>
 </div>
+{% endblock %}
+
+{% block scripts %}
+    {{ parent() }}
+    <script>
+        (function () {
+            const form = document.getElementById('medecins-filter-form');
+            const listContainer = document.getElementById('doctors-list-container');
+            if (!form || !listContainer || typeof fetch !== 'function') {
+                return;
+            }
+
+            const nomInput = form.querySelector('#filtreNom');
+            const specialiteSelect = form.querySelector('#filtreSpecialite');
+            const triSelect = form.querySelector('#filtreTri');
+            const clearBtn = document.getElementById('clear-medecins-filters');
+            let debounceTimer = null;
+            let activeRequest = null;
+
+            const buildUrl = () => {
+                const params = new URLSearchParams(new FormData(form));
+                return form.action + '?' + params.toString();
+            };
+
+            const fetchDoctors = () => {
+                const url = buildUrl();
+                listContainer.classList.add('is-loading');
+
+                if (activeRequest) {
+                    activeRequest.abort();
+                }
+                activeRequest = new AbortController();
+
+                fetch(url, {
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                    signal: activeRequest.signal
+                })
+                    .then((response) => {
+                        if (!response.ok) {
+                            throw new Error('Request failed');
+                        }
+                        return response.text();
+                    })
+                    .then((html) => {
+                        listContainer.innerHTML = html;
+                        window.history.replaceState({}, '', url);
+                    })
+                    .catch((error) => {
+                        if (error.name !== 'AbortError') {
+                            console.error(error);
+                        }
+                    })
+                    .finally(() => {
+                        listContainer.classList.remove('is-loading');
+                    });
+            };
+
+            const scheduleFetch = () => {
+                window.clearTimeout(debounceTimer);
+                debounceTimer = window.setTimeout(fetchDoctors, 300);
+            };
+
+            form.addEventListener('submit', function (event) {
+                event.preventDefault();
+                fetchDoctors();
+            });
+
+            nomInput?.addEventListener('input', scheduleFetch);
+            specialiteSelect?.addEventListener('change', fetchDoctors);
+            triSelect?.addEventListener('change', fetchDoctors);
+
+            clearBtn?.addEventListener('click', function (event) {
+                event.preventDefault();
+                form.reset();
+                fetchDoctors();
+            });
+        })();
+    </script>
 {% endblock %}

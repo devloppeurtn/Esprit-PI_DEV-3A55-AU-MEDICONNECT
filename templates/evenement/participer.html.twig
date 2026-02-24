@@ -1,0 +1,69 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Participer - {{ item.title }}{% endblock %}
+
+{% block body %}
+<div class="container mt-4">
+    <a href="{{ path('app_evenement_index') }}" class="btn btn-outline-secondary mb-3">← Retour aux événements</a>
+
+    <div class="row g-4">
+        <div class="col-lg-7">
+            <div class="card mb-3">
+                <div class="card-body">
+                    <h2 class="mb-2">{{ item.title }}</h2>
+                    {% if item.eventDate %}
+                        <p class="mb-1"><i class="bi bi-calendar-event me-1"></i>{{ item.eventDate|date('d/m/Y') }}</p>
+                    {% endif %}
+                    {% if item.location %}
+                        <p class="mb-1"><i class="bi bi-geo-alt me-1"></i>{{ item.location }}</p>
+                    {% endif %}
+                    <p class="text-muted mb-0">
+                        Créé le {{ item.createdAt|date('d/m/Y à H:i') }}
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-5">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="mb-4"><i class="bi bi-check-circle me-2"></i>Profil de participation</h5>
+
+                    {% for message in app.flashes('success') %}
+                        <div class="alert alert-success alert-dismissible fade show" role="alert">
+                            <i class="bi bi-check-circle me-2"></i>{{ message }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+                    {% endfor %}
+                    {% for message in app.flashes('error') %}
+                        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                            <i class="bi bi-exclamation-circle me-2"></i>{{ message }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+                    {% endfor %}
+
+                    <form method="post" action="{{ path('app_evenement_participer', {id: item.id}) }}">
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Prénom</label>
+                            <input type="text" name="firstName" class="form-control" placeholder="Votre prénom" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Nom</label>
+                            <input type="text" name="lastName" class="form-control" placeholder="Votre nom" required>
+                        </div>
+                        <div class="mb-4">
+                            <label class="form-label fw-bold">Email</label>
+                            <input type="email" name="email" class="form-control" placeholder="Votre email" required>
+                        </div>
+                        <input type="hidden" name="_token" value="{{ csrf_token('participate' ~ item.id) }}">
+                        <button class="btn btn-success w-100 btn-lg" type="submit">
+                            <i class="bi bi-check-circle me-1"></i>Confirmer mon inscription
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+

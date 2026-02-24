@@ -36,6 +36,9 @@ class Medecin extends Utilisateur
     #[ORM\OneToMany(targetEntity: Consultation::class, mappedBy: 'medecin', cascade: ['persist'])]
     private Collection $consultations;
 
+    #[ORM\OneToOne(mappedBy: 'medecin', targetEntity: PlanningMedecin::class, cascade: ['persist', 'remove'])]
+    private ?PlanningMedecin $planning = null;
+
     public function __construct()
     {
         parent::__construct();
@@ -45,7 +48,22 @@ class Medecin extends Utilisateur
         $this->rendezVous = new ArrayCollection();
         $this->consultations = new ArrayCollection();
     }
-//////
+
+    public function getPlanning(): ?PlanningMedecin
+    {
+        return $this->planning;
+    }
+
+    public function setPlanning(PlanningMedecin $planning): static
+    {
+        // set the owning side of the relation if necessary
+        if ($planning->getMedecin() !== $this) {
+            $planning->setMedecin($this);
+        }
+        $this->planning = $planning;
+        return $this;
+    }
+
     /** @return Collection<int, RendezVous> */
     public function getRendezVous(): Collection
     {
@@ -74,8 +92,6 @@ class Medecin extends Utilisateur
             $consultation->setMedecin($this);
         }
         return $this;
-<<<<<<< HEAD
-=======
     }
 
     public function getTelephone(): ?string
@@ -87,7 +103,6 @@ class Medecin extends Utilisateur
     {
         $this->telephone = $telephone;
         return $this;
->>>>>>> a394a49d254c11c5d5c2968c663ca48ad0d8f7b9
     }
 
     public function getSpecialite(): ?string

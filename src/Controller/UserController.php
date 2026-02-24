@@ -70,17 +70,17 @@ class UserController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            // Vérifier que l'email n'est pas déjà utilisé par un autre utilisateur
+            // VÃ©rifier que l'email n'est pas dÃ©jÃ  utilisÃ© par un autre utilisateur
             $newEmail = $form->get('email')->getData();
             if ($newEmail !== $user->getEmail()) {
                 $existing = $this->entityManager->getRepository(Utilisateur::class)->findOneBy(['email' => $newEmail]);
                 if ($existing) {
-                    $this->addFlash('error', 'Cet email est déjà utilisé par un autre compte.');
+                    $this->addFlash('error', 'Cet email est dÃ©jÃ  utilisÃ© par un autre compte.');
                     return $this->render('user/settings.html.twig', ['form' => $form, 'user' => $user]);
                 }
             }
 
-            // Gérer l'upload de photo si présent
+            // GÃ©rer l'upload de photo si prÃ©sent
             $photoFile = $form->get('photo')->getData();
             if ($photoFile instanceof UploadedFile) {
                 // Supprimer l'ancienne photo si elle existe
@@ -95,7 +95,7 @@ class UserController extends AbstractController
                 if ($photoPath) {
                     $user->setPhoto($photoPath);
                 } else {
-                    $this->addFlash('error', 'Erreur lors de l\'upload de la photo. Veuillez réessayer.');
+                    $this->addFlash('error', 'Erreur lors de l\'upload de la photo. Veuillez rÃ©essayer.');
                     return $this->render('user/settings.html.twig', ['form' => $form, 'user' => $user]);
                 }
             }
@@ -106,7 +106,7 @@ class UserController extends AbstractController
             }
 
             $this->entityManager->flush();
-            $this->addFlash('success', 'Vos paramètres ont été enregistrés avec succès.');
+            $this->addFlash('success', 'Vos paramÃ¨tres ont Ã©tÃ© enregistrÃ©s avec succÃ¨s.');
             return $this->redirectToRoute('app_settings');
         }
 
@@ -118,26 +118,39 @@ class UserController extends AbstractController
 
     private function handlePhotoUpload(UploadedFile $file): ?string
     {
-        // Vérifier le type MIME
         $allowedMimes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
-        if (!in_array($file->getMimeType(), $allowedMimes, true)) {
+        $allowedExtensions = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
+
+        $clientMime = strtolower((string) $file->getClientMimeType());
+        $clientExtension = strtolower((string) $file->getClientOriginalExtension());
+
+        if ($clientExtension === '' || !in_array($clientExtension, $allowedExtensions, true)) {
             return null;
         }
 
-        // Vérifier la taille (5 Mo max)
+        if ($clientMime !== '' && !in_array($clientMime, $allowedMimes, true)) {
+            return null;
+        }
+
+        // VÃ©rifier la taille (5 Mo max)
         if ($file->getSize() > 5 * 1024 * 1024) {
             return null;
         }
 
-        // Créer le répertoire s'il n'existe pas
+        // CrÃ©er le rÃ©pertoire s'il n'existe pas
         if (!is_dir($this->photosDirectory)) {
             mkdir($this->photosDirectory, 0755, true);
         }
 
-        // Générer un nom de fichier unique
+        // GÃ©nÃ©rer un nom de fichier unique
         $originalFilename = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
         $safeFilename = $this->slugger->slug($originalFilename)->toString();
-        $newFilename = $safeFilename . '-' . uniqid() . '.' . $file->guessExtension();
+        if ($safeFilename === '') {
+            $safeFilename = 'photo';
+        }
+
+        $extension = in_array($clientExtension, $allowedExtensions, true) ? $clientExtension : 'bin';
+        $newFilename = $safeFilename . '-' . uniqid() . '.' . $extension;
 
         try {
             $file->move($this->photosDirectory, $newFilename);
@@ -149,3 +162,4 @@ class UserController extends AbstractController
         }
     }
 }
+

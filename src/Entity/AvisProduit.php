@@ -51,6 +51,7 @@ class AvisProduit
     public function setProduit(?Produit $produit): static
     {
         $this->produit = $produit;
+
         return $this;
     }
 
@@ -62,6 +63,7 @@ class AvisProduit
     public function setUtilisateur(?Utilisateur $utilisateur): static
     {
         $this->utilisateur = $utilisateur;
+
         return $this;
     }
 
@@ -73,6 +75,7 @@ class AvisProduit
     public function setNote(int $note): static
     {
         $this->note = $note;
+
         return $this;
     }
 
@@ -84,6 +87,7 @@ class AvisProduit
     public function setCommentaire(?string $commentaire): static
     {
         $this->commentaire = $commentaire;
+
         return $this;
     }
 
@@ -95,6 +99,7 @@ class AvisProduit
     public function setDateCreation(\DateTimeImmutable $dateCreation): static
     {
         $this->dateCreation = $dateCreation;
+
         return $this;
     }
 }
