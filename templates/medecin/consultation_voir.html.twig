@@ -26,22 +26,22 @@
             {% if consultation.ordonnances|length > 0 %}
             <table class="table table-hover mb-0">
                 <thead class="table-light">
-                    <tr><th>Médicament</th><th>Méthode d'utilisation</th>{% if is_own_consultation|default(true) %}<th>Actions</th>{% endif %}</tr>
+                    <tr><th>Médicament</th><th>Méthode d'utilisation</th><th>Actions</th></tr>
                 </thead>
                 <tbody>
                     {% for o in consultation.ordonnances %}
                     <tr>
                         <td>{{ o.medicament }}</td>
                         <td>{{ o.methodeUtilisation }}</td>
-                        {% if is_own_consultation|default(true) %}
                         <td>
+                            {% if is_own_consultation|default(true) %}
                             <a href="{{ path('app_medecin_ordonnance_modifier', {id: o.id}) }}" class="btn btn-sm btn-outline-primary">Modifier</a>
                             <form method="post" action="{{ path('app_medecin_ordonnance_supprimer', {id: o.id}) }}" class="d-inline" onsubmit="return confirm('Supprimer cette ordonnance ?');">
                                 <input type="hidden" name="_token" value="{{ csrf_token('supprimer_ordonnance_' ~ o.id) }}">
                                 <button type="submit" class="btn btn-sm btn-outline-danger">Supprimer</button>
                             </form>
+                            {% endif %}
                         </td>
-                        {% endif %}
                     </tr>
                     {% endfor %}
                 </tbody>
@@ -73,7 +73,7 @@
                         {% if is_own_consultation|default(true) %}
                         <td>
                             <a href="{{ path('app_medecin_rapport_modifier', {id: r.id}) }}" class="btn btn-sm btn-outline-primary">Modifier</a>
-                            <form method="post" action="{{ path('app_medecin_rapport_supprimer', {id: r.id}) }}" class="d-inline" onsubmit="return confirm('Supprimer ce rapport m�dical ?');">
+                            <form method="post" action="{{ path('app_medecin_rapport_supprimer', {id: r.id}) }}" class="d-inline" onsubmit="return confirm('Supprimer ce rapport médical ?');">
                                 <input type="hidden" name="_token" value="{{ csrf_token('supprimer_rapport_' ~ r.id) }}">
                                 <button type="submit" class="btn btn-sm btn-outline-danger">Supprimer</button>
                             </form>
@@ -92,7 +92,7 @@
     <div class="d-flex gap-2">
         {% if is_own_consultation|default(true) %}
         <a href="{{ path('app_medecin_consultation_modifier', {id: consultation.id}) }}" class="btn btn-primary">Modifier</a>
-        <form method="post" action="{{ path('app_medecin_consultation_supprimer', {id: consultation.id}) }}" class="d-inline" onsubmit="return confirm('Supprimer cette consultation ? Les ordonnances et rapports associ�s seront �galement supprim�s.');">
+        <form method="post" action="{{ path('app_medecin_consultation_supprimer', {id: consultation.id}) }}" class="d-inline" onsubmit="return confirm('Supprimer cette consultation ? Les ordonnances et rapports associés seront également supprimés.');">
             <input type="hidden" name="_token" value="{{ csrf_token('supprimer_consultation_' ~ consultation.id) }}">
             <button type="submit" class="btn btn-outline-danger">Supprimer</button>
         </form>
@@ -101,4 +101,3 @@
     </div>
 </div>
 {% endblock %}
-

@@ -36,6 +36,9 @@ class Medecin extends Utilisateur
     #[ORM\OneToMany(targetEntity: Consultation::class, mappedBy: 'medecin', cascade: ['persist'])]
     private Collection $consultations;
 
+    #[ORM\OneToOne(mappedBy: 'medecin', targetEntity: PlanningMedecin::class, cascade: ['persist', 'remove'])]
+    private ?PlanningMedecin $planning = null;
+
     public function __construct()
     {
         parent::__construct();
@@ -44,6 +47,21 @@ class Medecin extends Utilisateur
         $this->invitations = new ArrayCollection();
         $this->rendezVous = new ArrayCollection();
         $this->consultations = new ArrayCollection();
+    }
+
+    public function getPlanning(): ?PlanningMedecin
+    {
+        return $this->planning;
+    }
+
+    public function setPlanning(PlanningMedecin $planning): static
+    {
+        // set the owning side of the relation if necessary
+        if ($planning->getMedecin() !== $this) {
+            $planning->setMedecin($this);
+        }
+        $this->planning = $planning;
+        return $this;
     }
 
     /** @return Collection<int, RendezVous> */

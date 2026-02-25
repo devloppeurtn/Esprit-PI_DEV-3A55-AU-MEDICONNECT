@@ -23,6 +23,12 @@
                         </a>
                     </li>
                     <li class="nav-item">
+                        <a class="nav-link {{ app.request.get('_route') starts with 'app_medecin_agenda' ? 'active' : '' }}" href="{{ path('app_medecin_agenda') }}" title="Mon Agenda">
+                            <span class="nav-icon-wrap"><i class="bi bi-calendar-range"></i></span>
+                            <span class="nav-text">Mon Agenda</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
                         <a class="nav-link {{ app.request.get('_route') starts with 'app_medecin_secretaire' or app.request.get('_route') == 'app_medecin_secretaires' ? 'active' : '' }}" href="{{ path('app_medecin_secretaires') }}" title="Secretaires">
                             <span class="nav-icon-wrap"><i class="bi bi-person-badge"></i></span>
                             <span class="nav-text">Mes secretaires</span>

@@ -13,6 +13,8 @@ use App\Form\DocumentPatientFormType;
 use App\Repository\MedecinRepository;
 use App\Repository\RendezVousRepository;
 use Doctrine\ORM\EntityManagerInterface;
+use Dompdf\Dompdf;
+use Dompdf\Options;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Symfony\Component\HttpFoundation\File\Exception\FileException;
@@ -151,6 +153,51 @@ class PatientController extends AbstractController
         ]);
     }
 
+    #[Route('/dossier-medical/consultation/{id}/pdf', name: 'app_patient_consultation_pdf', requirements: ['id' => '\d+'], methods: ['GET'])]
+    public function downloadConsultationPdf(Consultation $consultation): Response
+    {
+        /** @var Patient $patient */
+        $patient = $this->getUser();
+        if (!$patient instanceof Patient) {
+            return $this->redirectToRoute('app_profile');
+        }
+
+        $dossier = $patient->getDossierMedical();
+        if (!$dossier) {
+            throw $this->createNotFoundException('Dossier médical introuvable.');
+        }
+
+                if (!$dossier || !$consultation || $consultation->getDossierMedical() !== $dossier) {
+            throw $this->createAccessDeniedException('Vous n\'avez pas accès à cette ordonnance.');
+        }
+
+        $pdfOptions = new Options();
+        $pdfOptions->set('defaultFont', 'Arial');
+        $pdfOptions->set('isHtml5ParserEnabled', true);
+        $pdfOptions->set('isRemoteEnabled', true);
+
+        $dompdf = new Dompdf($pdfOptions);
+
+        $html = $this->renderView('medecin/prescription_pdf.html.twig', [
+            'ordonnances' => $consultation->getOrdonnances(),
+            'consultation' => $consultation,
+            'medecin' => $consultation->getMedecin(),
+            'patient' => $patient,
+        ]);
+
+        $dompdf->loadHtml($html);
+        $dompdf->setPaper('A4', 'portrait');
+        $dompdf->render();
+
+        $output = $dompdf->output();
+        $filename = 'ordonnance_consultation_' . $consultation->getId() . '.pdf';
+
+        return new Response($output, 200, [
+            'Content-Type' => 'application/pdf',
+            'Content-Disposition' => 'attachment; filename="' . $filename . '"',
+        ]);
+    }
+
     #[Route('/dossier-medical/ordonnance/{id}/ajouter-medicament', name: 'app_patient_medicament_ajouter', requirements: ['id' => '\d+'], methods: ['POST'])]
     public function medicamentAjouter(Request $request, Ordonnance $ordonnance): Response
     {
@@ -166,8 +213,7 @@ class PatientController extends AbstractController
             return $this->redirectToRoute('app_patient_dossier');
         }
 
-        $consultation = $ordonnance->getConsultation();
-        if (!$consultation || $consultation->getDossierMedical() !== $dossier) {
+        if (!$dossier || $ordonnance->getConsultation()?->getDossierMedical() !== $dossier) {
             $this->addFlash('error', 'Ordonnance introuvable.');
             return $this->redirectToRoute('app_patient_dossier');
         }
@@ -291,7 +337,11 @@ class PatientController extends AbstractController
     {
         /** @var Patient $patient */
         $patient = $this->getUser();
-        if (!$patient instanceof Patient || $rdv->getPatient() !== $patient) {
+        if (!$patient instanceof Patient) {
+            return $this->redirectToRoute('app_profile');
+        }
+
+        if ($rdv->getPatient() !== $patient) {
             $this->addFlash('error', 'Action non autorisée.');
             return $this->redirectToRoute('app_patient_rendez_vous');
         }
@@ -388,7 +438,7 @@ class PatientController extends AbstractController
 
         $dossier = $patient->getDossierMedical();
         if (!$dossier || $document->getDossierMedical() !== $dossier) {
-            $this->addFlash('error', 'Document non trouvÃ©.');
+            $this->addFlash('error', 'Document non trouvé.');
             return $this->redirectToRoute('app_patient_dossier');
         }
 
@@ -483,6 +533,95 @@ class PatientController extends AbstractController
             'message' => 'Demande de rendez-vous envoyée. La secrétaire du médecin la validera sous peu.',
         ]);
     }
+
+    //  CHATBOT API 
+
+    #[Route('/chatbot/medecins', name: 'app_patient_chatbot_medecins', methods: ['GET'])]
+    public function chatbotMedecins(Request $request): JsonResponse
+    {
+        /** @var Patient $patient */
+        $patient = $this->getUser();
+        if (!$patient instanceof Patient) {
+            return new JsonResponse(['success' => false, 'message' => 'Non autorisé.'], 403);
+        }
+
+        $specialite = $request->query->get('specialite', '');
+        $nom        = $request->query->get('nom', '');
+        $specialite = is_string($specialite) ? trim($specialite) : '';
+        $nom        = is_string($nom)        ? trim($nom)        : '';
+
+        $medecins = $this->medecinRepo->findMedecinsActifsAvecFiltres(
+            $nom        !== '' ? $nom        : null,
+            $specialite !== '' ? $specialite : null,
+            'az'
+        );
+
+        $data = array_map(static fn (\App\Entity\Medecin $m) => [
+            'id'         => $m->getId(),
+            'nom'        => $m->getNomComplet(),
+            'specialite' => $m->getSpecialite() ?? 'Médecin généraliste',
+        ], $medecins);
+
+        $specialites = $this->medecinRepo->findSpecialitesDistinctes();
+
+        return new JsonResponse([
+            'success'     => true,
+            'medecins'    => $data,
+            'specialites' => $specialites,
+        ]);
+    }
+
+    #[Route('/chatbot/rdv', name: 'app_patient_chatbot_rdv', methods: ['POST'])]
+    public function chatbotRdv(Request $request): JsonResponse
+    {
+        /** @var Patient $patient */
+        $patient = $this->getUser();
+        if (!$patient instanceof Patient) {
+            return new JsonResponse(['success' => false, 'message' => 'Non autorisé.'], 403);
+        }
+
+        $data = json_decode($request->getContent(), true);
+        if (!is_array($data)) {
+            $data = $request->request->all();
+        }
+
+        $medecinId = isset($data['medecinId']) ? (int) $data['medecinId'] : 0;
+        $dateDebut = isset($data['dateDebut']) && is_string($data['dateDebut']) ? trim($data['dateDebut']) : '';
+
+        if ($medecinId <= 0) {
+            return new JsonResponse(['success' => false, 'message' => 'Médecin requis.'], 400);
+        }
+        if ($dateDebut === '') {
+            return new JsonResponse(['success' => false, 'message' => 'Date et heure requises.'], 400);
+        }
+
+        $medecin = $this->medecinRepo->find($medecinId);
+        if (!$medecin || $medecin->getStatut() !== \App\Entity\StatutCompte::ACTIF) {
+            return new JsonResponse(['success' => false, 'message' => 'Médecin introuvable.'], 400);
+        }
+
+        try {
+            $date = new \DateTime($dateDebut);
+            if ($date <= new \DateTime()) {
+                return new JsonResponse(['success' => false, 'message' => 'La date doit être dans le futur.'], 400);
+            }
+        } catch (\Exception) {
+            return new JsonResponse(['success' => false, 'message' => 'Date invalide.'], 400);
+        }
+
+        $rdv = new RendezVous();
+        $rdv->setPatient($patient);
+        $rdv->setMedecin($medecin);
+        $rdv->setDateDebut($date);
+        $rdv->setDateFin((clone $date)->modify('+30 minutes'));
+        $rdv->setNote('Demande via chatbot');
+        $medecin->addRendezVous($rdv);
+        $this->em->persist($rdv);
+        $this->em->flush();
+
+        return new JsonResponse([
+            'success' => true,
+            'message' => 'Votre demande de rendez-vous a bien été envoyée ! La secrétaire du Dr ' . $medecin->getNomComplet() . ' la validera sous peu.',
+        ]);
+    }
 }
-
-

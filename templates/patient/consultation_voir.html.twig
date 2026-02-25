@@ -41,6 +41,11 @@
         <div class="card-header"><h5 class="mb-0"><i class="bi bi-capsule me-2"></i>Médicaments prescrits</h5></div>
         <div class="card-body">
             {% if consultation.ordonnances|length > 0 %}
+            <div class="mb-3 d-flex justify-content-end">
+                <a href="{{ path('app_patient_consultation_pdf', {id: consultation.id}) }}" class="btn btn-info shadow-sm">
+                    <i class="bi bi-file-earmark-pdf-fill me-1"></i>Télécharger l'ordonnance complète (PDF)
+                </a>
+            </div>
             <div class="list-group list-group-flush">
                 {% for o in consultation.ordonnances %}
                 <div class="list-group-item px-0 d-flex justify-content-between align-items-start flex-wrap gap-2">
@@ -49,10 +54,12 @@
                         <p class="mb-1 text-muted small">{{ o.methodeUtilisation|default('—') }}</p>
                         {% if o.instructions %}<p class="mb-0 small">{{ o.instructions }}</p>{% endif %}
                     </div>
-                    <form method="post" action="{{ path('app_patient_medicament_ajouter', {id: o.id}) }}" class="ms-auto">
-                        <input type="hidden" name="_token" value="{{ csrf_token('ajouter_medicament_' ~ o.id) }}">
-                        <button type="submit" class="btn btn-sm btn-outline-success"><i class="bi bi-plus-circle me-1"></i>Je prends ce médicament</button>
-                    </form>
+                    <div class="d-flex flex-column gap-2 align-items-end ms-auto">
+                        <form method="post" action="{{ path('app_patient_medicament_ajouter', {id: o.id}) }}" class="mb-0">
+                            <input type="hidden" name="_token" value="{{ csrf_token('ajouter_medicament_' ~ o.id) }}">
+                            <button type="submit" class="btn btn-sm btn-outline-success"><i class="bi bi-plus-circle me-1"></i>Je prends ce médicament</button>
+                        </form>
+                    </div>
                 </div>
                 {% endfor %}
             </div>

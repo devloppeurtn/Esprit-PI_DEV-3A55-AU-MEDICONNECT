@@ -9,6 +9,108 @@
             <h1 class="h3 mb-1">Espace secrétaire</h1>
             <p class="text-muted mb-0">Vos invitations et votre médecin associé</p>
         </div>
+        {% if medecin %}
+        <div class="d-flex gap-2 flex-wrap">
+            <a href="{{ path('app_secretaire_agenda') }}" class="btn btn-primary">
+                <i class="bi bi-calendar3 me-1"></i>Agenda
+            </a>
+            <a href="{{ path('app_secretaire_planning_config') }}" class="btn btn-outline-secondary">
+                <i class="bi bi-gear-fill me-1"></i>Configurer horaires
+            </a>
+            <a href="{{ path('app_secretaire_rendez_vous') }}" class="btn btn-outline-primary">
+                <i class="bi bi-list-check me-1"></i>Rendez-vous
+            </a>
+        </div>
+        {% endif %}
+    </div>
+
+    <div class="row g-4 mb-4">
+        {# Horaires de travail #}
+        <div class="col-lg-5">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-header bg-transparent border-0 py-3 d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0"><i class="bi bi-clock-fill me-2 text-info"></i>Horaires de travail</h5>
+                    {% if medecin %}
+                    <a href="{{ path('app_secretaire_planning_config') }}" class="btn btn-sm btn-outline-info">
+                        <i class="bi bi-pencil-square"></i> Modifier
+                    </a>
+                    {% endif %}
+                </div>
+                <div class="card-body">
+                    {% if planning %}
+                        <div class="mb-3">
+                            <span class="text-muted small d-block mb-1">Matinée</span>
+                            {% if planning.heureDebutMatin %}
+                                <strong class="fs-5">{{ planning.heureDebutMatin|date('H:i') }} — {{ planning.heureFinMatin|date('H:i') }}</strong>
+                            {% else %}
+                                <span class="text-muted fst-italic">Non configurée</span>
+                            {% endif %}
+                        </div>
+                        <div class="mb-3">
+                            <span class="text-muted small d-block mb-1">Après-midi</span>
+                            {% if planning.heureDebutApresMidi %}
+                                <strong class="fs-5">{{ planning.heureDebutApresMidi|date('H:i') }} — {{ planning.heureFinApresMidi|date('H:i') }}</strong>
+                            {% else %}
+                                <span class="text-muted fst-italic">Non configurée</span>
+                            {% endif %}
+                        </div>
+                        <div class="mb-0">
+                            <span class="text-muted small d-block mb-2">Jours d'ouverture</span>
+                            {% for jour in planning.joursOuverture %}
+                                <span class="badge bg-info bg-opacity-10 text-info border border-info-subtle me-1 mb-1">{{ jour|capitalize }}</span>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="text-center py-4 text-muted">
+                            <i class="bi bi-calendar-x fs-1 opacity-50 d-block mb-2"></i>
+                            <p class="small mb-0">Aucun horaire défini.</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        {# Séances / RDVs Aujourd'hui #}
+        <div class="col-lg-7">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-header bg-transparent border-0 py-3 d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0"><i class="bi bi-calendar-check-fill me-2 text-success"></i>Rendez-vous du jour</h5>
+                    <a href="{{ path('app_secretaire_agenda') }}" class="btn btn-sm btn-outline-success">
+                        <i class="bi bi-calendar3"></i> Voir l'agenda
+                    </a>
+                </div>
+                <div class="card-body p-0">
+                    {% if rdvsAujourdhui|length > 0 %}
+                    <div class="list-group list-group-flush">
+                        {% for rdv in rdvsAujourdhui %}
+                        <div class="list-group-item border-0 px-4 py-3">
+                            <div class="d-flex align-items-center justify-content-between">
+                                <div class="d-flex align-items-center">
+                                    <div class="bg-success bg-opacity-10 text-success rounded-3 p-2 me-3 text-center" style="min-width: 60px;">
+                                        <div class="small fw-bold">{{ rdv.dateDebut|date('H:i') }}</div>
+                                        <div class="small opacity-75">début</div>
+                                    </div>
+                                    <div>
+                                        <div class="fw-bold">{{ rdv.patient.nomComplet }}</div>
+                                        <div class="small text-muted">{{ rdv.note[:40] }}{% if rdv.note|length > 40 %}...{% endif %}</div>
+                                    </div>
+                                </div>
+                                <span class="badge {{ rdv.statut.value == 'CONFIRME' ? 'bg-success' : 'bg-warning' }}">
+                                    {{ rdv.statut.value == 'CONFIRME' ? 'Confirmé' : 'En attente' }}
+                                </span>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <div class="text-center py-5 text-muted">
+                        <i class="bi bi-calendar-event fs-1 opacity-50 d-block mb-2"></i>
+                        <p class="small mb-0">Aucun rendez-vous pour aujourd'hui.</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
     </div>
 
     {# Médecin associé #}

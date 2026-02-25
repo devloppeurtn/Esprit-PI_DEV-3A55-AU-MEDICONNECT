@@ -54,4 +54,29 @@ class RendezVousRepository extends ServiceEntityRepository
             ->getQuery()
             ->getResult();
     }
+
+    /**
+     * Récupère tous les RDV CONFIRME ou EN_ATTENTE pour un médecin sur une date donnée.
+     * Utilisé par DisponibiliteService pour calculer les créneaux libres.
+     *
+     * @return RendezVous[]
+     */
+    public function findByMedecinAndDate(Medecin $medecin, \DateTimeInterface $date): array
+    {
+        $debut = (new \DateTime($date->format('Y-m-d') . ' 00:00:00'));
+        $fin = (new \DateTime($date->format('Y-m-d') . ' 23:59:59'));
+
+        return $this->createQueryBuilder('r')
+            ->andWhere('r.medecin = :medecin')
+            ->andWhere('r.dateDebut >= :debut')
+            ->andWhere('r.dateDebut <= :fin')
+            ->andWhere('r.statut IN (:statuts)')
+            ->setParameter('medecin', $medecin)
+            ->setParameter('debut', $debut)
+            ->setParameter('fin', $fin)
+            ->setParameter('statuts', [StatutRendezVous::EN_ATTENTE, StatutRendezVous::CONFIRME])
+            ->orderBy('r.dateDebut', 'ASC')
+            ->getQuery()
+            ->getResult();
+    }
 }
