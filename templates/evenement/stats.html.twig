@@ -1,0 +1,54 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Statistiques de mes événements - MediConnect{% endblock %}
+
+{% block body %}
+<div class="container mt-5">
+    <h1 class="mb-4"><i class="bi bi-bar-chart-fill me-2"></i>Statistiques de mes événements</h1>
+
+    <div class="row g-4 mb-5">
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <h5 class="text-muted small text-uppercase mb-2">Total événements</h5>
+                    <p class="display-6 mb-0">{{ total }}</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <h5 class="text-muted small text-uppercase mb-2">En attente</h5>
+                    <p class="display-6 mb-0">{{ parStatut.en_attente }}</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <h5 class="text-muted small text-uppercase mb-2">Validés</h5>
+                    <p class="display-6 mb-0 text-success">{{ parStatut.valide }}</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <h5 class="text-muted small text-uppercase mb-2">Refusés</h5>
+                    <p class="display-6 mb-0 text-danger">{{ parStatut.refuse }}</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <h5 class="text-muted small text-uppercase mb-2">Total participants</h5>
+                    <p class="display-6 mb-0">{{ totalParticipants }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <a href="{{ path('app_evenement_index') }}" class="btn btn-outline-primary"><i class="bi bi-arrow-left me-1"></i>Retour aux événements</a>
+</div>
+{% endblock %}

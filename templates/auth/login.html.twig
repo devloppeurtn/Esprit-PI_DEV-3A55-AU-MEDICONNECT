@@ -6,6 +6,23 @@
 
 {% block stylesheets %}
     <link href="{{ asset('assets/css/auth.css') }}" rel="stylesheet">
+<<<<<<< HEAD
+=======
+    <style>
+        .form-control.is-invalid {
+            border-color: #dc3545;
+            padding-right: calc(1.5em + 0.75rem);
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12' width='12' height='12' fill='none' stroke='%23dc3545'%3e%3ccircle cx='6' cy='6' r='4.5'/%3e%3cpath d='m5.8 3.6 .4.4.4-.4'/%3e%3cpath d='m6 6v2.8'/%3e%3c/svg%3e");
+            background-repeat: no-repeat;
+            background-position: right calc(0.375em + 0.1875rem) center;
+            background-size: calc(0.75em + 0.375rem) calc(0.75em + 0.375rem);
+        }
+        .form-control.is-invalid:focus {
+            border-color: #dc3545;
+            box-shadow: 0 0 0 0.25rem rgba(220, 53, 69, 0.25);
+        }
+    </style>
+>>>>>>> isramedi
 {% endblock %}
 
 {% block body %}
@@ -28,7 +45,11 @@
             <div class="col-md-6 col-lg-7 d-flex align-items-center">
               <div class="card-body p-4 p-lg-5 text-black">
 
+<<<<<<< HEAD
                 <form method="post" action="{{ path('app_login') }}">
+=======
+                <form id="loginForm" method="post" action="{{ path('app_login') }}" novalidate>
+>>>>>>> isramedi
                   <div class="d-flex align-items-center mb-3 pb-1">
                     <img src="{{ asset('assets/img/logomed.png') }}" alt="Logo MediConnect" class="auth-form-logo me-3">
                     <span class="h1 fw-bold mb-0" style="color: #112344;">MediConnect</span>
@@ -36,6 +57,11 @@
 
                   <h5 class="fw-normal mb-3 pb-3" style="letter-spacing: 1px; color: #112344;">Connectez-vous à votre compte</h5>
 
+<<<<<<< HEAD
+=======
+                  <div id="loginAlertContainer"></div>
+
+>>>>>>> isramedi
                   {% for message in app.flashes('success') %}
                     <div class="alert alert-success mb-4">
                       {{ message }}
@@ -73,21 +99,40 @@
 
                   <div class="mb-4">
                     <label class="form-label" for="form2Example17">Adresse email</label>
+<<<<<<< HEAD
                     <input type="email" id="form2Example17" name="_username" value="{{ last_username }}" class="form-control form-control-lg" placeholder="exemple@email.com" required autofocus />
+=======
+                    <input type="text" id="form2Example17" name="_username" value="{{ last_username }}" class="form-control form-control-lg" placeholder="exemple@email.com" autofocus required />
+                    <div class="invalid-feedback"></div>
+>>>>>>> isramedi
                   </div>
 
                   <div class="mb-4">
                     <label class="form-label" for="form2Example27">Mot de passe</label>
                     <input type="password" id="form2Example27" name="_password" class="form-control form-control-lg" placeholder="Entrez votre mot de passe" required />
+<<<<<<< HEAD
+=======
+                    <div class="invalid-feedback"></div>
+>>>>>>> isramedi
                   </div>
 
                   <input type="hidden" name="_csrf_token" value="{{ csrf_token('authenticate') }}">
 
                   <div class="pt-1 mb-4">
+<<<<<<< HEAD
                     <button class="btn btn-primary btn-lg btn-block w-100" type="submit" style="background-color: #175cdd;">Se connecter</button>
                   </div>
 
                   <a class="small text-muted" href="#!">Mot de passe oublié ?</a>
+=======
+                    <button class="btn btn-primary btn-lg btn-block w-100" type="submit" id="loginSubmitBtn" style="background-color: #175cdd;">
+                      <span class="spinner-border spinner-border-sm d-none me-2" role="status" aria-hidden="true"></span>
+                      Se connecter
+                    </button>
+                  </div>
+
+                  <a class="small text-muted" href="{{ path('app_forgot_password') }}">Mot de passe oubli� ?</a>
+>>>>>>> isramedi
                   <p class="mb-5 pb-lg-2" style="color: #393f81;">Vous n'avez pas de compte ? <a href="{{ path('app_signup') }}"
                       style="color: #175cdd;">S'inscrire ici</a></p>
                   <div class="d-flex gap-3">
@@ -105,3 +150,107 @@
   </div>
 </section>
 {% endblock %}
+<<<<<<< HEAD
+=======
+
+{% block javascripts %}
+{{ parent() }}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('loginForm');
+    const submitBtn = document.getElementById('loginSubmitBtn');
+    const alertContainer = document.getElementById('loginAlertContainer');
+    
+    function showAlert(message, type = 'danger') {
+        alertContainer.innerHTML = `
+            <div class="alert alert-${type} alert-dismissible fade show mb-4" role="alert">
+                <i class="bi bi-exclamation-triangle-fill me-2"></i>${message}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        `;
+    }
+    
+    function clearAlert() {
+        alertContainer.innerHTML = '';
+    }
+    
+    function validateEmail(email) {
+        const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        return re.test(email);
+    }
+    
+    form.addEventListener('submit', function(e) {
+        e.preventDefault();
+        clearAlert();
+        
+        const emailInput = document.getElementById('form2Example17');
+        const passwordInput = document.getElementById('form2Example27');
+        const email = emailInput.value.trim();
+        const password = passwordInput.value;
+        const csrfToken = document.querySelector('[name="_csrf_token"]').value;
+        
+        let isValid = true;
+        
+        // Validation email
+        if (!email) {
+            showAlert('Veuillez entrer votre adresse email');
+            emailInput.classList.add('is-invalid');
+            isValid = false;
+        } else if (!validateEmail(email)) {
+            showAlert('Format d\'email invalide');
+            emailInput.classList.add('is-invalid');
+            isValid = false;
+        } else {
+            emailInput.classList.remove('is-invalid');
+        }
+        
+        // Validation mot de passe
+        if (!password) {
+            showAlert('Veuillez entrer votre mot de passe');
+            passwordInput.classList.add('is-invalid');
+            isValid = false;
+        } else {
+            passwordInput.classList.remove('is-invalid');
+        }
+        
+        if (!isValid) {
+            return;
+        }
+        
+        // Désactiver le bouton et afficher le spinner
+        submitBtn.disabled = true;
+        const spinner = submitBtn.querySelector('.spinner-border');
+        if (spinner) spinner.classList.remove('d-none');
+        
+        // Soumettre le formulaire de manière classique pour que Symfony Security fonctionne
+        form.submit();
+    });
+    
+    // Validation en temps réel
+    const emailInput = document.getElementById('form2Example17');
+    const passwordInput = document.getElementById('form2Example27');
+    
+    if (emailInput) {
+        emailInput.addEventListener('blur', function() {
+            const value = this.value.trim();
+            if (value && !validateEmail(value)) {
+                this.classList.add('is-invalid');
+            } else {
+                this.classList.remove('is-invalid');
+            }
+        });
+    }
+    
+    if (passwordInput) {
+        passwordInput.addEventListener('blur', function() {
+            if (!this.value) {
+                this.classList.add('is-invalid');
+            } else {
+                this.classList.remove('is-invalid');
+            }
+        });
+    }
+});
+</script>
+{% endblock %}
+>>>>>>> isramedi

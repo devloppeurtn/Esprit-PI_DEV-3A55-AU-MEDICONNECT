@@ -33,11 +33,20 @@ class ProgressionUtilisateurRepository extends ServiceEntityRepository
     }
 
     /**
+<<<<<<< HEAD
      * Find all progressions for a user
+=======
+     * Find all progressions for a user (only where category still exists)
+>>>>>>> isramedi
      */
     public function findByUtilisateur(Utilisateur $utilisateur): array
     {
         return $this->createQueryBuilder('p')
+<<<<<<< HEAD
+=======
+            ->innerJoin('p.categorieSante', 'c')
+            ->addSelect('c')
+>>>>>>> isramedi
             ->andWhere('p.utilisateur = :utilisateur')
             ->setParameter('utilisateur', $utilisateur)
             ->orderBy('p.dateObtention', 'DESC')

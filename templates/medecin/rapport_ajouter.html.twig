@@ -1,0 +1,20 @@
+{% extends 'admin/base_admin.html.twig' %}
+
+{% block title %}Ajouter un rapport médical - MediConnect{% endblock %}
+
+{% block admin_content %}
+<div class="medecin-rapport-ajouter">
+    <h1 class="h3 mb-4">Ajouter un rapport médical</h1>
+
+    {{ form_start(form, {'attr': {'novalidate': 'novalidate'}}) }}
+    <div class="card border-0 shadow-sm">
+        <div class="card-body">
+            {{ form_row(form.titre) }}
+            {{ form_row(form.contenu) }}
+            <button type="submit" class="btn btn-primary">Ajouter</button>
+        </div>
+    </div>
+    {{ form_end(form) }}
+</div>
+{% endblock %}
+

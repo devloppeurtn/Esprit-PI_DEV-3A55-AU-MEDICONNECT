@@ -1,0 +1,158 @@
+<div class="row g-4">
+    {% if produits | length > 0 %}
+        {% for produit in produits %}
+            {% set pricing = dynamicPrices[produit.id]|default({
+                base: (produit.prix + 0),
+                final: (produit.prix + 0),
+                adjusted: false,
+                label: null
+            }) %}
+            <div class="col-md-6 col-lg-4">
+                <div class="card h-100 shadow-sm">
+                    {% if produit.image %}
+                        {% set imgPath = (produit.image is not empty and (produit.image starts with('http') or produit.image starts with('/') or produit.image starts with('assets') or produit.image starts with('uploads'))) ? produit.image : ('assets/img/' ~ produit.image) %}
+                        <img src="{{ imgPath starts with('http') ? imgPath : asset(imgPath) }}" class="card-img-top" alt="{{ produit.nom }}" style="height: 200px; object-fit: cover;">
+                    {% else %}
+                        <div class="card-img-top bg-light d-flex align-items-center justify-content-center" style="height: 200px;">
+                            <i class="bi bi-image text-muted" style="font-size: 3rem;"></i>
+                        </div>
+                    {% endif %}
+
+                    <div class="card-body">
+                        <h5 class="card-title">{{ produit.nom }}</h5>
+                        <p class="card-text text-muted small">{{ produit.description | slice(0, 80) }}{% if produit.description | length > 80 %}...{% endif %}</p>
+
+                        {% if produit.categorie %}
+                            <span class="badge bg-info mb-2">{{ produit.categorie.nom }}</span>
+                        {% endif %}
+
+                        <div class="mt-3">
+                            {% if pricing.adjusted %}
+                                <p class="h5 mb-1">{{ pricing.final | number_format(2, ',', ' ') }} TND</p>
+                                <p class="text-muted small mb-2">
+                                    <del>{{ pricing.base | number_format(2, ',', ' ') }} TND</del>
+                                </p>
+                                {% if pricing.label %}
+                                    <span class="badge bg-info-subtle text-info border mb-2">{{ pricing.label }}</span>
+                                {% endif %}
+                            {% else %}
+                                <p class="h5 mb-2">{{ pricing.final | number_format(2, ',', ' ') }} TND</p>
+                            {% endif %}
+                            <p class="text-muted small">
+                                <i class="bi bi-box"></i> Stock:
+                                <strong class="{{ produit.stock > 0 ? 'text-success' : 'text-danger' }}">
+                                    {{ produit.stock }}
+                                </strong>
+                                {% if produit.stock > 0 and produit.stock <= 5 %}
+                                    <span class="badge bg-warning text-dark ms-2">Bientot epuise</span>
+                                {% endif %}
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="card-footer bg-white border-top">
+                        <div class="d-grid gap-2">
+                            {% if produit.stock > 0 %}
+                                <button class="btn btn-primary btn-sm add-to-cart"
+                                        data-product-id="{{ produit.id }}"
+                                        data-product-name="{{ produit.nom }}">
+                                    <i class="bi bi-cart-plus"></i> Ajouter au panier
+                                </button>
+                                <a href="{{ path('app_product_detail', {id: produit.id}) }}" class="btn btn-outline-secondary btn-sm">
+                                    <i class="bi bi-eye"></i> Voir details
+                                </a>
+                            {% else %}
+                                <button class="btn btn-secondary btn-sm" disabled>
+                                    Stock epuise
+                                </button>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    {% else %}
+        <div class="col-12">
+            <div class="alert alert-info text-center" role="alert">
+                <i class="bi bi-info-circle me-2"></i>
+                Aucun produit trouve
+            </div>
+        </div>
+    {% endif %}
+</div>
+
+<!-- Cart Confirmation Modal -->
+<div class="modal fade" id="cartModal" tabindex="-1" aria-labelledby="cartModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header bg-success text-white">
+                <h5 class="modal-title" id="cartModalLabel">Produit ajoute au panier</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p id="productAddedMsg"></p>
+                <p class="text-muted">Que voulez-vous faire ?</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-primary" data-bs-dismiss="modal">Continuer vos achats</button>
+                <a href="{{ path('app_cart') }}" class="btn btn-primary">Aller au panier</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.querySelectorAll('.add-to-cart').forEach(button => {
+        button.addEventListener('click', function() {
+            const productId = this.dataset.productId;
+            const productName = this.dataset.productName;
+
+            const formData = new FormData();
+            formData.append('quantity', 1);
+
+            fetch(`{{ path('app_cart_add', {id: 0}) }}`.replace('0', productId), {
+                method: 'POST',
+                body: formData,
+                credentials: 'same-origin',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+            .then(response => {
+                if (!response.ok) return response.text().then(t => { throw new Error('HTTP ' + response.status + ': ' + t); });
+                return response.json();
+            })
+            .then(data => {
+                if (data.success) {
+                    document.getElementById('cartBadge').textContent = data.cartCount;
+                    document.getElementById('productAddedMsg').textContent = productName + ' a ete ajoute au panier !';
+                    const cartModal = new bootstrap.Modal(document.getElementById('cartModal'));
+                    cartModal.show();
+                } else {
+                    showNotification(data.error || 'Erreur lors de l\'ajout', 'error');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showNotification(error.message || 'Erreur lors de la requete', 'error');
+            });
+        });
+    });
+
+    function showNotification(message, type) {
+        const alertClass = type === 'success' ? 'alert-success' : 'alert-danger';
+        const alertHtml = `<div class="alert ${alertClass} alert-dismissible fade show" role="alert">
+            ${message}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>`;
+
+        const alertContainer = document.createElement('div');
+        alertContainer.innerHTML = alertHtml;
+        document.body.insertBefore(alertContainer.firstElementChild, document.body.firstChild);
+
+        setTimeout(() => {
+            const alert = document.querySelector('.alert');
+            if (alert) alert.remove();
+        }, 3000);
+    }
+</script>

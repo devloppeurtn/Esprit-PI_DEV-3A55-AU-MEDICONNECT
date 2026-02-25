@@ -14,11 +14,19 @@ use Symfony\Component\Form\Extension\Core\Type\DateType;
 use Symfony\Component\Form\Extension\Core\Type\EmailType;
 use Symfony\Component\Form\Extension\Core\Type\EnumType;
 use Symfony\Component\Form\Extension\Core\Type\PasswordType;
+<<<<<<< HEAD
+=======
+use Symfony\Component\Form\Extension\Core\Type\FileType;
+>>>>>>> isramedi
 use Symfony\Component\Form\Extension\Core\Type\TelType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
+<<<<<<< HEAD
+=======
+use Symfony\Component\Validator\Constraints\File;
+>>>>>>> isramedi
 use Symfony\Component\Validator\Constraints\Length;
 use Symfony\Component\Validator\Constraints\NotBlank;
 
@@ -33,11 +41,19 @@ class ProfileSettingsFormType extends AbstractType
             ->add('nomComplet', TextType::class, [
                 'label' => 'Nom complet',
                 'attr' => ['class' => 'form-control'],
+<<<<<<< HEAD
                 'constraints' => [new NotBlank(['message' => 'Le nom est requis'])],
+=======
+                'constraints' => [
+                    new NotBlank(['message' => 'Le nom est requis']),
+                    new Length(['min' => 2, 'max' => 255, 'minMessage' => 'Le nom doit contenir au moins 2 caractÃ¨res.', 'maxMessage' => 'Le nom ne doit pas dÃ©passer 255 caractÃ¨res.']),
+                ],
+>>>>>>> isramedi
             ])
             ->add('email', EmailType::class, [
                 'label' => 'Adresse email',
                 'attr' => ['class' => 'form-control'],
+<<<<<<< HEAD
                 'constraints' => [new NotBlank(['message' => 'L\'email est requis'])],
             ]);
 
@@ -48,6 +64,22 @@ class ProfileSettingsFormType extends AbstractType
                     'label' => 'Téléphone',
                     'required' => false,
                     'attr' => ['class' => 'form-control', 'placeholder' => 'Ex: +216 12 345 678'],
+=======
+                'constraints' => [
+                    new NotBlank(['message' => 'L\'email est requis']),
+                    new \Symfony\Component\Validator\Constraints\Email(['message' => 'Email invalide.']),
+                ],
+            ]);
+
+        // Champs selon le rÃ´le
+        if ($user instanceof Patient) {
+            $builder
+                ->add('telephone', TelType::class, [
+                    'label' => 'TÃ©lÃ©phone',
+                    'required' => false,
+                    'attr' => ['class' => 'form-control', 'placeholder' => 'Ex: +216 12 345 678'],
+                    'constraints' => [new Length(['max' => 30, 'maxMessage' => 'TÃ©lÃ©phone trop long.'])],
+>>>>>>> isramedi
                 ])
                 ->add('dateNaissance', DateType::class, [
                     'label' => 'Date de naissance',
@@ -58,11 +90,17 @@ class ProfileSettingsFormType extends AbstractType
                 ->add('adresse', TextareaType::class, [
                     'label' => 'Adresse',
                     'required' => false,
+<<<<<<< HEAD
                     'attr' => ['class' => 'form-control', 'rows' => 3, 'placeholder' => 'Adresse complète'],
+=======
+                    'attr' => ['class' => 'form-control', 'rows' => 3, 'placeholder' => 'Adresse complÃ¨te'],
+                    'constraints' => [new Length(['max' => 500, 'maxMessage' => 'Adresse trop longue.'])],
+>>>>>>> isramedi
                 ]);
         } elseif ($user instanceof Medecin) {
             $builder
                 ->add('specialite', TextType::class, [
+<<<<<<< HEAD
                     'label' => 'Spécialité',
                     'required' => false,
                     'attr' => ['class' => 'form-control', 'placeholder' => 'Ex: Cardiologie'],
@@ -71,23 +109,50 @@ class ProfileSettingsFormType extends AbstractType
                     'label' => 'Numéro de licence',
                     'required' => false,
                     'attr' => ['class' => 'form-control'],
+=======
+                    'label' => 'SpÃ©cialitÃ©',
+                    'required' => false,
+                    'attr' => ['class' => 'form-control', 'placeholder' => 'Ex: Cardiologie'],
+                    'constraints' => [new Length(['max' => 255, 'maxMessage' => 'SpÃ©cialitÃ© trop longue.'])],
+                ])
+                ->add('numeroLicence', TextType::class, [
+                    'label' => 'NumÃ©ro de licence',
+                    'required' => false,
+                    'attr' => ['class' => 'form-control'],
+                    'constraints' => [new Length(['max' => 100, 'maxMessage' => 'NumÃ©ro de licence trop long.'])],
+>>>>>>> isramedi
                 ])
                 ->add('adresseCabinet', TextareaType::class, [
                     'label' => 'Adresse du cabinet',
                     'required' => false,
                     'attr' => ['class' => 'form-control', 'rows' => 3],
+<<<<<<< HEAD
+=======
+                    'constraints' => [new Length(['max' => 1000, 'maxMessage' => 'Adresse trop longue.'])],
+>>>>>>> isramedi
                 ]);
         } elseif ($user instanceof Secretaire) {
             $builder
                 ->add('telephone', TelType::class, [
+<<<<<<< HEAD
                     'label' => 'Téléphone',
                     'required' => false,
                     'attr' => ['class' => 'form-control'],
+=======
+                    'label' => 'TÃ©lÃ©phone',
+                    'required' => false,
+                    'attr' => ['class' => 'form-control'],
+                    'constraints' => [new Length(['max' => 30, 'maxMessage' => 'TÃ©lÃ©phone trop long.'])],
+>>>>>>> isramedi
                 ]);
         } elseif ($user instanceof Participation) {
             $builder
                 ->add('roleDansEvenement', EnumType::class, [
+<<<<<<< HEAD
                     'label' => 'Rôle dans l\'événement',
+=======
+                    'label' => 'RÃ´le dans l\'Ã©vÃ©nement',
+>>>>>>> isramedi
                     'class' => RoleParticipation::class,
                     'choice_label' => fn ($choice) => match ($choice) {
                         RoleParticipation::ORGANISATEUR => 'Organisateur',
@@ -98,20 +163,50 @@ class ProfileSettingsFormType extends AbstractType
                     'attr' => ['class' => 'form-select'],
                 ])
                 ->add('presenceConfirmee', CheckboxType::class, [
+<<<<<<< HEAD
                     'label' => 'Présence confirmée',
+=======
+                    'label' => 'PrÃ©sence confirmÃ©e',
+>>>>>>> isramedi
                     'required' => false,
                     'attr' => ['class' => 'form-check-input'],
                 ]);
         }
 
+<<<<<<< HEAD
+=======
+        // Photo de profil
+        $builder->add('photo', FileType::class, [
+            'label' => 'Photo de profil',
+            'mapped' => false,
+            'required' => false,
+            'attr' => [
+                'class' => 'form-control',
+                'accept' => 'image/*',
+            ],
+            'constraints' => [
+                new File([
+                    'maxSize' => '5M',
+                    'maxSizeMessage' => 'L\'image ne doit pas dÃ©passer 5 Mo',
+                ]),
+            ],
+        ]);
+
+>>>>>>> isramedi
         // Optionnel : changement de mot de passe
         $builder->add('plainPassword', PasswordType::class, [
             'label' => 'Nouveau mot de passe (laisser vide pour ne pas changer)',
             'mapped' => false,
             'required' => false,
+<<<<<<< HEAD
             'attr' => ['class' => 'form-control', 'placeholder' => '••••••••'],
             'constraints' => [
                 new Length(['min' => 6, 'minMessage' => 'Le mot de passe doit faire au moins {{ limit }} caractères']),
+=======
+            'attr' => ['class' => 'form-control', 'placeholder' => 'â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢'],
+            'constraints' => [
+                new Length(['min' => 6, 'minMessage' => 'Le mot de passe doit faire au moins {{ limit }} caractÃ¨res']),
+>>>>>>> isramedi
             ],
         ]);
     }
@@ -125,3 +220,7 @@ class ProfileSettingsFormType extends AbstractType
         $resolver->setRequired('user');
     }
 }
+<<<<<<< HEAD
+=======
+
+>>>>>>> isramedi

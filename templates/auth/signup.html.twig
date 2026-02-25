@@ -6,13 +6,67 @@
 
 {% block stylesheets %}
     <link href="{{ asset('assets/css/auth.css') }}" rel="stylesheet">
+<<<<<<< HEAD
+=======
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css">
+    <style>
+        .form-control.is-invalid {
+            border-color: #dc3545;
+            padding-right: calc(1.5em + 0.75rem);
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12' width='12' height='12' fill='none' stroke='%23dc3545'%3e%3ccircle cx='6' cy='6' r='4.5'/%3e%3cpath d='m5.8 3.6 .4.4.4-.4'/%3e%3cpath d='m6 6v2.8'/%3e%3c/svg%3e");
+            background-repeat: no-repeat;
+            background-position: right calc(0.375em + 0.1875rem) center;
+            background-size: calc(0.75em + 0.375rem) calc(0.75em + 0.375rem);
+        }
+        .form-control.is-invalid:focus {
+            border-color: #dc3545;
+            box-shadow: 0 0 0 0.25rem rgba(220, 53, 69, 0.25);
+        }
+        .invalid-feedback {
+            display: none;
+            width: 100%;
+            margin-top: 0.25rem;
+            font-size: 0.875em;
+            color: #dc3545;
+        }
+        .form-control.is-invalid ~ .invalid-feedback {
+            display: block;
+        }
+        
+        /* Styles pour le champ photo circulaire */
+        .photo-upload-container {
+            margin-bottom: 1rem;
+        }
+        
+        #photoPreviewContainer {
+            transition: all 0.3s ease;
+        }
+        
+        #photoPreviewContainer:hover {
+            box-shadow: 0 4px 12px rgba(13, 110, 253, 0.3);
+        }
+        
+        #photoRemoveBtn {
+            transition: all 0.2s ease;
+        }
+        
+        #photoRemoveBtn:hover {
+            background: #bb2d3b !important;
+            transform: scale(1.1);
+        }
+    </style>
+>>>>>>> isramedi
 {% endblock %}
 
 {% block body %}
 <section class="vh-100 auth-section" style="background-color: #ffffff;">
   <div class="container py-5 h-100">
     <div class="row d-flex justify-content-center align-items-center h-100">
+<<<<<<< HEAD
       <div class="col col-xl-10">ù
+=======
+      <div class="col col-xl-10">
+>>>>>>> isramedi
         <div class="card auth-card" style="border-radius: 1rem;">
           <div class="row g-0">
             <div class="col-md-6 col-lg-5 d-none d-md-block auth-image-col">
@@ -51,16 +105,29 @@
                     <a href="{{ path('app_signup', {role: 'SECRETAIRE'}) }}" class="btn btn-outline-primary btn-lg w-100 mb-3" style="border-color: #175cdd; color: #175cdd;">
                       <i class="bi bi-person-badge-fill me-2"></i>Secrétaire
                     </a>
+<<<<<<< HEAD
+=======
+                    <a href="{{ path('app_signup', {role: 'ORGANISATEUR'}) }}" class="btn btn-outline-primary btn-lg w-100 mb-3" style="border-color: #175cdd; color: #175cdd;">
+                      <i class="bi bi-calendar-event me-2"></i>Organisateur
+                    </a>
+>>>>>>> isramedi
                     <a href="{{ path('app_signup', {role: 'ADMIN'}) }}" class="btn btn-outline-primary btn-lg w-100 mb-3" style="border-color: #175cdd; color: #175cdd;">
                       <i class="bi bi-shield-lock-fill me-2"></i>Administrateur
                     </a>
                   </div>
                   
                   <p class="mb-0 text-center">
+<<<<<<< HEAD
                     <a href="{{ path('app_login') }}" style="color: #175cdd;">Vous avez déjà un compte ? Se connecter</a>
                   </p>
                 {% else %}
                   {{ form_start(form, {'attr': {'class': 'signup-form', 'id': 'signupForm'}}) }}
+=======
+                    <a href="{{ path('app_login') }}" style="color: #175cdd;">Vous avez d�j� un compte ? Se connecter</a>
+                  </p>
+                {% else %}
+                  {{ form_start(form, {'attr': {'class': 'signup-form', 'id': 'signupForm', 'novalidate': 'novalidate'}, 'name': 'signup'}) }}
+>>>>>>> isramedi
                     <div class="d-flex align-items-center mb-3 pb-1">
                       <img src="{{ asset('assets/img/logomed.png') }}" alt="Logo MediConnect" class="auth-form-logo me-3">
                       <span class="h1 fw-bold mb-0" style="color: #112344;">MediConnect</span>
@@ -82,29 +149,72 @@
                       </div>
                     {% endfor %}
 
+<<<<<<< HEAD
                     <!-- Étape 1: Informations de base -->
                     <div id="step1" class="form-step">
                       <div class="mb-4">
                         <label class="form-label" for="nomComplet">Nom complet</label>
                         {{ form_widget(form.nomComplet, {'attr': {'class': 'form-control form-control-lg', 'id': 'nomComplet', 'placeholder': 'Entrez votre nom complet'}}) }}
+=======
+                    <div id="signupAlertContainer" style="position: relative; z-index: 1000; min-height: 50px; margin-bottom: 1rem;"></div>
+
+                    <!-- Étape 1: Informations de base -->
+                    <div id="step1" class="form-step">
+                      <div class="mb-4 text-center" style="position: relative; z-index: 1;">
+                        <label class="form-label d-block mb-3" style="color: #112344; font-weight: 600;">Photo de profil (optionnel)</label>
+                        <div class="photo-upload-container" style="position: relative; display: inline-block; z-index: 1;">
+                          <div id="photoPreviewContainer" style="width: 150px; height: 150px; border-radius: 50%; border: 3px solid #0d6efd; background: #f8f9fa; display: flex; align-items: center; justify-content: center; overflow: hidden; cursor: pointer; transition: all 0.3s ease; margin: 0 auto;" onclick="openPhotoSelectorSignup();">
+                            <div id="photoPlaceholder" style="text-align: center; color: #6c757d;">
+                              <i class="bi bi-camera-fill" style="font-size: 3rem;"></i>
+                              <div style="font-size: 0.75rem; margin-top: 0.5rem;">Ajouter photo</div>
+                            </div>
+                            <img id="photoPreviewImg" src="" alt="Photo de profil" style="width: 100%; height: 100%; object-fit: cover; display: none; border-radius: 50%;">
+                          </div>
+                          <div id="photoRemoveBtn" style="position: absolute; top: -5px; right: -5px; background: #dc3545; color: white; border-radius: 50%; width: 30px; height: 30px; display: none; align-items: center; justify-content: center; cursor: pointer; border: 2px solid white; box-shadow: 0 2px 4px rgba(0,0,0,0.2); z-index: 10;">
+                            <i class="bi bi-x-lg" style="font-size: 0.875rem;"></i>
+                          </div>
+                          {{ form_widget(form.photo, {'attr': {'class': 'd-none photo-input-field', 'id': 'photo', 'accept': 'image/*'}}) }}
+                          <div class="invalid-feedback" id="photo-error"></div>
+                          {{ form_errors(form.photo) }}
+                        </div>
+                        <small class="form-text text-muted d-block mt-2">Formats acceptés: JPEG, PNG, GIF, WebP (max 5 Mo)</small>
+                      </div>
+
+                      <div class="mb-4">
+                        <label class="form-label" for="nomComplet">Nom complet</label>
+                        {{ form_widget(form.nomComplet, {'attr': {'class': 'form-control form-control-lg', 'id': 'nomComplet', 'placeholder': 'Entrez votre nom complet'}}) }}
+                        <div class="invalid-feedback" id="nomComplet-error"></div>
+>>>>>>> isramedi
                         {{ form_errors(form.nomComplet) }}
                       </div>
 
                       <div class="mb-4">
                         <label class="form-label" for="email">Adresse email</label>
                         {{ form_widget(form.email, {'attr': {'class': 'form-control form-control-lg', 'id': 'email', 'placeholder': 'exemple@email.com'}}) }}
+<<<<<<< HEAD
+=======
+                        <div class="invalid-feedback" id="email-error"></div>
+>>>>>>> isramedi
                         {{ form_errors(form.email) }}
                       </div>
 
                       <div class="mb-4">
                         <label class="form-label" for="password">Mot de passe</label>
                         {{ form_widget(form.password, {'attr': {'class': 'form-control form-control-lg', 'id': 'password', 'placeholder': 'Minimum 6 caractères'}}) }}
+<<<<<<< HEAD
+=======
+                        <div class="invalid-feedback" id="password-error"></div>
+>>>>>>> isramedi
                         {{ form_errors(form.password) }}
                       </div>
 
                       <div class="mb-4">
                         <label class="form-label" for="confirmPassword">Confirmer le mot de passe</label>
                         {{ form_widget(form.confirmPassword, {'attr': {'class': 'form-control form-control-lg', 'id': 'confirmPassword', 'placeholder': 'Confirmez votre mot de passe'}}) }}
+<<<<<<< HEAD
+=======
+                        <div class="invalid-feedback" id="confirmPassword-error"></div>
+>>>>>>> isramedi
                         {{ form_errors(form.confirmPassword) }}
                       </div>
 
@@ -119,8 +229,14 @@
                           <button type="button" class="btn btn-outline-secondary btn-lg w-100 mb-3" onclick="showStep(2)">
                             Informations professionnelles <i class="bi bi-arrow-right ms-2"></i>
                           </button>
+<<<<<<< HEAD
                         {% endif %}
                       {% elseif role == constant('App\\Entity\\RoleUtilisateur::SECRETAIRE') %}
+=======
+                          <small class="text-danger d-block mb-3">* La spécialité est obligatoire</small>
+                        {% endif %}
+                      {% elseif role == constant('App\\Entity\\RoleUtilisateur::SECRETAIRE') or role == constant('App\\Entity\\RoleUtilisateur::ADMIN') or role == constant('App\\Entity\\RoleUtilisateur::ORGANISATEUR') or role == constant('App\\Entity\\RoleUtilisateur::PARTICIPATION') %}
+>>>>>>> isramedi
                         {% if form.telephone is defined %}
                           <button type="button" class="btn btn-outline-secondary btn-lg w-100 mb-3" onclick="showStep(2)">
                             Informations supplémentaires <i class="bi bi-arrow-right ms-2"></i>
@@ -132,12 +248,22 @@
                     <!-- Étape 2: Informations supplémentaires -->
                     {% if role == constant('App\\Entity\\RoleUtilisateur::PATIENT') %}
                       <div id="step2" class="form-step" style="display: none;">
+<<<<<<< HEAD
                         <h6 class="mb-4" style="color: #112344;">Informations complémentaires (optionnel)</h6>
+=======
+                        <h6 class="mb-4" style="color: #112344;">Informations complémentaires</h6>
+>>>>>>> isramedi
                         
                         {% if form.telephone is defined %}
                         <div class="mb-4">
                           <label class="form-label" for="telephone">Téléphone</label>
+<<<<<<< HEAD
                           {{ form_widget(form.telephone, {'attr': {'class': 'form-control form-control-lg', 'id': 'telephone', 'placeholder': '+216 XX XXX XXX'}}) }}
+=======
+                          {{ form_widget(form.telephone, {'attr': {'class': 'form-control form-control-lg', 'id': 'telephone', 'placeholder': '+216 XX XXX XXX', 'required': 'required'}}) }}
+                          <div class="invalid-feedback" id="telephone-error"></div>
+                          {{ form_errors(form.telephone) }}
+>>>>>>> isramedi
                         </div>
                         {% endif %}
 
@@ -161,12 +287,32 @@
                       </div>
                     {% elseif role == constant('App\\Entity\\RoleUtilisateur::MEDECIN') %}
                       <div id="step2" class="form-step" style="display: none;">
+<<<<<<< HEAD
                         <h6 class="mb-4" style="color: #112344;">Informations professionnelles (optionnel)</h6>
                         
                         {% if form.specialite is defined %}
                         <div class="mb-4">
                           <label class="form-label" for="specialite">Spécialité</label>
                           {{ form_widget(form.specialite, {'attr': {'class': 'form-control form-control-lg', 'id': 'specialite', 'placeholder': 'Ex: Cardiologie, Pédiatrie...'}}) }}
+=======
+                        <h6 class="mb-4" style="color: #112344;">Informations professionnelles</h6>
+                        
+                        {% if form.telephone is defined %}
+                        <div class="mb-4">
+                          <label class="form-label" for="telephone">Téléphone</label>
+                          {{ form_widget(form.telephone, {'attr': {'class': 'form-control form-control-lg', 'id': 'telephone', 'placeholder': '+216 XX XXX XXX', 'required': 'required'}}) }}
+                          <div class="invalid-feedback" id="telephone-error"></div>
+                          {{ form_errors(form.telephone) }}
+                        </div>
+                        {% endif %}
+
+                        {% if form.specialite is defined %}
+                        <div class="mb-4">
+                          <label class="form-label" for="specialite">Spécialité</label>
+                          {{ form_widget(form.specialite, {'attr': {'class': 'form-control form-control-lg', 'id': 'specialite', 'placeholder': 'Ex: Cardiologie, Pédiatrie...', 'required': 'required'}}) }}
+                          <div class="invalid-feedback" id="specialite-error"></div>
+                          {{ form_errors(form.specialite) }}
+>>>>>>> isramedi
                         </div>
                         {% endif %}
 
@@ -188,14 +334,26 @@
                           <i class="bi bi-arrow-left me-2"></i> Retour
                         </button>
                       </div>
+<<<<<<< HEAD
                     {% elseif role == constant('App\\Entity\\RoleUtilisateur::SECRETAIRE') %}
                       <div id="step2" class="form-step" style="display: none;">
                         <h6 class="mb-4" style="color: #112344;">Informations complémentaires (optionnel)</h6>
+=======
+                    {% elseif role == constant('App\\Entity\\RoleUtilisateur::SECRETAIRE') or role == constant('App\\Entity\\RoleUtilisateur::ADMIN') or role == constant('App\\Entity\\RoleUtilisateur::ORGANISATEUR') or role == constant('App\\Entity\\RoleUtilisateur::PARTICIPATION') %}
+                      <div id="step2" class="form-step" style="display: none;">
+                        <h6 class="mb-4" style="color: #112344;">Informations supplémentaires</h6>
+>>>>>>> isramedi
                         
                         {% if form.telephone is defined %}
                         <div class="mb-4">
                           <label class="form-label" for="telephone">Téléphone</label>
+<<<<<<< HEAD
                           {{ form_widget(form.telephone, {'attr': {'class': 'form-control form-control-lg', 'id': 'telephone', 'placeholder': '+216 XX XXX XXX'}}) }}
+=======
+                          {{ form_widget(form.telephone, {'attr': {'class': 'form-control form-control-lg', 'id': 'telephone', 'placeholder': '+216 XX XXX XXX', 'required': 'required'}}) }}
+                          <div class="invalid-feedback" id="telephone-error"></div>
+                          {{ form_errors(form.telephone) }}
+>>>>>>> isramedi
                         </div>
                         {% endif %}
 
@@ -208,11 +366,22 @@
                     {{ form_errors(form) }}
 
                     <div class="pt-1 mb-4">
+<<<<<<< HEAD
                       <button class="btn btn-primary btn-lg btn-block w-100" type="submit" style="background-color: #175cdd;">S'inscrire</button>
                     </div>
 
                     <p class="mb-0 text-center">
                       <a href="{{ path('app_login') }}" style="color: #175cdd;">Vous avez déjà un compte ? Se connecter</a>
+=======
+                      <button class="btn btn-primary btn-lg btn-block w-100" type="submit" id="signupSubmitBtn" style="background-color: #175cdd;">
+                        <span class="spinner-border spinner-border-sm d-none me-2" role="status" aria-hidden="true"></span>
+                        S'inscrire
+                      </button>
+                    </div>
+
+                    <p class="mb-0 text-center">
+                      <a href="{{ path('app_login') }}" style="color: #175cdd;">Vous avez d�j� un compte ? Se connecter</a>
+>>>>>>> isramedi
                     </p>
                   {{ form_end(form) }}
                 {% endif %}
@@ -249,4 +418,1128 @@
             }
         }
     </script>
+<<<<<<< HEAD
+=======
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const form = document.getElementById('signupForm');
+        if (!form) {
+            console.error('Formulaire signupForm non trouvé');
+            return;
+        }
+        
+        console.log('Formulaire trouvé:', form);
+        
+        const submitBtn = document.getElementById('signupSubmitBtn');
+        if (!submitBtn) {
+            console.error('Bouton signupSubmitBtn non trouvé');
+            return;
+        }
+        
+        const alertContainer = document.getElementById('signupAlertContainer');
+        if (!alertContainer) {
+            console.warn('Conteneur d\'alerte signupAlertContainer non trouvé');
+        }
+        
+        function showAlert(message, type = 'danger') {
+            // Ne plus afficher dans le conteneur d'alerte, seulement sous les champs
+            // Cette fonction est gardée pour compatibilité mais ne fait rien
+            console.log('Message d\'erreur:', message);
+        }
+        
+        function showSuccessMessage(message) {
+            if (alertContainer) {
+                alertContainer.innerHTML = `
+                    <div class="alert alert-success alert-dismissible fade show mb-4" role="alert" style="display: block !important; position: relative; z-index: 1000;">
+                        <i class="bi bi-check-circle-fill me-2"></i>${message}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                `;
+                alertContainer.style.display = 'block';
+                alertContainer.style.visibility = 'visible';
+                // Scroll vers le message de succès
+                setTimeout(() => {
+                    alertContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }, 100);
+            } else {
+                console.error('Impossible d\'afficher le message de succès: conteneur non trouvé');
+            }
+        }
+        
+        function clearAlert() {
+            alertContainer.innerHTML = '';
+            // Réinitialiser tous les champs d'erreur
+            document.querySelectorAll('.invalid-feedback').forEach(el => {
+                el.style.display = 'none';
+                el.textContent = '';
+            });
+            document.querySelectorAll('.is-invalid').forEach(el => {
+                el.classList.remove('is-invalid');
+            });
+        }
+        
+        function validateEmail(email) {
+            const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            return re.test(email);
+        }
+        
+        function validateForm(data, role) {
+            console.log('Validation du formulaire avec données:', {
+                nomComplet: data.nomComplet || '',
+                email: data.email || '',
+                telephone: data.telephone || '',
+                password: data.password ? '***' : '',
+                confirmPassword: data.confirmPassword ? '***' : '',
+                specialite: data.specialite || '',
+                role: role
+            });
+            
+            // Validation nom complet
+            const nomComplet = (data.nomComplet || '').trim();
+            if (!nomComplet) {
+                console.log('Erreur: nom complet vide');
+                return { valid: false, error: 'Le nom complet est requis', field: 'nomComplet' };
+            }
+            if (nomComplet.length < 2) {
+                return { valid: false, error: 'Le nom complet doit contenir au moins 2 caractères', field: 'nomComplet' };
+            }
+            if (nomComplet.length > 255) {
+                return { valid: false, error: 'Le nom complet ne doit pas dépasser 255 caractères', field: 'nomComplet' };
+            }
+            
+            // Validation email
+            const email = (data.email || '').trim();
+            if (!email) {
+                console.log('Erreur: email vide');
+                return { valid: false, error: 'L\'email est requis', field: 'email' };
+            }
+            if (email.length > 180) {
+                return { valid: false, error: 'L\'email est trop long (maximum 180 caractères)', field: 'email' };
+            }
+            if (!validateEmail(email)) {
+                return { valid: false, error: 'Format d\'email invalide', field: 'email' };
+            }
+            
+            // Validation téléphone (obligatoire pour tous)
+            const telephone = (data.telephone || '').trim();
+            if (!telephone) {
+                console.log('Erreur: téléphone vide');
+                return { valid: false, error: 'Le numéro de téléphone est requis', field: 'telephone' };
+            }
+            if (telephone.length > 20) {
+                return { valid: false, error: 'Le numéro de téléphone est trop long (maximum 20 caractères)', field: 'telephone' };
+            }
+            
+            // Validation spécialité (obligatoire pour médecins)
+            if (role === 'MEDECIN') {
+                const specialite = (data.specialite || '').trim();
+                if (!specialite) {
+                    console.log('Erreur: spécialité vide pour médecin');
+                    return { valid: false, error: 'La spécialité est requise pour les médecins', field: 'specialite' };
+                }
+                if (specialite.length > 255) {
+                    return { valid: false, error: 'La spécialité est trop longue (maximum 255 caractères)', field: 'specialite' };
+                }
+            }
+            
+            // Validation mot de passe
+            const password = data.password || '';
+            if (!password) {
+                console.log('Erreur: mot de passe vide');
+                return { valid: false, error: 'Le mot de passe est requis', field: 'password' };
+            }
+            if (password.length < 6) {
+                return { valid: false, error: 'Le mot de passe doit contenir au moins 6 caractères', field: 'password' };
+            }
+            if (password.length > 4096) {
+                return { valid: false, error: 'Le mot de passe est trop long', field: 'password' };
+            }
+            
+            // Validation confirmation mot de passe
+            const confirmPassword = data.confirmPassword || '';
+            if (!confirmPassword) {
+                console.log('Erreur: confirmation mot de passe vide');
+                return { valid: false, error: 'Veuillez confirmer votre mot de passe', field: 'confirmPassword' };
+            }
+            if (password !== confirmPassword) {
+                return { valid: false, error: 'Les mots de passe ne correspondent pas', field: 'confirmPassword' };
+            }
+            
+            console.log('Validation réussie');
+            return { valid: true };
+        }
+        
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            
+            console.log('Soumission du formulaire interceptée');
+            
+            clearAlert();
+            
+            // Utiliser FormData et convertir en objet en gérant les noms préfixés de Symfony
+            const formData = new FormData(form);
+            const data = {};
+            
+            // Convertir FormData en objet en extrayant le nom du champ (après le préfixe)
+            for (let [key, value] of formData.entries()) {
+                // Symfony génère des noms comme "signup[nomComplet]" ou "signup_nomComplet"
+                // Extraire le nom du champ après le préfixe
+                let fieldName = key;
+                if (key.includes('[') && key.includes(']')) {
+                    // Format: signup[nomComplet] -> nomComplet
+                    const match = key.match(/\[([^\]]+)\]/);
+                    if (match) {
+                        fieldName = match[1];
+                    }
+                } else if (key.includes('_')) {
+                    // Format: signup_nomComplet -> nomComplet
+                    const parts = key.split('_');
+                    fieldName = parts[parts.length - 1];
+                }
+                
+                // Stocker la valeur avec le nom simplifié
+                // Ne pas stocker les fichiers ici, ils seront ajoutés séparément
+                if (value instanceof File) {
+                    // Les fichiers seront gérés séparément
+                    continue;
+                }
+                if (!data[fieldName] || data[fieldName] === '') {
+                    data[fieldName] = value;
+                }
+            }
+            
+            // Debug: afficher tous les éléments du formulaire et FormData
+            console.log('FormData entries:');
+            for (let [key, value] of formData.entries()) {
+                let displayValue = '';
+                if (value) {
+                    if (key.includes('password')) {
+                        displayValue = '***';
+                    } else if (value instanceof File) {
+                        displayValue = `[File: ${value.name}, ${value.size} bytes]`;
+                    } else if (typeof value === 'string') {
+                        displayValue = value.substring(0, 30);
+                    } else {
+                        displayValue = String(value).substring(0, 30);
+                    }
+                }
+                console.log(`  "${key}" = "${displayValue}"`);
+            }
+            
+            console.log('Données extraites:', {
+                nomComplet: data.nomComplet || '',
+                nomCompletLength: (data.nomComplet || '').length,
+                email: data.email || '',
+                password: data.password ? '***' : ''
+            });
+            
+            // Debug: vérifier que les valeurs sont bien récupérées
+            console.log('Données du formulaire:', {
+                nomComplet: data.nomComplet,
+                nomCompletLength: (data.nomComplet || '').length,
+                email: data.email,
+                telephone: data.telephone,
+                password: data.password ? '***' : ''
+            });
+            
+            // Validation côté client
+            const role = '{{ role ? role.value : 'PATIENT' }}';
+            console.log('Début validation, rôle:', role);
+            const validation = validateForm(data, role);
+            console.log('Résultat validation:', validation);
+            
+            if (!validation.valid) {
+                console.log('Validation échouée:', validation.error);
+                
+                // Fonction pour mettre en évidence le champ en erreur et afficher le message
+                function highlightField(fieldName, errorMessage) {
+                    console.log('Mise en évidence du champ:', fieldName);
+                    const field = document.getElementById(fieldName) ||
+                                 form.querySelector(`input[name*="${fieldName}"], textarea[name*="${fieldName}"], select[name*="${fieldName}"]`) ||
+                                 Array.from(form.elements).find(el => el.name && el.name.includes(fieldName));
+                    
+                    if (field) {
+                        console.log('Champ trouvé:', fieldName, field);
+                        field.classList.add('is-invalid');
+                        // Afficher le message d'erreur sous le champ
+                        const errorDiv = document.getElementById(fieldName + '-error');
+                        if (errorDiv) {
+                            errorDiv.textContent = errorMessage;
+                            errorDiv.style.display = 'block';
+                            console.log('Message d\'erreur affiché sous le champ');
+                        } else {
+                            console.warn('Div d\'erreur non trouvée pour:', fieldName);
+                        }
+                        // Si on est dans l'étape 2, afficher l'étape 2
+                        if (fieldName === 'telephone' || fieldName === 'specialite') {
+                            const step2 = document.getElementById('step2');
+                            if (step2) {
+                                console.log('Affichage de l\'étape 2 pour le champ:', fieldName);
+                                showStep(2);
+                            }
+                        }
+                        // Scroll vers le champ
+                        setTimeout(() => {
+                            field.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                            field.focus();
+                        }, 100);
+                        return true;
+                    } else {
+                        console.error('Champ non trouvé:', fieldName);
+                        return false;
+                    }
+                }
+                
+                // Utiliser le champ spécifié dans la validation si disponible
+                if (validation.field) {
+                    highlightField(validation.field, validation.error);
+                } else {
+                    // Identifier et mettre en évidence le champ en erreur
+                    let fieldHighlighted = false;
+                    if (validation.error.includes('nom complet') || validation.error.includes('nom')) {
+                        fieldHighlighted = highlightField('nomComplet', validation.error);
+                    } else if (validation.error.includes('email')) {
+                        fieldHighlighted = highlightField('email', validation.error);
+                    } else if (validation.error.includes('téléphone') || validation.error.includes('telephone')) {
+                        fieldHighlighted = highlightField('telephone', validation.error);
+                    } else if (validation.error.includes('spécialité') || validation.error.includes('specialite')) {
+                        fieldHighlighted = highlightField('specialite', validation.error);
+                    } else if (validation.error.includes('mot de passe')) {
+                        if (validation.error.includes('confirmer')) {
+                            fieldHighlighted = highlightField('confirmPassword', validation.error);
+                        } else {
+                            fieldHighlighted = highlightField('password', validation.error);
+                        }
+                    }
+                    
+                    if (!fieldHighlighted) {
+                        console.warn('Aucun champ spécifique trouvé, recherche du premier champ vide');
+                        // Si aucun champ spécifique n'a été trouvé, essayer de trouver le premier champ vide
+                        const requiredFields = ['nomComplet', 'email', 'telephone', 'password', 'confirmPassword'];
+                        if (role === 'MEDECIN') {
+                            requiredFields.push('specialite');
+                        }
+                        for (const fieldName of requiredFields) {
+                            const field = document.getElementById(fieldName) || 
+                                         form.querySelector(`input[name*="${fieldName}"], textarea[name*="${fieldName}"]`);
+                            if (field && !field.value.trim()) {
+                                highlightField(fieldName, validation.error);
+                                break;
+                            }
+                        }
+                    }
+                }
+                
+                // Réactiver le bouton
+                submitBtn.disabled = false;
+                const spinner = submitBtn.querySelector('.spinner-border');
+                if (spinner) spinner.classList.add('d-none');
+                
+                return;
+            }
+            
+            // Désactiver le bouton et afficher le spinner
+            submitBtn.disabled = true;
+            const spinner = submitBtn.querySelector('.spinner-border');
+            if (spinner) spinner.classList.remove('d-none');
+            
+            console.log('Préparation de l\'envoi AJAX...');
+            
+            // Préparer FormData pour l'envoi (nécessaire pour les fichiers)
+            const submitFormData = new FormData();
+            submitFormData.append('email', data.email.trim());
+            submitFormData.append('nomComplet', data.nomComplet.trim());
+            submitFormData.append('password', data.password);
+            submitFormData.append('confirmPassword', data.confirmPassword);
+            submitFormData.append('telephone', (data.telephone || '').trim());
+            submitFormData.append('role', '{{ role ? role.value : 'PATIENT' }}');
+            
+            // Ajouter la photo si présente
+            const photoInput = form.querySelector('input[type="file"][name*="photo"], input[type="file"][id="photo"]');
+            if (photoInput && photoInput.files && photoInput.files[0]) {
+                submitFormData.append('photo', photoInput.files[0]);
+                console.log('Photo ajoutée:', photoInput.files[0].name);
+            }
+            
+            // Ajouter les champs optionnels selon le rôle
+            if (data.dateNaissance) submitFormData.append('dateNaissance', data.dateNaissance);
+            if (data.adresse && data.adresse.trim()) submitFormData.append('adresse', data.adresse.trim());
+            if (data.specialite && data.specialite.trim()) submitFormData.append('specialite', data.specialite.trim());
+            if (data.adresseCabinet && data.adresseCabinet.trim()) submitFormData.append('adresseCabinet', data.adresseCabinet.trim());
+            if (data.numeroLicence && data.numeroLicence.trim()) submitFormData.append('numeroLicence', data.numeroLicence.trim());
+            
+            console.log('Envoi de la requête AJAX vers:', '{{ path('app_api_signup') }}');
+            
+            // Envoyer via AJAX avec FormData (multipart/form-data)
+            fetch('{{ path('app_api_signup') }}', {
+                method: 'POST',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                    // Ne pas définir Content-Type pour FormData, le navigateur le fait automatiquement
+                },
+                body: submitFormData
+            })
+            .then(response => {
+                if (!response.ok) {
+                    return response.json().then(err => Promise.reject(err));
+                }
+                return response.json();
+            })
+            .then(result => {
+                console.log('Réponse serveur:', result);
+                if (result.success) {
+                    console.log('Inscription réussie, affichage du message de succès');
+                    // Réactiver le bouton
+                    submitBtn.disabled = false;
+                    const spinner = submitBtn.querySelector('.spinner-border');
+                    if (spinner) spinner.classList.add('d-none');
+                    
+                    // Afficher le message de succès
+                    showSuccessMessage(result.message || 'Inscription réussie !');
+                    
+                    // Rediriger après 3 secondes
+                    setTimeout(() => {
+                        window.location.href = result.redirect || '{{ path('app_login') }}';
+                    }, 3000);
+                } else {
+                    const errorMsg = result.error || 'Une erreur est survenue lors de l\'inscription';
+                    // Fonction pour mettre en évidence les champs en erreur et afficher le message
+                    function highlightErrorField(fieldName, message) {
+                        const field = findField(fieldName);
+                        if (field) {
+                            field.classList.add('is-invalid');
+                            const errorDiv = document.getElementById(fieldName + '-error');
+                            if (errorDiv) {
+                                errorDiv.textContent = message;
+                                errorDiv.style.display = 'block';
+                            }
+                            // Si on est dans l'étape 2, afficher l'étape 2
+                            if (fieldName === 'telephone' || fieldName === 'specialite') {
+                                const step2 = document.getElementById('step2');
+                                if (step2) {
+                                    showStep(2);
+                                }
+                            }
+                            // Scroll vers le champ
+                            setTimeout(() => {
+                                field.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                                field.focus();
+                            }, 100);
+                        }
+                    }
+                    
+                    // Identifier et mettre en évidence le champ en erreur
+                    if (errorMsg.includes('nom complet') || errorMsg.includes('nom')) {
+                        highlightErrorField('nomComplet', errorMsg);
+                    } else if (errorMsg.includes('email')) {
+                        highlightErrorField('email', errorMsg);
+                    } else if (errorMsg.includes('téléphone') || errorMsg.includes('telephone')) {
+                        highlightErrorField('telephone', errorMsg);
+                    } else if (errorMsg.includes('spécialité') || errorMsg.includes('specialite')) {
+                        highlightErrorField('specialite', errorMsg);
+                    } else if (errorMsg.includes('mot de passe')) {
+                        if (errorMsg.includes('confirmer')) {
+                            highlightErrorField('confirmPassword', errorMsg);
+                        } else {
+                            highlightErrorField('password', errorMsg);
+                        }
+                    }
+                    submitBtn.disabled = false;
+                    if (spinner) spinner.classList.add('d-none');
+                }
+            })
+            .catch(error => {
+                console.error('Erreur:', error);
+                const errorMessage = error.error || error.message || 'Une erreur est survenue lors de l\'inscription. Veuillez réessayer.';
+                // Afficher l'erreur dans le premier champ trouvé ou dans le conteneur d'alerte comme fallback
+                const nomCompletField = document.getElementById('nomComplet');
+                if (nomCompletField) {
+                    nomCompletField.classList.add('is-invalid');
+                    const errorDiv = document.getElementById('nomComplet-error');
+                    if (errorDiv) {
+                        errorDiv.textContent = errorMessage;
+                        errorDiv.style.display = 'block';
+                    }
+                } else if (alertContainer) {
+                    // Fallback: afficher dans le conteneur d'alerte si aucun champ trouvé
+                    alertContainer.innerHTML = `
+                        <div class="alert alert-danger alert-dismissible fade show mb-4" role="alert">
+                            <i class="bi bi-exclamation-triangle-fill me-2"></i>${errorMessage}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    `;
+                }
+                submitBtn.disabled = false;
+                if (spinner) spinner.classList.add('d-none');
+            });
+        });
+        
+        // Fonction helper pour trouver un champ
+        function findField(fieldName, fieldType = 'input') {
+            return form.querySelector(`${fieldType}[name*="${fieldName}"], ${fieldType}[id="${fieldName}"]`) ||
+                   document.getElementById(fieldName) ||
+                   Array.from(form.elements).find(el => el.name && el.name.includes(fieldName));
+        }
+        
+        // Preview de photo avec design circulaire
+        const photoInput = form.querySelector('input[type="file"][name*="photo"], input[type="file"][id="photo"]');
+        const photoPreviewContainer = document.getElementById('photoPreviewContainer');
+        const photoPlaceholder = document.getElementById('photoPlaceholder');
+        const photoPreviewImg = document.getElementById('photoPreviewImg');
+        const photoRemoveBtn = document.getElementById('photoRemoveBtn');
+        
+        if (photoInput && photoPreviewContainer && photoPlaceholder && photoPreviewImg) {
+            // Hover effect
+            photoPreviewContainer.addEventListener('mouseenter', function() {
+                if (!photoPreviewImg.src) {
+                    this.style.borderColor = '#0a58ca';
+                    this.style.transform = 'scale(1.05)';
+                }
+            });
+            
+            photoPreviewContainer.addEventListener('mouseleave', function() {
+                if (!photoPreviewImg.src) {
+                    this.style.borderColor = '#0d6efd';
+                    this.style.transform = 'scale(1)';
+                }
+            });
+            
+            // Le gestionnaire de changement de fichier sera dans le code de rognage ci-dessous
+        }
+        
+        // Validation en temps réel - trouver les champs une seule fois
+        const nomCompletInput = findField('nomComplet');
+        const emailInput = findField('email');
+        const telephoneInput = findField('telephone');
+        const passwordInput = findField('password');
+        const confirmPasswordInput = findField('confirmPassword');
+        const specialiteInput = findField('specialite');
+        
+        // Debug: vérifier que les champs sont trouvés
+        console.log('Champs trouvés pour validation:', {
+            nomComplet: nomCompletInput ? '?' : '?',
+            email: emailInput ? '?' : '?',
+            telephone: telephoneInput ? '?' : '?',
+            password: passwordInput ? '?' : '?',
+            confirmPassword: confirmPasswordInput ? '?' : '?',
+            specialite: specialiteInput ? '?' : '?'
+        });
+        
+        if (nomCompletInput) {
+            nomCompletInput.addEventListener('blur', function() {
+                const value = this.value.trim();
+                const errorDiv = document.getElementById('nomComplet-error');
+                if (!value) {
+                    this.classList.add('is-invalid');
+                    if (errorDiv) {
+                        errorDiv.textContent = 'Le nom complet est requis';
+                        errorDiv.style.display = 'block';
+                    }
+                } else if (value.length < 2) {
+                    this.classList.add('is-invalid');
+                    if (errorDiv) {
+                        errorDiv.textContent = 'Le nom complet doit contenir au moins 2 caractères';
+                        errorDiv.style.display = 'block';
+                    }
+                } else {
+                    this.classList.remove('is-invalid');
+                    if (errorDiv) errorDiv.style.display = 'none';
+                }
+            });
+            nomCompletInput.addEventListener('input', function() {
+                if (this.classList.contains('is-invalid') && this.value.trim().length >= 2) {
+                    this.classList.remove('is-invalid');
+                    const errorDiv = document.getElementById('nomComplet-error');
+                    if (errorDiv) errorDiv.style.display = 'none';
+                }
+            });
+        }
+        
+        if (emailInput) {
+            emailInput.addEventListener('blur', function() {
+                const value = this.value.trim();
+                const errorDiv = document.getElementById('email-error');
+                if (!value) {
+                    this.classList.add('is-invalid');
+                    if (errorDiv) {
+                        errorDiv.textContent = 'L\'email est requis';
+                        errorDiv.style.display = 'block';
+                    }
+                } else if (!validateEmail(value)) {
+                    this.classList.add('is-invalid');
+                    if (errorDiv) {
+                        errorDiv.textContent = 'Format d\'email invalide';
+                        errorDiv.style.display = 'block';
+                    }
+                } else {
+                    this.classList.remove('is-invalid');
+                    if (errorDiv) errorDiv.style.display = 'none';
+                }
+            });
+            emailInput.addEventListener('input', function() {
+                if (this.classList.contains('is-invalid') && validateEmail(this.value.trim())) {
+                    this.classList.remove('is-invalid');
+                    const errorDiv = document.getElementById('email-error');
+                    if (errorDiv) errorDiv.style.display = 'none';
+                }
+            });
+        }
+        
+        if (telephoneInput) {
+            telephoneInput.addEventListener('blur', function() {
+                const value = this.value.trim();
+                const errorDiv = document.getElementById('telephone-error');
+                if (!value) {
+                    this.classList.add('is-invalid');
+                    if (errorDiv) {
+                        errorDiv.textContent = 'Le numéro de téléphone est requis';
+                        errorDiv.style.display = 'block';
+                    }
+                } else if (value.length > 20) {
+                    this.classList.add('is-invalid');
+                    if (errorDiv) {
+                        errorDiv.textContent = 'Le numéro de téléphone est trop long (maximum 20 caractères)';
+                        errorDiv.style.display = 'block';
+                    }
+                } else {
+                    this.classList.remove('is-invalid');
+                    if (errorDiv) errorDiv.style.display = 'none';
+                }
+            });
+            telephoneInput.addEventListener('input', function() {
+                if (this.classList.contains('is-invalid') && this.value.trim() && this.value.trim().length <= 20) {
+                    this.classList.remove('is-invalid');
+                    const errorDiv = document.getElementById('telephone-error');
+                    if (errorDiv) errorDiv.style.display = 'none';
+                }
+            });
+        }
+        
+        if (specialiteInput) {
+            specialiteInput.addEventListener('blur', function() {
+                const value = this.value.trim();
+                const errorDiv = document.getElementById('specialite-error');
+                if (!value && role === 'MEDECIN') {
+                    this.classList.add('is-invalid');
+                    if (errorDiv) {
+                        errorDiv.textContent = 'La spécialité est requise pour les médecins';
+                        errorDiv.style.display = 'block';
+                    }
+                } else {
+                    this.classList.remove('is-invalid');
+                    if (errorDiv) errorDiv.style.display = 'none';
+                }
+            });
+            specialiteInput.addEventListener('input', function() {
+                if (this.classList.contains('is-invalid') && this.value.trim()) {
+                    this.classList.remove('is-invalid');
+                    const errorDiv = document.getElementById('specialite-error');
+                    if (errorDiv) errorDiv.style.display = 'none';
+                }
+            });
+        }
+        
+        if (passwordInput) {
+            passwordInput.addEventListener('blur', function() {
+                const value = this.value;
+                const errorDiv = document.getElementById('password-error');
+                if (!value) {
+                    this.classList.add('is-invalid');
+                    if (errorDiv) {
+                        errorDiv.textContent = 'Le mot de passe est requis';
+                        errorDiv.style.display = 'block';
+                    }
+                } else if (value.length < 6) {
+                    this.classList.add('is-invalid');
+                    if (errorDiv) {
+                        errorDiv.textContent = 'Le mot de passe doit contenir au moins 6 caractères';
+                        errorDiv.style.display = 'block';
+                    }
+                } else {
+                    this.classList.remove('is-invalid');
+                    if (errorDiv) errorDiv.style.display = 'none';
+                }
+            });
+            passwordInput.addEventListener('input', function() {
+                if (this.classList.contains('is-invalid') && this.value.length >= 6) {
+                    this.classList.remove('is-invalid');
+                    const errorDiv = document.getElementById('password-error');
+                    if (errorDiv) errorDiv.style.display = 'none';
+                }
+                if (confirmPasswordInput && confirmPasswordInput.value) {
+                    const confirmErrorDiv = document.getElementById('confirmPassword-error');
+                    if (this.value === confirmPasswordInput.value) {
+                        confirmPasswordInput.classList.remove('is-invalid');
+                        if (confirmErrorDiv) confirmErrorDiv.style.display = 'none';
+                    } else {
+                        confirmPasswordInput.classList.add('is-invalid');
+                        if (confirmErrorDiv) {
+                            confirmErrorDiv.textContent = 'Les mots de passe ne correspondent pas';
+                            confirmErrorDiv.style.display = 'block';
+                        }
+                    }
+                }
+            });
+        }
+        
+        if (confirmPasswordInput && passwordInput) {
+            confirmPasswordInput.addEventListener('blur', function() {
+                const errorDiv = document.getElementById('confirmPassword-error');
+                if (!this.value) {
+                    this.classList.add('is-invalid');
+                    if (errorDiv) {
+                        errorDiv.textContent = 'Veuillez confirmer votre mot de passe';
+                        errorDiv.style.display = 'block';
+                    }
+                } else if (this.value !== passwordInput.value) {
+                    this.classList.add('is-invalid');
+                    if (errorDiv) {
+                        errorDiv.textContent = 'Les mots de passe ne correspondent pas';
+                        errorDiv.style.display = 'block';
+                    }
+                } else {
+                    this.classList.remove('is-invalid');
+                    if (errorDiv) errorDiv.style.display = 'none';
+                }
+            });
+            confirmPasswordInput.addEventListener('input', function() {
+                if (this.classList.contains('is-invalid') && this.value === passwordInput.value) {
+                    this.classList.remove('is-invalid');
+                    const errorDiv = document.getElementById('confirmPassword-error');
+                    if (errorDiv) errorDiv.style.display = 'none';
+                }
+            });
+        }
+    });
+    </script>
+    
+    <!-- Modal pour rogner la photo -->
+    <div class="modal fade" id="photoCropModal" tabindex="-1" aria-labelledby="photoCropModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" style="max-width: 650px;">
+            <div class="modal-content">
+                <div class="modal-header py-2">
+                    <h6 class="modal-title mb-0" id="photoCropModalLabel">
+                        <i class="bi bi-scissors me-1"></i>Rogner votre photo
+                    </h6>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body" style="padding: 0.75rem;">
+                    <div class="text-center mb-2">
+                        <div class="d-flex justify-content-center gap-1 flex-wrap mb-2">
+                            <button type="button" class="btn btn-sm btn-outline-secondary" id="zoomInBtnSignup">
+                                <i class="bi bi-zoom-in"></i>
+                            </button>
+                            <button type="button" class="btn btn-sm btn-outline-secondary" id="zoomOutBtnSignup">
+                                <i class="bi bi-zoom-out"></i>
+                            </button>
+                            <button type="button" class="btn btn-sm btn-outline-secondary" id="resetZoomBtnSignup">
+                                <i class="bi bi-arrow-clockwise"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="d-flex justify-content-center" style="height: 450px; align-items: center; background: #f8f9fa; border-radius: 6px; padding: 10px; overflow: hidden;">
+                        <div style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center;">
+                            <img id="photoCropImage" src="" alt="Photo à rogner" style="max-width: 100%; max-height: 100%; display: block;">
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer py-2">
+                    <button type="button" class="btn btn-sm btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                    <button type="button" class="btn btn-sm btn-primary" id="cropPhotoBtn">
+                        <i class="bi bi-check-lg me-1"></i>Valider
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Bootstrap JS pour les modals -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
+    <script>
+    let signupCropper = null;
+    let signupCurrentPhotoFile = null;
+    
+    // Fonction pour ouvrir le sélecteur de fichier (même méthode que dans les paramètres)
+    function openPhotoSelectorSignup() {
+        const photoInput = document.querySelector('input[type="file"].photo-input-field') || 
+                           document.querySelector('input[type="file"][id="photo"]') ||
+                           document.querySelector('input[type="file"][accept="image/*"]') ||
+                           document.querySelector('input[name*="photo"]');
+        
+        if (photoInput) {
+            photoInput.click();
+        } else {
+            console.error('Champ de fichier photo introuvable');
+            alert('Erreur : Impossible de trouver le champ de sélection de fichier. Veuillez recharger la page.');
+        }
+    }
+    
+    // Fonction pour prévisualiser et ouvrir le modal de rognage (même méthode que dans les paramètres)
+    function previewPhotoSignup(input) {
+        console.log('=== previewPhotoSignup APPELÉE ===');
+        console.log('Input reçu:', input);
+        console.log('input.files:', input ? input.files : 'input est null');
+        
+        if (!input) {
+            console.error('ERREUR: input est null ou undefined');
+            return;
+        }
+        
+        if (!input.files) {
+            console.error('ERREUR: input.files est null ou undefined');
+            return;
+        }
+        
+        if (!input.files[0]) {
+            console.error('ERREUR: Aucun fichier dans input.files');
+            return;
+        }
+        
+        if (input && input.files && input.files[0]) {
+            console.log('Fichier sélectionné:', input.files[0].name, input.files[0].type, input.files[0].size);
+            
+            // Vérifier la taille du fichier (5 Mo max)
+            if (input.files[0].size > 5 * 1024 * 1024) {
+                alert('Le fichier est trop volumineux. La taille maximale autorisée est de 5 Mo.');
+                input.value = '';
+                return;
+            }
+            
+            // Vérifier le type de fichier
+            const allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+            if (!allowedTypes.includes(input.files[0].type)) {
+                alert('Type de fichier non autorisé. Veuillez sélectionner une image (JPEG, PNG, GIF ou WebP).');
+                input.value = '';
+                return;
+            }
+            
+            // Sauvegarder le fichier pour le rognage
+            signupCurrentPhotoFile = input.files[0];
+            
+            // Ouvrir la modal de rognage
+            console.log('Création du FileReader');
+            const reader = new FileReader();
+            
+            reader.onerror = function(error) {
+                console.error('Erreur FileReader:', error);
+                alert('Erreur lors de la lecture du fichier. Veuillez réessayer.');
+            };
+            
+            reader.onload = function(e) {
+                console.log('=== FileReader onload déclenché ===');
+                console.log('R�sultat:', e.target.result ? 'Donn�es pr�sentes' : 'Pas de donn�es');
+                
+                const cropImage = document.getElementById('photoCropImage');
+                const modalElement = document.getElementById('photoCropModal');
+                
+                console.log('Éléments du modal:', {
+                    cropImage: !!cropImage,
+                    modalElement: !!modalElement
+                });
+                
+                if (!cropImage || !modalElement) {
+                    console.error('ERREUR: Éléments du modal introuvables:', {
+                        cropImage: !!cropImage,
+                        modalElement: !!modalElement
+                    });
+                    alert('Erreur : Impossible d\'ouvrir le modal de rognage. Vérifiez la console pour plus de détails.');
+                    return;
+                }
+                
+                console.log('Création de l\'instance Bootstrap Modal');
+                const modal = new bootstrap.Modal(modalElement);
+                
+                // Détruire l'instance cropper précédente si elle existe
+                if (signupCropper) {
+                    console.log('Destruction de l\'ancien cropper');
+                    signupCropper.destroy();
+                    signupCropper = null;
+                }
+                
+                console.log('Définition de la source de l\'image');
+                cropImage.src = e.target.result;
+                
+                console.log('Affichage du modal...');
+                modal.show();
+                console.log('Modal.show() appelé');
+                
+                // Initialiser Cropper.js après l'ouverture de la modal
+                cropImage.onload = function() {
+                    signupCropper = new Cropper(cropImage, {
+                        aspectRatio: 1, // Format carré pour photo de profil circulaire
+                        viewMode: 1,
+                        dragMode: 'move',
+                        autoCropArea: 0.9,
+                        restore: false,
+                        guides: true,
+                        center: true,
+                        highlight: false,
+                        cropBoxMovable: true,
+                        cropBoxResizable: true,
+                        toggleDragModeOnDblclick: false,
+                        zoomable: true,
+                        zoomOnTouch: true,
+                        zoomOnWheel: true,
+                        wheelZoomRatio: 0.1,
+                        minCropBoxWidth: 200,
+                        minCropBoxHeight: 200,
+                        ready: function() {
+                            // Zoomer l'image pour qu'elle remplisse vraiment tout l'espace disponible
+                            const containerData = this.cropper.getContainerData();
+                            const imageData = this.cropper.getImageData();
+                            
+                            // Calculer le zoom pour que l'image remplisse complètement le conteneur
+                            const containerWidth = containerData.width;
+                            const containerHeight = containerData.height;
+                            const imageWidth = imageData.naturalWidth;
+                            const imageHeight = imageData.naturalHeight;
+                            
+                            // Calculer le ratio pour remplir le conteneur (avec un peu de marge)
+                            const scaleX = containerWidth / imageWidth;
+                            const scaleY = containerHeight / imageHeight;
+                            // Prendre le plus grand pour remplir complètement
+                            let scale = Math.max(scaleX, scaleY) * 1.1; // 1.1 pour agrandir encore plus
+                            
+                            // Appliquer le zoom pour agrandir l'image
+                            this.cropper.zoomTo(scale);
+                            
+                            // Ajuster la zone de rognage pour qu'elle soit très grande
+                            const containerSize = Math.min(containerWidth, containerHeight);
+                            const cropSize = containerSize * 0.85;
+                            this.cropper.setCropBoxData({
+                                width: cropSize,
+                                height: cropSize
+                            });
+                        }
+                    });
+                    
+                    // Boutons de contrôle du zoom
+                    document.getElementById('zoomInBtnSignup').addEventListener('click', function() {
+                        if (signupCropper) signupCropper.zoom(0.2);
+                    });
+                    
+                    document.getElementById('zoomOutBtnSignup').addEventListener('click', function() {
+                        if (signupCropper) signupCropper.zoom(-0.2);
+                    });
+                    
+                    document.getElementById('resetZoomBtnSignup').addEventListener('click', function() {
+                        if (signupCropper) {
+                            signupCropper.reset();
+                            const containerData = signupCropper.getContainerData();
+                            const imageData = signupCropper.getImageData();
+                            const containerWidth = containerData.width;
+                            const containerHeight = containerData.height;
+                            const imageWidth = imageData.naturalWidth;
+                            const imageHeight = imageData.naturalHeight;
+                            const scaleX = containerWidth / imageWidth;
+                            const scaleY = containerHeight / imageHeight;
+                            let scale = Math.max(scaleX, scaleY) * 1.1;
+                            signupCropper.zoomTo(scale);
+                            const containerSize = Math.min(containerWidth, containerHeight);
+                            const cropSize = containerSize * 0.85;
+                            signupCropper.setCropBoxData({
+                                width: cropSize,
+                                height: cropSize
+                            });
+                        }
+                    });
+                };
+            };
+            reader.readAsDataURL(input.files[0]);
+        }
+    }
+    
+    // Gérer le bouton de validation du rognage (même méthode que dans les paramètres)
+    document.addEventListener('DOMContentLoaded', function() {
+        console.log('DOMContentLoaded - Recherche du champ photo');
+        const photoInput = document.querySelector('input[type="file"].photo-input-field') || 
+                          document.querySelector('input[type="file"][id="photo"]') ||
+                          document.querySelector('input[type="file"][accept="image/*"]') ||
+                          document.querySelector('input[name*="photo"]');
+        
+        console.log('Champ photo trouvé:', photoInput);
+        
+        if (photoInput) {
+            console.log('Champ photo trouvé, attachement du gestionnaire change');
+            
+            // Attacher le gestionnaire d'événement change
+            photoInput.addEventListener('change', function(e) {
+                console.log('=== ÉVÉNEMENT CHANGE DÉCLENCHÉ ===');
+                console.log('Élément:', e.target);
+                console.log('Fichiers:', e.target.files);
+                console.log('Nombre de fichiers:', e.target.files ? e.target.files.length : 0);
+                
+                if (e.target.files && e.target.files[0]) {
+                    console.log('Fichier détecté, appel de previewPhotoSignup');
+                    previewPhotoSignup(e.target);
+                } else {
+                    console.log('Aucun fichier sélectionné');
+                }
+            });
+            
+            console.log('Gestionnaire change attaché avec succès');
+        } else {
+            console.error('ERREUR: Champ photo introuvable dans DOMContentLoaded');
+            // Essayer de trouver tous les inputs de type file pour déboguer
+            const allFileInputs = document.querySelectorAll('input[type="file"]');
+            console.log('Tous les inputs file trouvés:', allFileInputs);
+        }
+        
+        const photoPreviewImg = document.getElementById('photoPreviewImg');
+        const photoPlaceholder = document.getElementById('photoPlaceholder');
+        const photoRemoveBtn = document.getElementById('photoRemoveBtn');
+        const photoPreviewContainer = document.getElementById('photoPreviewContainer');
+        
+        // Bouton pour valider le rognage
+        const cropPhotoBtn = document.getElementById('cropPhotoBtn');
+        if (cropPhotoBtn) {
+            cropPhotoBtn.addEventListener('click', function() {
+                if (signupCropper) {
+                    try {
+                        // Obtenir l'image rognée
+                        const canvas = signupCropper.getCroppedCanvas({
+                            width: 400,
+                            height: 400,
+                            imageSmoothingEnabled: true,
+                            imageSmoothingQuality: 'high'
+                        });
+                        
+                        // Convertir en blob puis en File
+                        canvas.toBlob(function(blob) {
+                            if (!blob) {
+                                console.error('Erreur lors de la création du blob');
+                                alert('Erreur lors du rognage de l\'image. Veuillez réessayer.');
+                                return;
+                            }
+                            
+                            // Créer un nouveau File à partir du blob
+                            const croppedFile = new File([blob], signupCurrentPhotoFile.name, {
+                                type: signupCurrentPhotoFile.type,
+                                lastModified: Date.now()
+                            });
+                            
+                            // Créer un DataTransfer pour remplacer le fichier dans l'input
+                            console.log('Création du DataTransfer avec le fichier rogné');
+                            const dataTransfer = new DataTransfer();
+                            dataTransfer.items.add(croppedFile);
+                            
+                            const currentPhotoInput = document.querySelector('input[type="file"].photo-input-field') || 
+                                                     document.querySelector('input[type="file"][id="photo"]') ||
+                                                     document.querySelector('input[type="file"][accept="image/*"]') ||
+                                                     document.querySelector('input[name*="photo"]');
+                            
+                            console.log('Champ photo trouvé pour mise à jour:', currentPhotoInput);
+                            
+                            if (currentPhotoInput) {
+                                currentPhotoInput.files = dataTransfer.files;
+                                console.log('Fichier rogn� mis � jour dans l\'input:', currentPhotoInput.files[0] ? currentPhotoInput.files[0].name : 'aucun');
+                                console.log('Taille du fichier rogn�:', currentPhotoInput.files[0] ? currentPhotoInput.files[0].size : 'N/A');
+                            } else {
+                                console.error('ERREUR: Impossible de trouver le champ photo pour mettre à jour le fichier rogné');
+                            }
+                            
+                            // Afficher la prévisualisation
+                            if (photoPreviewImg) {
+                                const previewUrl = canvas.toDataURL();
+                                photoPreviewImg.src = previewUrl;
+                                photoPreviewImg.style.display = 'block';
+                            }
+                            if (photoPlaceholder) photoPlaceholder.style.display = 'none';
+                            if (photoRemoveBtn) photoRemoveBtn.style.display = 'flex';
+                            if (photoPreviewContainer) photoPreviewContainer.style.borderColor = '#0d6efd';
+                            
+                            // Détruire l'instance cropper AVANT de fermer la modal
+                            if (signupCropper) {
+                                signupCropper.destroy();
+                                signupCropper = null;
+                            }
+                            
+                            // Fermer la modal et supprimer le backdrop
+                            const modalElement = document.getElementById('photoCropModal');
+                            const modal = bootstrap.Modal.getInstance(modalElement);
+                            if (modal) {
+                                modal.hide();
+                            }
+                            
+                            // Forcer la suppression du backdrop si nécessaire
+                            setTimeout(function() {
+                                const backdrops = document.querySelectorAll('.modal-backdrop');
+                                backdrops.forEach(function(backdrop) {
+                                    backdrop.remove();
+                                });
+                                document.body.classList.remove('modal-open');
+                                document.body.style.overflow = '';
+                                document.body.style.paddingRight = '';
+                            }, 100);
+                        }, signupCurrentPhotoFile.type, 0.9);
+                    } catch (error) {
+                        console.error('Erreur lors du rognage:', error);
+                        alert('Erreur lors du rognage de l\'image. Veuillez réessayer.');
+                    }
+                }
+            });
+        }
+        
+        // Nettoyer cropper quand la modal est fermée
+        const photoCropModal = document.getElementById('photoCropModal');
+        if (photoCropModal) {
+            photoCropModal.addEventListener('hidden.bs.modal', function() {
+                if (signupCropper) {
+                    signupCropper.destroy();
+                    signupCropper = null;
+                }
+                // S'assurer que le backdrop est supprimé
+                setTimeout(function() {
+                    const backdrops = document.querySelectorAll('.modal-backdrop');
+                    backdrops.forEach(function(backdrop) {
+                        backdrop.remove();
+                    });
+                    document.body.classList.remove('modal-open');
+                    document.body.style.overflow = '';
+                    document.body.style.paddingRight = '';
+                }, 100);
+            });
+        }
+        
+        // Gérer aussi la fermeture avec le bouton Annuler
+        const photoCropModalCancel = photoCropModal?.querySelector('[data-bs-dismiss="modal"]');
+        if (photoCropModalCancel) {
+            photoCropModalCancel.addEventListener('click', function() {
+                setTimeout(function() {
+                    const backdrops = document.querySelectorAll('.modal-backdrop');
+                    backdrops.forEach(function(backdrop) {
+                        backdrop.remove();
+                    });
+                    document.body.classList.remove('modal-open');
+                    document.body.style.overflow = '';
+                    document.body.style.paddingRight = '';
+                }, 100);
+            });
+        }
+        
+        // Bouton pour supprimer la photo
+        if (photoRemoveBtn) {
+            photoRemoveBtn.addEventListener('click', function(e) {
+                e.stopPropagation();
+                const currentPhotoInput = document.querySelector('input[type="file"].photo-input-field') || 
+                                         document.querySelector('input[type="file"][id="photo"]') ||
+                                         document.querySelector('input[type="file"][accept="image/*"]') ||
+                                         document.querySelector('input[name*="photo"]');
+                if (currentPhotoInput) {
+                    currentPhotoInput.value = '';
+                }
+                if (photoPreviewImg) {
+                    photoPreviewImg.src = '';
+                    photoPreviewImg.style.display = 'none';
+                }
+                if (photoPlaceholder) photoPlaceholder.style.display = 'block';
+                if (photoRemoveBtn) photoRemoveBtn.style.display = 'none';
+                if (photoPreviewContainer) photoPreviewContainer.style.borderColor = '#0d6efd';
+            });
+        }
+    });
+    </script>
+>>>>>>> isramedi
 {% endblock %}

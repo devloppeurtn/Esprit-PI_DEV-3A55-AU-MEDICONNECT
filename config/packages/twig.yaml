@@ -2,7 +2,10 @@ twig:
     file_name_pattern: '*.twig'
     form_themes:
         - 'bootstrap_5_layout.html.twig'
+<<<<<<< HEAD
 
+=======
+>>>>>>> isramedi
 when@test:
     twig:
         strict_variables: true

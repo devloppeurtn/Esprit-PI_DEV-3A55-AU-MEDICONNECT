@@ -12,7 +12,10 @@
                 <div class="card-body">
                     <h2 class="mb-3">{{ item.title }}</h2>
                     
+<<<<<<< HEAD
                     <!-- Event Info Cards -->
+=======
+>>>>>>> isramedi
                     <div class="row mb-4">
                         {% if item.eventDate %}
                             <div class="col-md-6 mb-3">
@@ -69,7 +72,10 @@
                         </div>
                     </div>
 
+<<<<<<< HEAD
                     <!-- Event Description -->
+=======
+>>>>>>> isramedi
                     <hr>
                     <div class="mt-4">
                         <h5 class="mb-3">Description</h5>
@@ -82,6 +88,7 @@
                 </div>
             </div>
 
+<<<<<<< HEAD
             <!-- Participants List -->
             <div class="card mt-4">
                 <div class="card-body">
@@ -149,10 +156,57 @@
                             <i class="bi bi-check-circle me-1"></i>Confirmer mon inscription
                         </button>
                     </form>
+=======
+            {% if is_granted('ROLE_ORGANISATEUR') and item.organisateur and item.organisateur.id == app.user.id %}
+                <div class="card mt-4">
+                    <div class="card-body">
+                        <h5 class="mb-3">
+                            <i class="bi bi-people me-2"></i>Liste des participants ({{ participants|length }})
+                        </h5>
+                        {% if participants is not empty %}
+                            <ul class="list-group list-group-flush">
+                                {% for p in participants %}
+                                    <li class="list-group-item">
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <div>
+                                                <strong>{{ p.firstName }} {{ p.lastName }}</strong>
+                                                <br>
+                                                <small class="text-muted">{{ p.email }}</small>
+                                            </div>
+                                            <small class="text-muted">{{ p.createdAt|date('d/m/Y H:i') }}</small>
+                                        </div>
+                                    </li>
+                                {% endfor %}
+                            </ul>
+                        {% else %}
+                            <p class="text-muted mb-0">Aucun participant pour le moment.</p>
+                        {% endif %}
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+
+        <div class="col-lg-4">
+            <div class="card sticky-top" style="top: 20px;">
+                <div class="card-body">
+                    <h5 class="mb-3"><i class="bi bi-info-circle me-2"></i>Actions</h5>
+                    <p class="text-muted small mb-3">
+                        Pour participer à cet événement, cliquez sur le bouton ci-dessous pour remplir votre profil de participation.
+                    </p>
+                    <a href="{{ path('app_evenement_participer_form', {id: item.id}) }}" class="btn btn-success w-100 mb-2">
+                        <i class="bi bi-check-circle me-1"></i> Participer
+                    </a>
+                    <a href="{{ path('app_evenement_index') }}" class="btn btn-outline-secondary w-100">
+                        ← Retour aux événements
+                    </a>
+>>>>>>> isramedi
                 </div>
             </div>
         </div>
     </div>
 </div>
+<<<<<<< HEAD
 
+=======
+>>>>>>> isramedi
 {% endblock %}

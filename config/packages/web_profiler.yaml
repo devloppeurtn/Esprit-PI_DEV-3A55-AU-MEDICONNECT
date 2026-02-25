@@ -1,10 +1,17 @@
 when@dev:
     web_profiler:
+<<<<<<< HEAD
         toolbar: true
 
     framework:
         profiler:
             collect_serializer_data: true
+=======
+        toolbar: false
+
+    framework:
+        profiler: { collect: false }
+>>>>>>> isramedi
 
 when@test:
     framework:

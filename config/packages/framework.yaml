@@ -5,6 +5,18 @@ framework:
     http_method_override: false
     handle_all_throwables: true
 
+<<<<<<< HEAD
+=======
+    # Hosts de confiance (localhost + ngrok pour accès mobile)
+    trusted_hosts:
+        - '^localhost$'
+        - '^127\.0\.0\.1$'
+        - '^.*\.ngrok-free\.dev$'
+        - '^.*\.ngrok-free\.app$'
+        - '^.*\.ngrok\.io$'
+        - '^.*\.ngrok\.app$'
+
+>>>>>>> isramedi
     # Enables session support. Note that the session will ONLY be started if you read or write from it.
     # Remove or comment this section to explicitly disable session support.
     session:

@@ -3,7 +3,10 @@
 namespace App\Entity;
 
 use App\Repository\ParticipantRepository;
+<<<<<<< HEAD
 use App\Entity\Evenement;
+=======
+>>>>>>> isramedi
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
@@ -50,7 +53,10 @@ class Participant
     public function setFirstName(string $firstName): self
     {
         $this->firstName = $firstName;
+<<<<<<< HEAD
 
+=======
+>>>>>>> isramedi
         return $this;
     }
 
@@ -62,7 +68,10 @@ class Participant
     public function setLastName(string $lastName): self
     {
         $this->lastName = $lastName;
+<<<<<<< HEAD
 
+=======
+>>>>>>> isramedi
         return $this;
     }
 
@@ -74,7 +83,10 @@ class Participant
     public function setEmail(string $email): self
     {
         $this->email = $email;
+<<<<<<< HEAD
 
+=======
+>>>>>>> isramedi
         return $this;
     }
 
@@ -86,6 +98,7 @@ class Participant
     public function setEvenement(Evenement $evenement): self
     {
         $this->evenement = $evenement;
+<<<<<<< HEAD
 
         return $this;
     }
@@ -101,6 +114,11 @@ class Participant
         return $this->setEvenement($moduleFour);
     }
 
+=======
+        return $this;
+    }
+
+>>>>>>> isramedi
     public function getCreatedAt(): \DateTimeImmutable
     {
         return $this->createdAt;

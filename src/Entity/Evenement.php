@@ -2,6 +2,10 @@
 
 namespace App\Entity;
 
+<<<<<<< HEAD
+=======
+use App\Enum\StatutEvenement;
+>>>>>>> isramedi
 use App\Repository\EvenementRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
@@ -24,6 +28,24 @@ class Evenement
     #[ORM\Column(type: Types::BOOLEAN)]
     private bool $isActive = true;
 
+<<<<<<< HEAD
+=======
+    /** Statut de validation : EN_ATTENTE (défaut), VALIDE (accepté par admin), REFUSE */
+    #[ORM\Column(type: Types::STRING, length: 20, enumType: StatutEvenement::class)]
+    private StatutEvenement $statut = StatutEvenement::EN_ATTENTE;
+
+    #[ORM\ManyToOne(targetEntity: Utilisateur::class)]
+    #[ORM\JoinColumn(nullable: true, onDelete: 'SET NULL')]
+    private ?Utilisateur $organisateur = null;
+
+    #[ORM\ManyToOne(targetEntity: Admin::class)]
+    #[ORM\JoinColumn(nullable: true, onDelete: 'SET NULL')]
+    private ?Admin $approuvePar = null;
+
+    #[ORM\Column(type: Types::DATETIME_IMMUTABLE, nullable: true)]
+    private ?\DateTimeImmutable $approuveAt = null;
+
+>>>>>>> isramedi
     #[ORM\Column(type: Types::DATE_IMMUTABLE, nullable: true)]
     private ?\DateTimeImmutable $eventDate = null;
 
@@ -55,7 +77,10 @@ class Evenement
     public function setTitle(string $title): self
     {
         $this->title = $title;
+<<<<<<< HEAD
 
+=======
+>>>>>>> isramedi
         return $this;
     }
 
@@ -67,7 +92,10 @@ class Evenement
     public function setContent(?string $content): self
     {
         $this->content = $content;
+<<<<<<< HEAD
 
+=======
+>>>>>>> isramedi
         return $this;
     }
 
@@ -79,7 +107,10 @@ class Evenement
     public function setIsActive(bool $isActive): self
     {
         $this->isActive = $isActive;
+<<<<<<< HEAD
 
+=======
+>>>>>>> isramedi
         return $this;
     }
 
@@ -96,7 +127,10 @@ class Evenement
     public function setEventDate(?\DateTimeImmutable $eventDate): self
     {
         $this->eventDate = $eventDate;
+<<<<<<< HEAD
 
+=======
+>>>>>>> isramedi
         return $this;
     }
 
@@ -108,7 +142,10 @@ class Evenement
     public function setLocation(?string $location): self
     {
         $this->location = $location;
+<<<<<<< HEAD
 
+=======
+>>>>>>> isramedi
         return $this;
     }
 
@@ -120,7 +157,54 @@ class Evenement
     public function setEventTime(?string $eventTime): self
     {
         $this->eventTime = $eventTime;
+<<<<<<< HEAD
 
+=======
+        return $this;
+    }
+
+    public function getStatut(): StatutEvenement
+    {
+        return $this->statut;
+    }
+
+    public function setStatut(StatutEvenement $statut): self
+    {
+        $this->statut = $statut;
+        return $this;
+    }
+
+    public function getOrganisateur(): ?Utilisateur
+    {
+        return $this->organisateur;
+    }
+
+    public function setOrganisateur(?Utilisateur $organisateur): self
+    {
+        $this->organisateur = $organisateur;
+        return $this;
+    }
+
+    public function getApprouvePar(): ?Admin
+    {
+        return $this->approuvePar;
+    }
+
+    public function setApprouvePar(?Admin $approuvePar): self
+    {
+        $this->approuvePar = $approuvePar;
+        return $this;
+    }
+
+    public function getApprouveAt(): ?\DateTimeImmutable
+    {
+        return $this->approuveAt;
+    }
+
+    public function setApprouveAt(?\DateTimeImmutable $approuveAt): self
+    {
+        $this->approuveAt = $approuveAt;
+>>>>>>> isramedi
         return $this;
     }
 }

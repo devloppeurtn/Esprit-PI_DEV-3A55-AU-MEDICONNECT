@@ -1,0 +1,22 @@
+{% extends 'admin/base_admin.html.twig' %}
+
+{% block title %}Modifier l'ordonnance - MediConnect{% endblock %}
+
+{% block admin_content %}
+<div class="medecin-ordonnance-modifier">
+    <h1 class="h3 mb-4">Modifier l'ordonnance</h1>
+
+    {{ form_start(form, {'attr': {'novalidate': 'novalidate'}}) }}
+    <div class="card border-0 shadow-sm mb-4">
+        <div class="card-body">
+            {{ form_row(form.medicament) }}
+            {{ form_row(form.methodeUtilisation) }}
+            {{ form_row(form.instructions) }}
+            <button type="submit" class="btn btn-primary">Enregistrer</button>
+            <a href="{{ path('app_medecin_consultation_voir', {id: consultation.id}) }}" class="btn btn-outline-secondary">Annuler</a>
+        </div>
+    </div>
+    {{ form_end(form) }}
+</div>
+{% endblock %}
+

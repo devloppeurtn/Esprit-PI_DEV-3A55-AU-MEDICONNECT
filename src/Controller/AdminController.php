@@ -2,9 +2,26 @@
 
 namespace App\Controller;
 
+<<<<<<< HEAD
 use App\Entity\RoleUtilisateur;
 use App\Entity\StatutCompte;
 use App\Entity\Utilisateur;
+=======
+use App\Entity\Consultation;
+use App\Entity\DocumentPatient;
+use App\Entity\DossierMedical;
+use App\Entity\Evenement;
+use App\Entity\MedicamentActuel;
+use App\Entity\Ordonnance;
+use App\Entity\RapportMedical;
+use App\Entity\RendezVous;
+use App\Entity\RoleUtilisateur;
+use App\Entity\StatutCompte;
+use App\Entity\StatutRendezVous;
+use App\Entity\Utilisateur;
+use App\Enum\StatutEvenement;
+use App\Repository\EvenementRepository;
+>>>>>>> isramedi
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -13,6 +30,10 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Routing\Attribute\Route;
+<<<<<<< HEAD
+=======
+use Symfony\Component\Security\Csrf\CsrfTokenManagerInterface;
+>>>>>>> isramedi
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 #[Route('/admin')]
@@ -22,6 +43,11 @@ class AdminController extends AbstractController
     public function __construct(
         private EntityManagerInterface $entityManager,
         private UserPasswordHasherInterface $passwordHasher,
+<<<<<<< HEAD
+=======
+        private EvenementRepository $evenementRepository,
+        private CsrfTokenManagerInterface $csrfTokenManager,
+>>>>>>> isramedi
     ) {
     }
 
@@ -35,6 +61,11 @@ class AdminController extends AbstractController
         $countSecretaires = $userRepo->count(['role' => RoleUtilisateur::SECRETAIRE]);
         $countAdmins = $userRepo->count(['role' => RoleUtilisateur::ADMIN]);
         $countParticipations = $userRepo->count(['role' => RoleUtilisateur::PARTICIPATION]);
+<<<<<<< HEAD
+=======
+        $countOrganisateurs = $userRepo->count(['role' => RoleUtilisateur::ORGANISATEUR]);
+        $pendingEvenements = $this->evenementRepository->findPending();
+>>>>>>> isramedi
 
         return $this->render('admin/dashboard/index.html.twig', [
             'totalUsers' => $totalUsers,
@@ -43,20 +74,162 @@ class AdminController extends AbstractController
             'countSecretaires' => $countSecretaires,
             'countAdmins' => $countAdmins,
             'countParticipations' => $countParticipations,
+<<<<<<< HEAD
         ]);
     }
 
+=======
+            'countOrganisateurs' => $countOrganisateurs,
+            'pendingEvenements' => $pendingEvenements,
+        ]);
+    }
+
+    #[Route('/evenements', name: 'app_admin_evenements', methods: ['GET'])]
+    public function evenements(): Response
+    {
+        return $this->render('admin/evenements/index.html.twig', []);
+    }
+
+    #[Route('/evenements/list', name: 'app_admin_evenements_list', methods: ['GET'])]
+    public function evenementsList(Request $request): JsonResponse
+    {
+        $statut = $request->query->get('statut'); // '', 'EN_ATTENTE', 'VALIDE', 'REFUSE'
+        $list = $this->evenementRepository->findAllForAdmin($statut === '' || $statut === null ? null : $statut);
+        $data = [];
+        foreach ($list as $e) {
+            $o = $e->getOrganisateur();
+            $data[] = [
+                'id' => $e->getId(),
+                'title' => $e->getTitle(),
+                'contentExcerpt' => $e->getContent() ? mb_substr(strip_tags($e->getContent()), 0, 100) . (mb_strlen($e->getContent()) > 100 ? '...' : '') : '',
+                'eventDate' => $e->getEventDate()?->format('d/m/Y') ?? '—',
+                'createdAt' => $e->getCreatedAt()->format('d/m/Y H:i'),
+                'statut' => $e->getStatut()->value,
+                'tokenAccepter' => $this->csrfTokenManager->getToken('accepter' . $e->getId())->getValue(),
+                'tokenRefuser' => $this->csrfTokenManager->getToken('refuser' . $e->getId())->getValue(),
+                'organisateur' => $o ? [
+                    'id' => $o->getId(),
+                    'nomComplet' => $o->getNomComplet(),
+                    'email' => $o->getEmail(),
+                    'photo' => $o->getPhoto(),
+                ] : null,
+            ];
+        }
+        return new JsonResponse(['success' => true, 'events' => $data]);
+    }
+
+    #[Route('/evenements/{id}/accepter', name: 'app_admin_evenement_accepter', methods: ['POST'])]
+    public function evenementAccepter(Request $request, Evenement $evenement): Response|JsonResponse
+    {
+        if ($evenement->getStatut() !== StatutEvenement::EN_ATTENTE) {
+            if ($request->isXmlHttpRequest() || $request->headers->get('Accept') === 'application/json') {
+                return new JsonResponse(['success' => false, 'message' => 'Cet événement n\'est plus en attente.'], 400);
+            }
+            $this->addFlash('warning', 'Cet événement n\'est plus en attente.');
+            return $this->redirectToRoute('app_admin_evenements');
+        }
+        if (!$this->isCsrfTokenValid('accepter'.$evenement->getId(), $request->request->get('_token'))) {
+            if ($request->isXmlHttpRequest() || $request->headers->get('Accept') === 'application/json') {
+                return new JsonResponse(['success' => false, 'message' => 'Jeton invalide.'], 400);
+            }
+            return $this->redirectToRoute('app_admin_evenements');
+        }
+        $evenement->setStatut(StatutEvenement::VALIDE);
+        $evenement->setApprouvePar($this->getUser());
+        $evenement->setApprouveAt(new \DateTimeImmutable());
+        $this->entityManager->flush();
+        if ($request->isXmlHttpRequest() || $request->headers->get('Accept') === 'application/json') {
+            return new JsonResponse(['success' => true, 'message' => 'Événement « ' . $evenement->getTitle() . ' » a été accepté et publié.']);
+        }
+        $this->addFlash('success', 'Événement « ' . $evenement->getTitle() . ' » a été accepté et est maintenant publié.');
+        return $this->redirectToRoute('app_admin_evenements');
+    }
+
+    #[Route('/evenements/{id}/refuser', name: 'app_admin_evenement_refuser', methods: ['POST'])]
+    public function evenementRefuser(Request $request, Evenement $evenement): Response|JsonResponse
+    {
+        if ($evenement->getStatut() !== StatutEvenement::EN_ATTENTE) {
+            if ($request->isXmlHttpRequest() || $request->headers->get('Accept') === 'application/json') {
+                return new JsonResponse(['success' => false, 'message' => 'Cet événement n\'est plus en attente.'], 400);
+            }
+            $this->addFlash('warning', 'Cet événement n\'est plus en attente.');
+            return $this->redirectToRoute('app_admin_evenements');
+        }
+        if (!$this->isCsrfTokenValid('refuser'.$evenement->getId(), $request->request->get('_token'))) {
+            if ($request->isXmlHttpRequest() || $request->headers->get('Accept') === 'application/json') {
+                return new JsonResponse(['success' => false, 'message' => 'Jeton invalide.'], 400);
+            }
+            return $this->redirectToRoute('app_admin_evenements');
+        }
+        $evenement->setStatut(StatutEvenement::REFUSE);
+        $evenement->setApprouvePar($this->getUser());
+        $evenement->setApprouveAt(new \DateTimeImmutable());
+        $this->entityManager->flush();
+        if ($request->isXmlHttpRequest() || $request->headers->get('Accept') === 'application/json') {
+            return new JsonResponse(['success' => true, 'message' => 'Événement « ' . $evenement->getTitle() . ' » a été refusé.']);
+        }
+        $this->addFlash('success', 'Événement « ' . $evenement->getTitle() . ' » a été refusé.');
+        return $this->redirectToRoute('app_admin_evenements');
+    }
+
+>>>>>>> isramedi
     #[Route('/stats', name: 'app_admin_stats', methods: ['GET'])]
     public function stats(): JsonResponse
     {
         $userRepo = $this->entityManager->getRepository(Utilisateur::class);
+<<<<<<< HEAD
         return new JsonResponse([
+=======
+        $em = $this->entityManager;
+
+        $rdvRepo = $em->getRepository(RendezVous::class);
+        $now = new \DateTimeImmutable('now');
+        $startOfDay = $now->setTime(0, 0, 0);
+        $endOfDay = $now->setTime(23, 59, 59);
+
+        // Rendez-vous aujourd'hui et à venir
+        $qbToday = $rdvRepo->createQueryBuilder('r_today')
+            ->select('COUNT(r_today.id)')
+            ->andWhere('r_today.dateDebut BETWEEN :start AND :end')
+            ->setParameter('start', $startOfDay)
+            ->setParameter('end', $endOfDay);
+        $rdvToday = (int) $qbToday->getQuery()->getSingleScalarResult();
+
+        $qbUpcoming = $rdvRepo->createQueryBuilder('r_up')
+            ->select('COUNT(r_up.id)')
+            ->andWhere('r_up.dateDebut > :endNow')
+            ->setParameter('endNow', $endOfDay);
+        $rdvUpcoming = (int) $qbUpcoming->getQuery()->getSingleScalarResult();
+
+        return new JsonResponse([
+            // Utilisateurs
+>>>>>>> isramedi
             'totalUsers' => $userRepo->count([]),
             'countPatients' => $userRepo->count(['role' => RoleUtilisateur::PATIENT]),
             'countMedecins' => $userRepo->count(['role' => RoleUtilisateur::MEDECIN]),
             'countSecretaires' => $userRepo->count(['role' => RoleUtilisateur::SECRETAIRE]),
             'countAdmins' => $userRepo->count(['role' => RoleUtilisateur::ADMIN]),
             'countParticipations' => $userRepo->count(['role' => RoleUtilisateur::PARTICIPATION]),
+<<<<<<< HEAD
+=======
+
+            // Dossier médical / consultations
+            'countDossiers' => $em->getRepository(DossierMedical::class)->count([]),
+            'countConsultations' => $em->getRepository(Consultation::class)->count([]),
+            'countOrdonnances' => $em->getRepository(Ordonnance::class)->count([]),
+            'countMedicamentsActuels' => $em->getRepository(MedicamentActuel::class)->count([]),
+            'countRapportsMedicaux' => $em->getRepository(RapportMedical::class)->count([]),
+            'countDocumentsPatient' => $em->getRepository(DocumentPatient::class)->count([]),
+
+            // Rendez-vous
+            'countRendezVous' => $rdvRepo->count([]),
+            'countRdvToday' => $rdvToday,
+            'countRdvUpcoming' => $rdvUpcoming,
+            'countRdvEnAttente' => $rdvRepo->count(['statut' => StatutRendezVous::EN_ATTENTE]),
+            'countRdvConfirmes' => $rdvRepo->count(['statut' => StatutRendezVous::CONFIRME]),
+            'countRdvAnnules' => $rdvRepo->count(['statut' => StatutRendezVous::ANNULE]),
+            'countRdvTermines' => $rdvRepo->count(['statut' => StatutRendezVous::TERMINE]),
+>>>>>>> isramedi
         ]);
     }
 
@@ -236,9 +409,17 @@ class AdminController extends AbstractController
             'email' => $u->getEmail(),
             'role' => $u->getRole()?->value ?? '',
             'statut' => $u->getStatut()?->value ?? '',
+<<<<<<< HEAD
             'dateCreation' => $u->getDateCreation()?->format('Y-m-d'),
             'derniereConnexion' => $u->getDerniereConnexion()?->format('d/m/Y H:i') ?? '—',
             'lastActive' => $u->getDerniereConnexion() ? $this->formatLastActive($u->getDerniereConnexion()) : '—',
+=======
+            'emailVerified' => $u->isEmailVerified(),
+            'dateCreation' => $u->getDateCreation()?->format('Y-m-d'),
+            'derniereConnexion' => $u->getDerniereConnexion()?->format('d/m/Y H:i') ?? '—',
+            'lastActive' => $u->getDerniereConnexion() ? $this->formatLastActive($u->getDerniereConnexion()) : '—',
+            'photo' => $u->getPhoto(),
+>>>>>>> isramedi
             'avatar' => '', // sera remplacé par l'asset dans le template
         ], $users);
 
@@ -296,6 +477,56 @@ class AdminController extends AbstractController
         ]);
     }
 
+<<<<<<< HEAD
+=======
+    #[Route('/users/{id}/profile/data', name: 'app_admin_user_profile_data', methods: ['GET'])]
+    public function userProfileData(int $id): JsonResponse
+    {
+        $user = $this->entityManager->getRepository(Utilisateur::class)->find($id);
+        if (!$user) {
+            return new JsonResponse(['success' => false, 'error' => 'Utilisateur introuvable'], 404);
+        }
+
+        $userData = [
+            'id' => $user->getId(),
+            'nomComplet' => $user->getNomComplet(),
+            'email' => $user->getEmail(),
+            'role' => $user->getRole()?->value ?? '',
+            'statut' => $user->getStatut()?->value ?? '',
+            'photo' => $user->getPhoto(),
+            'emailVerified' => $user->isEmailVerified(),
+            'dateCreation' => $user->getDateCreation()?->format('d/m/Y H:i') ?? '',
+            'derniereConnexion' => $user->getDerniereConnexion()?->format('d/m/Y H:i') ?? '—',
+        ];
+
+        // Données spécifiques selon le rôle
+        if ($user instanceof Patient) {
+            $userData['telephone'] = $user->getTelephone() ?? '';
+            $userData['dateNaissance'] = $user->getDateNaissance()?->format('d/m/Y') ?? '';
+            $userData['adresse'] = $user->getAdresse() ?? '';
+        } elseif ($user instanceof Medecin) {
+            $userData['specialite'] = $user->getSpecialite() ?? '';
+            $userData['adresseCabinet'] = $user->getAdresseCabinet() ?? '';
+            $userData['numeroLicence'] = $user->getNumeroLicence() ?? '';
+            $userData['telephone'] = $user->getTelephone() ?? '';
+        } elseif ($user instanceof Secretaire) {
+            $userData['telephone'] = $user->getTelephone() ?? '';
+        } elseif ($user instanceof \App\Entity\Organisateur) {
+            $userData['telephone'] = $user->getTelephone() ?? '';
+        }
+        
+        // Ajouter le téléphone pour Admin et Participation si nécessaire
+        if ($user instanceof \App\Entity\Admin || $user instanceof \App\Entity\Participation) {
+            $userData['telephone'] = $user->getTelephone() ?? '';
+        } elseif ($user instanceof Participation) {
+            $userData['roleDansEvenement'] = $user->getRoleDansEvenement()?->value ?? '';
+            $userData['presenceConfirmee'] = $user->isPresenceConfirmee();
+        }
+
+        return new JsonResponse(['success' => true, 'user' => $userData]);
+    }
+
+>>>>>>> isramedi
     #[Route('/users/export', name: 'app_admin_users_export', methods: ['GET'])]
     public function exportUsers(Request $request): StreamedResponse
     {
@@ -325,6 +556,23 @@ class AdminController extends AbstractController
         return $response;
     }
 
+<<<<<<< HEAD
+=======
+    #[Route('/users/export/status', name: 'app_admin_users_export_status', methods: ['GET'])]
+    public function exportUsersStatus(): JsonResponse
+    {
+        $userRepo = $this->entityManager->getRepository(Utilisateur::class);
+        $totalUsers = $userRepo->count([]);
+        
+        return new JsonResponse([
+            'success' => true,
+            'totalUsers' => $totalUsers,
+            'exportUrl' => $this->generateUrl('app_admin_users_export'),
+            'message' => 'Export prêt. Le téléchargement va commencer...'
+        ]);
+    }
+
+>>>>>>> isramedi
     #[Route('/users/create', name: 'app_admin_users_create', methods: ['GET', 'POST'])]
     public function createUser(Request $request): Response
     {
@@ -333,14 +581,39 @@ class AdminController extends AbstractController
             return new JsonResponse(['success' => false, 'error' => 'Données invalides'], 400);
         }
 
+<<<<<<< HEAD
         $email = $data['email'] ?? '';
         $nomComplet = $data['nomComplet'] ?? '';
+=======
+        $email = is_string($data['email'] ?? '') ? trim($data['email']) : '';
+        $nomComplet = is_string($data['nomComplet'] ?? '') ? strip_tags(trim($data['nomComplet'])) : '';
+>>>>>>> isramedi
         $roleValue = $data['role'] ?? 'PATIENT';
         $statutValue = $data['statut'] ?? 'ACTIF';
         $password = $data['password'] ?? bin2hex(random_bytes(8));
 
+<<<<<<< HEAD
         if (!$email || !$nomComplet) {
             return new JsonResponse(['success' => false, 'error' => 'Email et nom requis'], 400);
+=======
+        if ($email === '') {
+            return new JsonResponse(['success' => false, 'error' => 'Email requis'], 400);
+        }
+        if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            return new JsonResponse(['success' => false, 'error' => 'Email invalide'], 400);
+        }
+        if (mb_strlen($email) > 180) {
+            return new JsonResponse(['success' => false, 'error' => 'Email trop long'], 400);
+        }
+        if ($nomComplet === '') {
+            return new JsonResponse(['success' => false, 'error' => 'Nom requis'], 400);
+        }
+        if (mb_strlen($nomComplet) < 2 || mb_strlen($nomComplet) > 255) {
+            return new JsonResponse(['success' => false, 'error' => 'Nom invalide (2 à 255 caractères)'], 400);
+        }
+        if (is_string($password) && mb_strlen($password) > 0 && mb_strlen($password) < 6) {
+            return new JsonResponse(['success' => false, 'error' => 'Le mot de passe doit contenir au moins 6 caractères'], 400);
+>>>>>>> isramedi
         }
 
         $existing = $this->entityManager->getRepository(Utilisateur::class)->findOneBy(['email' => $email]);
@@ -367,6 +640,10 @@ class AdminController extends AbstractController
         $user->setNomComplet($nomComplet);
         $user->setRole($role);
         $user->setStatut($statut);
+<<<<<<< HEAD
+=======
+        $user->setEmailVerified(true); // Créé par admin = email considéré vérifié
+>>>>>>> isramedi
         $user->setPassword($this->passwordHasher->hashPassword($user, $password));
 
         $this->entityManager->persist($user);
@@ -385,6 +662,7 @@ class AdminController extends AbstractController
 
         $data = json_decode($request->getContent(), true) ?? $request->request->all();
         if (isset($data['nomComplet'])) {
+<<<<<<< HEAD
             $user->setNomComplet($data['nomComplet']);
         }
         if (isset($data['email'])) {
@@ -402,6 +680,48 @@ class AdminController extends AbstractController
         }
         if (!empty($data['password'])) {
             $user->setPassword($this->passwordHasher->hashPassword($user, $data['password']));
+=======
+            $nom = is_string($data['nomComplet']) ? strip_tags(trim($data['nomComplet'])) : '';
+            if ($nom === '' || mb_strlen($nom) < 2 || mb_strlen($nom) > 255) {
+                return new JsonResponse(['success' => false, 'error' => 'Nom invalide (2 à 255 caractères)'], 400);
+            }
+            $user->setNomComplet($nom);
+        }
+        if (isset($data['email'])) {
+            $email = is_string($data['email']) ? trim($data['email']) : '';
+            if ($email === '') {
+                return new JsonResponse(['success' => false, 'error' => 'Email requis'], 400);
+            }
+            if (!filter_var($email, FILTER_VALIDATE_EMAIL) || mb_strlen($email) > 180) {
+                return new JsonResponse(['success' => false, 'error' => 'Email invalide'], 400);
+            }
+            $other = $this->entityManager->getRepository(Utilisateur::class)->findOneBy(['email' => $email]);
+            if ($other && $other->getId() !== $id) {
+                return new JsonResponse(['success' => false, 'error' => 'Cet email est déjà utilisé'], 400);
+            }
+            $user->setEmail($email);
+        }
+        if (isset($data['role'])) {
+            try {
+                $user->setRole(RoleUtilisateur::from($data['role']));
+            } catch (\ValueError) {
+                return new JsonResponse(['success' => false, 'error' => 'Rôle invalide'], 400);
+            }
+        }
+        if (isset($data['statut'])) {
+            try {
+                $user->setStatut(StatutCompte::from($data['statut']));
+            } catch (\ValueError) {
+                return new JsonResponse(['success' => false, 'error' => 'Statut invalide'], 400);
+            }
+        }
+        if (!empty($data['password'])) {
+            $pw = is_string($data['password']) ? $data['password'] : '';
+            if (mb_strlen($pw) < 6) {
+                return new JsonResponse(['success' => false, 'error' => 'Le mot de passe doit contenir au moins 6 caractères'], 400);
+            }
+            $user->setPassword($this->passwordHasher->hashPassword($user, $pw));
+>>>>>>> isramedi
         }
 
         $this->entityManager->flush();

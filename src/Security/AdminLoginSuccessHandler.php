@@ -26,6 +26,27 @@ class AdminLoginSuccessHandler implements AuthenticationSuccessHandlerInterface
             ]);
         }
 
+<<<<<<< HEAD
+=======
+        if ($user instanceof Utilisateur && \in_array('ROLE_SECRETAIRE', $user->getRoles(), true)) {
+            return new Response('', Response::HTTP_FOUND, [
+                'Location' => $this->urlGenerator->generate('app_secretaire_index'),
+            ]);
+        }
+
+        if ($user instanceof Utilisateur && \in_array('ROLE_PATIENT', $user->getRoles(), true)) {
+            return new Response('', Response::HTTP_FOUND, [
+                'Location' => $this->urlGenerator->generate('app_patient_index'),
+            ]);
+        }
+
+        if ($user instanceof Utilisateur && \in_array('ROLE_MEDECIN', $user->getRoles(), true)) {
+            return new Response('', Response::HTTP_FOUND, [
+                'Location' => $this->urlGenerator->generate('app_medecin_index'),
+            ]);
+        }
+
+>>>>>>> isramedi
         return new Response('', Response::HTTP_FOUND, [
             'Location' => $this->urlGenerator->generate('app_profile'),
         ]);

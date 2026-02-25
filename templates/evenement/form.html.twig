@@ -1,6 +1,10 @@
 {% extends 'base.html.twig' %}
 
+<<<<<<< HEAD
 {% block title %}{{ isEdit ? 'Modifier' : 'Nouvel' }} Ã©vÃ©nement{% endblock %}
+=======
+{% block title %}{{ isEdit ? 'Modifier' : 'Nouvel' }} événement{% endblock %}
+>>>>>>> isramedi
 
 {% block body %}
 <div class="container mt-4">
@@ -22,6 +26,28 @@
                 {{ form_errors(form.content) }}
             </div>
 
+<<<<<<< HEAD
+=======
+            <div class="mb-3">
+                {{ form_label(form.location) }}
+                {{ form_widget(form.location) }}
+                {{ form_errors(form.location) }}
+            </div>
+
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    {{ form_label(form.eventDate) }}
+                    {{ form_widget(form.eventDate) }}
+                    {{ form_errors(form.eventDate) }}
+                </div>
+                <div class="col-md-6 mb-3">
+                    {{ form_label(form.eventTime) }}
+                    {{ form_widget(form.eventTime) }}
+                    {{ form_errors(form.eventTime) }}
+                </div>
+            </div>
+
+>>>>>>> isramedi
             <div class="form-check mb-3">
                 {{ form_widget(form.isActive) }}
                 {{ form_label(form.isActive) }}
@@ -29,12 +55,19 @@
 
             <div class="d-flex justify-content-between">
                 <a href="{{ path('app_evenement_index') }}" class="btn btn-outline-secondary">Annuler</a>
+<<<<<<< HEAD
                 <button class="btn btn-primary" type="submit">{{ isEdit ? 'Enregistrer' : 'CrÃ©er' }}</button>
+=======
+                <button class="btn btn-primary" type="submit">{{ isEdit ? 'Enregistrer' : 'Créer' }}</button>
+>>>>>>> isramedi
             </div>
 
             {{ form_end(form) }}
         </div>
     </div>
 </div>
+<<<<<<< HEAD
 
+=======
+>>>>>>> isramedi
 {% endblock %}
