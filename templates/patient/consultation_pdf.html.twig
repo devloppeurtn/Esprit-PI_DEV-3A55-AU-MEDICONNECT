@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Consultation du {{ consultation.date|date('d/m/Y') }}</title>
+    <style>
+        body { font-family: Arial, sans-serif; color: #333; line-height: 1.6; margin: 40px; }
+        .header { text-align: center; border-bottom: 2px solid #0d6efd; padding-bottom: 20px; margin-bottom: 30px; }
+        .header img { height: 60px; margin-bottom: 10px; }
+        .header h1 { color: #0d6efd; margin: 0; font-size: 24px; }
+        .section { margin-bottom: 25px; }
+        .section-title { font-weight: bold; color: #0d6efd; border-bottom: 1px solid #dee2e6; padding-bottom: 5px; margin-bottom: 10px; text-transform: uppercase; font-size: 14px; }
+        .info-grid { display: table; width: 100%; margin-bottom: 30px; }
+        .info-row { display: table-row; }
+        .info-cell { display: table-cell; padding: 5px 0; }
+        .info-label { font-weight: bold; width: 150px; }
+        .medicine-list { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        .medicine-list th { text-align: left; background-color: #f8f9fa; padding: 10px; border-bottom: 2px solid #dee2e6; }
+        .medicine-list td { padding: 10px; border-bottom: 1px solid #dee2e6; }
+        .footer { position: fixed; bottom: 0; width: 100%; text-align: center; font-size: 10px; color: #777; border-top: 1px solid #dee2e6; padding-top: 10px; }
+        .signature { margin-top: 50px; text-align: right; }
+        .signature-box { display: inline-block; width: 200px; border-top: 1px solid #333; margin-top: 40px; padding-top: 5px; text-align: center; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>MediConnect</h1>
+        <p>Plateforme de Gestion Médicale</p>
+    </div>
+
+    <div class="section">
+        <div class="section-title">Informations Générales</div>
+        <div class="info-grid">
+            <div class="info-row">
+                <div class="info-cell info-label">Patient :</div>
+                <div class="info-cell">{{ patient.nomComplet }}</div>
+            </div>
+            <div class="info-row">
+                <div class="info-cell info-label">Médecin :</div>
+                <div class="info-cell">{{ consultation.medecin.nomComplet }}</div>
+            </div>
+            <div class="info-row">
+                <div class="info-cell info-label">Date :</div>
+                <div class="info-cell">{{ consultation.date|date('d/m/Y à H:i') }}</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="section">
+        <div class="section-title">Diagnostic</div>
+        <p>{{ consultation.diagnostic|default('Aucun diagnostic renseigné.')|nl2br }}</p>
+    </div>
+
+    {% if consultation.resume %}
+    <div class="section">
+        <div class="section-title">Résumé de la consultation</div>
+        <p>{{ consultation.resume|nl2br }}</p>
+    </div>
+    {% endif %}
+
+    <div class="section">
+        <div class="section-title">Ordonnance / Médicaments prescrits</div>
+        {% if consultation.ordonnances|length > 0 %}
+        <table class="medicine-list">
+            <thead>
+                <tr>
+                    <th>Médicament</th>
+                    <th>Posologie / Instructions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for o in consultation.ordonnances %}
+                <tr>
+                    <td><strong>{{ o.medicament }}</strong></td>
+                    <td>
+                        {{ o.methodeUtilisation|default('') }}
+                        {% if o.instructions %}<br><small><em>{{ o.instructions }}</em></small>{% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <p>Aucun médicament prescrit lors de cette consultation.</p>
+        {% endif %}
+    </div>
+
+    <div class="signature">
+        <div class="signature-box">
+            Signature du Médecin<br>
+            <strong>{{ consultation.medecin.nomComplet }}</strong>
+        </div>
+    </div>
+
+    <div class="footer">
+        MediConnect - Document généré le {{ "now"|date("d/m/Y H:i") }} - Identifiant consultation : #{{ consultation.id }}
+    </div>
+</body>
+</html>

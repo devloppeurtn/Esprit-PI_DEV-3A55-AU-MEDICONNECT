@@ -79,4 +79,46 @@ class RendezVousRepository extends ServiceEntityRepository
             ->getQuery()
             ->getResult();
     }
+
+    public function hasOverlappingForMedecin(
+        Medecin $medecin,
+        \DateTimeInterface $start,
+        \DateTimeInterface $end,
+        ?int $excludeRdvId = null
+    ): bool {
+        $qb = $this->createQueryBuilder('r')
+            ->select('COUNT(r.id)')
+            ->andWhere('r.medecin = :medecin')
+            ->andWhere('r.statut IN (:statuts)')
+            ->andWhere('r.dateDebut < :end')
+            ->andWhere('r.dateFin > :start')
+            ->setParameter('medecin', $medecin)
+            ->setParameter('statuts', [StatutRendezVous::EN_ATTENTE, StatutRendezVous::CONFIRME])
+            ->setParameter('start', $start)
+            ->setParameter('end', $end);
+
+        if ($excludeRdvId !== null) {
+            $qb->andWhere('r.id != :excludeId')
+                ->setParameter('excludeId', $excludeRdvId);
+        }
+
+        return (int) $qb->getQuery()->getSingleScalarResult() > 0;
+    }
+
+    /**
+     * @return RendezVous[]
+     */
+    public function findConfirmedStartingBetween(\DateTimeInterface $from, \DateTimeInterface $to): array
+    {
+        return $this->createQueryBuilder('r')
+            ->andWhere('r.statut = :statut')
+            ->andWhere('r.dateDebut >= :from')
+            ->andWhere('r.dateDebut < :to')
+            ->setParameter('statut', StatutRendezVous::CONFIRME)
+            ->setParameter('from', $from)
+            ->setParameter('to', $to)
+            ->orderBy('r.dateDebut', 'ASC')
+            ->getQuery()
+            ->getResult();
+    }
 }

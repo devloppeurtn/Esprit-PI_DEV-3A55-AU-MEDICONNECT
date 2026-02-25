@@ -86,6 +86,55 @@
         </div>
     </div>
 
+
+    <h5 class="mb-3 mt-4">Scanner un document manuscrit (OCR)</h5>
+    <div class="card border-0 shadow-sm mb-4">
+        <div class="card-body">
+            {% if not ocrConfigured|default(false) %}
+                <div class="alert alert-warning mb-0">
+                    OCR.Space non configure sur le serveur.
+                    Ajoutez <code>OCR_SPACE_API_KEY</code> dans <code>.env.local</code> (ou laissez la cle demo activee).
+                    puis redemarrez le serveur Symfony.
+                </div>
+            {% else %}
+            <form method="post" action="{{ path('app_patient_document_scanner') }}" enctype="multipart/form-data">
+                <input type="hidden" name="_token" value="{{ csrf_token('scan_document') }}">
+
+                <div class="mb-3">
+                    <label for="scan_image" class="form-label">Image a scanner</label>
+                    <input
+                        id="scan_image"
+                        name="scan_image"
+                        type="file"
+                        class="form-control"
+                        accept="image/jpeg,image/png,image/gif,image/webp,image/bmp,image/tiff"
+                        required
+                    >
+                    <div class="form-text">Formats supportes: JPG, PNG, GIF, WEBP, BMP, TIFF (max 10 Mo).</div>
+                </div>
+
+                <div class="mb-3">
+                    <label for="scan_type" class="form-label">Type de document</label>
+                    <select id="scan_type" name="scan_type" class="form-select">
+                        <option value="analyse">Analyse</option>
+                        <option value="radio">Radio / Imagerie</option>
+                        <option value="certificat">Certificat medical</option>
+                        <option value="autre">Autre</option>
+                    </select>
+                </div>
+
+                <div class="mb-3">
+                    <label for="scan_description" class="form-label">Description (optionnel)</label>
+                    <textarea id="scan_description" name="scan_description" rows="2" class="form-control"></textarea>
+                </div>
+
+                <button type="submit" class="btn btn-outline-primary">
+                    <i class="bi bi-upc-scan me-1"></i>Scanner (OCR)
+                </button>
+            </form>
+            {% endif %}
+        </div>
+    </div>
     <h5 class="mb-3 mt-4">Mes documents</h5>
     {% if dossier and dossier.documents|length > 0 %}
     <div class="card border-0 shadow-sm mb-4">
@@ -127,5 +176,7 @@
 .consult-avatar { width: 48px; height: 48px; border-radius: 50%; background: rgba(13, 110, 253, 0.15); color: #0d6efd; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
 </style>
 {% endblock %}
+
+
 
 

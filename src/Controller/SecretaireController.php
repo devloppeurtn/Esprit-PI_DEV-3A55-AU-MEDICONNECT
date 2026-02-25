@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Entity\Medecin;
+use App\Entity\Notification;
 use App\Entity\Patient;
 use App\Entity\PlanningMedecin;
 use App\Entity\RendezVous;
@@ -80,7 +81,13 @@ class SecretaireController extends AbstractController
         $s = $this->getUser();
         if (!$s instanceof Secretaire || $s->getMedecin() !== $rdv->getMedecin()) return $this->redirectToRoute('app_secretaire_rendez_vous');
         if ($this->isCsrfTokenValid('valider_rdv_' . $rdv->getId(), $request->request->get('_token'))) {
+            if ($rdv->getStatut() === StatutRendezVous::CONFIRME) {
+                $this->addFlash('info', 'Ce rendez-vous est deja confirme.');
+                return $this->redirectToRoute('app_secretaire_rendez_vous');
+            }
+
             $rdv->setStatut(StatutRendezVous::CONFIRME);
+            $this->createRdvPatientNotification($rdv, true);
             $this->em->flush();
             $this->addFlash('success', 'Rendez-vous confirmé.');
         }
@@ -93,11 +100,41 @@ class SecretaireController extends AbstractController
         $s = $this->getUser();
         if (!$s instanceof Secretaire || $s->getMedecin() !== $rdv->getMedecin()) return $this->redirectToRoute('app_secretaire_rendez_vous');
         if ($this->isCsrfTokenValid('refuser_rdv_' . $rdv->getId(), $request->request->get('_token'))) {
+            if ($rdv->getStatut() === StatutRendezVous::ANNULE) {
+                $this->addFlash('info', 'Ce rendez-vous est deja refuse.');
+                return $this->redirectToRoute('app_secretaire_rendez_vous');
+            }
+
             $rdv->setStatut(StatutRendezVous::ANNULE);
+            $this->createRdvPatientNotification($rdv, false);
             $this->em->flush();
             $this->addFlash('success', 'Rendez-vous refusé.');
         }
         return $this->redirectToRoute('app_secretaire_rendez_vous');
+    }
+
+    private function createRdvPatientNotification(RendezVous $rdv, bool $isConfirmed): void
+    {
+        $patient = $rdv->getPatient();
+        if (!$patient) {
+            return;
+        }
+
+        $medecinName = $rdv->getMedecin()?->getNomComplet() ?? 'votre medecin';
+        $dateRdv = $rdv->getDateDebut()?->format('d/m/Y H:i') ?? 'date a confirmer';
+
+        $notification = (new Notification())
+            ->setUtilisateur($patient)
+            ->setTitre($isConfirmed ? 'Rendez-vous confirme' : 'Rendez-vous refuse')
+            ->setMessage(
+                $isConfirmed
+                    ? sprintf('Votre rendez-vous du %s avec %s a ete confirme par la secretaire.', $dateRdv, $medecinName)
+                    : sprintf('Votre rendez-vous du %s avec %s a ete refuse par la secretaire.', $dateRdv, $medecinName)
+            )
+            ->setType($isConfirmed ? 'success' : 'danger')
+            ->setEstLu(false);
+
+        $this->em->persist($notification);
     }
 
     #[Route('/planning/configurer', name: 'app_secretaire_planning_config', methods: ['GET', 'POST'])]
@@ -273,7 +310,9 @@ class SecretaireController extends AbstractController
         $end = (clone $start)->modify("+".($p ? $p->getDureeConsultation() : 30)." minutes");
         
         $rdv = (new RendezVous())->setMedecin($m)->setPatient($pat)->setDateDebut($start)->setDateFin($end)->setStatut(StatutRendezVous::CONFIRME)->setNote($request->request->get('note'));
-        $this->em->persist($rdv); $this->em->flush();
+        $this->em->persist($rdv);
+        $this->createRdvPatientNotification($rdv, true);
+        $this->em->flush();
         $this->addFlash('success', 'RDV créé');
         return $this->redirectToRoute('app_secretaire_agenda', ['date'=>$request->request->get('date')]);
     }

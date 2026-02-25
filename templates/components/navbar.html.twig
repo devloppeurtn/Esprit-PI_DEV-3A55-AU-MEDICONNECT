@@ -69,6 +69,20 @@
                         <li><a href="{{ path('app_medecin_index') }}" {% if app.request.get('_route') starts with 'app_medecin_' %}class="active"{% endif %}>Espace Medecin</a></li>
                         {% endif %}
                         {# Menu utilisateur style Bootstrap (Profile, Paramètres, Déconnexion) #}
+                        {% if is_granted('ROLE_PATIENT') %}
+                            <li class="nav-item me-2 d-flex align-items-center">
+                                <a href="{{ path('app_patient_notifications') }}" class="position-relative text-dark fs-5" title="Notifications">
+                                    <i class="bi bi-bell"></i>
+                                    {% set unread_count = app.user.unreadNotificationsCount %}
+                                    {% if unread_count > 0 %}
+                                        <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="font-size: 0.6rem;">
+                                            {{ unread_count > 9 ? '9+' : unread_count }}
+                                        </span>
+                                    {% endif %}
+                                </a>
+                            </li>
+                        {% endif %}
+                        {# Menu utilisateur style Bootstrap (Profile, Paramètres, Déconnexion) #}
                         <li class="nav-user-dropdown">
                             <div class="dropdown">
                                 <button class="btn btn-user-dropdown d-flex align-items-center" type="button" data-bs-toggle="dropdown" aria-expanded="false">

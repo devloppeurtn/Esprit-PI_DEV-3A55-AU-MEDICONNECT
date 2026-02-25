@@ -1,0 +1,151 @@
+{% extends 'admin/base_admin.html.twig' %}
+
+{% block title %}Mes Notifications - MediConnect{% endblock %}
+
+{% block admin_content %}
+<div class="notifications-page">
+    <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
+        <div>
+            <h1 class="h3 mb-1">Mes notifications</h1>
+            <p class="text-muted mb-0">Suivi des demandes de rendez-vous et decisions de la secretaire.</p>
+        </div>
+        <div class="d-flex align-items-center gap-2">
+            <span id="unread-counter" class="badge rounded-pill bg-primary-subtle text-primary px-3 py-2">
+                {{ unreadCount }} non lue{{ unreadCount > 1 ? 's' : '' }}
+            </span>
+            <form method="post" action="{{ path('app_patient_notifications_tout_lire') }}">
+                <input type="hidden" name="_token" value="{{ csrf_token('notifications_mark_all') }}">
+                <button type="submit" class="btn btn-outline-primary btn-sm" {% if unreadCount == 0 %}disabled{% endif %}>
+                    Tout marquer comme lu
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <div class="card border-0 shadow-sm">
+        <div class="list-group list-group-flush">
+            {% for notification in notifications %}
+                {% set isUnread = not notification.estLu %}
+                {% set icon = notification.type == 'success' ? 'bi-check-circle' : (notification.type == 'danger' ? 'bi-x-circle' : 'bi-info-circle') %}
+                {% set color = notification.type in ['success', 'danger', 'warning', 'info'] ? notification.type : 'primary' %}
+                <article class="list-group-item px-3 px-md-4 py-3 notification-item {{ isUnread ? 'notification-unread' : '' }}" data-id="{{ notification.id }}">
+                    <div class="d-flex gap-3 align-items-start">
+                        <div class="notification-icon rounded-circle bg-{{ color }}-subtle text-{{ color }}">
+                            <i class="bi {{ icon }}"></i>
+                        </div>
+                        <div class="flex-grow-1">
+                            <div class="d-flex flex-wrap justify-content-between align-items-start gap-2 mb-1">
+                                <h2 class="h6 fw-semibold mb-0">{{ notification.titre }}</h2>
+                                <small class="text-muted">Reçue le {{ notification.dateCreation|date('d/m/Y H:i') }}</small>
+                            </div>
+                            <p class="text-secondary mb-2">{{ notification.message }}</p>
+                            <div class="d-flex align-items-center gap-2">
+                                {% if isUnread %}
+                                    <span class="badge rounded-pill text-bg-primary notification-badge">Nouveau</span>
+                                    <button
+                                        type="button"
+                                        class="btn btn-sm btn-outline-primary js-mark-read"
+                                        data-id="{{ notification.id }}"
+                                        data-token="{{ csrf_token('notification_read_' ~ notification.id) }}"
+                                    >
+                                        Marquer comme lue
+                                    </button>
+                                {% else %}
+                                    <span class="badge rounded-pill text-bg-light text-dark">Lue</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </article>
+            {% else %}
+                <div class="p-5 text-center">
+                    <div class="display-6 text-muted mb-2"><i class="bi bi-bell-slash"></i></div>
+                    <h2 class="h5 mb-1">Aucune notification</h2>
+                    <p class="text-muted mb-0">Les confirmations et refus de rendez-vous apparaitront ici.</p>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+    {{ parent() }}
+    <script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const counter = document.getElementById('unread-counter');
+        const readButtons = document.querySelectorAll('.js-mark-read');
+
+        const updateCounter = (count) => {
+            if (!counter || typeof count !== 'number') {
+                return;
+            }
+            counter.textContent = `${count} non lue${count > 1 ? 's' : ''}`;
+        };
+
+        readButtons.forEach((button) => {
+            button.addEventListener('click', async () => {
+                const id = button.dataset.id;
+                const token = button.dataset.token;
+                if (!id || !token) {
+                    return;
+                }
+
+                const body = new URLSearchParams();
+                body.set('_token', token);
+
+                try {
+                    const response = await fetch(`/patient/notification/${id}/lu`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8',
+                            'X-Requested-With': 'XMLHttpRequest'
+                        },
+                        body: body.toString()
+                    });
+
+                    const data = await response.json();
+                    if (!data.success) {
+                        return;
+                    }
+
+                    const row = button.closest('.notification-item');
+                    row?.classList.remove('notification-unread');
+                    button.remove();
+                    const badge = row?.querySelector('.notification-badge');
+                    badge?.classList.remove('text-bg-primary');
+                    badge?.classList.add('text-bg-light', 'text-dark');
+                    if (badge) {
+                        badge.textContent = 'Lue';
+                    }
+
+                    updateCounter(Number(data.unreadCount));
+                } catch (e) {
+                    console.error(e);
+                }
+            });
+        });
+    });
+    </script>
+    <style>
+        .notifications-page .notification-icon {
+            width: 44px;
+            height: 44px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            flex-shrink: 0;
+        }
+        .notification-unread {
+            background: rgba(13, 110, 253, 0.06);
+            border-left: 3px solid rgba(13, 110, 253, 0.55);
+        }
+        .notification-item {
+            transition: background-color 0.2s ease;
+        }
+        .notification-item:hover {
+            background: rgba(0, 0, 0, 0.02);
+        }
+    </style>
+{% endblock %}

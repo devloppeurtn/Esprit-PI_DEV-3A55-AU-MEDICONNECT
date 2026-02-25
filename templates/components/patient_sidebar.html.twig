@@ -46,6 +46,16 @@
                             <span class="nav-text">Documents</span>
                         </a>
                     </li>
+                    <li class="nav-item">
+                        <a class="nav-link {{ app.request.get('_route') == 'app_patient_notifications' ? 'active' : '' }}" href="{{ path('app_patient_notifications') }}" title="Mes notifications">
+                            <span class="nav-icon-wrap"><i class="bi bi-bell"></i></span>
+                            <span class="nav-text">Notifications</span>
+                            {% set unread_count = app.user.unreadNotificationsCount %}
+                            {% if unread_count > 0 %}
+                                <span class="badge rounded-pill bg-danger ms-auto" style="font-size: 0.7rem;">{{ unread_count }}</span>
+                            {% endif %}
+                        </a>
+                    </li>
                 </ul>
             </div>
 

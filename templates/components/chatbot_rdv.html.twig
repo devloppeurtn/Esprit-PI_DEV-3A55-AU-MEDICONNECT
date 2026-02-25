@@ -7,6 +7,7 @@
 {# ── Routes Twig → JS ── #}
 {% set url_medecins = path('app_patient_chatbot_medecins') %}
 {% set url_rdv      = path('app_patient_chatbot_rdv') %}
+{% set url_interpret = path('app_patient_chatbot_interpret') %}
 
 {# ── Styles ── #}
 <style>
@@ -225,7 +226,7 @@
     <div id="chatbot-messages" role="log" aria-live="polite" aria-label="Messages du chatbot"></div>
 
     <div id="chatbot-input-area">
-        <textarea id="chatbot-input" rows="1" placeholder="Écrivez votre message…" aria-label="Votre message"></textarea>
+        <textarea id="chatbot-input" rows="1" placeholder="Ecrivez votre message..." aria-label="Votre message"></textarea>
         <button id="chatbot-send" title="Envoyer" aria-label="Envoyer">
             <i class="bi bi-send-fill"></i>
         </button>
@@ -240,6 +241,7 @@
     // ── Config ──────────────────────────────────────────────────────────────
     const URL_MEDECINS = {{ url_medecins | json_encode | raw }};
     const URL_RDV      = {{ url_rdv      | json_encode | raw }};
+    const URL_INTERPRET = {{ url_interpret | json_encode | raw }};
 
     // ── État global ─────────────────────────────────────────────────────────
     let state = {
@@ -247,6 +249,7 @@
         medecin  : null,        // { id, nom, specialite }
         date     : null,        // string YYYY-MM-DD
         heure    : null,        // string HH:MM
+        history  : [],          // [{ role: 'user'|'assistant', content: string }]
         allDoctors: [],
         allSpecialites: [],
         loaded   : false,
@@ -315,8 +318,45 @@
         wrap.appendChild(avatar);
         wrap.appendChild(bubble);
         msgs.appendChild(wrap);
+        if (!htmlContent) {
+            if (who === 'user') {
+                appendHistory('user', content);
+            } else if (who === 'bot') {
+                appendHistory('assistant', content);
+            }
+        }
         scrollBottom();
         return bubble;
+    }
+
+    function appendHistory(role, content) {
+        if (role !== 'user' && role !== 'assistant') return;
+
+        const text = String(content || '').trim();
+        if (!text) return;
+
+        state.history.push({ role, content: text });
+        if (state.history.length > 30) {
+            state.history = state.history.slice(-30);
+        }
+    }
+
+    function getHistoryForApi(currentText) {
+        let history = state.history.slice(-16);
+        if (history.length === 0) {
+            return history;
+        }
+
+        const last = history[history.length - 1];
+        if (
+            last
+            && last.role === 'user'
+            && normalize(last.content) === normalize(currentText)
+        ) {
+            history = history.slice(0, -1);
+        }
+
+        return history;
     }
 
     function addBotHtml(htmlContent) {
@@ -443,41 +483,108 @@
         const t = showTyping();
         await sleep(900);
         t.remove();
-        addMsg('bot', 'Bonjour 👋 Je suis votre assistant MediConnect. Je peux vous aider à :');
+        addMsg('bot', 'Bonjour. Je suis votre assistant MediConnect. Je peux vous aider a:');
         await sleep(400);
         addQuickButtons([
-            { label: '🔍 Voir les médecins par spécialité', action: askSpecialiteExplore },
-            { label: '📅 Prendre un rendez-vous',          action: askDoctor },
+            { label: 'Voir les medecins par specialite', action: askSpecialiteExplore },
+            { label: 'Prendre un rendez-vous', action: askDoctor },
         ]);
     }
-
-    // ── Mode exploration ────────────────────────────────────────────────────
-    function askSpecialiteExplore() {
-        state.step = 'EXPLORE';
-        if (!state.loaded) {
-            addMsg('bot', 'Veuillez patienter, je charge les données…');
-            preloadDoctors().then(() => doAskSpecialiteExplore());
-        } else {
-            doAskSpecialiteExplore();
-        }
+    async function askSpecialiteExplore() {
+        await sendToOpenAi('Je veux voir les medecins par specialite');
     }
-
     function doAskSpecialiteExplore() {
         if (state.allSpecialites.length > 0) {
             const list = state.allSpecialites.slice(0, 6).join(', ');
-            addMsg('bot', `Quelle spécialité vous intéresse ? (ex: ${list}…)`);
+            addMsg('bot', `Quelle specialite vous interesse ? (ex: ${list}...)`);
         } else {
-            addMsg('bot', 'Quelle spécialité médicale recherchez-vous ?');
+            addMsg('bot', 'Quelle specialite medicale recherchez-vous ?');
         }
-        input.placeholder = 'Tapez une spécialité…';
+        input.placeholder = 'Tapez une specialite...';
+    }
+
+    function hasAnyKeyword(text, keywords) {
+        return keywords.some((k) => text.includes(k));
+    }
+
+    function isMedicalTopic(text) {
+        const medicalKeywords = [
+            'medecin', 'medecins', 'docteur', 'docteurs', 'specialite', 'specialites',
+            'rdv', 'rendez vous', 'rendez-vous', 'consultation', 'patient', 'hopital',
+            'clinique', 'agenda', 'disponibilite'
+        ];
+        return hasAnyKeyword(text, medicalKeywords);
+    }
+
+    function isOutOfScope(text) {
+        const outKeywords = [
+            'meteo', 'temperature', 'pluie', 'vent', 'neige', 'climat',
+            'football', 'foot', 'match', 'score', 'ligue', 'championnat', 'basket', 'nba',
+            'crypto', 'bitcoin', 'politique', 'election', 'cinema', 'serie', 'musique'
+        ];
+        return !isMedicalTopic(text) && hasAnyKeyword(text, outKeywords);
+    }
+
+    function wantsAllDoctors(text) {
+        return /(?:\btt\b|\btout\b|\btous\b|\ball\b)(?:\s+\w+){0,4}\s+(?:medecins?|docteurs?|doctors?)\b/.test(text)
+            || /\b(?:liste|affiche|montre|donne|voir)\b(?:\s+\w+){0,3}\s+(?:medecins?|docteurs?|doctors?)\b/.test(text)
+            || /\b(?:qui sont|quels sont)\s+les\s+medecins\b/.test(text);
+    }
+
+    function isExploreIntent(text) {
+        return /liste|quels|voir|medecin|specialit|chercher|afficher|montrer/.test(text);
+    }
+
+    function isRdvIntent(text) {
+        return /rendez.?vous|rdv|reserver|prendre|planifier|book/.test(text);
+    }
+
+    async function showAllDoctors() {
+        if (!state.loaded) {
+            await preloadDoctors();
+        }
+
+        const doctors = state.allDoctors || [];
+        if (doctors.length === 0) {
+            addMsg('bot', 'Je n\'ai pas trouve de medecins pour le moment.');
+            return;
+        }
+
+        addMsg('bot', `Voici tous les medecins disponibles (${doctors.length}) :`);
+        addDoctorCards(doctors.slice(0, 8));
+
+        if (doctors.length > 8) {
+            addMsg('bot', 'Je vous affiche les 8 premiers. Donnez une specialite ou un nom pour affiner.');
+        }
+
+        state.step = 'RDV_DOCTOR';
+    }
+
+    function showOutOfScopeAnswer() {
+        addMsg('bot', 'Je peux aider uniquement pour les medecins et la prise de rendez-vous. Pour la meteo, le sport ou autres sujets, ce n\'est pas mon role.');
+        addQuickButtons([
+            { label: 'Voir les medecins', action: askSpecialiteExplore },
+            { label: 'Prendre un rendez-vous', action: askDoctor },
+        ]);
     }
 
     async function handleExplore(text) {
+        const normalizedText = normalize(text);
+        if (isOutOfScope(normalizedText)) {
+            showOutOfScopeAnswer();
+            state.step = 'INTENT';
+            return;
+        }
+
+        if (wantsAllDoctors(normalizedText)) {
+            await showAllDoctors();
+            return;
+        }
+
         const typed = showTyping();
         await sleep(800);
         typed.remove();
 
-        // cherche la spécialité dans le texte
         const matchedSpec = findSpecialite(text);
         let doctors;
 
@@ -486,143 +593,150 @@
                 const resp = await fetch(URL_MEDECINS + '?specialite=' + encodeURIComponent(matchedSpec));
                 const json = await resp.json();
                 doctors = json.success ? json.medecins : [];
-            } catch (_) { doctors = []; }
+            } catch (_) {
+                doctors = [];
+            }
 
-            addMsg('bot', `Voici les médecins spécialistes en ${matchedSpec} :`);
+            addMsg('bot', `Voici les medecins specialistes en ${matchedSpec} :`);
         } else {
-            // texte libre → cherche par nom
             try {
                 const resp = await fetch(URL_MEDECINS + '?nom=' + encodeURIComponent(text));
                 const json = await resp.json();
                 doctors = json.success ? json.medecins : [];
-            } catch (_) { doctors = []; }
+            } catch (_) {
+                doctors = [];
+            }
 
-            addMsg('bot', `Résultats pour "${text}" :`);
+            addMsg('bot', `Resultats pour "${text}" :`);
         }
 
         addDoctorCards(doctors);
         await sleep(300);
 
         if (doctors.length > 0) {
-            addMsg('bot', 'Cliquez sur un médecin pour prendre rendez-vous, ou posez une autre question.');
+            addMsg('bot', 'Cliquez sur un medecin pour prendre rendez-vous, ou posez une autre question.');
         }
 
         addQuickButtons([
-            { label: '🔍 Chercher une autre spécialité', action: askSpecialiteExplore },
-            { label: '📅 Prendre un rendez-vous',        action: askDoctor },
-            { label: '⬆️ Retour au menu',                action: backToMenu },
+            { label: 'Chercher une autre specialite', action: askSpecialiteExplore },
+            { label: 'Prendre un rendez-vous', action: askDoctor },
+            { label: 'Retour au menu', action: backToMenu },
         ]);
         state.step = 'EXPLORE_RESULT';
     }
-
     function selectDoctorFromCard(doc) {
         state.medecin = doc;
-        addMsg('user', 'Dr ' + doc.nom + ' – ' + doc.specialite);
+        addMsg('user', 'Dr ' + doc.nom + ' - ' + doc.specialite);
         state.step = 'RDV_DATE';
-        addMsg('bot', `Parfait ! Vous avez choisi Dr ${doc.nom} (${doc.specialite}).\n\nÀ quelle date souhaitez-vous venir ? (ex: 25 mars, 25/03/2026)`);
-        input.placeholder = 'Entrez la date…';
+        addMsg('bot', `Parfait. Vous avez choisi Dr ${doc.nom} (${doc.specialite}).\n\nA quelle date souhaitez-vous venir ? (ex: 25 mars, 25/03/2026)`);
+        input.placeholder = 'Entrez la date...';
     }
 
     // ── Mode prise de RDV ───────────────────────────────────────────────────
-    function askDoctor() {
-        state.step = 'RDV_DOCTOR';
-        addMsg('bot', 'Quel médecin ou quelle spécialité recherchez-vous ?');
-        input.placeholder = 'Nom du médecin ou spécialité…';
+    async function askDoctor() {
+        await sendToOpenAi('Je veux prendre un rendez-vous');
     }
-
     async function handleRdvDoctor(text) {
-        if (!state.loaded) { await preloadDoctors(); }
+        if (!state.loaded) {
+            await preloadDoctors();
+        }
 
         const typed = showTyping();
         await sleep(800);
         typed.remove();
 
-        // tenter de matcher un médecin ou une spécialité
+        const normalizedText = normalize(text);
+        if (isOutOfScope(normalizedText)) {
+            showOutOfScopeAnswer();
+            state.step = 'INTENT';
+            return;
+        }
+
+        if (wantsAllDoctors(normalizedText)) {
+            await showAllDoctors();
+            return;
+        }
+
         const found = findDoctor(text);
 
         if (found.length === 1) {
             state.medecin = found[0];
-            addMsg('bot', `J'ai trouvé Dr ${found[0].nom} (${found[0].specialite}). Parfait !`);
+            addMsg('bot', `J\'ai trouve Dr ${found[0].nom} (${found[0].specialite}).`);
             await sleep(400);
             state.step = 'RDV_DATE';
-            addMsg('bot', 'À quelle date souhaitez-vous venir ? (ex: 25 mars, 25/03/2026)');
-            input.placeholder = 'Entrez la date…';
+            addMsg('bot', 'A quelle date souhaitez-vous venir ? (ex: 25 mars, 25/03/2026)');
+            input.placeholder = 'Entrez la date...';
         } else if (found.length > 1 && found.length <= 6) {
-            addMsg('bot', 'Plusieurs médecins correspondent. Cliquez sur celui de votre choix :');
+            addMsg('bot', 'Plusieurs medecins correspondent. Cliquez sur celui de votre choix :');
             addDoctorCards(found);
             state.step = 'RDV_DOCTOR';
         } else if (found.length > 6) {
-            addMsg('bot', `J'ai trouvé ${found.length} médecins. Voici les premiers :`);
+            addMsg('bot', `J\'ai trouve ${found.length} medecins. Voici les premiers :`);
             addDoctorCards(found.slice(0, 6));
             state.step = 'RDV_DOCTOR';
         } else {
-            addMsg('bot', `Je n'ai trouvé aucun médecin pour "${text}". Essayez un autre nom ou une spécialité.`);
+            addMsg('bot', `Je n\'ai trouve aucun medecin pour "${text}". Essayez un autre nom ou une specialite.`);
             if (state.allSpecialites.length > 0) {
-                addMsg('bot', 'Spécialités disponibles : ' + state.allSpecialites.join(', '));
+                addMsg('bot', 'Specialites disponibles : ' + state.allSpecialites.join(', '));
             }
         }
     }
-
     async function handleRdvDate(text) {
         const parsed = parseDate(text);
         if (!parsed) {
-            addMsg('bot', 'Je n\'ai pas compris cette date. Essayez par exemple : "25 mars", "25/03/2026" ou "25-03-2026".');
+            addMsg('bot', 'Je n\'ai pas compris cette date. Essayez : "25 mars", "25/03/2026" ou "25-03-2026".');
             return;
         }
+
         state.date = parsed;
         const typed = showTyping();
         await sleep(600);
         typed.remove();
-        state.step = 'RDV_TIME';
-        addMsg('bot', `Date retenue : ${formatDateFr(parsed)} ✅\n\nQuelle heure vous convient ? (ex: 14h30, 09:00)`);
-        input.placeholder = 'Entrez l\'heure…';
-    }
 
+        state.step = 'RDV_TIME';
+        addMsg('bot', `Date retenue : ${formatDateFr(parsed)}.\n\nQuelle heure vous convient ? (ex: 14h30, 09:00)`);
+        input.placeholder = 'Entrez l\'heure...';
+    }
     async function handleRdvTime(text) {
         const parsed = parseTime(text);
         if (!parsed) {
             addMsg('bot', 'Je n\'ai pas compris l\'heure. Essayez : "14h30", "14:30" ou "9h".');
             return;
         }
+
         state.heure = parsed;
         const typed = showTyping();
         await sleep(600);
         typed.remove();
+
         state.step = 'CONFIRM';
 
         const recap =
-            `📋 <strong>Récapitulatif de votre demande :</strong><br><br>` +
-            `👨‍⚕️ Médecin : <strong>Dr ${state.medecin.nom}</strong><br>` +
-            `🏥 Spécialité : ${state.medecin.specialite}<br>` +
-            `📅 Date : <strong>${formatDateFr(state.date)}</strong><br>` +
-            `🕐 Heure : <strong>${state.heure}</strong><br><br>` +
+            `<strong>Recapitulatif de votre demande :</strong><br><br>` +
+            `Medecin : <strong>Dr ${state.medecin.nom}</strong><br>` +
+            `Specialite : ${state.medecin.specialite}<br>` +
+            `Date : <strong>${formatDateFr(state.date)}</strong><br>` +
+            `Heure : <strong>${state.heure}</strong><br><br>` +
             `Confirmez-vous cette demande ?`;
 
         addBotHtml(recap);
         await sleep(300);
         addQuickButtons([
+            { label: 'Oui, confirmer', action: () => submitRdv() },
+            { label: 'Modifier', action: () => restartBooking() },
             {
-                label: '✅ Oui, confirmer',
-                action: () => submitRdv()
-            },
-            {
-                label: '✏️ Modifier',
-                action: () => restartBooking()
-            },
-            {
-                label: '❌ Annuler',
+                label: 'Annuler',
                 action: () => {
                     state.step = 'INTENT';
-                    addMsg('bot', 'Demande annulée. Puis-je vous aider autrement ?');
+                    addMsg('bot', 'Demande annulee. Puis-je vous aider autrement ?');
                     addQuickButtons([
-                        { label: '🔍 Voir les médecins',   action: askSpecialiteExplore },
-                        { label: '📅 Nouveau rendez-vous', action: askDoctor },
+                        { label: 'Voir les medecins', action: askSpecialiteExplore },
+                        { label: 'Nouveau rendez-vous', action: askDoctor },
                     ]);
                 }
             },
         ]);
     }
-
     async function submitRdv() {
         const typed = showTyping();
         await sleep(1000);
@@ -639,35 +753,33 @@
             const json = await resp.json();
 
             if (json.success) {
-                addMsg('bot', '🎉 ' + json.message);
+                addMsg('bot', json.message);
                 await sleep(500);
-                addMsg('bot', 'La secrétaire vous confirmera bientôt votre rendez-vous. Vous pouvez le suivre dans "Mes rendez-vous".');
+                addMsg('bot', 'La secretaire confirmera bientot votre rendez-vous. Vous pouvez le suivre dans "Mes rendez-vous".');
                 state.step = 'DONE';
                 await sleep(400);
                 addQuickButtons([
-                    { label: '📅 Prendre un autre RDV', action: () => resetAndBook() },
-                    { label: '🏠 Menu principal',       action: backToMenu },
+                    { label: 'Prendre un autre RDV', action: () => resetAndBook() },
+                    { label: 'Menu principal', action: backToMenu },
                 ]);
             } else {
-                addMsg('bot', '⚠️ ' + (json.message || 'Une erreur est survenue. Veuillez réessayer.'));
+                addMsg('bot', json.message || 'Une erreur est survenue. Veuillez reessayer.');
                 state.step = 'CONFIRM';
                 addQuickButtons([
-                    { label: '🔄 Réessayer',   action: submitRdv },
-                    { label: '✏️ Modifier',    action: restartBooking },
+                    { label: 'Reessayer', action: submitRdv },
+                    { label: 'Modifier', action: restartBooking },
                 ]);
             }
         } catch (_) {
             hideTyping();
-            addMsg('bot', '⚠️ Erreur de connexion. Veuillez rafraîchir la page et réessayer.');
+            addMsg('bot', 'Erreur de connexion. Veuillez rafraichir la page et reessayer.');
         }
     }
-
     function restartBooking() {
         state.step = 'RDV_DOCTOR';
-        addMsg('bot', 'Pas de problème ! Recommençons. Quel médecin ou quelle spécialité recherchez-vous ?');
-        input.placeholder = 'Nom du médecin ou spécialité…';
+        addMsg('bot', 'Pas de probleme. Recommencons. Quel medecin ou quelle specialite recherchez-vous ?');
+        input.placeholder = 'Nom du medecin ou specialite...';
     }
-
     function resetAndBook() {
         state.medecin = null;
         state.date    = null;
@@ -677,68 +789,260 @@
 
     function backToMenu() {
         state.step = 'INTENT';
-        addMsg('bot', 'Que puis-je faire pour vous ?');
-        addQuickButtons([
-            { label: '🔍 Voir les médecins par spécialité', action: askSpecialiteExplore },
-            { label: '📅 Prendre un rendez-vous',           action: askDoctor },
-        ]);
+        sendToOpenAi('Menu principal');
     }
 
     // ────────────────────────────────────────────────────────────────────────
+
+    async function interpretWithAi(text) {
+        try {
+            const resp = await fetch(URL_INTERPRET, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    message: text,
+                    step: state.step,
+                    context: {
+                        medecinId: state.medecin ? state.medecin.id : null,
+                        medecinNom: state.medecin ? state.medecin.nom : null,
+                        date: state.date,
+                        heure: state.heure,
+                    },
+                }),
+            });
+
+            if (!resp.ok) {
+                return null;
+            }
+
+            const json = await resp.json();
+            if (!json || !json.success || !json.interpretation) {
+                return null;
+            }
+
+            return json.interpretation;
+        } catch (_) {
+            return null;
+        }
+    }
+
+    async function applyAiInterpretation(ai, rawText) {
+        if (!ai || !ai.action) {
+            return false;
+        }
+
+        const action = String(ai.action).toUpperCase();
+        const doctorQuery = ai.doctorQuery || ai.specialityQuery || '';
+        const parsedDate = ai.date || parseDate(rawText);
+        const parsedTime = ai.time || parseTime(rawText);
+
+        switch (action) {
+            case 'OUT_OF_SCOPE':
+                showOutOfScopeAnswer();
+                state.step = 'INTENT';
+                return true;
+            case 'LIST_DOCTORS':
+                await showAllDoctors();
+                return true;
+            case 'EXPLORE':
+                if (ai.specialityQuery) {
+                    await handleExplore(ai.specialityQuery);
+                } else {
+                    askSpecialiteExplore();
+                }
+                return true;
+            case 'BOOK':
+                if (state.step === 'RDV_DOCTOR' && doctorQuery) {
+                    await handleRdvDoctor(doctorQuery);
+                } else {
+                    askDoctor();
+                }
+                return true;
+            case 'PICK_DOCTOR':
+                state.step = 'RDV_DOCTOR';
+                if (doctorQuery) {
+                    await handleRdvDoctor(doctorQuery);
+                } else {
+                    askDoctor();
+                }
+                return true;
+            case 'CHANGE_DATE':
+            case 'SET_DATE':
+                if (!state.medecin) {
+                    state.step = 'RDV_DOCTOR';
+                    addMsg('bot', 'Commencons par choisir le medecin. Quel nom ou quelle specialite recherchez-vous ?');
+                    input.placeholder = 'Nom du medecin ou specialite...';
+                    return true;
+                }
+
+                if (parsedDate) {
+                    state.date = parsedDate;
+                    state.step = 'RDV_TIME';
+                    addMsg('bot', `Date retenue : ${formatDateFr(parsedDate)}.\n\nQuelle heure vous convient ? (ex: 14h30, 09:00)`);
+                    input.placeholder = 'Entrez l\'heure...';
+                } else {
+                    state.step = 'RDV_DATE';
+                    addMsg('bot', 'Je n\'ai pas compris la date. Donnez-la au format "25/03/2026" ou "25 mars 2026".');
+                    input.placeholder = 'Entrez la date...';
+                }
+                return true;
+            case 'CHANGE_TIME':
+            case 'SET_TIME':
+                if (!state.date) {
+                    state.step = 'RDV_DATE';
+                    addMsg('bot', 'Je dois avoir la date avant l\'heure. Quelle date souhaitez-vous ?');
+                    input.placeholder = 'Entrez la date...';
+                    return true;
+                }
+
+                state.step = 'RDV_TIME';
+                if (parsedTime) {
+                    await handleRdvTime(parsedTime);
+                } else {
+                    addMsg('bot', 'Je n\'ai pas compris l\'heure. Essayez : "14h30", "14:30" ou "9h".');
+                    input.placeholder = 'Entrez l\'heure...';
+                }
+                return true;
+            case 'CONFIRM':
+                if (state.step === 'CONFIRM') {
+                    await submitRdv();
+                    return true;
+                }
+                return false;
+            default:
+                return false;
+        }
+    }
+
+    async function sendToOpenAi(text) {
+        const typed = showTyping();
+
+        try {
+            const resp = await fetch(URL_INTERPRET, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    message: text,
+                    state: {
+                        step: state.step,
+                        medecin: state.medecin ? { id: state.medecin.id, nom: state.medecin.nom, specialite: state.medecin.specialite } : null,
+                        date: state.date,
+                        heure: state.heure,
+                        history: getHistoryForApi(text),
+                    },
+                }),
+            });
+
+            typed.remove();
+
+            if (!resp.ok) {
+                let errorMessage = '';
+                try {
+                    const errJson = await resp.json();
+                    if (errJson && typeof errJson.message === 'string') {
+                        errorMessage = errJson.message;
+                    }
+                } catch (_) {
+                    try {
+                        errorMessage = (await resp.text() || '').trim();
+                    } catch (__){
+                        errorMessage = '';
+                    }
+                }
+
+                addMsg('bot', errorMessage || 'Erreur de connexion avec l\'assistant IA. Reessayez.');
+                return;
+            }
+
+            const json = await resp.json();
+            if (!json || !json.success) {
+                addMsg('bot', (json && json.message) ? json.message : 'Je n\'ai pas pu traiter votre message. Reessayez.');
+                return;
+            }
+
+            if (json.reply) {
+                addMsg('bot', json.reply);
+            }
+
+            if (json.selectedDoctor) {
+                state.medecin = json.selectedDoctor;
+            }
+
+            if (json.date) {
+                state.date = json.date;
+            }
+
+            if (json.time) {
+                state.heure = json.time;
+            }
+
+            if (json.nextStep) {
+                state.step = json.nextStep;
+            }
+
+            if (Array.isArray(json.doctors) && json.doctors.length > 0) {
+                addDoctorCards(json.doctors);
+            }
+
+            if (json.showConfirm && state.medecin && state.date && state.heure) {
+                const recap =
+                    `<strong>Recapitulatif de votre demande :</strong><br><br>` +
+                    `Medecin : <strong>Dr ${state.medecin.nom}</strong><br>` +
+                    `Specialite : ${state.medecin.specialite}<br>` +
+                    `Date : <strong>${formatDateFr(state.date)}</strong><br>` +
+                    `Heure : <strong>${state.heure}</strong><br><br>` +
+                    `Confirmez-vous cette demande ?`;
+
+                addBotHtml(recap);
+                addQuickButtons([
+                    { label: 'Oui, confirmer', action: () => sendToOpenAi('oui confirmer') },
+                    { label: 'Modifier', action: () => sendToOpenAi('modifier') },
+                    { label: 'Annuler', action: () => sendToOpenAi('annuler') },
+                ]);
+            }
+
+            if (json.rdvSubmitted) {
+                addQuickButtons([
+                    { label: 'Prendre un autre RDV', action: () => resetAndBook() },
+                    { label: 'Menu principal', action: backToMenu },
+                ]);
+            }
+
+            if (state.step === 'RDV_DOCTOR') {
+                input.placeholder = 'Nom du medecin ou specialite...';
+            } else if (state.step === 'RDV_DATE') {
+                input.placeholder = 'Entrez la date...';
+            } else if (state.step === 'RDV_TIME') {
+                input.placeholder = 'Entrez l\'heure...';
+            } else {
+                input.placeholder = 'Ecrivez votre message...';
+            }
+        } catch (_) {
+            typed.remove();
+            addMsg('bot', 'Erreur de connexion avec l\'assistant IA. Reessayez.');
+        }
+    }
     // DISPATCH MESSAGES DE L'UTILISATEUR
     // ────────────────────────────────────────────────────────────────────────
-    function handleUserInput(text) {
+    async function handleUserInput(text) {
         text = text.trim();
         if (!text) return;
 
         addMsg('user', text);
         input.value = '';
         input.style.height = 'auto';
-
-        switch (state.step) {
-            case 'INTENT':
-                // détection d'intention
-                if (/liste|quels|voir|médecins de|spécialit|chercher/i.test(text)) {
-                    askSpecialiteExplore();
-                } else if (/rendez.?vous|rdv|réserver|prendre/i.test(text)) {
-                    askDoctor();
-                } else {
-                    // traitement générique : tenter de trouver un médecin/spécialité
-                    state.step = 'RDV_DOCTOR';
-                    handleRdvDoctor(text);
-                }
-                break;
-            case 'EXPLORE':
-                handleExplore(text);
-                break;
-            case 'EXPLORE_RESULT':
-                // nouvelle recherche ou transition
-                if (/rendez.?vous|rdv|réserver/i.test(text)) {
-                    askDoctor();
-                } else {
-                    handleExplore(text);
-                }
-                break;
-            case 'RDV_DOCTOR':
-                handleRdvDoctor(text);
-                break;
-            case 'RDV_DATE':
-                handleRdvDate(text);
-                break;
-            case 'RDV_TIME':
-                handleRdvTime(text);
-                break;
-            default:
-                // fallback
-                backToMenu();
-        }
+        await sendToOpenAi(text);
     }
-
     // ────────────────────────────────────────────────────────────────────────
     // HELPERS : RECHERCHE MÉDECIN / PARSERS
     // ────────────────────────────────────────────────────────────────────────
     function normalize(s) {
-        return s.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+        return String(s || '')
+            .toLowerCase()
+            .normalize('NFD')
+            .replace(/[\u0300-\u036f]/g, '')
+            .replace(/\s+/g, ' ')
+            .trim();
     }
 
     function findDoctor(text) {
@@ -756,33 +1060,42 @@
 
     function findSpecialite(text) {
         const q = normalize(text);
-        return state.allSpecialites.find(s => q.includes(normalize(s))) || null;
+        return state.allSpecialites.find(s => q.includes(normalize(s)) || normalize(s).includes(q)) || null;
     }
 
     // Parse "25 mars", "25 mars 2026", "25/03", "25/03/2026", "25-03-2026"
     const MOIS = {
-        janvier:0,fevrier:1,février:1,mars:2,avril:3,mai:4,juin:5,
-        juillet:6,aout:7,août:7,septembre:8,octobre:9,novembre:10,decembre:11,décembre:11
+        janvier: 1, fevrier: 2, mars: 3, avril: 4, mai: 5, juin: 6,
+        juillet: 7, aout: 8, septembre: 9, octobre: 10, novembre: 11, decembre: 12
     };
 
     function parseDate(text) {
-        const t = text.trim().toLowerCase();
-        const year = new Date().getFullYear();
+        const t = normalize(text).replace(/\./g, '');
+        const currentYear = new Date().getFullYear();
 
-        // dd/mm ou dd/mm/yyyy
-        let m = t.match(/^(\d{1,2})[\/\-](\d{1,2})(?:[\/\-](\d{4}))?$/);
-        if (m) {
-            const Y = m[3] ? parseInt(m[3]) : year;
-            return pad(Y, 4) + '-' + pad(m[2]) + '-' + pad(m[1]);
+        if (t === 'aujourdhui' || t === 'aujourd hui') {
+            const now = new Date();
+            return `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}`;
         }
 
-        // dd mois ou dd mois yyyy
-        m = t.match(/^(\d{1,2})\s+([a-zéûàè]+)(?:\s+(\d{4}))?$/);
+        let m = t.match(/^(\d{1,2})[\/-](\d{1,2})(?:[\/-](\d{4}))?$/);
         if (m) {
-            const mo = MOIS[m[2]];
-            if (mo !== undefined) {
-                const Y = m[3] ? parseInt(m[3]) : year;
-                return pad(Y, 4) + '-' + pad(mo + 1) + '-' + pad(m[1]);
+            const day = parseInt(m[1], 10);
+            const month = parseInt(m[2], 10);
+            const year = m[3] ? parseInt(m[3], 10) : currentYear;
+            if (isValidDate(year, month, day)) {
+                return `${pad(year, 4)}-${pad(month)}-${pad(day)}`;
+            }
+            return null;
+        }
+
+        m = t.match(/^(\d{1,2})\s+([a-z]+)(?:\s+(\d{4}))?$/);
+        if (m) {
+            const day = parseInt(m[1], 10);
+            const month = MOIS[m[2]];
+            const year = m[3] ? parseInt(m[3], 10) : currentYear;
+            if (month && isValidDate(year, month, day)) {
+                return `${pad(year, 4)}-${pad(month)}-${pad(day)}`;
             }
         }
 
@@ -790,21 +1103,41 @@
     }
 
     function parseTime(text) {
-        const t = text.trim().toLowerCase().replace(/\s/g, '');
-        // 14h30, 14h, 9h, 14:30
-        let m = t.match(/^(\d{1,2})h(\d{2})?$/);
-        if (m) return pad(m[1]) + ':' + (m[2] || '00');
-        m = t.match(/^(\d{1,2}):(\d{2})$/);
-        if (m) return pad(m[1]) + ':' + pad(m[2]);
+        const t = normalize(text).replace(/\s/g, '');
+
+        let m = t.match(/^(\d{1,2})h(?:(\d{1,2}))?$/);
+        if (m) {
+            const hour = parseInt(m[1], 10);
+            const minute = m[2] ? parseInt(m[2], 10) : 0;
+            if (hour >= 0 && hour <= 23 && minute >= 0 && minute <= 59) {
+                return `${pad(hour)}:${pad(minute)}`;
+            }
+            return null;
+        }
+
+        m = t.match(/^(\d{1,2}):(\d{1,2})$/);
+        if (m) {
+            const hour = parseInt(m[1], 10);
+            const minute = parseInt(m[2], 10);
+            if (hour >= 0 && hour <= 23 && minute >= 0 && minute <= 59) {
+                return `${pad(hour)}:${pad(minute)}`;
+            }
+        }
+
         return null;
+    }
+
+    function isValidDate(year, month, day) {
+        const date = new Date(year, month - 1, day);
+        return date.getFullYear() === year && date.getMonth() === month - 1 && date.getDate() === day;
     }
 
     function pad(n, len = 2) { return String(n).padStart(len, '0'); }
 
     function formatDateFr(ymd) {
         const [y, m, d] = ymd.split('-');
-        const names = ['janvier','février','mars','avril','mai','juin','juillet','août','septembre','octobre','novembre','décembre'];
-        return parseInt(d) + ' ' + names[parseInt(m) - 1] + ' ' + y;
+        const names = ['janvier','fevrier','mars','avril','mai','juin','juillet','aout','septembre','octobre','novembre','decembre'];
+        return parseInt(d, 10) + ' ' + names[parseInt(m, 10) - 1] + ' ' + y;
     }
 
     // ────────────────────────────────────────────────────────────────────────
@@ -831,3 +1164,5 @@
     }, 3000);
 })();
 </script>
+
+
