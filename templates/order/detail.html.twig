@@ -1,0 +1,204 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Détails de la commande #{{ commande.id }} - MediConnect{% endblock %}
+
+{% block body %}
+<div class="container py-5">
+    <div class="row mb-4">
+        <div class="col">
+            <h1>Commande #{{ commande.id }}</h1>
+        </div>
+        <div class="col-auto">
+            <a href="{{ path('app_orders_list') }}" class="btn btn-outline-secondary">
+                <i class="bi bi-arrow-left"></i> Mes commandes
+            </a>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Order Status Card -->
+        <div class="col-lg-8">
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0">Statut de la commande</h5>
+                </div>
+                <div class="card-body">
+                    <div class="d-flex align-items-center justify-content-between p-3 bg-light rounded">
+                        <div>
+                            <p class="text-muted mb-1">Statut actuel</p>
+                            <h4 class="mb-0">
+                                <span class="badge bg-{{ commande.statut.getColor() }} p-2">
+                                    {{ commande.statut.getLabel() }}
+                                </span>
+                            </h4>
+                        </div>
+                        <div class="text-end">
+                            <p class="text-muted mb-1">Date de commande</p>
+                            <h6>{{ commande.dateCommande | date('d/m/Y H:i') }}</h6>
+                            <p class="text-muted mb-1 mt-2">Estimation</p>
+                            <h6>{{ commande.estimatedDeliveryDays ?: '-' }} jours</h6>
+                            <p class="text-muted mb-1 mt-2">ETA committe</p>
+                            <h6>{{ commande.deliveryEtaAt ? commande.deliveryEtaAt|date('d/m/Y H:i') : '-' }}</h6>
+                        </div>
+                    </div>
+
+                    <!-- Status Timeline -->
+                    <div class="mt-4">
+                        <div class="timeline">
+                            {% set statuses = ['EN_ATTENTE', 'VALIDEE', 'PREPAREE', 'LIVREE'] %}
+                            {% set statusLabels = {
+                                'EN_ATTENTE': 'En Attente',
+                                'VALIDEE': 'Validée',
+                                'PREPAREE': 'Préparée',
+                                'LIVREE': 'Livrée'
+                            } %}
+                            
+                            {% for status in statuses %}
+                                <div class="row mb-2">
+                                    <div class="col-auto text-center">
+                                        {% if status == 'EN_ATTENTE' or commande.statut.value == status or 
+                                              (status == 'VALIDEE' and commande.statut.value in ['VALIDEE', 'PREPAREE', 'LIVREE']) or
+                                              (status == 'PREPAREE' and commande.statut.value in ['PREPAREE', 'LIVREE']) or
+                                              (status == 'LIVREE' and commande.statut.value == 'LIVREE') %}
+                                            <div class="timeline-badge completed"></div>
+                                        {% else %}
+                                            <div class="timeline-badge"></div>
+                                        {% endif %}
+                                    </div>
+                                    <div class="col">
+                                        <p class="mb-0">
+                                            <strong>{{ statusLabels[status] }}</strong>
+                                        </p>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Order Items -->
+            <div class="card shadow-sm">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0">Articles commandés</h5>
+                </div>
+                <div class="card-body">
+                    {% for ligne in commande.lignesCommande %}
+                        <div class="row mb-3 pb-3 border-bottom">
+                            <div class="col-md-6">
+                                <h6>{{ ligne.produit.nom }}</h6>
+                                <p class="text-muted mb-0">
+                                    <small>Catégorie: {{ ligne.produit.categorie.nom }}</small>
+                                </p>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="row text-end">
+                                    <div class="col-4">
+                                        <small class="text-muted">Quantité</small>
+                                        <p class="mb-0">{{ ligne.quantite }}</p>
+                                    </div>
+                                    <div class="col-4">
+                                        <small class="text-muted">P. unitaire</small>
+                                        <p class="mb-0">{{ ligne.prixUnitaire | number_format(2, ',', ' ') }} TND</p>
+                                    </div>
+                                    <div class="col-4">
+                                        <small class="text-muted">Sous-total</small>
+                                        <p class="mb-0"><strong>{{ ligne.sousTotal | number_format(2, ',', ' ') }} TND</strong></p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Order Summary Sidebar -->
+        <div class="col-lg-4">
+            <!-- Contact Card -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0">Informations client</h5>
+                </div>
+                <div class="card-body">
+                    <p class="mb-2">
+                        <strong>Nom:</strong><br>
+                        {{ commande.utilisateur.nomComplet }}
+                    </p>
+                    <p class="mb-0">
+                        <strong>Email:</strong><br>
+                        <a href="mailto:{{ commande.utilisateur.email }}">{{ commande.utilisateur.email }}</a>
+                    </p>
+                </div>
+            </div>
+
+            <!-- Delivery Address Card -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0">Adresse de livraison</h5>
+                </div>
+                <div class="card-body">
+                    <address>
+                        {{ commande.adresseLivraison | nl2br }}
+                    </address>
+                    <hr>
+                    <p class="mb-1"><strong>Ville:</strong> {{ commande.deliveryCity ?: '-' }}</p>
+                    <p class="mb-1"><strong>Trafic:</strong> {{ commande.deliveryTrafficLevel }}</p>
+                    <p class="mb-0"><strong>Cutoff applique:</strong> {{ commande.deliveryCutoffApplied ? 'Oui' : 'Non' }}</p>
+                </div>
+            </div>
+
+            <!-- Summary Card -->
+            <div class="card shadow-sm sticky-top" style="top: 80px;">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0">Résumé</h5>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <p class="text-muted mb-1">Nombre d'articles</p>
+                        <h5>{{ commande.lignesCommande | length }}</h5>
+                    </div>
+                    
+                    <div class="mb-3 pb-3 border-bottom">
+                        <p class="text-muted mb-1">Sous-total</p>
+                        <h6>{{ commande.montantTotal | number_format(2, ',', ' ') }} TND</h6>
+                        
+                        <p class="text-muted mb-1 mt-2">Livraison</p>
+                        <h6 class="text-success">Incluse</h6>
+                    </div>
+
+                    <div class="mb-3">
+                        <p class="text-muted mb-1">Montant total</p>
+                        <h4 class="text-primary">{{ commande.montantTotal | number_format(2, ',', ' ') }} TND</h4>
+                    </div>
+
+                    {% if commande.deliverySlaBreached %}
+                        <div class="alert alert-warning py-2">
+                            SLA depassee - penalite interne: {{ commande.deliveryDelayPenaltyPoints }} points
+                        </div>
+                    {% endif %}
+
+                    <button class="btn btn-primary w-100" onclick="window.print()">
+                        <i class="bi bi-printer"></i> Imprimer
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .timeline-badge {
+        width: 20px;
+        height: 20px;
+        border-radius: 50%;
+        border: 3px solid #ddd;
+        background-color: #fff;
+    }
+
+    .timeline-badge.completed {
+        background-color: #28a745;
+        border-color: #28a745;
+    }
+</style>
+{% endblock %}

@@ -1,0 +1,261 @@
+{# Notification Bell Widget #}
+<div class="notification-dropdown">
+    <button class="btn position-relative notification-bell-btn" type="button" id="notificationDropdown" style="padding: 0.25rem 0.5rem;">
+        <i class="bi bi-bell-fill" style="font-size: 1.25rem; color: #175cdd;"></i>
+        <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" id="notificationBadge" style="display: none; font-size: 0.65rem;">0</span>
+    </button>
+</div>
+
+<style>
+.notification-bell-btn {
+    background: transparent;
+    border: none;
+    cursor: pointer;
+}
+
+.notification-bell-btn:hover {
+    background: rgba(23, 92, 221, 0.1);
+    border-radius: 8px;
+}
+
+#notificationBadge {
+    font-size: 0.7rem;
+    padding: 0.35em 0.55em;
+    font-weight: 600;
+}
+
+#notificationMenu {
+    position: fixed !important;
+    z-index: 99999 !important;
+    background: white !important;
+    border: 1px solid #dee2e6 !important;
+    border-radius: 8px !important;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.2) !important;
+    width: 420px !important;
+    max-height: 70vh !important;
+    overflow-y: auto !important;
+    display: none;
+    top: 0 !important;
+    left: 0 !important;
+}
+
+#notificationMenu.show {
+    display: block !important;
+}
+
+.notification-header {
+    background: #f8f9fa;
+    border-bottom: 2px solid #dee2e6;
+    padding: 14px 16px;
+    font-weight: 600;
+    font-size: 1rem;
+    color: #212529;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+}
+
+.notification-item {
+    padding: 14px 16px;
+    border-bottom: 1px solid #f0f0f0;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    background: white;
+}
+
+.notification-item:hover {
+    background: #f8f9fa;
+}
+
+.notification-item.unread {
+    background: #e7f3ff;
+    border-left: 4px solid #0d6efd;
+    padding-left: 12px;
+}
+
+.notification-title {
+    font-weight: 600;
+    font-size: 0.95rem;
+    color: #212529;
+    margin-bottom: 6px;
+}
+
+.notification-message {
+    font-size: 0.875rem;
+    color: #495057;
+    margin-bottom: 6px;
+    line-height: 1.4;
+}
+
+.notification-time {
+    font-size: 0.75rem;
+    color: #6c757d;
+}
+
+.notification-footer {
+    padding: 12px 16px;
+    border-top: 2px solid #dee2e6;
+    text-align: center;
+    background: #f8f9fa;
+    position: sticky;
+    bottom: 0;
+    z-index: 10;
+}
+
+.notification-footer a {
+    color: #0d6efd;
+    text-decoration: none;
+    font-size: 0.9rem;
+    font-weight: 500;
+}
+
+.notification-footer a:hover {
+    text-decoration: underline;
+    color: #0a58ca;
+}
+
+.notification-empty {
+    padding: 32px 16px;
+    text-align: center;
+    color: #6c757d;
+    font-size: 0.9rem;
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('=== Notification System Starting ===');
+    
+    const button = document.getElementById('notificationDropdown');
+    console.log('Button found:', !!button);
+    
+    if (!button) {
+        console.error('Notification button not found!');
+        return;
+    }
+    
+    let menu = null;
+    
+    // Create menu
+    function createMenu() {
+        if (menu) return;
+        
+        console.log('Creating notification menu...');
+        menu = document.createElement('div');
+        menu.id = 'notificationMenu';
+        menu.innerHTML = `
+            <div class="notification-header">Notifications</div>
+            <div id="notificationContent">
+                <div class="notification-empty">
+                    <i class="bi bi-inbox" style="font-size: 2rem; display: block; margin-bottom: 8px;"></i>
+                    Aucune notification
+                </div>
+            </div>
+            <div class="notification-footer">
+                <a href="{{ path('app_notifications_index') }}">Voir toutes les notifications</a>
+            </div>
+        `;
+        document.body.appendChild(menu);
+        console.log('Menu created and appended');
+        loadNotifications();
+    }
+    
+    // Load notifications
+    function loadNotifications() {
+        console.log('Loading notifications...');
+        fetch('{{ path('app_notifications_api_list') }}')
+            .then(r => r.json())
+            .then(data => {
+                console.log('Notifications data:', data);
+                updateUI(data.notifications, data.unreadCount);
+            })
+            .catch(e => console.error('Load error:', e));
+    }
+    
+    // Update UI
+    function updateUI(notifications, unreadCount) {
+        console.log('Updating UI with', notifications.length, 'notifications');
+        
+        // Update badge
+        const badge = document.getElementById('notificationBadge');
+        if (unreadCount > 0) {
+            badge.textContent = unreadCount > 99 ? '99+' : unreadCount;
+            badge.style.display = 'block';
+        } else {
+            badge.style.display = 'none';
+        }
+        
+        // Update content
+        const content = document.getElementById('notificationContent');
+        if (!content) return;
+        
+        if (notifications.length === 0) {
+            content.innerHTML = `
+                <div class="notification-empty">
+                    <i class="bi bi-inbox" style="font-size: 2rem; display: block; margin-bottom: 8px;"></i>
+                    Aucune notification
+                </div>
+            `;
+            return;
+        }
+        
+        content.innerHTML = notifications.slice(0, 10).map(n => `
+            <div class="notification-item ${n.lu ? '' : 'unread'}">
+                <div class="notification-title">${n.titre}</div>
+                <div class="notification-message">${n.message}</div>
+                <div class="notification-time">${new Date(n.dateCreation).toLocaleString('fr-FR')}</div>
+            </div>
+        `).join('');
+    }
+    
+    // Click handler
+    button.addEventListener('click', function(e) {
+        e.stopPropagation();
+        console.log('Button clicked');
+        
+        createMenu();
+        
+        if (!menu) {
+            console.error('Menu is null!');
+            return;
+        }
+        
+        const isShowing = menu.classList.contains('show');
+        console.log('Currently showing:', isShowing);
+        
+        if (isShowing) {
+            menu.classList.remove('show');
+            console.log('Menu hidden');
+        } else {
+            const rect = button.getBoundingClientRect();
+            const menuWidth = 420;
+            
+            // Position to the right of the button
+            let left = rect.right + 16;
+            
+            // If it would go off-screen, position to the left
+            if (left + menuWidth > window.innerWidth) {
+                left = rect.left - menuWidth - 16;
+            }
+            
+            menu.style.top = (rect.bottom + 40) + 'px';
+            menu.style.left = left + 'px';
+            menu.classList.add('show');
+            console.log('Menu shown at top:', menu.style.top, 'left:', menu.style.left);
+            console.log('Menu display:', window.getComputedStyle(menu).display);
+        }
+    });
+    
+    // Close on outside click
+    document.addEventListener('click', function(e) {
+        if (menu && !menu.contains(e.target) && e.target !== button) {
+            menu.classList.remove('show');
+        }
+    });
+    
+    // Refresh notifications every 30 seconds
+    setInterval(loadNotifications, 30000);
+    
+    console.log('=== Notification System Ready ===');
+});
+</script>

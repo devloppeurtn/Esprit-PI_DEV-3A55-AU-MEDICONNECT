@@ -1,0 +1,14 @@
+services:
+    _defaults:
+        autowire: true
+        autoconfigure: true
+        public: false
+
+    # Controllers
+    App\SavoirMedicalBundle\Controller\:
+        resource: '../../Controller'
+        tags: ['controller.service_arguments']
+
+    # Services
+    App\SavoirMedicalBundle\Service\:
+        resource: '../../Service'

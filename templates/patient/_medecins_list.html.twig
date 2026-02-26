@@ -1,0 +1,46 @@
+﻿<div class="row gy-4" id="doctors-list">
+    {% for medecin in medecins %}
+    {% set imgIndex = loop.index0 % staffImages|length %}
+    {% set staffImg = staffImages[imgIndex] %}
+    <div class="col-lg-3 col-md-6">
+        <div class="doctor-card">
+            <div class="doctor-image" style="cursor: pointer;" onclick="window.location.href='{{ path('app_user_profile_view', {id: medecin.id}) }}'">
+                {% if medecin.photo %}
+                    <img src="{{ asset(medecin.photo) }}" alt="{{ medecin.nomComplet }}" class="img-fluid" style="width: 100%; height: 100%; object-fit: cover;">
+                {% else %}
+                    <img src="{{ asset('assets/img/health/' ~ staffImg ~ '.webp') }}" alt="{{ medecin.nomComplet }}" class="img-fluid">
+                {% endif %}
+                <div class="doctor-overlay">
+                    <div class="social-links">
+                        <a href="{{ path('app_user_profile_view', {id: medecin.id}) }}" title="Voir le profil"><i class="bi bi-person-circle"></i></a>
+                        <a href="mailto:{{ medecin.email }}" title="Email"><i class="bi bi-envelope"></i></a>
+                    </div>
+                </div>
+            </div>
+            <div class="doctor-content">
+                <h4>{{ medecin.nomComplet }}</h4>
+                <span class="specialty">{{ medecin.specialite|default('Medecin generaliste') }}</span>
+                <p>{% set addr = medecin.adresseCabinet|default('Cabinet MediConnect') %}{{ addr|length > 80 ? addr|slice(0, 80) ~ '...' : addr }}</p>
+                <div class="doctor-meta">
+                    <div class="department">
+                        <i class="bi bi-building"></i>
+                        <span>{{ medecin.specialite|default('Consultation') }}</span>
+                    </div>
+                </div>
+                <div class="d-flex gap-2">
+                    <a href="{{ path('app_user_profile_view', {id: medecin.id}) }}" class="btn btn-outline-primary btn-sm flex-grow-1">
+                        <i class="bi bi-eye me-1"></i>Voir profil
+                    </a>
+                    <a href="{{ path('app_patient_prendre_rdv', {medecin: medecin.id}) }}" class="btn-appointment flex-grow-1">
+                        Prendre rendez-vous
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% else %}
+    <div class="col-12">
+        <p class="text-center text-muted py-5">Aucun medecin disponible pour le moment.</p>
+    </div>
+    {% endfor %}
+</div>

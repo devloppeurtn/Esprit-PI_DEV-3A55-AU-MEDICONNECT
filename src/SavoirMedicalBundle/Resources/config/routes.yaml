@@ -1,0 +1,4 @@
+savoir_medical_bundle:
+    resource: '../../Controller/'
+    type: attribute
+    prefix: /savoir-medical

@@ -1,0 +1,247 @@
+{% extends 'admin/base_admin.html.twig' %}
+
+{% block title %}Profil - {{ user.nomComplet }} - MediConnect{% endblock %}
+
+{% block stylesheets %}
+    <link href="{{ asset('assets/css/profile.css') }}" rel="stylesheet">
+{% endblock %}
+
+{% block body %}
+<div class="container-fluid py-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-white border-bottom d-flex justify-content-between align-items-center">
+                    <h4 class="mb-0"><i class="bi bi-person-circle me-2"></i>Profil utilisateur</h4>
+                    <a href="{{ path('app_admin_users') }}" class="btn btn-outline-secondary btn-sm">
+                        <i class="bi bi-arrow-left me-1"></i>Retour aux utilisateurs
+                    </a>
+                </div>
+                <div id="profileLoading" class="text-center p-5">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Chargement...</span>
+                    </div>
+                    <p class="mt-3 text-muted">Chargement du profil...</p>
+                </div>
+                <div id="profileContent" class="card-body p-4" style="display: none;">
+                    <div class="row mb-4">
+                        <div class="col-md-4 text-center">
+                            <div class="profile-avatar mb-3">
+                                <div class="rounded-circle bg-primary bg-opacity-10 d-inline-flex align-items-center justify-content-center overflow-hidden" style="width: 120px; height: 120px; border: 3px solid #175cdd;">
+                                    {% if user.photo %}
+                                        <img src="{{ asset(user.photo) }}" alt="{{ user.nomComplet }}" style="width: 100%; height: 100%; object-fit: cover;">
+                                    {% else %}
+                                        <i class="bi bi-person-fill display-4 text-primary"></i>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="role-badge mb-2">
+                                {% if user.role == constant('App\\Entity\\RoleUtilisateur::ADMIN') %}
+                                    <span class="badge bg-danger fs-6">Administrateur</span>
+                                {% elseif user.role == constant('App\\Entity\\RoleUtilisateur::MEDECIN') %}
+                                    <span class="badge bg-info fs-6">Médecin</span>
+                                {% elseif user.role == constant('App\\Entity\\RoleUtilisateur::PATIENT') %}
+                                    <span class="badge bg-success fs-6">Patient</span>
+                                {% elseif user.role == constant('App\\Entity\\RoleUtilisateur::SECRETAIRE') %}
+                                    <span class="badge bg-warning text-dark fs-6">Secrétaire</span>
+                                {% elseif user.role == constant('App\\Entity\\RoleUtilisateur::PARTICIPATION') %}
+                                    <span class="badge bg-secondary fs-6">Participation</span>
+                                {% endif %}
+                            </div>
+                            <div class="small text-muted">ID: {{ user.id }}</div>
+                        </div>
+                        <div class="col-md-8">
+                            <h4 class="mb-4">{{ user.nomComplet }}</h4>
+                            
+                            <div class="row g-3">
+                                <div class="col-12">
+                                    <div class="d-flex align-items-center p-3 bg-light rounded">
+                                        <i class="bi bi-envelope fs-4 text-primary me-3"></i>
+                                        <div>
+                                            <small class="text-muted d-block">Email</small>
+                                            <strong>{{ user.email }}</strong>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="d-flex align-items-center p-3 bg-light rounded">
+                                        <i class="bi bi-shield-check fs-4 text-primary me-3"></i>
+                                        <div>
+                                            <small class="text-muted d-block">Statut</small>
+                                            {% if user.statut == constant('App\\Entity\\StatutCompte::ACTIF') %}
+                                                <span class="badge bg-success">Actif</span>
+                                            {% elseif user.statut == constant('App\\Entity\\StatutCompte::BANNI') %}
+                                                <span class="badge bg-danger">Banni</span>
+                                            {% elseif user.statut == constant('App\\Entity\\StatutCompte::SUSPENDU') %}
+                                                <span class="badge bg-warning text-dark">Suspendu</span>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="d-flex align-items-center p-3 bg-light rounded">
+                                        <i class="bi bi-calendar-event fs-4 text-primary me-3"></i>
+                                        <div>
+                                            <small class="text-muted d-block">Inscription</small>
+                                            <strong>{{ user.dateCreation|date('d/m/Y H:i') }}</strong>
+                                        </div>
+                                    </div>
+                                </div>
+                                {% if user.derniereConnexion %}
+                                <div class="col-md-6">
+                                    <div class="d-flex align-items-center p-3 bg-light rounded">
+                                        <i class="bi bi-clock-history fs-4 text-primary me-3"></i>
+                                        <div>
+                                            <small class="text-muted d-block">Dernière connexion</small>
+                                            <strong>{{ user.derniereConnexion|date('d/m/Y H:i') }}</strong>
+                                        </div>
+                                    </div>
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+
+                    <hr class="my-4">
+
+                    {% if user.role.value == 'PATIENT' %}
+                        <h5 class="mb-3"><i class="bi bi-person-vcard me-2"></i>Informations Patient</h5>
+                        <div class="row g-3">
+                            {% if user.telephone %}
+                            <div class="col-md-6">
+                                <strong><i class="bi bi-telephone me-2"></i>Téléphone :</strong>
+                                <span class="ms-2">{{ user.telephone }}</span>
+                            </div>
+                            {% endif %}
+                            {% if user.dateNaissance %}
+                            <div class="col-md-6">
+                                <strong><i class="bi bi-calendar3 me-2"></i>Date de naissance :</strong>
+                                <span class="ms-2">{{ user.dateNaissance|date('d/m/Y') }}</span>
+                            </div>
+                            {% endif %}
+                            {% if user.adresse %}
+                            <div class="col-12">
+                                <strong><i class="bi bi-geo-alt me-2"></i>Adresse :</strong>
+                                <span class="ms-2">{{ user.adresse }}</span>
+                            </div>
+                            {% endif %}
+                            {% if not user.telephone and not user.dateNaissance and not user.adresse %}
+                            <div class="col-12 text-muted"><em>Aucune information complémentaire</em></div>
+                            {% endif %}
+                        </div>
+                    {% elseif user.role.value == 'MEDECIN' %}
+                        <h5 class="mb-3"><i class="bi bi-heart-pulse me-2"></i>Informations Professionnelles</h5>
+                        <div class="row g-3">
+                            {% if user.specialite %}
+                            <div class="col-md-6">
+                                <strong><i class="bi bi-briefcase me-2"></i>Spécialité :</strong>
+                                <span class="ms-2">{{ user.specialite }}</span>
+                            </div>
+                            {% endif %}
+                            {% if user.numeroLicence %}
+                            <div class="col-md-6">
+                                <strong><i class="bi bi-card-checklist me-2"></i>Numéro de licence :</strong>
+                                <span class="ms-2">{{ user.numeroLicence }}</span>
+                            </div>
+                            {% endif %}
+                            {% if user.adresseCabinet %}
+                            <div class="col-12">
+                                <strong><i class="bi bi-building me-2"></i>Adresse du cabinet :</strong>
+                                <span class="ms-2">{{ user.adresseCabinet }}</span>
+                            </div>
+                            {% endif %}
+                            {% if not user.specialite and not user.numeroLicence and not user.adresseCabinet %}
+                            <div class="col-12 text-muted"><em>Aucune information professionnelle</em></div>
+                            {% endif %}
+                        </div>
+                    {% elseif user.role.value == 'SECRETAIRE' %}
+                        <h5 class="mb-3"><i class="bi bi-person-badge me-2"></i>Informations Secrétaire</h5>
+                        <div class="row g-3">
+                            {% if user.telephone %}
+                            <div class="col-md-6">
+                                <strong><i class="bi bi-telephone me-2"></i>Téléphone :</strong>
+                                <span class="ms-2">{{ user.telephone }}</span>
+                            </div>
+                            {% endif %}
+                            {% if not user.telephone %}
+                            <div class="col-12 text-muted"><em>Aucune information complémentaire</em></div>
+                            {% endif %}
+                        </div>
+                    {% elseif user.role.value == 'ADMIN' %}
+                        <h5 class="mb-3"><i class="bi bi-shield-lock me-2"></i>Administrateur</h5>
+                        <p class="text-muted mb-0">Compte administrateur MediConnect.</p>
+                    {% elseif user.role.value == 'PARTICIPATION' %}
+                        <h5 class="mb-3"><i class="bi bi-people me-2"></i>Informations Participation</h5>
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <strong><i class="bi bi-person-badge me-2"></i>Rôle dans l'événement :</strong>
+                                <span class="ms-2">{{ user.roleDansEvenement.value ?? '?' }}</span>
+                            </div>
+                            <div class="col-md-6">
+                                <strong><i class="bi bi-check-circle me-2"></i>Présence confirmée :</strong>
+                                <span class="ms-2">{% if user.presenceConfirmee %}Oui{% else %}Non{% endif %}</span>
+                            </div>
+                        </div>
+                    {% endif %}
+
+                    <hr class="my-4">
+
+                    <div class="d-flex gap-2 justify-content-end">
+                        <a href="{{ path('app_admin_users') }}" class="btn btn-primary">
+                            <i class="bi bi-arrow-left me-1"></i>Retour aux utilisateurs
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block javascripts %}
+{{ parent() }}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const userId = {{ user.id }};
+    const loadingDiv = document.getElementById('profileLoading');
+    const contentDiv = document.getElementById('profileContent');
+    
+    // Charger les données du profil via AJAX
+    fetch('{{ path('app_admin_user_profile_data', {id: user.id}) }}', {
+        headers: { 'X-Requested-With': 'XMLHttpRequest' }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success && data.user) {
+            // Remplir les données dans le template
+            // Les données sont déjà présentes dans le template Twig, on cache juste le loader
+            loadingDiv.style.display = 'none';
+            contentDiv.style.display = 'block';
+        } else {
+            loadingDiv.innerHTML = `
+                <div class="alert alert-danger">
+                    <i class="bi bi-exclamation-triangle me-2"></i>
+                    ${data.error || 'Erreur lors du chargement du profil'}
+                </div>
+                <a href="{{ path('app_admin_users') }}" class="btn btn-primary mt-3">
+                    <i class="bi bi-arrow-left me-1"></i>Retour aux utilisateurs
+                </a>
+            `;
+        }
+    })
+    .catch(error => {
+        loadingDiv.innerHTML = `
+            <div class="alert alert-danger">
+                <i class="bi bi-exclamation-triangle me-2"></i>
+                Erreur de connexion. Affichage des données en cache...
+            </div>
+        `;
+        // Afficher quand même le contenu si disponible
+        setTimeout(() => {
+            loadingDiv.style.display = 'none';
+            contentDiv.style.display = 'block';
+        }, 1000);
+    });
+});
+</script>
+{% endblock %}

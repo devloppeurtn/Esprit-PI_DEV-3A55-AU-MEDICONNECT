@@ -1,0 +1,93 @@
+<aside class="admin-sidebar" id="admin-sidebar">
+    <div class="sidebar-header">
+        <div class="sidebar-brand">
+            <div class="sidebar-logo-wrap">
+                <img src="{{ asset('assets/img/logomed.png') }}" alt="MediConnect" class="sidebar-logo">
+            </div>
+            <span class="sidebar-title">MediConnect</span>
+        </div>
+        <div class="sidebar-actions">
+            {% include 'notifications/_notification_bell.html.twig' %}
+            <button type="button" class="sidebar-toggle-btn" id="sidebar-toggle-btn" aria-label="Reduire le menu" title="Reduire le menu">
+                <i class="bi bi-chevron-left"></i>
+            </button>
+        </div>
+    </div>
+
+    <div class="sidebar-content">
+        <nav class="sidebar-nav">
+            <div class="sidebar-section">
+                <span class="sidebar-section-title">Espace Patient</span>
+                <ul class="nav flex-column">
+                    <li class="nav-item">
+                        <a class="nav-link {{ app.request.get('_route') == 'app_patient_index' ? 'active' : '' }}" href="{{ path('app_patient_index') }}" title="Tableau de bord patient">
+                            <span class="nav-icon-wrap"><i class="bi bi-house-door"></i></span>
+                            <span class="nav-text">Tableau de bord</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {{ app.request.get('_route') starts with 'app_savoir_medical' or app.request.get('_route') starts with 'app_progression' ? 'active' : '' }}" href="{{ path('app_savoir_medical_index') }}" title="Savoir Médical">
+                            <span class="nav-icon-wrap"><i class="bi bi-book"></i></span>
+                            <span class="nav-text">Savoir Médical</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {{ app.request.get('_route') starts with 'app_patient_dossier' or app.request.get('_route') starts with 'app_patient_consultation' or app.request.get('_route') starts with 'app_patient_document' ? 'active' : '' }}" href="{{ path('app_patient_dossier') }}" title="Mon dossier medical">
+                            <span class="nav-icon-wrap"><i class="bi bi-folder2-open"></i></span>
+                            <span class="nav-text">Mon dossier</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {{ app.request.get('_route') starts with 'app_patient_medecins' or app.request.get('_route') starts with 'app_patient_prendre_rdv' ? 'active' : '' }}" href="{{ path('app_patient_medecins') }}" title="Medecins et prise de rendez-vous">
+                            <span class="nav-icon-wrap"><i class="bi bi-heart-pulse"></i></span>
+                            <span class="nav-text">Nos medecins</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {{ app.request.get('_route') starts with 'app_patient_rendez_vous' or app.request.get('_route') starts with 'app_patient_rdv_' ? 'active' : '' }}" href="{{ path('app_patient_rendez_vous') }}" title="Mes rendez-vous">
+                            <span class="nav-icon-wrap"><i class="bi bi-calendar-check"></i></span>
+                            <span class="nav-text">Rendez-vous</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {{ app.request.get('_route') starts with 'app_patient_documents' ? 'active' : '' }}" href="{{ path('app_patient_documents') }}" title="Mes documents">
+                            <span class="nav-icon-wrap"><i class="bi bi-file-earmark-text"></i></span>
+                            <span class="nav-text">Documents</span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+
+            <div class="sidebar-section">
+                <span class="sidebar-section-title">Compte</span>
+                <ul class="nav flex-column">
+                    <li class="nav-item">
+                        <a class="nav-link {{ app.request.get('_route') == 'app_profile' ? 'active' : '' }}" href="{{ path('app_profile') }}" title="Profil">
+                            <span class="nav-icon-wrap"><i class="bi bi-person-circle"></i></span>
+                            <span class="nav-text">Profil</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {{ app.request.get('_route') == 'app_settings' ? 'active' : '' }}" href="{{ path('app_settings') }}" title="Parametres">
+                            <span class="nav-icon-wrap"><i class="bi bi-gear"></i></span>
+                            <span class="nav-text">Parametres</span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </nav>
+    </div>
+
+    <div class="sidebar-footer">
+        <div class="sidebar-version">Patient</div>
+        <div class="sidebar-collapsed-hint" title="Cliquez pour agrandir">
+            <i class="bi bi-layout-sidebar-inset"></i>
+        </div>
+    </div>
+</aside>
+
+<button type="button" class="sidebar-open-btn" id="sidebar-open-btn" aria-label="Ouvrir le menu" title="Ouvrir le menu">
+    <i class="bi bi-list"></i>
+</button>
+
+<div class="sidebar-backdrop" id="sidebar-backdrop" aria-hidden="true"></div>

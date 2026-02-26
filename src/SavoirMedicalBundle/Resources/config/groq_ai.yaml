@@ -1,0 +1,24 @@
+# Configuration Groq AI pour la génération de quiz
+
+groq_ai:
+    # API Configuration
+    api_url: 'https://api.groq.com/openai/v1/chat/completions'
+    api_key: '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'
+    
+    # Model Configuration
+    model: 'mixtral-8x7b-32768'
+    temperature: 0.7
+    max_tokens: 500
+    
+    # Generation Settings
+    questions_per_course: 5
+    rate_limit_delay: 500 # milliseconds between requests
+    
+    # Prompt Configuration
+    system_prompt: 'Tu es un expert médical qui crée des questions de quiz pédagogiques.'
+    
+    # Supported Languages
+    languages:
+        - fr
+        - en
+        - ar

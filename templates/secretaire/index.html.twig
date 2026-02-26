@@ -1,0 +1,336 @@
+{% extends 'admin/base_admin.html.twig' %}
+
+{% block title %}Espace secrétaire - MediConnect{% endblock %}
+
+{% block admin_content %}
+<div class="secretaire-espace">
+    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
+        <div>
+            <h1 class="h3 mb-1">Espace secrétaire</h1>
+            <p class="text-muted mb-0">Vos invitations et votre médecin associé</p>
+        </div>
+        {% if medecin %}
+        <div class="d-flex gap-2 flex-wrap">
+            <a href="{{ path('app_secretaire_agenda') }}" class="btn btn-primary">
+                <i class="bi bi-calendar3 me-1"></i>Agenda
+            </a>
+            <a href="{{ path('app_secretaire_planning_config') }}" class="btn btn-outline-secondary">
+                <i class="bi bi-gear-fill me-1"></i>Configurer horaires
+            </a>
+            <a href="{{ path('app_secretaire_rendez_vous') }}" class="btn btn-outline-primary">
+                <i class="bi bi-list-check me-1"></i>Rendez-vous
+            </a>
+        </div>
+        {% endif %}
+    </div>
+
+    <div class="row g-4 mb-4">
+        {# Horaires de travail #}
+        <div class="col-lg-5">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-header bg-transparent border-0 py-3 d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0"><i class="bi bi-clock-fill me-2 text-info"></i>Horaires de travail</h5>
+                    {% if medecin %}
+                    <a href="{{ path('app_secretaire_planning_config') }}" class="btn btn-sm btn-outline-info">
+                        <i class="bi bi-pencil-square"></i> Modifier
+                    </a>
+                    {% endif %}
+                </div>
+                <div class="card-body">
+                    {% if planning %}
+                        <div class="mb-3">
+                            <span class="text-muted small d-block mb-1">Matinée</span>
+                            {% if planning.heureDebutMatin %}
+                                <strong class="fs-5">{{ planning.heureDebutMatin|date('H:i') }} — {{ planning.heureFinMatin|date('H:i') }}</strong>
+                            {% else %}
+                                <span class="text-muted fst-italic">Non configurée</span>
+                            {% endif %}
+                        </div>
+                        <div class="mb-3">
+                            <span class="text-muted small d-block mb-1">Après-midi</span>
+                            {% if planning.heureDebutApresMidi %}
+                                <strong class="fs-5">{{ planning.heureDebutApresMidi|date('H:i') }} — {{ planning.heureFinApresMidi|date('H:i') }}</strong>
+                            {% else %}
+                                <span class="text-muted fst-italic">Non configurée</span>
+                            {% endif %}
+                        </div>
+                        <div class="mb-0">
+                            <span class="text-muted small d-block mb-2">Jours d'ouverture</span>
+                            {% for jour in planning.joursOuverture %}
+                                <span class="badge bg-info bg-opacity-10 text-info border border-info-subtle me-1 mb-1">{{ jour|capitalize }}</span>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="text-center py-4 text-muted">
+                            <i class="bi bi-calendar-x fs-1 opacity-50 d-block mb-2"></i>
+                            <p class="small mb-0">Aucun horaire défini.</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        {# Séances / RDVs Aujourd'hui #}
+        <div class="col-lg-7">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-header bg-transparent border-0 py-3 d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0"><i class="bi bi-calendar-check-fill me-2 text-success"></i>Rendez-vous du jour</h5>
+                    <a href="{{ path('app_secretaire_agenda') }}" class="btn btn-sm btn-outline-success">
+                        <i class="bi bi-calendar3"></i> Voir l'agenda
+                    </a>
+                </div>
+                <div class="card-body p-0">
+                    {% if rdvsAujourdhui|length > 0 %}
+                    <div class="list-group list-group-flush">
+                        {% for rdv in rdvsAujourdhui %}
+                        <div class="list-group-item border-0 px-4 py-3">
+                            <div class="d-flex align-items-center justify-content-between">
+                                <div class="d-flex align-items-center">
+                                    <div class="bg-success bg-opacity-10 text-success rounded-3 p-2 me-3 text-center" style="min-width: 60px;">
+                                        <div class="small fw-bold">{{ rdv.dateDebut|date('H:i') }}</div>
+                                        <div class="small opacity-75">début</div>
+                                    </div>
+                                    <div>
+                                        <div class="fw-bold">{{ rdv.patient.nomComplet }}</div>
+                                        <div class="small text-muted">{{ rdv.note[:40] }}{% if rdv.note|length > 40 %}...{% endif %}</div>
+                                    </div>
+                                </div>
+                                <span class="badge {{ rdv.statut.value == 'CONFIRME' ? 'bg-success' : 'bg-warning' }}">
+                                    {{ rdv.statut.value == 'CONFIRME' ? 'Confirmé' : 'En attente' }}
+                                </span>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <div class="text-center py-5 text-muted">
+                        <i class="bi bi-calendar-event fs-1 opacity-50 d-block mb-2"></i>
+                        <p class="small mb-0">Aucun rendez-vous pour aujourd'hui.</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {# Médecin associé #}
+    <div class="card border-0 shadow-sm mb-4">
+        <div class="card-header bg-transparent border-0 py-3">
+            <h5 class="mb-0"><i class="bi bi-heart-pulse-fill me-2 text-primary"></i>Médecin associé</h5>
+        </div>
+        <div class="card-body p-4">
+            {% if medecin %}
+            <div class="d-flex align-items-center">
+                <a href="{{ path('app_user_profile_view', {id: medecin.id}) }}" class="text-decoration-none text-dark">
+                    {% if medecin.photo %}
+                        <img src="{{ asset(medecin.photo) }}" 
+                             alt="{{ medecin.nomComplet }}" 
+                             class="rounded-circle me-3" 
+                             style="width: 56px; height: 56px; object-fit: cover; border: 2px solid #0d6efd; cursor: pointer; transition: transform 0.2s;"
+                             onmouseover="this.style.transform='scale(1.1)'"
+                             onmouseout="this.style.transform='scale(1)'"
+                             title="Voir le profil">
+                    {% else %}
+                        <div class="rounded-circle bg-primary bg-opacity-10 text-primary d-flex align-items-center justify-content-center me-3" style="width: 56px; height: 56px; cursor: pointer; transition: transform 0.2s;"
+                             onmouseover="this.style.transform='scale(1.1)'"
+                             onmouseout="this.style.transform='scale(1)'"
+                             title="Voir le profil">
+                            <i class="bi bi-person-badge-fill fs-4"></i>
+                        </div>
+                    {% endif %}
+                </a>
+                <div>
+                    <a href="{{ path('app_user_profile_view', {id: medecin.id}) }}" class="text-decoration-none text-dark">
+                        <h5 class="mb-1">{{ medecin.nomComplet }}</h5>
+                    </a>
+                    <p class="text-muted mb-0 small">{{ medecin.email }}</p>
+                    {% if medecin.specialite %}<span class="badge bg-primary mt-1">{{ medecin.specialite }}</span>{% endif %}
+                </div>
+            </div>
+            {% else %}
+            <div class="text-center py-4 text-muted">
+                <i class="bi bi-person-x display-4 d-block mb-2 opacity-50"></i>
+                <p class="mb-0">Aucun médecin associé pour le moment.</p>
+                <p class="small">Acceptez une invitation ci-dessous pour être lié à un cabinet.</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    {# Invitations en attente #}
+    {% if invitationsEnAttente|length > 0 %}
+    <div class="card border-0 shadow-sm mb-4 border-warning">
+        <div class="card-header bg-warning bg-opacity-10 border-0 py-3">
+            <h5 class="mb-0"><i class="bi bi-hourglass-split me-2 text-warning"></i>Invitations en attente ({{ invitationsEnAttente|length }})</h5>
+        </div>
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th class="ps-4">Médecin</th>
+                            <th>Spécialité</th>
+                            <th>Email</th>
+                            <th>Date</th>
+                            <th class="text-end pe-4">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for inv in invitationsEnAttente %}
+                        <tr>
+                            <td class="ps-4">
+                                <div class="d-flex align-items-center">
+                                    <a href="{{ path('app_user_profile_view', {id: inv.medecin.id}) }}" class="text-decoration-none text-dark d-flex align-items-center">
+                                        {% if inv.medecin.photo %}
+                                            <img src="{{ asset(inv.medecin.photo) }}" 
+                                                 alt="{{ inv.medecin.nomComplet }}" 
+                                                 class="rounded-circle me-3" 
+                                                 style="width: 40px; height: 40px; object-fit: cover; border: 2px solid #ffc107; cursor: pointer; transition: transform 0.2s;"
+                                                 onmouseover="this.style.transform='scale(1.1)'"
+                                                 onmouseout="this.style.transform='scale(1)'"
+                                                 title="Voir le profil">
+                                        {% else %}
+                                            <div class="rounded-circle bg-warning bg-opacity-10 text-warning d-flex align-items-center justify-content-center me-3" style="width: 40px; height: 40px; cursor: pointer; transition: transform 0.2s;" 
+                                                 onmouseover="this.style.transform='scale(1.1)'"
+                                                 onmouseout="this.style.transform='scale(1)'"
+                                                 title="Voir le profil">
+                                                <i class="bi bi-hourglass-split"></i>
+                                            </div>
+                                        {% endif %}
+                                        <span class="fw-medium">{{ inv.medecin.nomComplet }}</span>
+                                    </a>
+                                </div>
+                            </td>
+                            <td>{{ inv.medecin.specialite ?? '?' }}</td>
+                            <td>{{ inv.medecin.email }}</td>
+                            <td>{{ inv.dateCreation|date('d/m/Y H:i') }}</td>
+                            <td class="text-end pe-4">
+                                <a href="{{ path('app_invitation_accepter', {token: inv.token}) }}" class="btn btn-sm btn-success me-1"><i class="bi bi-check-lg"></i> Accepter</a>
+                                <a href="{{ path('app_invitation_refuser', {token: inv.token}) }}" class="btn btn-sm btn-outline-danger"><i class="bi bi-x-lg"></i> Refuser</a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    {# Invitations acceptées #}
+    {% if invitationsAcceptees|length > 0 %}
+    <div class="card border-0 shadow-sm mb-4">
+        <div class="card-header bg-transparent border-0 py-3">
+            <h5 class="mb-0"><i class="bi bi-check-circle-fill me-2 text-success"></i>Invitations acceptées ({{ invitationsAcceptees|length }})</h5>
+        </div>
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th class="ps-4">Médecin</th>
+                            <th>Email</th>
+                            <th>Date d'acceptation</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for inv in invitationsAcceptees %}
+                        <tr>
+                            <td class="ps-4">
+                                <div class="d-flex align-items-center">
+                                    <a href="{{ path('app_user_profile_view', {id: inv.medecin.id}) }}" class="text-decoration-none text-dark d-flex align-items-center">
+                                        {% if inv.medecin.photo %}
+                                            <img src="{{ asset(inv.medecin.photo) }}" 
+                                                 alt="{{ inv.medecin.nomComplet }}" 
+                                                 class="rounded-circle me-3" 
+                                                 style="width: 40px; height: 40px; object-fit: cover; border: 2px solid #198754; cursor: pointer; transition: transform 0.2s;"
+                                                 onmouseover="this.style.transform='scale(1.1)'"
+                                                 onmouseout="this.style.transform='scale(1)'"
+                                                 title="Voir le profil">
+                                        {% else %}
+                                            <div class="rounded-circle bg-success bg-opacity-10 text-success d-flex align-items-center justify-content-center me-3" style="width: 40px; height: 40px; cursor: pointer; transition: transform 0.2s;"
+                                                 onmouseover="this.style.transform='scale(1.1)'"
+                                                 onmouseout="this.style.transform='scale(1)'"
+                                                 title="Voir le profil">
+                                                <i class="bi bi-check-circle-fill"></i>
+                                            </div>
+                                        {% endif %}
+                                        <span class="fw-medium">{{ inv.medecin.nomComplet }}</span>
+                                    </a>
+                                </div>
+                            </td>
+                            <td>{{ inv.medecin.email }}</td>
+                            <td>{{ inv.dateReponse ? inv.dateReponse|date('d/m/Y H:i') : '?' }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    {# Invitations refusées #}
+    {% if invitationsRefusees|length > 0 %}
+    <div class="card border-0 shadow-sm mb-4">
+        <div class="card-header bg-transparent border-0 py-3">
+            <h5 class="mb-0"><i class="bi bi-x-circle-fill me-2 text-secondary"></i>Invitations refusées ({{ invitationsRefusees|length }})</h5>
+        </div>
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th class="ps-4">Médecin</th>
+                            <th>Email</th>
+                            <th>Date du refus</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for inv in invitationsRefusees %}
+                        <tr>
+                            <td class="ps-4">
+                                <div class="d-flex align-items-center">
+                                    <a href="{{ path('app_user_profile_view', {id: inv.medecin.id}) }}" class="text-decoration-none text-dark d-flex align-items-center">
+                                        {% if inv.medecin.photo %}
+                                            <img src="{{ asset(inv.medecin.photo) }}" 
+                                                 alt="{{ inv.medecin.nomComplet }}" 
+                                                 class="rounded-circle me-3" 
+                                                 style="width: 40px; height: 40px; object-fit: cover; border: 2px solid #6c757d; cursor: pointer; transition: transform 0.2s;"
+                                                 onmouseover="this.style.transform='scale(1.1)'"
+                                                 onmouseout="this.style.transform='scale(1)'"
+                                                 title="Voir le profil">
+                                        {% else %}
+                                            <div class="rounded-circle bg-secondary bg-opacity-10 text-secondary d-flex align-items-center justify-content-center me-3" style="width: 40px; height: 40px; cursor: pointer; transition: transform 0.2s;"
+                                                 onmouseover="this.style.transform='scale(1.1)'"
+                                                 onmouseout="this.style.transform='scale(1)'"
+                                                 title="Voir le profil">
+                                                <i class="bi bi-x-circle-fill"></i>
+                                            </div>
+                                        {% endif %}
+                                        <span class="fw-medium">{{ inv.medecin.nomComplet }}</span>
+                                    </a>
+                                </div>
+                            </td>
+                            <td>{{ inv.medecin.email }}</td>
+                            <td>{{ inv.dateReponse ? inv.dateReponse|date('d/m/Y H:i') : '?' }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    {% if medecin is null and invitationsEnAttente|length == 0 and invitationsAcceptees|length == 0 and invitationsRefusees|length == 0 %}
+    <div class="card border-0 shadow-sm">
+        <div class="card-body text-center py-5 text-muted">
+            <i class="bi bi-envelope-open display-4 d-block mb-3 opacity-50"></i>
+            <p class="mb-0">Aucune invitation pour le moment.</p>
+            <p class="small">Un médecin vous invitera par email lorsqu'il souhaitera vous associer à son cabinet.</p>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

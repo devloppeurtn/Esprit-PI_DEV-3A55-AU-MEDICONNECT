@@ -1,0 +1,103 @@
+{% extends 'admin/base_admin.html.twig' %}
+
+{% block title %}Consultation - MediConnect{% endblock %}
+
+{% block admin_content %}
+<div class="medecin-consultation-voir">
+    <h1 class="h3 mb-4">Consultation - {{ consultation.dossierMedical.patient.nomComplet }}</h1>
+
+    <div class="card border-0 shadow-sm mb-4">
+        <div class="card-header"><h5 class="mb-0">Détails</h5></div>
+        <div class="card-body">
+            <p><strong>Date :</strong> {{ consultation.date|date('d/m/Y H:i') }}</p>
+            <p><strong>Diagnostic :</strong> {{ consultation.diagnostic|default('—') }}</p>
+            <p><strong>Résumé :</strong> {{ consultation.resume|default('—') }}</p>
+        </div>
+    </div>
+
+    <div class="card border-0 shadow-sm mb-4">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">Ordonnances</h5>
+            {% if is_own_consultation|default(true) %}
+            <a href="{{ path('app_medecin_ordonnance_ajouter', {id: consultation.id}) }}" class="btn btn-sm btn-primary">+ Ajouter</a>
+            {% endif %}
+        </div>
+        <div class="card-body p-0">
+            {% if consultation.ordonnances|length > 0 %}
+            <table class="table table-hover mb-0">
+                <thead class="table-light">
+                    <tr><th>Médicament</th><th>Méthode d'utilisation</th><th>Actions</th></tr>
+                </thead>
+                <tbody>
+                    {% for o in consultation.ordonnances %}
+                    <tr>
+                        <td>{{ o.medicament }}</td>
+                        <td>{{ o.methodeUtilisation }}</td>
+                        <td>
+                            {% if is_own_consultation|default(true) %}
+                            <a href="{{ path('app_medecin_ordonnance_modifier', {id: o.id}) }}" class="btn btn-sm btn-outline-primary">Modifier</a>
+                            <form method="post" action="{{ path('app_medecin_ordonnance_supprimer', {id: o.id}) }}" class="d-inline" onsubmit="return confirm('Supprimer cette ordonnance ?');">
+                                <input type="hidden" name="_token" value="{{ csrf_token('supprimer_ordonnance_' ~ o.id) }}">
+                                <button type="submit" class="btn btn-sm btn-outline-danger">Supprimer</button>
+                            </form>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% else %}
+            <p class="text-muted text-center py-3 mb-0">Aucune ordonnance.</p>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="card border-0 shadow-sm mb-4">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">Rapports médicaux</h5>
+            {% if is_own_consultation|default(true) %}
+            <a href="{{ path('app_medecin_rapport_ajouter', {id: consultation.id}) }}" class="btn btn-sm btn-primary">+ Ajouter</a>
+            {% endif %}
+        </div>
+        <div class="card-body p-0">
+            {% if consultation.rapportsMedicaux|length > 0 %}
+            <table class="table table-hover mb-0">
+                <thead class="table-light">
+                    <tr><th>Titre</th><th>Contenu</th>{% if is_own_consultation|default(true) %}<th>Actions</th>{% endif %}</tr>
+                </thead>
+                <tbody>
+                    {% for r in consultation.rapportsMedicaux %}
+                    <tr>
+                        <td>{{ r.titre }}</td>
+                        <td>{% set c = r.contenu|default('') %}{{ c|length > 80 ? c|slice(0, 80) ~ '...' : c }}</td>
+                        {% if is_own_consultation|default(true) %}
+                        <td>
+                            <a href="{{ path('app_medecin_rapport_modifier', {id: r.id}) }}" class="btn btn-sm btn-outline-primary">Modifier</a>
+                            <form method="post" action="{{ path('app_medecin_rapport_supprimer', {id: r.id}) }}" class="d-inline" onsubmit="return confirm('Supprimer ce rapport médical ?');">
+                                <input type="hidden" name="_token" value="{{ csrf_token('supprimer_rapport_' ~ r.id) }}">
+                                <button type="submit" class="btn btn-sm btn-outline-danger">Supprimer</button>
+                            </form>
+                        </td>
+                        {% endif %}
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% else %}
+            <p class="text-muted text-center py-3 mb-0">Aucun rapport médical.</p>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="d-flex gap-2">
+        {% if is_own_consultation|default(true) %}
+        <a href="{{ path('app_medecin_consultation_modifier', {id: consultation.id}) }}" class="btn btn-primary">Modifier</a>
+        <form method="post" action="{{ path('app_medecin_consultation_supprimer', {id: consultation.id}) }}" class="d-inline" onsubmit="return confirm('Supprimer cette consultation ? Les ordonnances et rapports associés seront également supprimés.');">
+            <input type="hidden" name="_token" value="{{ csrf_token('supprimer_consultation_' ~ consultation.id) }}">
+            <button type="submit" class="btn btn-outline-danger">Supprimer</button>
+        </form>
+        {% endif %}
+        <a href="{{ path('app_medecin_consultations') }}" class="btn btn-outline-secondary">Retour aux consultations</a>
+    </div>
+</div>
+{% endblock %}

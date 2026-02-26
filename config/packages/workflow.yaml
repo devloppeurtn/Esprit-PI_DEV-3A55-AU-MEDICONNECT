@@ -1,0 +1,75 @@
+framework:
+  workflows:
+    order_workflow:
+      type: 'state_machine'
+      audit_trail:
+        enabled: true
+      marking_store:
+        type: 'method'
+        property: 'statut'
+      supports: ['App\Entity\CommandeProduit']
+      initial_marking: 'EN_ATTENTE'
+      
+      places:
+        - EN_ATTENTE
+        - VALIDEE
+        - PREPAREE
+        - LIVREE
+        - ANNULEE
+      
+      transitions:
+        # Validate pending order
+        validate:
+          from: EN_ATTENTE
+          to: VALIDEE
+          metadata:
+            label: 'Valider la commande'
+            description: 'Le client peut valider sa commande'
+        
+        # Prepare validated order for shipment
+        prepare:
+          from: VALIDEE
+          to: PREPAREE
+          metadata:
+            label: "Préparer la commande"
+            description: "L'équipe prépare la commande pour expédition"
+        
+        # Mark as shipped
+        ship:
+          from: PREPAREE
+          to: LIVREE
+          metadata:
+            label: 'Marquer comme livrée'
+            description: 'La commande a été expédiée et livrée au client'
+        
+        # Cancel from pending (before validation)
+        cancel_pending:
+          from: EN_ATTENTE
+          to: ANNULEE
+          metadata:
+            label: 'Annuler (en attente)'
+            description: 'Annuler une commande non validée'
+        
+        # Cancel from validated (stock issue, etc)
+        cancel_validated:
+          from: VALIDEE
+          to: ANNULEE
+          metadata:
+            label: 'Annuler (validée)'
+            description: 'Annuler une commande validée (rupture de stock, etc)'
+        
+        # Cancel from prepared (last chance before shipment)
+        cancel_prepared:
+          from: PREPAREE
+          to: ANNULEE
+          metadata:
+            label: 'Annuler (préparée)'
+            description: 'Annuler une commande en préparation'
+        
+        # Reopen (from ANNULEE back to EN_ATTENTE for inspection)
+        reopen:
+          from: ANNULEE
+          to: EN_ATTENTE
+          metadata:
+            label: 'Réouvrir'
+            description: 'Réouvrir une commande annulée'
