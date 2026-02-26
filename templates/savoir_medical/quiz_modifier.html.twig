@@ -1,0 +1,77 @@
+{% extends 'admin/base_admin.html.twig' %}
+
+{% block title %}Modifier Question - {{ cours.titre }}{% endblock %}
+
+{% block stylesheets %}
+    <link href="{{ asset('assets/vendor/bootstrap/css/bootstrap.min.css') }}" rel="stylesheet">
+{% endblock %}
+
+{% block body %}
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card border-0 shadow">
+                <div class="card-body p-4 p-lg-5">
+                    <h2 class="mb-4">Modifier la Question</h2>
+                    <p class="text-muted mb-4">Pour le cours : <strong>{{ cours.titre }}</strong></p>
+                    
+                    <form method="post">
+                        <div class="mb-4">
+                            <label for="enonce" class="form-label fw-bold">Question <span class="text-danger">*</span></label>
+                            <textarea class="form-control form-control-lg" id="enonce" name="enonce" rows="3" required 
+                                      placeholder="Posez votre question ici...">{{ question.enonce }}</textarea>
+                        </div>
+                        
+                        <div class="mb-4">
+                            <label class="form-label fw-bold">Options de réponse <span class="text-danger">*</span></label>
+                            {% set options = question.optionsReponsesArray %}
+                            <div class="mb-2">
+                                <input type="text" class="form-control" name="option1" placeholder="Option A" value="{{ options[0] ?? '' }}" required>
+                            </div>
+                            <div class="mb-2">
+                                <input type="text" class="form-control" name="option2" placeholder="Option B" value="{{ options[1] ?? '' }}" required>
+                            </div>
+                            <div class="mb-2">
+                                <input type="text" class="form-control" name="option3" placeholder="Option C" value="{{ options[2] ?? '' }}" required>
+                            </div>
+                            <div class="mb-2">
+                                <input type="text" class="form-control" name="option4" placeholder="Option D" value="{{ options[3] ?? '' }}" required>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-4">
+                            <label for="reponseCorrecte" class="form-label fw-bold">Réponse correcte <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="reponseCorrecte" name="reponseCorrecte" required 
+                                   value="{{ question.reponseCorrecte }}"
+                                   placeholder="Entrez exactement la réponse correcte (doit correspondre à une des options)">
+                            <small class="text-muted">Copiez-collez exactement l'option correcte ci-dessus</small>
+                        </div>
+                        
+                        <div class="mb-4">
+                            <label for="explication" class="form-label fw-bold">Explication (optionnel)</label>
+                            <textarea class="form-control" id="explication" name="explication" rows="3" 
+                                      placeholder="Expliquez pourquoi cette réponse est correcte...">{{ question.explication }}</textarea>
+                        </div>
+                        
+                        {% if question.statut.value == 'IA_PROPOSE' %}
+                            <div class="alert alert-info">
+                                <i class="bi bi-info-circle me-2"></i>
+                                <strong>Note :</strong> En modifiant cette question proposée par l'IA, elle sera automatiquement validée.
+                            </div>
+                        {% endif %}
+                        
+                        <div class="d-flex gap-2 justify-content-end">
+                            <a href="{{ path('app_quiz_gerer', {coursId: cours.id}) }}" class="btn btn-outline-secondary btn-lg">
+                                <i class="bi bi-x-circle me-2"></i>Annuler
+                            </a>
+                            <button type="submit" class="btn btn-primary btn-lg">
+                                <i class="bi bi-check-circle me-2"></i>Enregistrer les modifications
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

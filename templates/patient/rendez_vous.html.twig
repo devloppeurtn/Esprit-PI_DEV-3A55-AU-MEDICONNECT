@@ -1,0 +1,75 @@
+{% extends 'admin/base_admin.html.twig' %}
+
+{% block title %}Mes rendez-vous - MediConnect{% endblock %}
+
+{% block admin_content %}
+<div class="patient-rendez-vous">
+    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+        <h1 class="h3 mb-0"><i class="bi bi-calendar-event-fill me-2"></i>Mes rendez-vous</h1>
+        <a href="{{ path('app_patient_medecins') }}" class="btn btn-primary"><i class="bi bi-calendar-plus me-2"></i>Prendre rendez-vous</a>
+    </div>
+
+    {% if rdvs|length > 0 %}
+    <div class="row g-4">
+        {% for r in rdvs %}
+        <div class="col-lg-6 col-xl-4">
+            <div class="card border-0 shadow-sm h-100 rdv-card">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start mb-3">
+                        <div class="d-flex align-items-center gap-2">
+                            <div class="rdv-avatar rdv-avatar-medecin">
+                                <i class="bi bi-heart-pulse-fill"></i>
+                            </div>
+                            <div>
+                                <h6 class="mb-0 fw-bold">{{ r.medecin.nomComplet }}</h6>
+                                <small class="text-muted">{{ r.medecin.specialite|default('Médecin généraliste') }}</small>
+                            </div>
+                        </div>
+                        {% if r.statut.value == 'EN_ATTENTE' %}<span class="badge bg-warning text-dark">En attente</span>
+                        {% elseif r.statut.value == 'CONFIRME' %}<span class="badge bg-success">Confirmé</span>
+                        {% elseif r.statut.value == 'ANNULE' %}<span class="badge bg-danger">Annulé</span>
+                        {% else %}<span class="badge bg-secondary">Terminé</span>{% endif %}
+                    </div>
+                    <div class="mb-3">
+                        <i class="bi bi-calendar3 text-primary me-2"></i>
+                        <span>{{ r.dateDebut|date('d/m/Y') }}</span>
+                        <i class="bi bi-clock ms-3 text-primary me-2"></i>
+                        <span>{{ r.dateDebut|date('H:i') }}</span>
+                    </div>
+                    {% if r.note %}
+                    <p class="text-muted small mb-3">{{ r.note|length > 80 ? r.note|slice(0, 80) ~ '...' : r.note }}</p>
+                    {% endif %}
+                    <div class="d-flex flex-wrap gap-2">
+                        <a href="{{ path('app_user_profile_view', {id: r.medecin.id}) }}" class="btn btn-sm btn-outline-primary">
+                            <i class="bi bi-person me-1"></i>Profil médecin
+                        </a>
+                        {% if r.statut.value != 'ANNULE' and not r.consultation %}
+                        <form method="post" action="{{ path('app_patient_rdv_annuler', {id: r.id}) }}" class="d-inline" onsubmit="return confirm('Annuler ce rendez-vous ?');">
+                            <input type="hidden" name="_token" value="{{ csrf_token('annuler_rdv_' ~ r.id) }}">
+                            <button type="submit" class="btn btn-sm btn-outline-danger">Annuler</button>
+                        </form>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="card border-0 shadow-sm">
+        <div class="card-body text-center py-5">
+            <i class="bi bi-calendar-x display-4 text-muted opacity-50 d-block mb-3"></i>
+            <p class="text-muted mb-0">Aucun rendez-vous.</p>
+            <a href="{{ path('app_patient_medecins') }}" class="btn btn-primary mt-3">Prendre rendez-vous</a>
+        </div>
+    </div>
+    {% endif %}
+</div>
+<style>
+.rdv-card { transition: transform 0.2s, box-shadow 0.2s; }
+.rdv-card:hover { transform: translateY(-2px); box-shadow: 0 0.5rem 1rem rgba(0,0,0,.1) !important; }
+.rdv-avatar { width: 48px; height: 48px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.rdv-avatar-medecin { background: rgba(13, 110, 253, 0.15); color: #0d6efd; }
+</style>
+{% endblock %}
+

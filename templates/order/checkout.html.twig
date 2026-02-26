@@ -1,0 +1,398 @@
+﻿{% extends 'base.html.twig' %}
+
+{% block title %}Passer la commande - MediConnect{% endblock %}
+
+{% block body %}
+<div class="container py-5">
+    <h1 class="mb-4">Valider votre commande</h1>
+
+    {% for type, messages in app.flashes %}
+        {% for message in messages %}
+            <div class="alert alert-{{ type == 'error' ? 'danger' : type }} mb-3">{{ message }}</div>
+        {% endfor %}
+    {% endfor %}
+
+    <div class="row">
+        <!-- Order Form -->
+        <div class="col-lg-8">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title mb-4">Informations de livraison</h5>
+                    
+                    <form method="POST">
+                        <div class="mb-3">
+                            <label for="fullname" class="form-label">Nom complet</label>
+                            <input type="text" class="form-control" id="fullname" 
+                                   value="{{ app.user.nomComplet }}" disabled>
+                            <small class="text-muted">Connecté en tant que: {{ app.user.nomComplet }}</small>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="email" class="form-label">Email</label>
+                            <input type="email" class="form-control" id="email" 
+                                   value="{{ app.user.email }}" disabled>
+                        </div>
+
+                        <div class="alert alert-info mb-3">
+                            Les informations d'adresse sont remplies automatiquement depuis la carte.
+                        </div>
+                        <input type="hidden" id="complement" name="complement" value="">
+
+                        <div class="mb-3">
+                            <label for="rue" class="form-label">Rue / Adresse (ligne 1) *</label>
+                            <input type="text" class="form-control" id="rue" name="rue" required readonly placeholder="Sélectionnez un point sur la carte">
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="ville" class="form-label">Ville *</label>
+                                <input type="text" class="form-control" id="ville" name="ville" required readonly placeholder="Remplie automatiquement">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="code_postal" class="form-label">Code postal</label>
+                                <input type="text" class="form-control" id="code_postal" name="code_postal" readonly placeholder="Rempli automatiquement">
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="pays" class="form-label">Pays *</label>
+                            <input type="text" class="form-control" id="pays" name="pays" value="Tunisie" required readonly>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="telephone" class="form-label">Téléphone (format international) *</label>
+                            <input type="tel" class="form-control" id="telephone" name="telephone" required placeholder="+216XXXXXXXX" inputmode="tel" autocomplete="tel">
+                            <input type="hidden" id="telephoneE164" name="telephone_e164">
+                            <div id="telephoneError" class="invalid-feedback"></div>
+                            <small class="text-muted">Choisissez le drapeau pour l'indicatif pays, puis saisissez le numéro.</small>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Position de livraison exacte *</label>
+                            <div class="input-group mb-2">
+                                <input type="text" id="mapSearch" class="form-control" placeholder="Recherche rapide d'adresse (optionnel)">
+                                <button type="button" id="mapSearchBtn" class="btn btn-outline-secondary">Trouver</button>
+                            </div>
+                            <div id="deliveryMap" class="delivery-map border rounded"></div>
+                            <input type="hidden" id="deliveryLat" name="delivery_lat">
+                            <input type="hidden" id="deliveryLng" name="delivery_lng">
+                            <small class="text-muted">Cliquez sur la carte ou deplacez le marker pour choisir votre position exacte.</small>
+                        </div>
+                        <div class="mb-3">
+                            <label for="mapAddressPreview" class="form-label">Adresse détectée</label>
+                            <div id="mapAddressPreview" class="form-control bg-light">Aucune adresse détectée pour le moment.</div>
+                        </div>
+
+                        <div class="alert alert-light border small mb-3">
+                            ETA calcule uniquement selon la position choisie sur la carte (distance + temps de trajet).
+                            Le transporteur est choisi automatiquement selon ce trajet.
+                            Source: OpenStreetMap + OSRM (gratuit), avec fallback interne.
+                        </div>
+
+                        <hr class="my-4">
+
+                        <h5 class="card-title mb-3">Articles de la commande</h5>
+                        <div id="orderItems">
+                            {% for productId, item in cart %}
+                                <div class="row mb-3 pb-3 border-bottom">
+                                    <div class="col-md-6">
+                                        <h6>{{ item.nom }}</h6>
+                                        <small class="text-muted">Quantité: {{ item.quantity }}</small>
+                                    </div>
+                                    <div class="col-md-6 text-end">
+                                        <strong>{{ (item.prix * item.quantity) | number_format(2, ',', ' ') }} TND</strong>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+
+                        <div class="mt-4">
+                            <button type="submit" class="btn btn-primary btn-lg w-100">
+                                <i class="bi bi-check-circle"></i> Confirmer la commande
+                            </button>
+                            <a href="{{ path('app_cart') }}" class="btn btn-outline-secondary w-100 mt-2">
+                                <i class="bi bi-arrow-left"></i> Retour au panier
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Order Summary -->
+        <div class="col-lg-4">
+            <div class="card sticky-top shadow-sm" style="top: 80px;">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0">Résumé de la commande</h5>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <p class="mb-2">
+                            <span class="text-muted">Nombre d'articles:</span>
+                            <strong id="itemCount">{{ cart | length }}</strong>
+                        </p>
+                    </div>
+                    
+                    <div class="mb-3 pb-3 border-bottom">
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>Frais de port:</span>
+                            <span class="text-success">Gratuit</span>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                            <h5 class="d-flex justify-content-between">
+                                <span>Total:</span>
+                                <span id="finalTotal">{{ cartTotals.total | number_format(2, ',', ' ') }} TND</span>
+                            </h5>
+                        </div>
+
+                    <div class="alert alert-info" role="alert">
+                        <i class="bi bi-info-circle me-2"></i>
+                        <small>Votre commande sera créée avec le statut <strong>En Attente</strong></small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+
+{% block stylesheets %}
+    {{ parent() }}
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/intl-tel-input@21.2.7/build/css/intlTelInput.min.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
+    <style>
+        .iti { width: 100%; }
+        .iti input { width: 100%; }
+        .delivery-map { width: 100%; height: 280px; }
+    </style>
+{% endblock %}
+
+{% block scripts %}
+    {{ parent() }}
+    <script src="https://cdn.jsdelivr.net/npm/intl-tel-input@21.2.7/build/js/intlTelInput.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/intl-tel-input@21.2.7/build/js/utils.js"></script>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+    <script>
+        const phoneInput = document.getElementById('telephone');
+        const phoneError = document.getElementById('telephoneError');
+        const phoneE164 = document.getElementById('telephoneE164');
+        const deliveryLat = document.getElementById('deliveryLat');
+        const deliveryLng = document.getElementById('deliveryLng');
+        const deliveryMap = document.getElementById('deliveryMap');
+        const mapSearchInput = document.getElementById('mapSearch');
+        const mapSearchBtn = document.getElementById('mapSearchBtn');
+        const checkoutForm = phoneInput ? phoneInput.closest('form') : null;
+        const cityInput = document.getElementById('ville');
+        const postalInput = document.getElementById('code_postal');
+        const countryInput = document.getElementById('pays');
+        const streetInput = document.getElementById('rue');
+        const mapAddressPreview = document.getElementById('mapAddressPreview');
+
+        function showPhoneError(message) {
+            if (!phoneError || !phoneInput) return;
+            phoneError.textContent = message;
+            phoneError.classList.add('d-block');
+            phoneInput.classList.add('is-invalid');
+        }
+
+        function clearPhoneError() {
+            if (!phoneError || !phoneInput) return;
+            phoneError.textContent = '';
+            phoneError.classList.remove('d-block');
+            phoneInput.classList.remove('is-invalid');
+        }
+
+        function initDeliveryMap() {
+            if (!deliveryMap || !window.L || !deliveryLat || !deliveryLng) {
+                return;
+            }
+
+            const defaultCenter = [36.8065, 10.1815];
+            const map = L.map(deliveryMap).setView(defaultCenter, 11);
+
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                maxZoom: 19,
+                attribution: '&copy; OpenStreetMap contributors'
+            }).addTo(map);
+
+            const marker = L.marker(defaultCenter, { draggable: true }).addTo(map);
+
+            const setCoordinates = (lat, lng) => {
+                deliveryLat.value = Number(lat).toFixed(7);
+                deliveryLng.value = Number(lng).toFixed(7);
+            };
+
+            setCoordinates(defaultCenter[0], defaultCenter[1]);
+
+            const resolveCountry = (countryName) => {
+                const normalized = (countryName || '').toLowerCase();
+                if (normalized.includes('tunisia') || normalized.includes('tunisie')) return 'Tunisie';
+                if (normalized.includes('france')) return 'France';
+                if (normalized.includes('algeria') || normalized.includes('alg')) return 'Algérie';
+                if (normalized.includes('morocco') || normalized.includes('maroc')) return 'Maroc';
+                return 'Autre';
+            };
+
+            const applyAddressToFields = (address, displayName = '') => {
+                const streetName = [
+                    address.house_number || '',
+                    address.road || address.pedestrian || address.neighbourhood || address.suburb || ''
+                ].filter(Boolean).join(' ').trim();
+                const cityName = address.city || address.town || address.village || address.county || address.state || '';
+                const postalCode = address.postcode || '';
+                const countryName = resolveCountry(address.country || '');
+
+                if (streetInput) {
+                    streetInput.value = streetName || displayName || 'Adresse sélectionnée via carte';
+                }
+                if (cityInput) {
+                    cityInput.value = cityName;
+                }
+                if (postalInput) {
+                    postalInput.value = postalCode;
+                }
+                if (countryInput) {
+                    countryInput.value = countryName || 'Tunisie';
+                }
+                if (mapAddressPreview) {
+                    mapAddressPreview.textContent = displayName || [streetName, cityName, postalCode, countryName].filter(Boolean).join(', ') || 'Adresse détectée.';
+                }
+            };
+
+            const reverseGeocode = async (lat, lng) => {
+                try {
+                    const reverseUrl = `https://nominatim.openstreetmap.org/reverse?format=json&addressdetails=1&lat=${encodeURIComponent(lat)}&lon=${encodeURIComponent(lng)}`;
+                    const response = await fetch(reverseUrl, {
+                        headers: { 'Accept-Language': 'fr' }
+                    });
+                    if (!response.ok) {
+                        return;
+                    }
+                    const data = await response.json();
+                    if (!data || typeof data !== 'object') {
+                        return;
+                    }
+                    applyAddressToFields(data.address || {}, data.display_name || '');
+                } catch (error) {
+                    console.warn('Nominatim reverse failed:', error);
+                }
+            };
+
+            const applyNominatimResult = (result) => {
+                const lat = Number(result.lat);
+                const lng = Number(result.lon);
+                if (!Number.isFinite(lat) || !Number.isFinite(lng)) {
+                    return;
+                }
+
+                marker.setLatLng([lat, lng]);
+                map.setView([lat, lng], 15);
+                setCoordinates(lat, lng);
+                applyAddressToFields(result.address || {}, result.display_name || '');
+            };
+
+            const searchAddress = async () => {
+                const typedQuery = mapSearchInput ? mapSearchInput.value.trim() : '';
+                const query = typedQuery;
+
+                if (!query) {
+                    return;
+                }
+
+                try {
+                    const url = `https://nominatim.openstreetmap.org/search?format=json&addressdetails=1&limit=1&q=${encodeURIComponent(query)}`;
+                    const response = await fetch(url, {
+                        headers: { 'Accept-Language': 'fr' }
+                    });
+                    if (!response.ok) {
+                        return;
+                    }
+                    const data = await response.json();
+                    if (Array.isArray(data) && data.length > 0) {
+                        applyNominatimResult(data[0]);
+                    }
+                } catch (error) {
+                    console.warn('Nominatim search failed:', error);
+                }
+            };
+
+            mapSearchBtn?.addEventListener('click', () => {
+                searchAddress();
+            });
+
+            mapSearchInput?.addEventListener('keydown', (event) => {
+                if (event.key === 'Enter') {
+                    event.preventDefault();
+                    searchAddress();
+                }
+            });
+
+            reverseGeocode(defaultCenter[0], defaultCenter[1]);
+
+            marker.on('dragend', () => {
+                const pos = marker.getLatLng();
+                setCoordinates(pos.lat, pos.lng);
+                reverseGeocode(pos.lat, pos.lng);
+            });
+
+            map.on('click', (event) => {
+                marker.setLatLng(event.latlng);
+                setCoordinates(event.latlng.lat, event.latlng.lng);
+                reverseGeocode(event.latlng.lat, event.latlng.lng);
+            });
+        }
+
+        initDeliveryMap();
+
+        if (window.intlTelInput && phoneInput) {
+            const iti = window.intlTelInput(phoneInput, {
+                initialCountry: 'tn',
+                nationalMode: false,
+                autoPlaceholder: 'polite',
+                utilsScript: 'https://cdn.jsdelivr.net/npm/intl-tel-input@21.2.7/build/js/utils.js'
+            });
+
+            phoneInput.addEventListener('blur', () => {
+                if (!phoneInput.value.trim()) {
+                    clearPhoneError();
+                    return;
+                }
+                if (!iti.isValidNumber()) {
+                    showPhoneError('Numéro invalide. Utilisez le format international avec indicatif pays.');
+                } else {
+                    clearPhoneError();
+                }
+            });
+
+            checkoutForm?.addEventListener('submit', (e) => {
+                if (!iti.isValidNumber()) {
+                    e.preventDefault();
+                    showPhoneError('Numéro invalide. Vérifiez le pays et le nombre de chiffres.');
+                    return;
+                }
+                const number = iti.getNumber();
+                if (phoneE164) {
+                    phoneE164.value = number;
+                } else {
+                    phoneInput.value = number;
+                }
+                if (deliveryLat && deliveryLng && (!deliveryLat.value || !deliveryLng.value)) {
+                    e.preventDefault();
+                    alert('Veuillez choisir votre position exacte sur la carte.');
+                    return;
+                }
+                if (streetInput && cityInput && countryInput && (!streetInput.value.trim() || !cityInput.value.trim() || !countryInput.value.trim())) {
+                    e.preventDefault();
+                    alert('Adresse incomplète. Cliquez sur la carte et attendez la détection automatique.');
+                    return;
+                }
+                clearPhoneError();
+            });
+        }
+    </script>
+{% endblock %}
+
+

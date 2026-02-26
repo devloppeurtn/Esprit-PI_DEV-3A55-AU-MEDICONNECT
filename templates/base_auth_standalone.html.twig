@@ -1,0 +1,37 @@
+{# Layout autonome pour les pages auth - utilise uniquement des CDN
+   Résout le problème CSS sur mobile via ngrok (assets locaux bloqués) #}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}MediConnect{% endblock %}</title>
+    
+    {# CDN - toujours accessibles, même via ngrok #}
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@200;300;400;500;600&display=swap" rel="stylesheet">
+    
+    <style>
+        :root { --primary-color: #175cdd; --secondary-color: #112344; }
+        * { font-family: 'Poppins', sans-serif; margin: 0; padding: 0; box-sizing: border-box; }
+        html, body { height: 100vh; overflow-x: hidden; padding-top: 0; margin: 0; background: #fff; }
+        .auth-section { min-height: 100vh; padding: 2rem 0; background: #fff !important; }
+        .auth-card { box-shadow: 0 10px 40px rgba(0,0,0,0.2); overflow: hidden; }
+        .auth-image-col { background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%); display: flex; align-items: center; justify-content: center; padding: 2rem; }
+        .auth-image-wrapper { position: relative; width: 100%; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+        .auth-background-logo { width: 200px; height: 200px; object-fit: cover; border-radius: 50%; opacity: 0.3; }
+        .auth-overlay-text { position: relative; z-index: 2; text-align: center; padding: 2rem; color: white; }
+        .auth-overlay-text h2 { font-size: 2.5rem; font-weight: 700; margin-bottom: 1rem; }
+        .auth-form-logo { width: 50px; height: 50px; object-fit: cover; border-radius: 50%; }
+        .btn-primary { background-color: var(--primary-color) !important; border-color: var(--primary-color) !important; }
+        .btn-primary:hover { background-color: var(--secondary-color) !important; border-color: var(--secondary-color) !important; }
+        @media (max-width: 768px) { .auth-image-col { display: none !important; } }
+    </style>
+    {% block stylesheets %}{% endblock %}
+</head>
+<body>
+    {% block body %}{% endblock %}
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

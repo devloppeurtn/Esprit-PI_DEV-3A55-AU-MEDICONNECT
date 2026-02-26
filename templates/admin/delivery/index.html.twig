@@ -1,0 +1,124 @@
+{% extends 'admin/base_admin.html.twig' %}
+{% set title = 'Livraison SLA' %}
+
+{% block admin_content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h1 class="h4 mb-0">Dashboard estimation livraison</h1>
+    <a href="{{ path('app_admin_dashboard') }}" class="btn btn-outline-secondary btn-sm">Retour admin</a>
+</div>
+
+<div class="row g-3 mb-4">
+    <div class="col-sm-6 col-xl-3">
+        <div class="card border-0 shadow-sm">
+            <div class="card-body">
+                <div class="text-muted small">Commandes analysees</div>
+                <div class="h4 mb-0">{{ stats.total_orders }}</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-6 col-xl-3">
+        <div class="card border-0 shadow-sm">
+            <div class="card-body">
+                <div class="text-muted small">ETA calculee</div>
+                <div class="h4 mb-0">{{ stats.with_eta }}</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-6 col-xl-3">
+        <div class="card border-0 shadow-sm">
+            <div class="card-body">
+                <div class="text-muted small">Retard moyen (abs)</div>
+                <div class="h4 mb-0">{{ stats.avg_abs_delay_days is not null ? stats.avg_abs_delay_days ~ ' j' : '-' }}</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-6 col-xl-3">
+        <div class="card border-0 shadow-sm">
+            <div class="card-body">
+                <div class="text-muted small">Livraisons a temps</div>
+                <div class="h4 mb-0">{{ stats.on_time_rate is not null ? stats.on_time_rate ~ '%' : '-' }}</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-6 col-xl-3">
+        <div class="card border-0 shadow-sm">
+            <div class="card-body">
+                <div class="text-muted small">Commandes en retard (ouvertes)</div>
+                <div class="h4 mb-0 text-danger">{{ stats.overdue_open }}</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-6 col-xl-3">
+        <div class="card border-0 shadow-sm">
+            <div class="card-body">
+                <div class="text-muted small">ETA moyen</div>
+                <div class="h4 mb-0">{{ stats.avg_eta_days is not null ? stats.avg_eta_days ~ ' j' : '-' }}</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card border-0 shadow-sm">
+    <div class="card-header bg-white">
+        <strong>Details par commande</strong>
+    </div>
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-striped align-middle mb-0">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Client</th>
+                        <th>Date cmd</th>
+                        <th>Statut</th>
+                        <th>ETA</th>
+                        <th>Estimation (j)</th>
+                        <th>Livree le</th>
+                        <th>Ecart (j)</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% for row in rows %}
+                    {% set c = row.order %}
+                    <tr>
+                        <td>#{{ c.id }}</td>
+                        <td>{{ c.utilisateur ? c.utilisateur.nomComplet : '-' }}</td>
+                        <td>{{ c.dateCommande ? c.dateCommande|date('d/m/Y H:i') : '-' }}</td>
+                        <td><span class="badge bg-{{ c.statut.getColor() }}">{{ c.statut.getLabel() }}</span></td>
+                        <td>{{ c.deliveryEtaAt ? c.deliveryEtaAt|date('d/m/Y H:i') : '-' }}</td>
+                        <td>{{ row.estimated_days is not null ? row.estimated_days : '-' }}</td>
+                        <td>{{ c.deliveredAt ? c.deliveredAt|date('d/m/Y H:i') : '-' }}</td>
+                        <td>
+                            {% if row.delay_days is null %}
+                                -
+                            {% elseif row.delay_days > 0 %}
+                                <span class="text-danger">+{{ row.delay_days }}</span>
+                            {% elseif row.delay_days < 0 %}
+                                <span class="text-success">{{ row.delay_days }}</span>
+                            {% else %}
+                                <span class="text-success">0</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if c.statut.value in ['LIVREE', 'ANNULEE'] %}
+                                <span class="text-muted small">-</span>
+                            {% else %}
+                                <form method="post" action="{{ path('app_admin_delivery_mark_delivered', {id: c.id}) }}" onsubmit="return confirm('Marquer cette commande comme livree ?');">
+                                    <input type="hidden" name="_token" value="{{ csrf_token('mark_delivered_' ~ c.id) }}">
+                                    <button type="submit" class="btn btn-sm btn-outline-success">Marquer livree</button>
+                                </form>
+                            {% endif %}
+                        </td>
+                    </tr>
+                {% else %}
+                    <tr>
+                        <td colspan="9" class="text-center text-muted py-4">Aucune commande</td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

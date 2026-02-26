@@ -1,0 +1,139 @@
+{% extends 'admin/base_admin.html.twig' %}
+
+{% block title %}Rendez-vous - Backoffice{% endblock %}
+
+{% block body %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1 class="h3 mb-0"><i class="bi bi-calendar-check me-2"></i>Rendez-vous</h1>
+</div>
+
+<div class="card mb-4">
+    <div class="card-body">
+        <form method="get" class="row g-3 align-items-end" id="rdvFilterForm">
+            <div class="col-md-5">
+                <label class="form-label mb-1">Recherche</label>
+                <input type="text" name="q" class="form-control form-control-sm"
+                       placeholder="Patient, médecin ou note..."
+                       value="{{ search|default('') }}">
+            </div>
+            <div class="col-md-3">
+                <label class="form-label mb-1">Statut</label>
+                <select name="statut" class="form-select form-select-sm">
+                    <option value="">Tous</option>
+                    <option value="EN_ATTENTE"  {% if statut == 'EN_ATTENTE' %}selected{% endif %}>En attente</option>
+                    <option value="CONFIRME"    {% if statut == 'CONFIRME' %}selected{% endif %}>Confirmé</option>
+                    <option value="ANNULE"      {% if statut == 'ANNULE' %}selected{% endif %}>Annulé</option>
+                    <option value="TERMINE"     {% if statut == 'TERMINE' %}selected{% endif %}>Terminé</option>
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label class="form-label mb-1">Période</label>
+                <select name="periode" class="form-select form-select-sm">
+                    <option value="tous"        {% if periode == 'tous' %}selected{% endif %}>Tous</option>
+                    <option value="aujourdhui" {% if periode == 'aujourdhui' %}selected{% endif %}>Aujourd'hui</option>
+                    <option value="avenir"      {% if periode == 'avenir' %}selected{% endif %}>À venir</option>
+                    <option value="passes"      {% if periode == 'passes' %}selected{% endif %}>Passés</option>
+                </select>
+            </div>
+            <div class="col-md-1 d-flex gap-2">
+                <button class="btn btn-primary btn-sm w-100" type="submit" id="rdvFilterSubmit">
+                    <i class="bi bi-search me-1"></i>Filtrer
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="table-responsive">
+    <table class="table table-striped align-middle">
+        <thead>
+        <tr>
+            <th>#</th>
+            <th>Date</th>
+            <th>Patient</th>
+            <th>Médecin</th>
+            <th>Statut</th>
+            <th>Note</th>
+            <th></th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for r in rendezVous %}
+            <tr data-href="{{ path('app_admin_rendezvous_show', {id: r.id}) }}" style="cursor:pointer;">
+                <td>{{ r.id }}</td>
+                <td>
+                    {{ r.dateDebut ? r.dateDebut|date('d/m/Y H:i') : '' }}
+                    {% if r.dateFin %}<br><small class="text-muted">→ {{ r.dateFin|date('d/m/Y H:i') }}</small>{% endif %}
+                </td>
+                <td>{{ r.patient ? r.patient.nomComplet : '?' }}</td>
+                <td>{{ r.medecin ? r.medecin.nomComplet : '?' }}</td>
+                <td>
+                    {% if r.statut.value == 'EN_ATTENTE' %}
+                        <span class="badge bg-secondary">En attente</span>
+                    {% elseif r.statut.value == 'CONFIRME' %}
+                        <span class="badge bg-primary">Confirmé</span>
+                    {% elseif r.statut.value == 'ANNULE' %}
+                        <span class="badge bg-danger">Annulé</span>
+                    {% elseif r.statut.value == 'TERMINE' %}
+                        <span class="badge bg-success">Terminé</span>
+                    {% else %}
+                        <span class="badge bg-light text-muted">{{ r.statut.value }}</span>
+                    {% endif %}
+                </td>
+                <td>
+                    {% if r.note %}
+                        <span title="{{ r.note }}">{{ r.note|slice(0, 40) }}{% if r.note|length > 40 %}...{% endif %}</span>
+                    {% else %}
+                        <span class="text-muted">—</span>
+                    {% endif %}
+                </td>
+                <td class="text-end">
+                    <a href="{{ path('app_admin_rendezvous_show', {id: r.id}) }}" class="btn btn-outline-secondary btn-sm" onclick="event.stopPropagation();">
+                        <i class="bi bi-eye"></i> Détails
+                    </a>
+                </td>
+            </tr>
+        {% else %}
+            <tr>
+                <td colspan="7" class="text-center text-muted">Aucun rendez-vous trouvé</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    // Rendre les lignes cliquables
+    document.querySelectorAll('tr[data-href]').forEach(function (row) {
+        row.addEventListener('click', function () {
+            const href = this.getAttribute('data-href');
+            if (href) {
+                window.location.href = href;
+            }
+        });
+    });
+
+    // Filtre dynamique: soumission auto du formulaire sur changement
+    const form = document.getElementById('rdvFilterForm');
+    const searchInput = form.querySelector('input[name="q"]');
+    const selects = form.querySelectorAll('select[name="statut"], select[name="periode"]');
+    let timer = null;
+
+    if (searchInput) {
+        searchInput.addEventListener('keyup', function () {
+            clearTimeout(timer);
+            timer = setTimeout(function () {
+                form.submit();
+            }, 400);
+        });
+    }
+
+    selects.forEach(function (sel) {
+        sel.addEventListener('change', function () {
+            form.submit();
+        });
+    });
+});
+</script>
+{% endblock %}
+

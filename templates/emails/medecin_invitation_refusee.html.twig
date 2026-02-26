@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <style>
+        body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+        .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+        .info-box { background: #fff3cd; border-radius: 8px; padding: 16px; margin: 20px 0; border-left: 4px solid #ffc107; }
+        .footer { margin-top: 30px; font-size: 12px; color: #666; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Invitation refusée</h1>
+        <p>Bonjour {{ medecin.nomComplet }},</p>
+        
+        <div class="info-box">
+            <p class="mb-0"><strong>{{ secretaire.nomComplet }}</strong> ({{ secretaire.email }}) a décliné votre invitation à rejoindre votre équipe en tant que secrétaire sur MediConnect.</p>
+        </div>
+
+        <p>Vous pouvez inviter d'autres secrétaires depuis votre espace médecin.</p>
+        <p class="footer">— L'équipe MediConnect</p>
+    </div>
+</body>
+</html>

@@ -1,0 +1,51 @@
+{% extends 'admin/base_admin.html.twig' %}
+
+{% block title %}Mon espace médecin - MediConnect{% endblock %}
+
+{% block admin_content %}
+<div class="medecin-espace">
+    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
+        <div>
+            <h1 class="h3 mb-1">Mon espace médecin</h1>
+            <p class="text-muted mb-0">Bienvenue Dr {{ medecin.nomComplet }}</p>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <div class="col-md-6 col-lg-3">
+            <a href="{{ path('app_medecin_secretaires') }}" class="card border-0 shadow-sm text-decoration-none text-dark h-100">
+                <div class="card-body text-center py-4">
+                    <div class="rounded-circle bg-primary bg-opacity-10 text-primary d-inline-flex align-items-center justify-content-center mb-2" style="width: 48px; height: 48px;">
+                        <i class="bi bi-person-badge-fill fs-4"></i>
+                    </div>
+                    <h5 class="mb-0">Mes secrétaires</h5>
+                    <p class="text-muted small mb-0 mt-1">Gérer mon équipe</p>
+                </div>
+            </a>
+        </div>
+        <div class="col-md-6 col-lg-3">
+            <a href="{{ path('app_medecin_rendez_vous') }}" class="card border-0 shadow-sm text-decoration-none text-dark h-100">
+                <div class="card-body text-center py-4">
+                    <div class="rounded-circle bg-primary bg-opacity-10 text-primary d-inline-flex align-items-center justify-content-center mb-2" style="width: 48px; height: 48px;">
+                        <i class="bi bi-calendar-event-fill fs-4"></i>
+                    </div>
+                    <h5 class="mb-0">Mes rendez-vous</h5>
+                    <p class="text-muted small mb-0 mt-1">Planning des consultations</p>
+                </div>
+            </a>
+        </div>
+        <div class="col-md-6 col-lg-3">
+            <a href="{{ path('app_medecin_consultations') }}" class="card border-0 shadow-sm text-decoration-none text-dark h-100">
+                <div class="card-body text-center py-4">
+                    <div class="rounded-circle bg-primary bg-opacity-10 text-primary d-inline-flex align-items-center justify-content-center mb-2" style="width: 48px; height: 48px;">
+                        <i class="bi bi-clipboard2-pulse-fill fs-4"></i>
+                    </div>
+                    <h5 class="mb-0">Mes consultations</h5>
+                    <p class="text-muted small mb-0 mt-1">Ordonnances, rapports</p>
+                </div>
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}
+

@@ -1,0 +1,356 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Connexion - MediConnect{% endblock %}
+
+{% block body_class %}{% endblock %}
+
+{% block stylesheets %}
+    <link href="{{ asset('assets/css/auth.css') }}" rel="stylesheet">
+    <style>
+        .form-control.is-invalid {
+            border-color: #dc3545;
+            padding-right: calc(1.5em + 0.75rem);
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12' width='12' height='12' fill='none' stroke='%23dc3545'%3e%3ccircle cx='6' cy='6' r='4.5'/%3e%3cpath d='m5.8 3.6 .4.4.4-.4'/%3e%3cpath d='m6 6v2.8'/%3e%3c/svg%3e");
+            background-repeat: no-repeat;
+            background-position: right calc(0.375em + 0.1875rem) center;
+            background-size: calc(0.75em + 0.375rem) calc(0.75em + 0.375rem);
+        }
+        .form-control.is-invalid:focus {
+            border-color: #dc3545;
+            box-shadow: 0 0 0 0.25rem rgba(220, 53, 69, 0.25);
+        }
+    </style>
+{% endblock %}
+
+{% block body %}
+<section class="vh-100 auth-section" style="background-color: #ffffff;">
+  <div class="container py-5 h-100">
+    <div class="row d-flex justify-content-center align-items-center h-100">
+      <div class="col col-xl-10">
+        <div class="card auth-card" style="border-radius: 1rem;">
+          <div class="row g-0">
+            <div class="col-md-6 col-lg-5 d-none d-md-block auth-image-col">
+              <div class="auth-image-wrapper">
+                <img src="{{ asset('assets/img/logomed.png') }}"
+                  alt="MediConnect" class="auth-background-logo" />
+                <div class="auth-overlay-text">
+                  <h2 class="text-white mb-3">Bienvenue</h2>
+                  <p class="text-white">Connectez-vous pour accùder ù votre espace MediConnect</p>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-6 col-lg-7 d-flex align-items-center">
+              <div class="card-body p-4 p-lg-5 text-black">
+
+                <form id="loginForm" method="post" action="{{ path('app_login') }}" novalidate>
+                  <div class="d-flex align-items-center mb-3 pb-1">
+                    <img src="{{ asset('assets/img/logomed.png') }}" alt="Logo MediConnect" class="auth-form-logo me-3">
+                    <span class="h1 fw-bold mb-0" style="color: #112344;">MediConnect</span>
+                  </div>
+
+                  <h5 class="fw-normal mb-3 pb-3" style="letter-spacing: 1px; color: #112344;">Connectez-vous ù votre compte</h5>
+
+                  <div id="loginAlertContainer"></div>
+
+                  {% for message in app.flashes('success') %}
+                    <div class="alert alert-success mb-4">
+                      {{ message }}
+                    </div>
+                  {% endfor %}
+
+                  {% set error_flashes = app.flashes('error') %}
+                  {% for message in error_flashes %}
+                    <div class="alert alert-danger alert-dismissible fade show mb-4" role="alert">
+                      <i class="bi bi-exclamation-triangle-fill me-2"></i>{{ message }}
+                      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                  {% endfor %}
+
+                  {% if error and error_flashes|length == 0 %}
+                    <div class="alert alert-danger alert-dismissible fade show mb-4" role="alert">
+                      <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                      {# Comptes suspendus/bannis : vùrifier en premier pour ùviter "Email ou mot de passe incorrect" #}
+                      {% if error.message is defined and (error.message starts with 'Votre compte' or error.message starts with 'Compte suspendu' or error.message starts with 'Compte banni') %}
+                        {{ error.message }}
+                      {% elseif error.messageKey == 'Invalid credentials.' %}
+                        Email ou mot de passe incorrect.
+                      {% elseif error.messageKey == 'User account is disabled.' %}
+                        Votre compte est dùsactivù.
+                      {% elseif error.messageKey == 'User account is locked.' %}
+                        Votre compte est verrouillù.
+                      {% elseif error.messageKey == 'User account has expired.' %}
+                        Votre compte a expirù.
+                      {% else %}
+                        {{ error.messageKey|trans(error.messageData, 'security') }}
+                      {% endif %}
+                      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                  {% endif %}
+
+                  <div class="mb-4">
+                    <label class="form-label" for="form2Example17">Adresse email</label>
+                    <input type="text" id="form2Example17" name="_username" value="{{ last_username }}" class="form-control form-control-lg" placeholder="exemple@email.com" autofocus required />
+                    <div class="invalid-feedback"></div>
+                  </div>
+
+                  <div class="mb-4">
+                    <label class="form-label" for="form2Example27">Mot de passe</label>
+                    <input type="password" id="form2Example27" name="_password" class="form-control form-control-lg" placeholder="Entrez votre mot de passe" required />
+                    <div class="invalid-feedback"></div>
+                  </div>
+
+                  <input type="hidden" name="_csrf_token" value="{{ csrf_token('authenticate') }}">
+
+                  <div class="pt-1 mb-4">
+                    <button class="btn btn-primary btn-lg btn-block w-100" type="submit" id="loginSubmitBtn" style="background-color: #175cdd;">
+                      <span class="spinner-border spinner-border-sm d-none me-2" role="status" aria-hidden="true"></span>
+                      Se connecter
+                    </button>
+                  </div>
+
+                  <div class="text-center mb-3">
+                    <span class="text-muted small">ou</span>
+                  </div>
+                  <div class="mb-4">
+                    <button type="button" class="btn btn-outline-primary btn-lg w-100" id="loginFaceIdBtn" data-bs-toggle="modal" data-bs-target="#loginFaceIdModal">
+                      <i class="bi bi-camera me-2"></i>Se connecter avec le visage
+                    </button>
+                  </div>
+
+                  <a class="small text-muted" href="{{ path('app_forgot_password') }}">Mot de passe oubliù ?</a>
+                  <p class="mb-5 pb-lg-2" style="color: #393f81;">Vous n'avez pas de compte ? <a href="{{ path('app_signup') }}"
+                      style="color: #175cdd;">S'inscrire ici</a></p>
+                  <div class="d-flex gap-3">
+                    <a href="#!" class="small text-muted">Conditions d'utilisation</a>
+                    <a href="#!" class="small text-muted">Politique de confidentialitù</a>
+                  </div>
+                </form>
+
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Modal webcam pour connexion par visage -->
+<div class="modal fade" id="loginFaceIdModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="static">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header py-2">
+                <h6 class="modal-title"><i class="bi bi-camera me-1"></i>Connexion par visage</h6>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
+            </div>
+            <div class="modal-body text-center">
+                <p class="text-muted small mb-2">Positionnez votre visage face ù la camùra, puis cliquez sur Capturer.</p>
+                <div class="position-relative d-inline-block bg-dark rounded overflow-hidden">
+                    <video id="loginFaceIdVideo" autoplay playsinline muted width="320" height="240"></video>
+                </div>
+                <p id="loginFaceIdStatus" class="small mt-2 text-muted"></p>
+            </div>
+            <div class="modal-footer py-2">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                <button type="button" class="btn btn-primary" id="loginFaceIdCaptureBtn"><i class="bi bi-camera-fill me-1"></i>Capturer et se connecter</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block javascripts %}
+{{ parent() }}
+<script src="{{ asset('assets/js/tf.min.js') }}"></script>
+<script src="{{ asset('assets/js/face-api.min.js') }}"></script>
+<script>
+(function() {
+    var videoEl, modalEl, statusEl, captureBtn, stream = null;
+    var modelsLoaded = false;
+    var loginUrl = '{{ path('app_login_face_id') }}';
+    function setStatus(t) { if (statusEl) statusEl.textContent = t || ''; }
+    function stopWebcam() {
+        if (stream) { stream.getTracks().forEach(function(t) { t.stop(); }); stream = null; }
+        if (videoEl && videoEl.srcObject) { videoEl.srcObject = null; }
+    }
+    function startWebcam() {
+        if (!videoEl) return;
+        stopWebcam();
+        navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user' }, audio: false })
+            .then(function(s) { stream = s; videoEl.srcObject = s; return videoEl.play(); })
+            .then(function() { setStatus('Camùra OK. Positionnez votre visage.'); })
+            .catch(function(e) { console.error(e); setStatus('Erreur webcam.'); });
+    }
+    function getApi() { return (typeof faceapi !== 'undefined' && (faceapi.default || faceapi)) || null; }
+    function getNets() {
+        var api = getApi(); if (!api || !api.nets) return null;
+        var n = api.nets;
+        return { tiny: n.tinyFaceDetector, landmarks: n.faceLandmark68Net || n.faceLandmarks68Net, recognition: n.faceRecognitionNet };
+    }
+    function loadModels() {
+        if (modelsLoaded) return Promise.resolve();
+        var base = '{{ asset('models') }}'.replace(/\/?$/, '/');
+        setStatus('Chargement des modùles...');
+        function tryLoad(retries) {
+            var nets = getNets();
+            if (nets && nets.tiny && nets.landmarks && nets.recognition) {
+                return Promise.all([
+                    nets.tiny.loadFromUri(base + 'tiny_face_detector'),
+                    nets.landmarks.loadFromUri(base + 'face_landmark_68'),
+                    nets.recognition.loadFromUri(base + 'face_recognition')
+                ]).then(function() { modelsLoaded = true; setStatus('Camùra OK. Positionnez votre visage.'); });
+            }
+            if (retries <= 0) return Promise.reject(new Error('face-api non prùt'));
+            return new Promise(function(r) { setTimeout(r, 150); }).then(function() { return tryLoad(retries - 1); });
+        }
+        return tryLoad(20);
+    }
+    function init() {
+        videoEl = document.getElementById('loginFaceIdVideo');
+        modalEl = document.getElementById('loginFaceIdModal');
+        statusEl = document.getElementById('loginFaceIdStatus');
+        captureBtn = document.getElementById('loginFaceIdCaptureBtn');
+        if (modalEl) {
+            modalEl.addEventListener('shown.bs.modal', function() {
+            var email = (document.getElementById('form2Example17') || {}).value || '';
+            if (!email.trim()) { setStatus('Entrez votre email sur la page de connexion, puis rùessayez.'); return; }
+            startWebcam();
+        });
+            modalEl.addEventListener('hidden.bs.modal', function() { stopWebcam(); setStatus(''); });
+        }
+        if (captureBtn && videoEl) {
+            captureBtn.addEventListener('click', function() {
+                var email = (document.getElementById('form2Example17') || {}).value || '';
+            if (!email.trim()) { alert('Veuillez entrer votre email.'); return; }
+            captureBtn.disabled = true;
+            setStatus('Dùtection...');
+            loadModels().then(function() {
+                var api = getApi();
+                return api.detectSingleFace(videoEl, new api.TinyFaceDetectorOptions()).withFaceLandmarks().withFaceDescriptor();
+            }).then(function(detection) {
+                if (!detection) { setStatus('Aucun visage dùtectù.'); captureBtn.disabled = false; return null; }
+                return fetch(loginUrl, {
+                    method: 'POST',
+                    credentials: 'include',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email: email.trim(), embedding: Array.from(detection.descriptor) })
+                });
+            }).then(function(res) {
+                if (!res) return;
+                return res.json().catch(function() { return {}; }).then(function(data) {
+                    if (res.ok && data.success && data.redirect) {
+                        window.location.href = data.redirect;
+                        return;
+                    }
+                    alert(data.message || 'Visage non reconnu.');
+                });
+            }).catch(function(err) { console.error(err); alert('Erreur dùtection ou rùseau.'); })
+            .finally(function() { captureBtn.disabled = false; });
+            });
+        }
+    }
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', init);
+    } else {
+        init();
+    }
+})();
+</script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('loginForm');
+    const submitBtn = document.getElementById('loginSubmitBtn');
+    const alertContainer = document.getElementById('loginAlertContainer');
+    
+    function showAlert(message, type = 'danger') {
+        alertContainer.innerHTML = `
+            <div class="alert alert-${type} alert-dismissible fade show mb-4" role="alert">
+                <i class="bi bi-exclamation-triangle-fill me-2"></i>${message}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        `;
+    }
+    
+    function clearAlert() {
+        alertContainer.innerHTML = '';
+    }
+    
+    function validateEmail(email) {
+        const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        return re.test(email);
+    }
+    
+    form.addEventListener('submit', function(e) {
+        e.preventDefault();
+        clearAlert();
+        
+        const emailInput = document.getElementById('form2Example17');
+        const passwordInput = document.getElementById('form2Example27');
+        const email = emailInput.value.trim();
+        const password = passwordInput.value;
+        const csrfToken = document.querySelector('[name="_csrf_token"]').value;
+        
+        let isValid = true;
+        
+        // Validation email
+        if (!email) {
+            showAlert('Veuillez entrer votre adresse email');
+            emailInput.classList.add('is-invalid');
+            isValid = false;
+        } else if (!validateEmail(email)) {
+            showAlert('Format d\'email invalide');
+            emailInput.classList.add('is-invalid');
+            isValid = false;
+        } else {
+            emailInput.classList.remove('is-invalid');
+        }
+        
+        // Validation mot de passe
+        if (!password) {
+            showAlert('Veuillez entrer votre mot de passe');
+            passwordInput.classList.add('is-invalid');
+            isValid = false;
+        } else {
+            passwordInput.classList.remove('is-invalid');
+        }
+        
+        if (!isValid) {
+            return;
+        }
+        
+        // Dùsactiver le bouton et afficher le spinner
+        submitBtn.disabled = true;
+        const spinner = submitBtn.querySelector('.spinner-border');
+        if (spinner) spinner.classList.remove('d-none');
+        
+        // Soumettre le formulaire de maniùre classique pour que Symfony Security fonctionne
+        form.submit();
+    });
+    
+    // Validation en temps rùel
+    const emailInput = document.getElementById('form2Example17');
+    const passwordInput = document.getElementById('form2Example27');
+    
+    if (emailInput) {
+        emailInput.addEventListener('blur', function() {
+            const value = this.value.trim();
+            if (value && !validateEmail(value)) {
+                this.classList.add('is-invalid');
+            } else {
+                this.classList.remove('is-invalid');
+            }
+        });
+    }
+    
+    if (passwordInput) {
+        passwordInput.addEventListener('blur', function() {
+            if (!this.value) {
+                this.classList.add('is-invalid');
+            } else {
+                this.classList.remove('is-invalid');
+            }
+        });
+    }
+});
+</script>
+{% endblock %}
