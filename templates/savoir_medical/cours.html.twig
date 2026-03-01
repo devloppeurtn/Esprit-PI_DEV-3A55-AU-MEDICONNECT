@@ -70,7 +70,7 @@
                         <i class="bi bi-question-circle me-2"></i>
                         Quiz ({{ questions|length }} questions)
                     </h3>
-                    {% if is_granted('ROLE_MEDECIN') %}
+                    {% if is_granted('ROLE_MEDECIN') or is_granted('ROLE_ADMIN') %}
                         <a href="{{ path('app_quiz_gerer', {coursId: cours.id}) }}" class="btn btn-success">
                             <i class="bi bi-gear me-2"></i>Gérer le quiz
                         </a>
@@ -121,7 +121,7 @@
                         </div>
                     {% endif %}
                     
-                    {% if is_granted('ROLE_MEDECIN') %}
+                    {% if is_granted('ROLE_MEDECIN') or is_granted('ROLE_ADMIN') %}
                         <div class="d-grid gap-2 mt-3">
                             <a href="{{ path('app_quiz_gerer', {coursId: cours.id}) }}" class="btn btn-outline-primary">
                                 <i class="bi bi-gear me-2"></i>

@@ -4,10 +4,12 @@ namespace App\Controller;
 
 use App\Form\ProfileSettingsFormType;
 use App\Entity\Utilisateur;
+use App\Service\FaceEmbeddingService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\File\Exception\FileException;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
@@ -21,7 +23,8 @@ class UserController extends AbstractController
         private EntityManagerInterface $entityManager,
         private UserPasswordHasherInterface $passwordHasher,
         private SluggerInterface $slugger,
-        private string $photosDirectory
+        private string $photosDirectory,
+        private FaceEmbeddingService $faceEmbeddingService
     ) {
     }
 
@@ -114,6 +117,33 @@ class UserController extends AbstractController
             'form' => $form,
             'user' => $user,
         ]);
+    }
+
+    /**
+     * Enregistrement du visage (embedding face-api.js).
+     * POST JSON: { "embedding": [128 floats] }
+     */
+    #[Route('/parametres/face-id/register', name: 'app_face_id_register', methods: ['POST'])]
+    #[IsGranted('ROLE_USER')]
+    public function faceIdRegister(Request $request): JsonResponse
+    {
+        /** @var Utilisateur|null $user */
+        $user = $this->getUser();
+        if (!$user instanceof Utilisateur) {
+            return new JsonResponse(['success' => false, 'message' => 'Non authentifié.'], Response::HTTP_UNAUTHORIZED);
+        }
+        $data = json_decode($request->getContent(), true);
+        $embedding = $data['embedding'] ?? null;
+        if (!is_array($embedding) || count($embedding) < 128) {
+            return new JsonResponse(['success' => false, 'message' => 'Embedding invalide (tableau de 128 nombres requis).'], Response::HTTP_BAD_REQUEST);
+        }
+        try {
+            $this->faceEmbeddingService->storeEmbedding($user, $embedding);
+            $this->entityManager->flush();
+            return new JsonResponse(['success' => true, 'message' => 'Visage enregistré. Vous pouvez vous connecter avec la reconnaissance faciale.']);
+        } catch (\Throwable $e) {
+            return new JsonResponse(['success' => false, 'message' => $e->getMessage()], 400);
+        }
     }
 
     private function handlePhotoUpload(UploadedFile $file): ?string

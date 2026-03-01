@@ -1,11 +1,11 @@
-<!DOCTYPE html>
-<html lang="fr">
-<head>
-    <meta charset="UTF-8">
-    <meta http-equiv="refresh" content="0;url={{ path('app_evenement_index') }}" />
-    <title>Redirection...</title>
-</head>
-<body>
+{% extends 'base.html.twig' %}
+
+{% block title %}Redirection...{% endblock %}
+
+{% block body %}
+  <meta http-equiv="refresh" content="0;url={{ path('app_evenement_index') }}" />
+  <div class="container mt-5">
+    <div class="alert alert-info">Redirection vers les événements...</div>
     <p>Si vous n'êtes pas redirigé, <a href="{{ path('app_evenement_index') }}">cliquez ici</a>.</p>
-</body>
-</html>
+  </div>
+{% endblock %}

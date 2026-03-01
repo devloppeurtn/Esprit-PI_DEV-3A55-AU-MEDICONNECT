@@ -16,8 +16,11 @@ use App\Form\ForgotPasswordFormType;
 use App\Form\LoginFormType;
 use App\Form\ResetPasswordFormType;
 use App\Form\SignupFormType;
+use App\Service\FaceEmbeddingService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\Security\Core\Authentication\Token\UsernamePasswordToken;
+use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Bridge\Twig\Mime\TemplatedEmail;
 use Symfony\Component\HttpFoundation\File\Exception\FileException;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
@@ -40,7 +43,8 @@ class AuthController extends AbstractController
         private UserPasswordHasherInterface $passwordHasher,
         private MailerInterface $mailer,
         private SluggerInterface $slugger,
-        private string $photosDirectory
+        private string $photosDirectory,
+        private FaceEmbeddingService $faceEmbeddingService
     ) {
     }
 
@@ -91,6 +95,35 @@ class AuthController extends AbstractController
             'last_username' => $lastUsername,
             'error' => $error,
         ]);
+    }
+
+    /**
+     * Connexion par reconnaissance faciale (embedding face-api.js).
+     * POST JSON: { "email": "...", "embedding": [128 floats] }
+     */
+    #[Route('/login/face-id', name: 'app_login_face_id', methods: ['POST'])]
+    public function loginFaceId(Request $request): JsonResponse
+    {
+        if ($this->getUser()) {
+            return new JsonResponse(['success' => true, 'redirect' => $this->generateUrl('app_profile')]);
+        }
+        $data = json_decode($request->getContent(), true);
+        $email = isset($data['email']) ? trim((string) $data['email']) : null;
+        $embedding = $data['embedding'] ?? null;
+        if (!$email || !is_array($embedding) || count($embedding) < 128) {
+            return new JsonResponse(['success' => false, 'message' => 'Email et embedding (128 nombres) requis.'], Response::HTTP_BAD_REQUEST);
+        }
+        $user = $this->entityManager->getRepository(Utilisateur::class)->findOneBy(['email' => $email]);
+        if (!$user instanceof Utilisateur || !$user instanceof UserInterface) {
+            return new JsonResponse(['success' => false, 'message' => 'Utilisateur non trouvé.'], 404);
+        }
+        if (!$this->faceEmbeddingService->verifyEmbedding($user, $embedding)) {
+            return new JsonResponse(['success' => false, 'message' => 'Visage non reconnu.'], 401);
+        }
+        $token = new UsernamePasswordToken($user, 'main', $user->getRoles());
+        $this->container->get('security.token_storage')->setToken($token);
+        $request->getSession()->set('_security_main', serialize($token));
+        return new JsonResponse(['success' => true, 'redirect' => $this->generateUrl('app_profile')]);
     }
 
     #[Route('/oubli-mot-de-passe', name: 'app_forgot_password')]

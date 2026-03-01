@@ -206,13 +206,13 @@
                     <i class="bi bi-tag me-1"></i>{{ categorie.type }}
                 </span>
             </div>
-            {% if is_granted('ROLE_MEDECIN') %}
+            {% if is_granted('ROLE_MEDECIN') or is_granted('ROLE_ADMIN') %}
                 <div class="header-actions mt-3 mt-md-0">
                     <a href="{{ path('app_savoir_medical_modifier_categorie', {id: categorie.id}) }}" class="btn btn-outline-secondary">
                         <i class="bi bi-pencil me-2"></i>Modifier
                     </a>
                     <form method="post" action="{{ path('app_savoir_medical_supprimer_categorie', {id: categorie.id}) }}" 
-                          onsubmit="return confirm(' tes-vous s˚r de vouloir supprimer cette catÈgorie ? Tous les cours associÈs seront Ègalement supprimÈs. Cette action est irrÈversible.')" 
+                          onsubmit="return confirm('ÔøΩtes-vous sÔøΩr de vouloir supprimer cette catÔøΩgorie ? Tous les cours associÔøΩs seront ÔøΩgalement supprimÔøΩs. Cette action est irrÔøΩversible.')" 
                           class="d-inline">
                         <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ categorie.id) }}">
                         <button type="submit" class="btn btn-outline-danger">
@@ -235,7 +235,7 @@
                         Cours disponibles
                     </h2>
                 </div>
-                {% if is_granted('ROLE_MEDECIN') %}
+                {% if is_granted('ROLE_MEDECIN') or is_granted('ROLE_ADMIN') %}
                     <a href="{{ path('app_savoir_medical_nouveau_cours', {categorieId: categorie.id}) }}" class="btn btn-primary">
                         <i class="bi bi-plus-circle me-2"></i>Ajouter un cours
                     </a>
@@ -247,7 +247,7 @@
                     <i class="bi bi-book"></i>
                     <h4 class="text-muted mb-3">Aucun cours disponible</h4>
                     <p class="text-muted mb-4">Les cours seront bient√¥t ajout√©s pour cette cat√©gorie</p>
-                    {% if is_granted('ROLE_MEDECIN') %}
+                    {% if is_granted('ROLE_MEDECIN') or is_granted('ROLE_ADMIN') %}
                         <a href="{{ path('app_savoir_medical_nouveau_cours', {categorieId: categorie.id}) }}" class="btn btn-primary">
                             <i class="bi bi-plus-circle me-2"></i>Cr√©er le premier cours
                         </a>
@@ -286,7 +286,7 @@
                                     </div>
                                     
                                     <div class="cours-actions">
-                                        {% if is_granted('ROLE_MEDECIN') %}
+                                        {% if is_granted('ROLE_MEDECIN') or is_granted('ROLE_ADMIN') %}
                                             <a href="{{ path('app_savoir_medical_cours', {id: coursItem.id}) }}" 
                                                class="btn btn-action btn-outline-info" 
                                                title="Voir le cours">
@@ -303,7 +303,7 @@
                                             </a>
                                             <form method="post" 
                                                   action="{{ path('app_savoir_medical_supprimer_cours', {id: coursItem.id}) }}" 
-                                                  onsubmit="return confirm(' tes-vous s˚r de vouloir supprimer ce cours ?')" 
+                                                  onsubmit="return confirm('ÔøΩtes-vous sÔøΩr de vouloir supprimer ce cours ?')" 
                                                   class="d-inline">
                                                 <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ coursItem.id) }}">
                                                 <button type="submit" class="btn btn-action btn-outline-danger" title="Supprimer">

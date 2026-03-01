@@ -33,6 +33,14 @@
                 {% endfor %}
             {% endfor %}
 
+            {% if is_granted('ROLE_ADMIN') %}
+                <div class="d-flex justify-content-end mb-3">
+                    <a href="{{ path('app_admin_customer_analytics') }}" class="btn btn-outline-primary btn-sm">
+                        <i class="bi bi-graph-up-arrow me-1"></i> Analytics clients
+                    </a>
+                </div>
+            {% endif %}
+
             {% block admin_content %}{% endblock %}
         </div>
     </main>
@@ -123,6 +131,36 @@
             });
 
             restoreDesktopCollapsed();
+        })();
+
+        (function () {
+            const isAdminPage = window.location.pathname.startsWith('/admin');
+            const analyticsPath = '/admin/analytics/customers';
+            if (!isAdminPage || window.location.pathname === analyticsPath) {
+                return;
+            }
+
+            if (document.getElementById('customer-analytics-shortcut')) {
+                return;
+            }
+
+            const a = document.createElement('a');
+            a.id = 'customer-analytics-shortcut';
+            a.href = analyticsPath;
+            a.textContent = 'Analytics clients';
+            a.style.position = 'fixed';
+            a.style.right = '16px';
+            a.style.bottom = '16px';
+            a.style.zIndex = '1050';
+            a.style.padding = '10px 14px';
+            a.style.borderRadius = '999px';
+            a.style.background = '#0d6efd';
+            a.style.color = '#fff';
+            a.style.fontWeight = '600';
+            a.style.fontSize = '14px';
+            a.style.textDecoration = 'none';
+            a.style.boxShadow = '0 8px 20px rgba(13,110,253,0.28)';
+            document.body.appendChild(a);
         })();
     </script>
 {% endblock %}

@@ -79,4 +79,21 @@ class RendezVousRepository extends ServiceEntityRepository
             ->getQuery()
             ->getResult();
     }
+
+    /**
+     * @return RendezVous[]
+     */
+    public function findConfirmedStartingBetween(\DateTimeInterface $from, \DateTimeInterface $to): array
+    {
+        return $this->createQueryBuilder('r')
+            ->andWhere('r.statut = :statut')
+            ->andWhere('r.dateDebut >= :from')
+            ->andWhere('r.dateDebut < :to')
+            ->setParameter('statut', StatutRendezVous::CONFIRME)
+            ->setParameter('from', $from)
+            ->setParameter('to', $to)
+            ->orderBy('r.dateDebut', 'ASC')
+            ->getQuery()
+            ->getResult();
+    }
 }

@@ -109,6 +109,8 @@ class PaymentController extends AbstractController
                 'payment_method_types' => ['card'],
                 'line_items' => $lineItems,
                 'mode' => 'payment',
+                'customer_email' => $commande->getUtilisateur()?->getEmail(),
+                'locale' => 'fr',
                 'success_url' => $successUrl,
                 'cancel_url' => $cancelUrl,
                 'metadata' => ['order_id' => (string)$commande->getId()],

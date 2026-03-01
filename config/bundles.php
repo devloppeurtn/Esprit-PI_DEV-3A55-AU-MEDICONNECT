@@ -16,4 +16,7 @@ return [
     Symfony\Bundle\MercureBundle\MercureBundle::class => ['all' => true],
     SpomkyLabs\CborBundle\SpomkyLabsCborBundle::class => ['all' => true],
     Webauthn\Bundle\WebauthnBundle::class => ['all' => true],
+    App\SavoirMedicalBundle\SavoirMedicalBundle::class => ['all' => true],
+    Symfony\UX\Autocomplete\AutocompleteBundle::class => ['all' => true],
+    Symfony\UX\Chartjs\ChartjsBundle::class => ['all' => true],
 ];

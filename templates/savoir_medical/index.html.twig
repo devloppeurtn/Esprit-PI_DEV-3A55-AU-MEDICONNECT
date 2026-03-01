@@ -258,6 +258,44 @@
             color: #6c757d;
             font-size: 1.05rem;
         }
+        
+        /* Search Bar Styles */
+        #searchCategories {
+            border-left: none;
+            font-size: 1rem;
+            padding: 0.75rem 1rem;
+        }
+        
+        #searchCategories:focus {
+            box-shadow: 0 0 0 0.25rem rgba(23, 92, 221, 0.15);
+            border-color: #175cdd;
+        }
+        
+        .input-group-text {
+            border-right: none;
+            color: #175cdd;
+        }
+        
+        #clearSearch {
+            border-left: none;
+        }
+        
+        .input-group:focus-within .input-group-text {
+            border-color: #175cdd;
+        }
+        
+        .input-group:focus-within #clearSearch {
+            border-color: #175cdd;
+        }
+        
+        #searchResults {
+            text-align: center;
+            font-weight: 500;
+        }
+        
+        .category-item {
+            transition: opacity 0.3s ease, transform 0.3s ease;
+        }
     </style>
 {% endblock %}
 
@@ -280,9 +318,14 @@
                                 <i class="bi bi-graph-up me-2"></i>Voir ma progression
                             </a>
                         {% endif %}
-                        {% if is_granted('ROLE_MEDECIN') %}
+                        {% if is_granted('ROLE_MEDECIN') or is_granted('ROLE_ADMIN') %}
                             <a href="{{ path('app_savoir_medical_nouvelle_categorie') }}" class="btn btn-success btn-action-hero">
                                 <i class="bi bi-plus-circle me-2"></i>Nouvelle catégorie
+                            </a>
+                        {% endif %}
+                        {% if is_granted('ROLE_ADMIN') %}
+                            <a href="{{ path('app_admin_categories_en_attente') }}" class="btn btn-warning btn-action-hero">
+                                <i class="bi bi-clock-history me-2"></i>Catégories en attente
                             </a>
                         {% endif %}
                     </div>
@@ -301,26 +344,45 @@
             <i class="bi bi-folder-x"></i>
             <h3 class="text-muted mb-3">Aucune catégorie disponible</h3>
             <p class="text-muted mb-4">Les catégories seront bientôt ajoutées par les administrateurs</p>
-            {% if is_granted('ROLE_MEDECIN') %}
-                <a href="{{ path('app_savoir_medical_nouvelle_categorie') }}" class="btn btn-primary btn-lg">
-                    <i class="bi bi-plus-circle me-2"></i>Créer la première catégorie
-                </a>
-            {% endif %}
+            {% if is_granted('ROLE_MEDECIN') or is_granted('ROLE_ADMIN') %}
+                                <a href="{{ path('app_savoir_medical_nouvelle_categorie') }}" class="btn btn-primary btn-lg">
+                                    <i class="bi bi-plus-circle me-2"></i>Créer la première catégorie
+                                </a>
+                            {% endif %}
         </div>
     {% else %}
-        <div class="section-header">
-            <h2>
-                <i class="bi bi-grid-3x3-gap me-2 text-primary"></i>
-                Catégories disponibles
-            </h2>
-            <p>{{ categories|length }} cat�gorie{{ categories|length > 1 ? 's' : '' }} � explorer</p>
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h2 class="mb-1">
+                    <i class="bi bi-grid-3x3-gap me-2 text-primary"></i>
+                    Catégories disponibles
+                </h2>
+                <p class="text-muted mb-0">{{ categories|length }} catégorie{{ categories|length > 1 ? 's' : '' }} à explorer</p>
+            </div>
+            
+            <div style="min-width: 400px;">
+                <div class="input-group shadow-sm">
+                    <span class="input-group-text bg-white">
+                        <i class="bi bi-search text-primary"></i>
+                    </span>
+                    <input type="text" 
+                           class="form-control" 
+                           id="searchCategories" 
+                           placeholder="Rechercher une catégorie..."
+                           autocomplete="off">
+                    <button class="btn btn-outline-secondary" type="button" id="clearSearch" title="Effacer">
+                        <i class="bi bi-x-lg"></i>
+                    </button>
+                </div>
+                <div id="searchResults" class="mt-1 text-muted small text-end"></div>
+            </div>
         </div>
         
-        <div class="row g-4">
+        <div class="row g-4" id="categoriesContainer">
             {% for categorie in categories %}
                 {% set progression = progressionsParCategorie[categorie.id.toRfc4122()] ?? null %}
                 
-                <div class="col-lg-6">
+                <div class="col-lg-6 category-item" data-category-name="{{ categorie.nom|lower }}" data-category-type="{{ categorie.type|lower }}">
                     <div class="card category-card">
                         <div class="category-header">
                             {% if progression %}
@@ -343,6 +405,14 @@
                                 <div class="progress-badge">
                                     <span class="badge bg-info">
                                         <i class="bi bi-star me-1"></i>Commencer
+                                    </span>
+                                </div>
+                            {% endif %}
+                            
+                            {% if is_granted('ROLE_MEDECIN') or is_granted('ROLE_ADMIN') %}
+                                <div class="progress-badge ms-2">
+                                    <span class="badge {{ categorie.statut.badgeClass }}">
+                                        {{ categorie.statut.label }}
                                     </span>
                                 </div>
                             {% endif %}
@@ -387,13 +457,13 @@
                                 <a href="{{ path('app_savoir_medical_categorie', {id: categorie.id}) }}" class="btn btn-explore w-100">
                                     <i class="bi bi-book me-2"></i>Explorer les cours
                                 </a>
-                                {% if is_granted('ROLE_MEDECIN') %}
+                                {% if is_granted('ROLE_MEDECIN') or is_granted('ROLE_ADMIN') %}
                                     <div class="d-flex gap-2 mt-2">
                                         <a href="{{ path('app_savoir_medical_modifier_categorie', {id: categorie.id}) }}" class="btn btn-outline-secondary btn-sm flex-fill">
                                             <i class="bi bi-pencil me-1"></i>Modifier
                                         </a>
                                         <form method="post" action="{{ path('app_savoir_medical_supprimer_categorie', {id: categorie.id}) }}" 
-                                              onsubmit="return confirm('�tes-vous s�r de vouloir supprimer cette cat�gorie ? Cette action est irr�versible.')" 
+                                              onsubmit="return confirm('�tes-vous s�r de vouloir supprimer cette cat�gorie ? Cette action est irr�versible.')" 
                                               class="flex-fill">
                                             <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ categorie.id) }}">
                                             <button type="submit" class="btn btn-outline-danger btn-sm w-100">
@@ -410,4 +480,61 @@
         </div>
     {% endif %}
 </div>
+{% endblock %}
+
+{% block javascripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const searchInput = document.getElementById('searchCategories');
+    const clearButton = document.getElementById('clearSearch');
+    const searchResults = document.getElementById('searchResults');
+    const categoryItems = document.querySelectorAll('.category-item');
+    
+    if (!searchInput) return;
+    
+    function performSearch() {
+        const searchTerm = searchInput.value.toLowerCase().trim();
+        let visibleCount = 0;
+        
+        categoryItems.forEach(item => {
+            const categoryName = item.getAttribute('data-category-name');
+            const categoryType = item.getAttribute('data-category-type');
+            
+            if (searchTerm === '' || 
+                categoryName.includes(searchTerm) || 
+                categoryType.includes(searchTerm)) {
+                item.style.display = '';
+                visibleCount++;
+            } else {
+                item.style.display = 'none';
+            }
+        });
+        
+        // Update results text
+        if (searchTerm === '') {
+            searchResults.textContent = '';
+        } else {
+            searchResults.textContent = `${visibleCount} catégorie${visibleCount > 1 ? 's' : ''} trouvée${visibleCount > 1 ? 's' : ''}`;
+        }
+    }
+    
+    // Search on input
+    searchInput.addEventListener('input', performSearch);
+    
+    // Clear search
+    clearButton.addEventListener('click', function() {
+        searchInput.value = '';
+        performSearch();
+        searchInput.focus();
+    });
+    
+    // Search on Enter key
+    searchInput.addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            performSearch();
+        }
+    });
+});
+</script>
 {% endblock %}

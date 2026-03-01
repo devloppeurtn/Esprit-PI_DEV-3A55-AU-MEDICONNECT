@@ -12,6 +12,7 @@ use App\Service\CartService;
 use App\Service\ProductPricingService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -95,6 +96,31 @@ class ProductController extends AbstractController
             'produits' => $produits,
             'dynamicPrices' => $this->buildDynamicPrices($produits, $pricingService),
         ]);
+    }
+
+    #[Route('/suggestions', name: 'app_catalogue_suggestions', methods: ['GET'])]
+    public function suggestions(Request $request, ProduitRepository $produitRepo): JsonResponse
+    {
+        $query = $request->query->get('q', '');
+        $query = is_string($query) ? trim($query) : '';
+        if ($query === '' || mb_strlen($query, 'UTF-8') < 2) {
+            return new JsonResponse([]);
+        }
+
+        $results = $produitRepo->findByFilters([
+            'q' => $query,
+            'sort' => 'name_asc',
+        ]);
+
+        $suggestions = [];
+        foreach (array_slice($results, 0, 8) as $p) {
+            $suggestions[] = [
+                'id' => $p->getId(),
+                'nom' => $p->getNom(),
+            ];
+        }
+
+        return new JsonResponse($suggestions);
     }
 
     #[Route('/{id}', name: 'app_product_detail', methods: ['GET'])]

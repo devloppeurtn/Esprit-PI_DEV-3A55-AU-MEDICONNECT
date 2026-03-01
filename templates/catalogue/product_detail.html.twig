@@ -180,6 +180,22 @@
         </div>
     </div>
 
+    <!-- Produits Recommandés -->
+    <div class="row mt-5">
+        <div class="col-lg-12">
+            <h3 class="mb-4">
+                <i class="bi bi-lightbulb"></i> Clients qui ont acheté ceci ont aussi acheté...
+            </h3>
+            <div id="recommendationsContainer" class="row">
+                <div class="col-12 text-center">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Chargement...</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div class="row mt-4">
         <div class="col-lg-8">
             {% for type, messages in app.flashes(['success', 'error']) %}
@@ -210,7 +226,7 @@
                                 <div class="review-stars-input">
                                     {% for i in 5..1 %}
                                         <input type="radio" id="note_{{ i }}" name="note" value="{{ i }}" {{ monAvis and monAvis.note == i ? 'checked' : '' }} {{ (not monAvis and i == 5) ? 'checked' : '' }}>
-                                        <label for="note_{{ i }}" title="{{ i }}/5">â˜…</label>
+                                        <label for="note_{{ i }}" title="{{ i }}/5">★</label>
                                     {% endfor %}
                                 </div>
                             </div>
@@ -344,5 +360,50 @@
             if (alert) alert.remove();
         }, 3000);
     }
+
+    // Charger les recommandations
+    function loadRecommendations() {
+        const productId = {{ produit.id }};
+        const container = document.getElementById('recommendationsContainer');
+
+        fetch(`/api/recommendations/co-purchases/${productId}`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.recommendations && data.recommendations.length > 0) {
+                    let html = '';
+                    data.recommendations.forEach(product => {
+                        html += `
+                            <div class="col-lg-3 col-md-6 mb-4">
+                                <div class="card h-100 shadow-sm">
+                                    <img src="${product.image ? (product.image.startsWith('http') ? product.image : '/assets/img/' + product.image) : '/assets/img/placeholder.png'}" 
+                                         class="card-img-top" style="height: 200px; object-fit: cover;" alt="${product.nom}">
+                                    <div class="card-body">
+                                        <h5 class="card-title">${product.nom}</h5>
+                                        <p class="card-text text-muted small">
+                                            <strong>${product.prix} TND</strong>
+                                        </p>
+                                    </div>
+                                    <div class="card-footer bg-white border-top">
+                                        <a href="/catalogue/${product.id}" class="btn btn-sm btn-primary w-100">
+                                            <i class="bi bi-eye"></i> Voir
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                    });
+                    container.innerHTML = html;
+                } else {
+                    container.innerHTML = '<div class="col-12 text-center text-muted">Aucune recommandation disponible.</div>';
+                }
+            })
+            .catch(error => {
+                console.error('Erreur lors du chargement des recommandations:', error);
+                container.innerHTML = '<div class="col-12 text-center text-danger">Erreur lors du chargement.</div>';
+            });
+    }
+
+    // Charger les recommandations au chargement de la page
+    document.addEventListener('DOMContentLoaded', loadRecommendations);
 </script>
 {% endblock %}

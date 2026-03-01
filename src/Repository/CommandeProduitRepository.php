@@ -108,7 +108,8 @@ class CommandeProduitRepository extends ServiceEntityRepository
             ->where('c.statut IN (:statuses)')
             ->setParameter('statuses', [
                 \App\Enum\StatutCommande::LIVREE,
-                \App\Enum\StatutCommande::CONFIRMEE,
+                \App\Enum\StatutCommande::VALIDEE,
+                \App\Enum\StatutCommande::PREPAREE,
             ])
             ->orderBy('c.dateCommande', 'DESC')
             ->getQuery()

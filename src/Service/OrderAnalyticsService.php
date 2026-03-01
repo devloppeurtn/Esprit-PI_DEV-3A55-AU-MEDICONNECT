@@ -57,7 +57,8 @@ class OrderAnalyticsService
             ->setParameter('customer', $customer)
             ->setParameter('validStatuses', [
                 StatutCommande::LIVREE,
-                StatutCommande::CONFIRMEE,
+                StatutCommande::VALIDEE,
+                StatutCommande::PREPAREE,
             ])
             ->getQuery()
             ->getOneOrNullResult();
@@ -165,24 +166,30 @@ class OrderAnalyticsService
      */
     public function getOrdersOverTime(Utilisateur $customer, int $months = 12): array
     {
-        $dateFrom = (new \DateTime())->modify("-{$months} months");
+        $dateFrom = (new \DateTimeImmutable())->modify("-{$months} months");
+        $conn = $this->entityManager->getConnection();
+        $orderTable = $this->entityManager->getClassMetadata('App\Entity\CommandeProduit')->getTableName();
 
-        $results = $this->entityManager->createQueryBuilder()
-            ->select('
-                DATE_FORMAT(c.dateCommande, \'%Y-%m\') as month,
-                COUNT(c.id) as orderCount,
-                SUM(c.montantTotal) as monthlyRevenue,
-                AVG(c.montantTotal) as avgOrderValue
-            ')
-            ->from('App\Entity\CommandeProduit', 'c')
-            ->where('c.utilisateur = :customer')
-            ->andWhere('c.dateCommande >= :dateFrom')
-            ->setParameter('customer', $customer)
-            ->setParameter('dateFrom', $dateFrom)
-            ->groupBy('month')
-            ->orderBy('month', 'ASC')
-            ->getQuery()
-            ->getResult();
+        $sql = <<<SQL
+SELECT
+    DATE_FORMAT(date_commande, '%Y-%m') AS month,
+    COUNT(id) AS orderCount,
+    SUM(montant_total) AS monthlyRevenue,
+    AVG(montant_total) AS avgOrderValue
+FROM {$orderTable}
+WHERE utilisateur_id = :customerId
+  AND date_commande >= :dateFrom
+GROUP BY DATE_FORMAT(date_commande, '%Y-%m')
+ORDER BY month ASC
+SQL;
+
+        $results = $conn->executeQuery(
+            $sql,
+            [
+                'customerId' => $customer->getId(),
+                'dateFrom' => $dateFrom->format('Y-m-d H:i:s'),
+            ]
+        )->fetchAllAssociative();
 
         return array_map(function($result) {
             return [

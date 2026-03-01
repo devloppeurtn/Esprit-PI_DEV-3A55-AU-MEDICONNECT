@@ -4,6 +4,21 @@
 
 {% block body %}
 <div class="container mt-5">
+<style>
+.weather-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px;
+  border-radius: 999px;
+  background: linear-gradient(135deg, #6b7bd6 0%, #7a4aa5 100%);
+  color: #fff;
+  font-size: 0.9rem;
+  box-shadow: 0 6px 16px rgba(0,0,0,0.12);
+}
+.weather-pill .weather-temp { font-weight: 700; }
+.weather-pill .weather-cond { text-transform: lowercase; opacity: 0.9; }
+</style>
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
             <h1 class="mb-2">Événements à venir</h1>
@@ -18,30 +33,71 @@
         </div>
     </div>
 
-    <div id="alerts"></div>
+    {% if aiRecommendations is defined and aiRecommendations|length > 0 %}
+        <div class="card border-0 shadow-sm mb-4" style="background: linear-gradient(135deg, #6b7bd6 0%, #7a4aa5 100%); color: #fff;">
+            <div class="card-body">
+                <div class="d-flex align-items-center gap-2 mb-3">
+                    <div class="rounded-circle bg-white text-dark d-flex align-items-center justify-content-center" style="width: 36px; height: 36px;">
+                        <i class="bi bi-robot"></i>
+                    </div>
+                    <div>
+                        <div class="fw-semibold">Recommandations IA Personnalisees</div>
+                        <small class="text-white-50">Basees sur votre dossier medical</small>
+                    </div>
+                    <span class="badge bg-warning text-dark ms-auto">Mode Basique</span>
+                </div>
+                <div class="row g-3">
+                    {% for rec in aiRecommendations %}
+                        {% set ev = rec.event %}
+                        <div class="col-md-4">
+                            <div class="card h-100 border-0 shadow-sm">
+                                <div class="card-body text-dark">
+                                    <div class="d-flex justify-content-between align-items-start">
+                                        <div class="fw-semibold">{{ ev.title }}</div>
+                                        <span class="badge bg-warning text-dark">Score: {{ rec.score }}</span>
+                                    </div>
+                                    {% if ev.eventDate %}
+                                        <div class="small text-muted mt-1"><i class="bi bi-calendar-event me-1"></i>{{ ev.eventDate|date('d/m/Y') }}</div>
+                                    {% endif %}
+                                    <div class="small text-muted mt-2">{{ rec.reason }}</div>
+                                    <div class="mt-3">
+                                        <a href="{{ path('app_evenement_show', {id: ev.id}) }}" class="btn btn-sm btn-outline-primary w-100">
+                                            <i class="bi bi-eye me-1"></i>Voir les details
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+                <div class="small text-white-50 mt-3">
+                    Ces recommandations sont generees automatiquement en analysant votre profil medical.
+                </div>
+            </div>
+        </div>
+    {% endif %}
 
     <div class="card mb-4">
         <div class="card-body">
             <form method="get" class="row g-3 align-items-end">
-                <div class="col-md-6">
-                    <label class="form-label mb-1">Recherche</label>
-                    <input type="text" name="q" class="form-control" placeholder="Nom ou description de l'événement..."
-                           value="{{ search|default('') }}">
-                </div>
-                <div class="col-md-4">
-                    <label class="form-label mb-1">Période</label>
-                    <select name="periode" class="form-select">
-                        <option value="tous" {% if periode|default('tous') == 'tous' %}selected{% endif %}>Tous</option>
-                        <option value="avenir" {% if periode|default('tous') == 'avenir' %}selected{% endif %}>À venir</option>
-                        <option value="passes" {% if periode|default('tous') == 'passes' %}selected{% endif %}>Passés</option>
-                    </select>
-                </div>
-                <div class="col-md-2 d-flex gap-2">
-                    <button class="btn btn-primary w-100" type="submit">
-                        <i class="bi bi-search me-1"></i>Filtrer
-                    </button>
-                </div>
-            </form>
+    <div class="col-md-7">
+        <label class="form-label mb-1">Recherche</label>
+        <input type="text" name="q" class="form-control" placeholder="Nom ou description de l'evenement..." value="{{ search|default('') }}">
+    </div>
+    <div class="col-md-3">
+        <label class="form-label mb-1">Periode</label>
+        <select name="periode" class="form-select">
+            <option value="tous" {% if periode|default('tous') == 'tous' %}selected{% endif %}>Tous</option>
+            <option value="avenir" {% if periode|default('tous') == 'avenir' %}selected{% endif %}>A venir</option>
+            <option value="passes" {% if periode|default('tous') == 'passes' %}selected{% endif %}>Passes</option>
+        </select>
+    </div>
+    <div class="col-md-2 d-flex gap-2">
+        <button class="btn btn-primary w-100" type="submit">
+            <i class="bi bi-search me-1"></i>Filtrer
+        </button>
+    </div>
+</form>
         </div>
     </div>
 
@@ -56,15 +112,19 @@
                                 <div class="d-flex justify-content-between align-items-start flex-wrap gap-2">
                                     <div>
                                         <h5 class="card-title mb-1">{{ item.title }}</h5>
-                                        <span class="badge {{ item.statut.value == 'VALIDE' ? 'bg-success' : (item.statut.value == 'EN_ATTENTE' ? 'bg-warning text-dark' : 'bg-danger') }}">
-                                            {% if item.statut.value == 'EN_ATTENTE' %}En attente de validation{% elseif item.statut.value == 'VALIDE' %}Publié{% else %}Refusé{% endif %}
-                                        </span>
-                                        {% if item.eventDate %}<span class="badge bg-info ms-1">{{ item.eventDate|date('d/m/Y') }}</span>{% endif %}
+                                        <div class="d-flex align-items-center gap-2 flex-wrap">
+                                            <span class="badge {{ item.statut.value == 'VALIDE' ? 'bg-success' : (item.statut.value == 'EN_ATTENTE' ? 'bg-warning text-dark' : 'bg-danger') }}">
+                                                {% if item.statut.value == 'EN_ATTENTE' %}En attente de validation{% elseif item.statut.value == 'VALIDE' %}Publié{% else %}Refusé{% endif %}
+                                            </span>
+                                            {% if item.typeEvenement %}<span class="badge bg-primary">{{ item.typeEvenement.label() }}</span>{% endif %}
+                                            {% if item.eventDate %}<span class="badge bg-info">{{ item.eventDate|date('d/m/Y') }}</span>{% endif %}
+                                            {% if item.location %}<span class="badge bg-light text-dark border">{{ item.location }}</span>{% endif %}
+                                        </div>
                                     </div>
                                     <div class="btn-group btn-group-sm">
                                         <a href="{{ path('app_evenement_show', {id: item.id}) }}" class="btn btn-outline-primary"><i class="bi bi-eye"></i></a>
                                         <a href="{{ path('app_evenement_edit', {id: item.id}) }}" class="btn btn-outline-secondary"><i class="bi bi-pencil"></i></a>
-                                        <form method="POST" action="{{ path('app_evenement_delete', {id: item.id}) }}" class="d-inline" onsubmit="return confirm('Supprimer cet �v�nement ?');">
+                                        <form method="POST" action="{{ path('app_evenement_delete', {id: item.id}) }}" class="d-inline" onsubmit="return confirm('Supprimer cet événement ?');">
                                             <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ item.id) }}">
                                             <button type="submit" class="btn btn-outline-danger btn-sm"><i class="bi bi-trash"></i></button>
                                         </form>
@@ -87,43 +147,44 @@
                     <div class="row">
                         <div class="col-md-8">
                             <h5 class="card-title mb-3">{{ item.title }}</h5>
-                            
-                            {% if item.eventDate %}
-                                <div class="mb-3">
-                                    <span class="badge bg-info" style="font-size: 0.95rem;">
-                                        <i class="bi bi-calendar-event me-1"></i>
-                                        {{ item.eventDate|date('d-m-Y') }}
-                                    </span>
-                                </div>
-                            {% endif %}
+
+                            <div class="d-flex flex-wrap gap-2 mb-2">
+                                {% if item.typeEvenement %}<span class="badge bg-primary">{{ item.typeEvenement.label() }}</span>{% endif %}
+                                {% if item.eventDate %}
+                                    <span class="badge bg-info" style="font-size: 0.95rem;"><i class="bi bi-calendar-event me-1"></i>{{ item.eventDate|date('d-m-Y') }}</span>
+                                {% endif %}
+                                {% if item.location %}
+                                    <span class="badge bg-light text-dark border" style="font-size: 0.95rem;"><i class="bi bi-geo-alt me-1"></i>{{ item.location }}</span>
+                                {% endif %}
+                                {% if item.location and item.eventDate %}
+                                    <div class="event-weather weather-pill" data-location="{{ item.location|e('html_attr') }}" data-date="{{ item.eventDate|date('Y-m-d') }}">
+  <i class="bi bi-cloud"></i>
+  <span class="weather-temp">--�C</span>
+  <span class="weather-cond">Chargement...</span>
+</div>
+                                {% endif %}
+                                {% if item.attachmentPath %}
+                                    <a class="badge bg-secondary text-decoration-none" href="{{ asset(item.attachmentPath) }}" target="_blank" rel="noopener"><i class="bi bi-paperclip me-1"></i>{{ item.attachmentOriginalName ?: 'Document' }}</a>
+                                {% endif %}
+                            </div>
 
                             {% if item.content %}
                                 <p class="card-text text-muted">{{ (item.content|length > 150) ? item.content|slice(0, 150) ~ '...' : item.content }}</p>
                             {% endif %}
 
-                            <small class="text-muted">
-                                <i class="bi bi-clock"></i> Créé le {{ item.createdAt|date('d/m/Y à H:i') }}
-                            </small>
+                            <small class="text-muted"><i class="bi bi-clock"></i> Créé le {{ item.createdAt|date('d/m/Y à H:i') }}</small>
                         </div>
 
                         <div class="col-md-4 d-flex flex-column justify-content-center">
-                            <a href="{{ path('app_evenement_participer_form', {id: item.id}) }}" class="btn btn-success btn-lg mb-2">
-                                <i class="bi bi-check-circle me-1"></i> Participer
-                            </a>
-                            
+                            <a href="{{ path('app_evenement_show', {id: item.id}) }}" class="btn btn-success btn-lg mb-2"><i class="bi bi-check-circle me-1"></i> Participer</a>
+
                             <div class="btn-group btn-group-sm" role="group">
-                                <a href="{{ path('app_evenement_show', {id: item.id}) }}" class="btn btn-outline-primary">
-                                    <i class="bi bi-eye"></i> Détails
-                                </a>
-                                {% if is_granted('ROLE_ORGANISATEUR') and item.organisateur and item.organisateur.id == app.user.id %}
-                                    <a href="{{ path('app_evenement_edit', {id: item.id}) }}" class="btn btn-outline-secondary">
-                                        <i class="bi bi-pencil"></i> Modifier
-                                    </a>
+                                <a href="{{ path('app_evenement_show', {id: item.id}) }}" class="btn btn-outline-primary"><i class="bi bi-eye"></i> Détails</a>
+                                {% if (is_granted('ROLE_ORGANISATEUR') or is_granted('ROLE_SECRETAIRE')) and item.organisateur and item.organisateur.id == app.user.id %}
+                                    <a href="{{ path('app_evenement_edit', {id: item.id}) }}" class="btn btn-outline-secondary"><i class="bi bi-pencil"></i> Modifier</a>
                                     <form method="POST" action="{{ path('app_evenement_delete', {id: item.id}) }}" style="display:inline;">
                                         <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ item.id) }}">
-                                        <button type="submit" class="btn btn-outline-danger btn-sm" onclick="return confirm('�tes-vous s�r de vouloir supprimer cet �v�nement ?');">
-                                            <i class="bi bi-trash"></i> Supprimer
-                                        </button>
+                                        <button type="submit" class="btn btn-outline-danger btn-sm" onclick="return confirm('Êtes-vous sûr de vouloir supprimer cet événement ?');"><i class="bi bi-trash"></i> Supprimer</button>
                                     </form>
                                 {% endif %}
                             </div>
@@ -143,81 +204,54 @@
     </div>
 </div>
 
-<!-- Modal for participation -->
-<div class="modal fade" id="participateModal" tabindex="-1">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">
-                    <i class="bi bi-clipboard-check me-2"></i>Inscrivez-vous à l'événement
-                </h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
-            <form id="participateForm" method="post" action="">
-                <div class="modal-body">
-                    <p class="text-muted mb-4">Veuillez remplir vos informations ci-dessous :</p>
-                    
-                    <div class="mb-3">
-                        <label class="form-label fw-bold">Prénom</label>
-                        <input type="text" id="firstName" name="firstName" class="form-control form-control-lg" placeholder="Ex: Jean" required>
-                    </div>
-                    
-                    <div class="mb-3">
-                        <label class="form-label fw-bold">Nom</label>
-                        <input type="text" id="lastName" name="lastName" class="form-control form-control-lg" placeholder="Ex: Dupont" required>
-                    </div>
-                    
-                    <div class="mb-3">
-                        <label class="form-label fw-bold">Email</label>
-                        <input type="email" id="email" name="email" class="form-control form-control-lg" placeholder="Ex: jean.dupont@email.com" required>
-                    </div>
-                    
-                    <input type="hidden" id="csrf_token" name="_token" value="">
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Fermer</button>
-                    <button type="submit" class="btn btn-success btn-lg">
-                        <i class="bi bi-check me-1"></i>Confirmer l'inscription
-                    </button>
-                </div>
-            </form>
-        </div>
-    </div>
-</div>
-
-{% block scripts %}
 <script>
-document.addEventListener('DOMContentLoaded', function () {
-    const participateModal = document.getElementById('participateModal');
-    const participateForm = document.getElementById('participateForm');
-    
-    if (!participateModal || !participateForm) return;
+(function () {
+    const nodes = document.querySelectorAll('.event-weather');
+    if (!nodes.length) return;
 
-    participateModal.addEventListener('show.bs.modal', function (event) {
-        const button = event.relatedTarget;
-        const eventId = button.getAttribute('data-event-id');
-        participateForm.action = "{{ path('app_evenement_participer', {id: '00000000-0000-0000-0000-000000000000'}) }}".replace('00000000-0000-0000-0000-000000000000', eventId);
-        const csrfTokenElement = document.getElementById('csrf_token');
-        if (csrfTokenElement && button.hasAttribute('data-csrf')) {
-            csrfTokenElement.value = button.getAttribute('data-csrf');
-        }
-        document.getElementById('firstName').value = '';
-        document.getElementById('lastName').value = '';
-        document.getElementById('email').value = '';
-    });
+    const codeToText = {
+        0: 'ciel degage', 1: 'plutot degage', 2: 'partiellement nuageux', 3: 'nuageux',
+        45: 'brouillard', 51: 'bruine legere', 53: 'bruine moderee', 55: 'bruine forte',
+        61: 'pluie legere', 63: 'pluie moderee', 65: 'pluie forte', 80: 'averses', 95: 'orage'
+    };
 
-    participateForm.addEventListener('submit', function (e) {
-        e.preventDefault();
-        const firstName = document.getElementById('firstName').value.trim();
-        const lastName = document.getElementById('lastName').value.trim();
-        const email = document.getElementById('email').value.trim();
-        if (!firstName || !lastName || !email) {
-            alert('Veuillez remplir tous les champs.');
-            return;
+    const loadWeather = async (el) => {
+        const location = el.dataset.location;
+        const date = el.dataset.date;
+        const tempNode = el.querySelector('.weather-temp');
+        const condNode = el.querySelector('.weather-cond');
+        try {
+            const geoRes = await fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(location)}&count=1&language=fr&format=json`);
+            const geo = await geoRes.json();
+            if (!geo.results || !geo.results.length) throw new Error('geo');
+
+            const { latitude, longitude } = geo.results[0];
+            const meteoRes = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&daily=weathercode,temperature_2m_max,temperature_2m_min&timezone=auto&start_date=${date}&end_date=${date}`);
+            const meteo = await meteoRes.json();
+            const d = meteo.daily;
+            if (!d || !d.weathercode || !d.weathercode.length) throw new Error('meteo');
+
+            const code = d.weathercode[0];
+            const tMin = Math.round(d.temperature_2m_min[0]);
+            const tMax = Math.round(d.temperature_2m_max[0]);
+            const tAvg = Math.round((tMin + tMax) / 2);
+            if (tempNode) tempNode.textContent = `${tAvg}�C`;
+            if (condNode) condNode.textContent = codeToText[code] || 'conditions variables';
+        } catch (e) {
+            if (tempNode) tempNode.textContent = '--';
+            if (condNode) condNode.textContent = 'indisponible';
         }
-        participateForm.submit();
-    });
-});
+    };
+
+    nodes.forEach(loadWeather);
+})();
 </script>
 {% endblock %}
-{% endblock %}
+
+
+
+
+
+
+
+

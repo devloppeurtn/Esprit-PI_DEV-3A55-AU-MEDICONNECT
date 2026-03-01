@@ -74,7 +74,7 @@
                       Rejoignez-nous
                     {% endif %}
                   </h2>
-                  <p class="text-white">Créez votre compte et commencez à utiliser MediConnect</p>
+                  <p class="text-white">Cr�ez votre compte et commencez � utiliser MediConnect</p>
                 </div>
               </div>
             </div>
@@ -93,10 +93,10 @@
                       <i class="bi bi-person-fill me-2"></i>Patient
                     </a>
                     <a href="{{ path('app_signup', {role: 'MEDECIN'}) }}" class="btn btn-outline-primary btn-lg w-100 mb-3" style="border-color: #175cdd; color: #175cdd;">
-                      <i class="bi bi-heart-pulse-fill me-2"></i>Médecin
+                      <i class="bi bi-heart-pulse-fill me-2"></i>M�decin
                     </a>
                     <a href="{{ path('app_signup', {role: 'SECRETAIRE'}) }}" class="btn btn-outline-primary btn-lg w-100 mb-3" style="border-color: #175cdd; color: #175cdd;">
-                      <i class="bi bi-person-badge-fill me-2"></i>Secrétaire
+                      <i class="bi bi-person-badge-fill me-2"></i>Secr�taire
                     </a>
                     <a href="{{ path('app_signup', {role: 'ORGANISATEUR'}) }}" class="btn btn-outline-primary btn-lg w-100 mb-3" style="border-color: #175cdd; color: #175cdd;">
                       <i class="bi bi-calendar-event me-2"></i>Organisateur
@@ -107,7 +107,7 @@
                   </div>
                   
                   <p class="mb-0 text-center">
-                    <a href="{{ path('app_login') }}" style="color: #175cdd;">Vous avez d�j� un compte ? Se connecter</a>
+                    <a href="{{ path('app_login') }}" style="color: #175cdd;">Vous avez d�j� un compte ? Se connecter</a>
                   </p>
                 {% else %}
                   {{ form_start(form, {'attr': {'class': 'signup-form', 'id': 'signupForm', 'novalidate': 'novalidate'}, 'name': 'signup'}) }}
@@ -134,7 +134,7 @@
 
                     <div id="signupAlertContainer" style="position: relative; z-index: 1000; min-height: 50px; margin-bottom: 1rem;"></div>
 
-                    <!-- Étape 1: Informations de base -->
+                    <!-- �tape 1: Informations de base -->
                     <div id="step1" class="form-step">
                       <div class="mb-4 text-center" style="position: relative; z-index: 1;">
                         <label class="form-label d-block mb-3" style="color: #112344; font-weight: 600;">Photo de profil (optionnel)</label>
@@ -153,7 +153,7 @@
                           <div class="invalid-feedback" id="photo-error"></div>
                           {{ form_errors(form.photo) }}
                         </div>
-                        <small class="form-text text-muted d-block mt-2">Formats acceptés: JPEG, PNG, GIF, WebP (max 5 Mo)</small>
+                        <small class="form-text text-muted d-block mt-2">Formats accept�s: JPEG, PNG, GIF, WebP (max 5 Mo)</small>
                       </div>
 
                       <div class="mb-4">
@@ -172,7 +172,7 @@
 
                       <div class="mb-4">
                         <label class="form-label" for="password">Mot de passe</label>
-                        {{ form_widget(form.password, {'attr': {'class': 'form-control form-control-lg', 'id': 'password', 'placeholder': 'Minimum 6 caractères'}}) }}
+                        {{ form_widget(form.password, {'attr': {'class': 'form-control form-control-lg', 'id': 'password', 'placeholder': 'Minimum 6 caract�res'}}) }}
                         <div class="invalid-feedback" id="password-error"></div>
                         {{ form_errors(form.password) }}
                       </div>
@@ -187,7 +187,7 @@
                       {% if role == constant('App\\Entity\\RoleUtilisateur::PATIENT') %}
                         {% if form.telephone is defined or form.dateNaissance is defined or form.adresse is defined %}
                           <button type="button" class="btn btn-outline-secondary btn-lg w-100 mb-3" onclick="showStep(2)">
-                            Informations supplémentaires <i class="bi bi-arrow-right ms-2"></i>
+                            Informations suppl�mentaires <i class="bi bi-arrow-right ms-2"></i>
                           </button>
                         {% endif %}
                       {% elseif role == constant('App\\Entity\\RoleUtilisateur::MEDECIN') %}
@@ -195,25 +195,25 @@
                           <button type="button" class="btn btn-outline-secondary btn-lg w-100 mb-3" onclick="showStep(2)">
                             Informations professionnelles <i class="bi bi-arrow-right ms-2"></i>
                           </button>
-                          <small class="text-danger d-block mb-3">* La spécialité est obligatoire</small>
+                          <small class="text-danger d-block mb-3">* La sp�cialit� est obligatoire</small>
                         {% endif %}
                       {% elseif role == constant('App\\Entity\\RoleUtilisateur::SECRETAIRE') or role == constant('App\\Entity\\RoleUtilisateur::ADMIN') or role == constant('App\\Entity\\RoleUtilisateur::ORGANISATEUR') or role == constant('App\\Entity\\RoleUtilisateur::PARTICIPATION') %}
                         {% if form.telephone is defined %}
                           <button type="button" class="btn btn-outline-secondary btn-lg w-100 mb-3" onclick="showStep(2)">
-                            Informations supplémentaires <i class="bi bi-arrow-right ms-2"></i>
+                            Informations suppl�mentaires <i class="bi bi-arrow-right ms-2"></i>
                           </button>
                         {% endif %}
                       {% endif %}
                     </div>
 
-                    <!-- Étape 2: Informations supplémentaires -->
+                    <!-- �tape 2: Informations suppl�mentaires -->
                     {% if role == constant('App\\Entity\\RoleUtilisateur::PATIENT') %}
                       <div id="step2" class="form-step" style="display: none;">
-                        <h6 class="mb-4" style="color: #112344;">Informations complémentaires</h6>
+                        <h6 class="mb-4" style="color: #112344;">Informations compl�mentaires</h6>
                         
                         {% if form.telephone is defined %}
                         <div class="mb-4">
-                          <label class="form-label" for="telephone">Téléphone</label>
+                          <label class="form-label" for="telephone">T�l�phone</label>
                           {{ form_widget(form.telephone, {'attr': {'class': 'form-control form-control-lg', 'id': 'telephone', 'placeholder': '+216 XX XXX XXX', 'required': 'required'}}) }}
                           <div class="invalid-feedback" id="telephone-error"></div>
                           {{ form_errors(form.telephone) }}
@@ -230,7 +230,7 @@
                         {% if form.adresse is defined %}
                         <div class="mb-4">
                           <label class="form-label" for="adresse">Adresse</label>
-                          {{ form_widget(form.adresse, {'attr': {'class': 'form-control form-control-lg', 'id': 'adresse', 'rows': 3, 'placeholder': 'Votre adresse complète'}}) }}
+                          {{ form_widget(form.adresse, {'attr': {'class': 'form-control form-control-lg', 'id': 'adresse', 'rows': 3, 'placeholder': 'Votre adresse compl�te'}}) }}
                         </div>
                         {% endif %}
 
@@ -244,7 +244,7 @@
                         
                         {% if form.telephone is defined %}
                         <div class="mb-4">
-                          <label class="form-label" for="telephone">Téléphone</label>
+                          <label class="form-label" for="telephone">T�l�phone</label>
                           {{ form_widget(form.telephone, {'attr': {'class': 'form-control form-control-lg', 'id': 'telephone', 'placeholder': '+216 XX XXX XXX', 'required': 'required'}}) }}
                           <div class="invalid-feedback" id="telephone-error"></div>
                           {{ form_errors(form.telephone) }}
@@ -253,8 +253,8 @@
 
                         {% if form.specialite is defined %}
                         <div class="mb-4">
-                          <label class="form-label" for="specialite">Spécialité</label>
-                          {{ form_widget(form.specialite, {'attr': {'class': 'form-control form-control-lg', 'id': 'specialite', 'placeholder': 'Ex: Cardiologie, Pédiatrie...', 'required': 'required'}}) }}
+                          <label class="form-label" for="specialite">Sp�cialit�</label>
+                          {{ form_widget(form.specialite, {'attr': {'class': 'form-control form-control-lg', 'id': 'specialite', 'placeholder': 'Ex: Cardiologie, P�diatrie...', 'required': 'required'}}) }}
                           <div class="invalid-feedback" id="specialite-error"></div>
                           {{ form_errors(form.specialite) }}
                         </div>
@@ -263,14 +263,14 @@
                         {% if form.adresseCabinet is defined %}
                         <div class="mb-4">
                           <label class="form-label" for="adresseCabinet">Adresse du cabinet</label>
-                          {{ form_widget(form.adresseCabinet, {'attr': {'class': 'form-control form-control-lg', 'id': 'adresseCabinet', 'rows': 3, 'placeholder': 'Adresse complète de votre cabinet'}}) }}
+                          {{ form_widget(form.adresseCabinet, {'attr': {'class': 'form-control form-control-lg', 'id': 'adresseCabinet', 'rows': 3, 'placeholder': 'Adresse compl�te de votre cabinet'}}) }}
                         </div>
                         {% endif %}
 
                         {% if form.numeroLicence is defined %}
                         <div class="mb-4">
-                          <label class="form-label" for="numeroLicence">Numéro de licence</label>
-                          {{ form_widget(form.numeroLicence, {'attr': {'class': 'form-control form-control-lg', 'id': 'numeroLicence', 'placeholder': 'Numéro de licence médical'}}) }}
+                          <label class="form-label" for="numeroLicence">Num�ro de licence</label>
+                          {{ form_widget(form.numeroLicence, {'attr': {'class': 'form-control form-control-lg', 'id': 'numeroLicence', 'placeholder': 'Num�ro de licence m�dical'}}) }}
                         </div>
                         {% endif %}
 
@@ -280,11 +280,11 @@
                       </div>
                     {% elseif role == constant('App\\Entity\\RoleUtilisateur::SECRETAIRE') or role == constant('App\\Entity\\RoleUtilisateur::ADMIN') or role == constant('App\\Entity\\RoleUtilisateur::ORGANISATEUR') or role == constant('App\\Entity\\RoleUtilisateur::PARTICIPATION') %}
                       <div id="step2" class="form-step" style="display: none;">
-                        <h6 class="mb-4" style="color: #112344;">Informations supplémentaires</h6>
+                        <h6 class="mb-4" style="color: #112344;">Informations suppl�mentaires</h6>
                         
                         {% if form.telephone is defined %}
                         <div class="mb-4">
-                          <label class="form-label" for="telephone">Téléphone</label>
+                          <label class="form-label" for="telephone">T�l�phone</label>
                           {{ form_widget(form.telephone, {'attr': {'class': 'form-control form-control-lg', 'id': 'telephone', 'placeholder': '+216 XX XXX XXX', 'required': 'required'}}) }}
                           <div class="invalid-feedback" id="telephone-error"></div>
                           {{ form_errors(form.telephone) }}
@@ -307,7 +307,7 @@
                     </div>
 
                     <p class="mb-0 text-center">
-                      <a href="{{ path('app_login') }}" style="color: #175cdd;">Vous avez d�j� un compte ? Se connecter</a>
+                      <a href="{{ path('app_login') }}" style="color: #175cdd;">Vous avez d�j� un compte ? Se connecter</a>
                     </p>
                   {{ form_end(form) }}
                 {% endif %}
@@ -345,29 +345,35 @@
         }
     </script>
     <script>
+    async function activerFaceIdApresInscription() {
+        // Reconnaissance faciale : enregistrement dans Parametres apres connexion
+        alert('Vous pourrez enregistrer votre visage dans Parametres (Reconnaissance faciale) une fois connecte.');
+    }
+    </script>
+    <script>
     document.addEventListener('DOMContentLoaded', function() {
         const form = document.getElementById('signupForm');
         if (!form) {
-            console.error('Formulaire signupForm non trouvé');
+            console.error('Formulaire signupForm non trouv�');
             return;
         }
         
-        console.log('Formulaire trouvé:', form);
+        console.log('Formulaire trouv�:', form);
         
         const submitBtn = document.getElementById('signupSubmitBtn');
         if (!submitBtn) {
-            console.error('Bouton signupSubmitBtn non trouvé');
+            console.error('Bouton signupSubmitBtn non trouv�');
             return;
         }
         
         const alertContainer = document.getElementById('signupAlertContainer');
         if (!alertContainer) {
-            console.warn('Conteneur d\'alerte signupAlertContainer non trouvé');
+            console.warn('Conteneur d\'alerte signupAlertContainer non trouv�');
         }
         
         function showAlert(message, type = 'danger') {
             // Ne plus afficher dans le conteneur d'alerte, seulement sous les champs
-            // Cette fonction est gardée pour compatibilité mais ne fait rien
+            // Cette fonction est gard�e pour compatibilit� mais ne fait rien
             console.log('Message d\'erreur:', message);
         }
         
@@ -381,18 +387,18 @@
                 `;
                 alertContainer.style.display = 'block';
                 alertContainer.style.visibility = 'visible';
-                // Scroll vers le message de succès
+                // Scroll vers le message de succ�s
                 setTimeout(() => {
                     alertContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
                 }, 100);
             } else {
-                console.error('Impossible d\'afficher le message de succès: conteneur non trouvé');
+                console.error('Impossible d\'afficher le message de succ�s: conteneur non trouv�');
             }
         }
         
         function clearAlert() {
             alertContainer.innerHTML = '';
-            // Réinitialiser tous les champs d'erreur
+            // R�initialiser tous les champs d'erreur
             document.querySelectorAll('.invalid-feedback').forEach(el => {
                 el.style.display = 'none';
                 el.textContent = '';
@@ -408,7 +414,7 @@
         }
         
         function validateForm(data, role) {
-            console.log('Validation du formulaire avec données:', {
+            console.log('Validation du formulaire avec donn�es:', {
                 nomComplet: data.nomComplet || '',
                 email: data.email || '',
                 telephone: data.telephone || '',
@@ -425,10 +431,10 @@
                 return { valid: false, error: 'Le nom complet est requis', field: 'nomComplet' };
             }
             if (nomComplet.length < 2) {
-                return { valid: false, error: 'Le nom complet doit contenir au moins 2 caractères', field: 'nomComplet' };
+                return { valid: false, error: 'Le nom complet doit contenir au moins 2 caract�res', field: 'nomComplet' };
             }
             if (nomComplet.length > 255) {
-                return { valid: false, error: 'Le nom complet ne doit pas dépasser 255 caractères', field: 'nomComplet' };
+                return { valid: false, error: 'Le nom complet ne doit pas d�passer 255 caract�res', field: 'nomComplet' };
             }
             
             // Validation email
@@ -438,31 +444,31 @@
                 return { valid: false, error: 'L\'email est requis', field: 'email' };
             }
             if (email.length > 180) {
-                return { valid: false, error: 'L\'email est trop long (maximum 180 caractères)', field: 'email' };
+                return { valid: false, error: 'L\'email est trop long (maximum 180 caract�res)', field: 'email' };
             }
             if (!validateEmail(email)) {
                 return { valid: false, error: 'Format d\'email invalide', field: 'email' };
             }
             
-            // Validation téléphone (obligatoire pour tous)
+            // Validation t�l�phone (obligatoire pour tous)
             const telephone = (data.telephone || '').trim();
             if (!telephone) {
-                console.log('Erreur: téléphone vide');
-                return { valid: false, error: 'Le numéro de téléphone est requis', field: 'telephone' };
+                console.log('Erreur: t�l�phone vide');
+                return { valid: false, error: 'Le num�ro de t�l�phone est requis', field: 'telephone' };
             }
             if (telephone.length > 20) {
-                return { valid: false, error: 'Le numéro de téléphone est trop long (maximum 20 caractères)', field: 'telephone' };
+                return { valid: false, error: 'Le num�ro de t�l�phone est trop long (maximum 20 caract�res)', field: 'telephone' };
             }
             
-            // Validation spécialité (obligatoire pour médecins)
+            // Validation sp�cialit� (obligatoire pour m�decins)
             if (role === 'MEDECIN') {
                 const specialite = (data.specialite || '').trim();
                 if (!specialite) {
-                    console.log('Erreur: spécialité vide pour médecin');
-                    return { valid: false, error: 'La spécialité est requise pour les médecins', field: 'specialite' };
+                    console.log('Erreur: sp�cialit� vide pour m�decin');
+                    return { valid: false, error: 'La sp�cialit� est requise pour les m�decins', field: 'specialite' };
                 }
                 if (specialite.length > 255) {
-                    return { valid: false, error: 'La spécialité est trop longue (maximum 255 caractères)', field: 'specialite' };
+                    return { valid: false, error: 'La sp�cialit� est trop longue (maximum 255 caract�res)', field: 'specialite' };
                 }
             }
             
@@ -473,7 +479,7 @@
                 return { valid: false, error: 'Le mot de passe est requis', field: 'password' };
             }
             if (password.length < 6) {
-                return { valid: false, error: 'Le mot de passe doit contenir au moins 6 caractères', field: 'password' };
+                return { valid: false, error: 'Le mot de passe doit contenir au moins 6 caract�res', field: 'password' };
             }
             if (password.length > 4096) {
                 return { valid: false, error: 'Le mot de passe est trop long', field: 'password' };
@@ -489,7 +495,7 @@
                 return { valid: false, error: 'Les mots de passe ne correspondent pas', field: 'confirmPassword' };
             }
             
-            console.log('Validation réussie');
+            console.log('Validation r�ussie');
             return { valid: true };
         }
         
@@ -497,18 +503,18 @@
             e.preventDefault();
             e.stopPropagation();
             
-            console.log('Soumission du formulaire interceptée');
+            console.log('Soumission du formulaire intercept�e');
             
             clearAlert();
             
-            // Utiliser FormData et convertir en objet en gérant les noms préfixés de Symfony
+            // Utiliser FormData et convertir en objet en g�rant les noms pr�fix�s de Symfony
             const formData = new FormData(form);
             const data = {};
             
-            // Convertir FormData en objet en extrayant le nom du champ (après le préfixe)
+            // Convertir FormData en objet en extrayant le nom du champ (apr�s le pr�fixe)
             for (let [key, value] of formData.entries()) {
-                // Symfony génère des noms comme "signup[nomComplet]" ou "signup_nomComplet"
-                // Extraire le nom du champ après le préfixe
+                // Symfony g�n�re des noms comme "signup[nomComplet]" ou "signup_nomComplet"
+                // Extraire le nom du champ apr�s le pr�fixe
                 let fieldName = key;
                 if (key.includes('[') && key.includes(']')) {
                     // Format: signup[nomComplet] -> nomComplet
@@ -522,10 +528,10 @@
                     fieldName = parts[parts.length - 1];
                 }
                 
-                // Stocker la valeur avec le nom simplifié
-                // Ne pas stocker les fichiers ici, ils seront ajoutés séparément
+                // Stocker la valeur avec le nom simplifi�
+                // Ne pas stocker les fichiers ici, ils seront ajout�s s�par�ment
                 if (value instanceof File) {
-                    // Les fichiers seront gérés séparément
+                    // Les fichiers seront g�r�s s�par�ment
                     continue;
                 }
                 if (!data[fieldName] || data[fieldName] === '') {
@@ -533,7 +539,7 @@
                 }
             }
             
-            // Debug: afficher tous les éléments du formulaire et FormData
+            // Debug: afficher tous les �l�ments du formulaire et FormData
             console.log('FormData entries:');
             for (let [key, value] of formData.entries()) {
                 let displayValue = '';
@@ -551,15 +557,15 @@
                 console.log(`  "${key}" = "${displayValue}"`);
             }
             
-            console.log('Données extraites:', {
+            console.log('Donn�es extraites:', {
                 nomComplet: data.nomComplet || '',
                 nomCompletLength: (data.nomComplet || '').length,
                 email: data.email || '',
                 password: data.password ? '***' : ''
             });
             
-            // Debug: vérifier que les valeurs sont bien récupérées
-            console.log('Données du formulaire:', {
+            // Debug: v�rifier que les valeurs sont bien r�cup�r�es
+            console.log('Donn�es du formulaire:', {
                 nomComplet: data.nomComplet,
                 nomCompletLength: (data.nomComplet || '').length,
                 email: data.email,
@@ -567,39 +573,39 @@
                 password: data.password ? '***' : ''
             });
             
-            // Validation côté client
+            // Validation c�t� client
             const role = '{{ role ? role.value : 'PATIENT' }}';
-            console.log('Début validation, rôle:', role);
+            console.log('D�but validation, r�le:', role);
             const validation = validateForm(data, role);
-            console.log('Résultat validation:', validation);
+            console.log('R�sultat validation:', validation);
             
             if (!validation.valid) {
-                console.log('Validation échouée:', validation.error);
+                console.log('Validation �chou�e:', validation.error);
                 
-                // Fonction pour mettre en évidence le champ en erreur et afficher le message
+                // Fonction pour mettre en �vidence le champ en erreur et afficher le message
                 function highlightField(fieldName, errorMessage) {
-                    console.log('Mise en évidence du champ:', fieldName);
+                    console.log('Mise en �vidence du champ:', fieldName);
                     const field = document.getElementById(fieldName) ||
                                  form.querySelector(`input[name*="${fieldName}"], textarea[name*="${fieldName}"], select[name*="${fieldName}"]`) ||
                                  Array.from(form.elements).find(el => el.name && el.name.includes(fieldName));
                     
                     if (field) {
-                        console.log('Champ trouvé:', fieldName, field);
+                        console.log('Champ trouv�:', fieldName, field);
                         field.classList.add('is-invalid');
                         // Afficher le message d'erreur sous le champ
                         const errorDiv = document.getElementById(fieldName + '-error');
                         if (errorDiv) {
                             errorDiv.textContent = errorMessage;
                             errorDiv.style.display = 'block';
-                            console.log('Message d\'erreur affiché sous le champ');
+                            console.log('Message d\'erreur affich� sous le champ');
                         } else {
-                            console.warn('Div d\'erreur non trouvée pour:', fieldName);
+                            console.warn('Div d\'erreur non trouv�e pour:', fieldName);
                         }
-                        // Si on est dans l'étape 2, afficher l'étape 2
+                        // Si on est dans l'�tape 2, afficher l'�tape 2
                         if (fieldName === 'telephone' || fieldName === 'specialite') {
                             const step2 = document.getElementById('step2');
                             if (step2) {
-                                console.log('Affichage de l\'étape 2 pour le champ:', fieldName);
+                                console.log('Affichage de l\'�tape 2 pour le champ:', fieldName);
                                 showStep(2);
                             }
                         }
@@ -610,24 +616,24 @@
                         }, 100);
                         return true;
                     } else {
-                        console.error('Champ non trouvé:', fieldName);
+                        console.error('Champ non trouv�:', fieldName);
                         return false;
                     }
                 }
                 
-                // Utiliser le champ spécifié dans la validation si disponible
+                // Utiliser le champ sp�cifi� dans la validation si disponible
                 if (validation.field) {
                     highlightField(validation.field, validation.error);
                 } else {
-                    // Identifier et mettre en évidence le champ en erreur
+                    // Identifier et mettre en �vidence le champ en erreur
                     let fieldHighlighted = false;
                     if (validation.error.includes('nom complet') || validation.error.includes('nom')) {
                         fieldHighlighted = highlightField('nomComplet', validation.error);
                     } else if (validation.error.includes('email')) {
                         fieldHighlighted = highlightField('email', validation.error);
-                    } else if (validation.error.includes('téléphone') || validation.error.includes('telephone')) {
+                    } else if (validation.error.includes('t�l�phone') || validation.error.includes('telephone')) {
                         fieldHighlighted = highlightField('telephone', validation.error);
-                    } else if (validation.error.includes('spécialité') || validation.error.includes('specialite')) {
+                    } else if (validation.error.includes('sp�cialit�') || validation.error.includes('specialite')) {
                         fieldHighlighted = highlightField('specialite', validation.error);
                     } else if (validation.error.includes('mot de passe')) {
                         if (validation.error.includes('confirmer')) {
@@ -638,8 +644,8 @@
                     }
                     
                     if (!fieldHighlighted) {
-                        console.warn('Aucun champ spécifique trouvé, recherche du premier champ vide');
-                        // Si aucun champ spécifique n'a été trouvé, essayer de trouver le premier champ vide
+                        console.warn('Aucun champ sp�cifique trouv�, recherche du premier champ vide');
+                        // Si aucun champ sp�cifique n'a �t� trouv�, essayer de trouver le premier champ vide
                         const requiredFields = ['nomComplet', 'email', 'telephone', 'password', 'confirmPassword'];
                         if (role === 'MEDECIN') {
                             requiredFields.push('specialite');
@@ -655,7 +661,7 @@
                     }
                 }
                 
-                // Réactiver le bouton
+                // R�activer le bouton
                 submitBtn.disabled = false;
                 const spinner = submitBtn.querySelector('.spinner-border');
                 if (spinner) spinner.classList.add('d-none');
@@ -663,14 +669,14 @@
                 return;
             }
             
-            // Désactiver le bouton et afficher le spinner
+            // D�sactiver le bouton et afficher le spinner
             submitBtn.disabled = true;
             const spinner = submitBtn.querySelector('.spinner-border');
             if (spinner) spinner.classList.remove('d-none');
             
-            console.log('Préparation de l\'envoi AJAX...');
+            console.log('Pr�paration de l\'envoi AJAX...');
             
-            // Préparer FormData pour l'envoi (nécessaire pour les fichiers)
+            // Pr�parer FormData pour l'envoi (n�cessaire pour les fichiers)
             const submitFormData = new FormData();
             submitFormData.append('email', data.email.trim());
             submitFormData.append('nomComplet', data.nomComplet.trim());
@@ -679,28 +685,28 @@
             submitFormData.append('telephone', (data.telephone || '').trim());
             submitFormData.append('role', '{{ role ? role.value : 'PATIENT' }}');
             
-            // Ajouter la photo si présente
+            // Ajouter la photo si pr�sente
             const photoInput = form.querySelector('input[type="file"][name*="photo"], input[type="file"][id="photo"]');
             if (photoInput && photoInput.files && photoInput.files[0]) {
                 submitFormData.append('photo', photoInput.files[0]);
-                console.log('Photo ajoutée:', photoInput.files[0].name);
+                console.log('Photo ajout�e:', photoInput.files[0].name);
             }
             
-            // Ajouter les champs optionnels selon le rôle
+            // Ajouter les champs optionnels selon le r�le
             if (data.dateNaissance) submitFormData.append('dateNaissance', data.dateNaissance);
             if (data.adresse && data.adresse.trim()) submitFormData.append('adresse', data.adresse.trim());
             if (data.specialite && data.specialite.trim()) submitFormData.append('specialite', data.specialite.trim());
             if (data.adresseCabinet && data.adresseCabinet.trim()) submitFormData.append('adresseCabinet', data.adresseCabinet.trim());
             if (data.numeroLicence && data.numeroLicence.trim()) submitFormData.append('numeroLicence', data.numeroLicence.trim());
             
-            console.log('Envoi de la requête AJAX vers:', '{{ path('app_api_signup') }}');
+            console.log('Envoi de la requ�te AJAX vers:', '{{ path('app_api_signup') }}');
             
             // Envoyer via AJAX avec FormData (multipart/form-data)
             fetch('{{ path('app_api_signup') }}', {
                 method: 'POST',
                 headers: {
                     'X-Requested-With': 'XMLHttpRequest'
-                    // Ne pas définir Content-Type pour FormData, le navigateur le fait automatiquement
+                    // Ne pas d�finir Content-Type pour FormData, le navigateur le fait automatiquement
                 },
                 body: submitFormData
             })
@@ -711,24 +717,24 @@
                 return response.json();
             })
             .then(result => {
-                console.log('Réponse serveur:', result);
+                console.log('R�ponse serveur:', result);
                 if (result.success) {
-                    console.log('Inscription réussie, affichage du message de succès');
-                    // Réactiver le bouton
+                    console.log('Inscription r�ussie, affichage du message de succ�s');
+                    // R�activer le bouton
                     submitBtn.disabled = false;
                     const spinner = submitBtn.querySelector('.spinner-border');
                     if (spinner) spinner.classList.add('d-none');
                     
-                    // Afficher le message de succès
-                    showSuccessMessage(result.message || 'Inscription réussie !');
+                    // Afficher le message de succ�s
+                    showSuccessMessage(result.message || 'Inscription r�ussie !');
                     
-                    // Rediriger après 3 secondes
+                    // Rediriger apr�s 3 secondes
                     setTimeout(() => {
                         window.location.href = result.redirect || '{{ path('app_login') }}';
                     }, 3000);
                 } else {
                     const errorMsg = result.error || 'Une erreur est survenue lors de l\'inscription';
-                    // Fonction pour mettre en évidence les champs en erreur et afficher le message
+                    // Fonction pour mettre en �vidence les champs en erreur et afficher le message
                     function highlightErrorField(fieldName, message) {
                         const field = findField(fieldName);
                         if (field) {
@@ -738,7 +744,7 @@
                                 errorDiv.textContent = message;
                                 errorDiv.style.display = 'block';
                             }
-                            // Si on est dans l'étape 2, afficher l'étape 2
+                            // Si on est dans l'�tape 2, afficher l'�tape 2
                             if (fieldName === 'telephone' || fieldName === 'specialite') {
                                 const step2 = document.getElementById('step2');
                                 if (step2) {
@@ -753,14 +759,14 @@
                         }
                     }
                     
-                    // Identifier et mettre en évidence le champ en erreur
+                    // Identifier et mettre en �vidence le champ en erreur
                     if (errorMsg.includes('nom complet') || errorMsg.includes('nom')) {
                         highlightErrorField('nomComplet', errorMsg);
                     } else if (errorMsg.includes('email')) {
                         highlightErrorField('email', errorMsg);
-                    } else if (errorMsg.includes('téléphone') || errorMsg.includes('telephone')) {
+                    } else if (errorMsg.includes('t�l�phone') || errorMsg.includes('telephone')) {
                         highlightErrorField('telephone', errorMsg);
-                    } else if (errorMsg.includes('spécialité') || errorMsg.includes('specialite')) {
+                    } else if (errorMsg.includes('sp�cialit�') || errorMsg.includes('specialite')) {
                         highlightErrorField('specialite', errorMsg);
                     } else if (errorMsg.includes('mot de passe')) {
                         if (errorMsg.includes('confirmer')) {
@@ -775,8 +781,8 @@
             })
             .catch(error => {
                 console.error('Erreur:', error);
-                const errorMessage = error.error || error.message || 'Une erreur est survenue lors de l\'inscription. Veuillez réessayer.';
-                // Afficher l'erreur dans le premier champ trouvé ou dans le conteneur d'alerte comme fallback
+                const errorMessage = error.error || error.message || 'Une erreur est survenue lors de l\'inscription. Veuillez r�essayer.';
+                // Afficher l'erreur dans le premier champ trouv� ou dans le conteneur d'alerte comme fallback
                 const nomCompletField = document.getElementById('nomComplet');
                 if (nomCompletField) {
                     nomCompletField.classList.add('is-invalid');
@@ -786,7 +792,7 @@
                         errorDiv.style.display = 'block';
                     }
                 } else if (alertContainer) {
-                    // Fallback: afficher dans le conteneur d'alerte si aucun champ trouvé
+                    // Fallback: afficher dans le conteneur d'alerte si aucun champ trouv�
                     alertContainer.innerHTML = `
                         <div class="alert alert-danger alert-dismissible fade show mb-4" role="alert">
                             <i class="bi bi-exclamation-triangle-fill me-2"></i>${errorMessage}
@@ -832,7 +838,7 @@
             // Le gestionnaire de changement de fichier sera dans le code de rognage ci-dessous
         }
         
-        // Validation en temps réel - trouver les champs une seule fois
+        // Validation en temps r�el - trouver les champs une seule fois
         const nomCompletInput = findField('nomComplet');
         const emailInput = findField('email');
         const telephoneInput = findField('telephone');
@@ -840,8 +846,8 @@
         const confirmPasswordInput = findField('confirmPassword');
         const specialiteInput = findField('specialite');
         
-        // Debug: vérifier que les champs sont trouvés
-        console.log('Champs trouvés pour validation:', {
+        // Debug: v�rifier que les champs sont trouv�s
+        console.log('Champs trouv�s pour validation:', {
             nomComplet: nomCompletInput ? '?' : '?',
             email: emailInput ? '?' : '?',
             telephone: telephoneInput ? '?' : '?',
@@ -863,7 +869,7 @@
                 } else if (value.length < 2) {
                     this.classList.add('is-invalid');
                     if (errorDiv) {
-                        errorDiv.textContent = 'Le nom complet doit contenir au moins 2 caractères';
+                        errorDiv.textContent = 'Le nom complet doit contenir au moins 2 caract�res';
                         errorDiv.style.display = 'block';
                     }
                 } else {
@@ -917,13 +923,13 @@
                 if (!value) {
                     this.classList.add('is-invalid');
                     if (errorDiv) {
-                        errorDiv.textContent = 'Le numéro de téléphone est requis';
+                        errorDiv.textContent = 'Le num�ro de t�l�phone est requis';
                         errorDiv.style.display = 'block';
                     }
                 } else if (value.length > 20) {
                     this.classList.add('is-invalid');
                     if (errorDiv) {
-                        errorDiv.textContent = 'Le numéro de téléphone est trop long (maximum 20 caractères)';
+                        errorDiv.textContent = 'Le num�ro de t�l�phone est trop long (maximum 20 caract�res)';
                         errorDiv.style.display = 'block';
                     }
                 } else {
@@ -947,7 +953,7 @@
                 if (!value && role === 'MEDECIN') {
                     this.classList.add('is-invalid');
                     if (errorDiv) {
-                        errorDiv.textContent = 'La spécialité est requise pour les médecins';
+                        errorDiv.textContent = 'La sp�cialit� est requise pour les m�decins';
                         errorDiv.style.display = 'block';
                     }
                 } else {
@@ -977,7 +983,7 @@
                 } else if (value.length < 6) {
                     this.classList.add('is-invalid');
                     if (errorDiv) {
-                        errorDiv.textContent = 'Le mot de passe doit contenir au moins 6 caractères';
+                        errorDiv.textContent = 'Le mot de passe doit contenir au moins 6 caract�res';
                         errorDiv.style.display = 'block';
                     }
                 } else {
@@ -1064,7 +1070,7 @@
                     </div>
                     <div class="d-flex justify-content-center" style="height: 450px; align-items: center; background: #f8f9fa; border-radius: 6px; padding: 10px; overflow: hidden;">
                         <div style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center;">
-                            <img id="photoCropImage" src="" alt="Photo à rogner" style="max-width: 100%; max-height: 100%; display: block;">
+                            <img id="photoCropImage" src="" alt="Photo � rogner" style="max-width: 100%; max-height: 100%; display: block;">
                         </div>
                     </div>
                 </div>
@@ -1085,7 +1091,7 @@
     let signupCropper = null;
     let signupCurrentPhotoFile = null;
     
-    // Fonction pour ouvrir le sélecteur de fichier (même méthode que dans les paramètres)
+    // Fonction pour ouvrir le s�lecteur de fichier (m�me m�thode que dans les param�tres)
     function openPhotoSelectorSignup() {
         const photoInput = document.querySelector('input[type="file"].photo-input-field') || 
                            document.querySelector('input[type="file"][id="photo"]') ||
@@ -1096,14 +1102,14 @@
             photoInput.click();
         } else {
             console.error('Champ de fichier photo introuvable');
-            alert('Erreur : Impossible de trouver le champ de sélection de fichier. Veuillez recharger la page.');
+            alert('Erreur : Impossible de trouver le champ de s�lection de fichier. Veuillez recharger la page.');
         }
     }
     
-    // Fonction pour prévisualiser et ouvrir le modal de rognage (même méthode que dans les paramètres)
+    // Fonction pour pr�visualiser et ouvrir le modal de rognage (m�me m�thode que dans les param�tres)
     function previewPhotoSignup(input) {
-        console.log('=== previewPhotoSignup APPELÉE ===');
-        console.log('Input reçu:', input);
+        console.log('=== previewPhotoSignup APPEL�E ===');
+        console.log('Input re�u:', input);
         console.log('input.files:', input ? input.files : 'input est null');
         
         if (!input) {
@@ -1122,19 +1128,19 @@
         }
         
         if (input && input.files && input.files[0]) {
-            console.log('Fichier sélectionné:', input.files[0].name, input.files[0].type, input.files[0].size);
+            console.log('Fichier s�lectionn�:', input.files[0].name, input.files[0].type, input.files[0].size);
             
-            // Vérifier la taille du fichier (5 Mo max)
+            // V�rifier la taille du fichier (5 Mo max)
             if (input.files[0].size > 5 * 1024 * 1024) {
-                alert('Le fichier est trop volumineux. La taille maximale autorisée est de 5 Mo.');
+                alert('Le fichier est trop volumineux. La taille maximale autoris�e est de 5 Mo.');
                 input.value = '';
                 return;
             }
             
-            // Vérifier le type de fichier
+            // V�rifier le type de fichier
             const allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
             if (!allowedTypes.includes(input.files[0].type)) {
-                alert('Type de fichier non autorisé. Veuillez sélectionner une image (JPEG, PNG, GIF ou WebP).');
+                alert('Type de fichier non autoris�. Veuillez s�lectionner une image (JPEG, PNG, GIF ou WebP).');
                 input.value = '';
                 return;
             }
@@ -1143,56 +1149,56 @@
             signupCurrentPhotoFile = input.files[0];
             
             // Ouvrir la modal de rognage
-            console.log('Création du FileReader');
+            console.log('Cr�ation du FileReader');
             const reader = new FileReader();
             
             reader.onerror = function(error) {
                 console.error('Erreur FileReader:', error);
-                alert('Erreur lors de la lecture du fichier. Veuillez réessayer.');
+                alert('Erreur lors de la lecture du fichier. Veuillez r�essayer.');
             };
             
             reader.onload = function(e) {
-                console.log('=== FileReader onload déclenché ===');
-                console.log('R�sultat:', e.target.result ? 'Donn�es pr�sentes' : 'Pas de donn�es');
+                console.log('=== FileReader onload d�clench� ===');
+                console.log('R�sultat:', e.target.result ? 'Donn�es pr�sentes' : 'Pas de donn�es');
                 
                 const cropImage = document.getElementById('photoCropImage');
                 const modalElement = document.getElementById('photoCropModal');
                 
-                console.log('Éléments du modal:', {
+                console.log('�l�ments du modal:', {
                     cropImage: !!cropImage,
                     modalElement: !!modalElement
                 });
                 
                 if (!cropImage || !modalElement) {
-                    console.error('ERREUR: Éléments du modal introuvables:', {
+                    console.error('ERREUR: �l�ments du modal introuvables:', {
                         cropImage: !!cropImage,
                         modalElement: !!modalElement
                     });
-                    alert('Erreur : Impossible d\'ouvrir le modal de rognage. Vérifiez la console pour plus de détails.');
+                    alert('Erreur : Impossible d\'ouvrir le modal de rognage. V�rifiez la console pour plus de d�tails.');
                     return;
                 }
                 
-                console.log('Création de l\'instance Bootstrap Modal');
+                console.log('Cr�ation de l\'instance Bootstrap Modal');
                 const modal = new bootstrap.Modal(modalElement);
                 
-                // Détruire l'instance cropper précédente si elle existe
+                // D�truire l'instance cropper pr�c�dente si elle existe
                 if (signupCropper) {
                     console.log('Destruction de l\'ancien cropper');
                     signupCropper.destroy();
                     signupCropper = null;
                 }
                 
-                console.log('Définition de la source de l\'image');
+                console.log('D�finition de la source de l\'image');
                 cropImage.src = e.target.result;
                 
                 console.log('Affichage du modal...');
                 modal.show();
-                console.log('Modal.show() appelé');
+                console.log('Modal.show() appel�');
                 
-                // Initialiser Cropper.js après l'ouverture de la modal
+                // Initialiser Cropper.js apr�s l'ouverture de la modal
                 cropImage.onload = function() {
                     signupCropper = new Cropper(cropImage, {
-                        aspectRatio: 1, // Format carré pour photo de profil circulaire
+                        aspectRatio: 1, // Format carr� pour photo de profil circulaire
                         viewMode: 1,
                         dragMode: 'move',
                         autoCropArea: 0.9,
@@ -1214,7 +1220,7 @@
                             const containerData = this.cropper.getContainerData();
                             const imageData = this.cropper.getImageData();
                             
-                            // Calculer le zoom pour que l'image remplisse complètement le conteneur
+                            // Calculer le zoom pour que l'image remplisse compl�tement le conteneur
                             const containerWidth = containerData.width;
                             const containerHeight = containerData.height;
                             const imageWidth = imageData.naturalWidth;
@@ -1223,13 +1229,13 @@
                             // Calculer le ratio pour remplir le conteneur (avec un peu de marge)
                             const scaleX = containerWidth / imageWidth;
                             const scaleY = containerHeight / imageHeight;
-                            // Prendre le plus grand pour remplir complètement
+                            // Prendre le plus grand pour remplir compl�tement
                             let scale = Math.max(scaleX, scaleY) * 1.1; // 1.1 pour agrandir encore plus
                             
                             // Appliquer le zoom pour agrandir l'image
                             this.cropper.zoomTo(scale);
                             
-                            // Ajuster la zone de rognage pour qu'elle soit très grande
+                            // Ajuster la zone de rognage pour qu'elle soit tr�s grande
                             const containerSize = Math.min(containerWidth, containerHeight);
                             const cropSize = containerSize * 0.85;
                             this.cropper.setCropBoxData({
@@ -1239,7 +1245,7 @@
                         }
                     });
                     
-                    // Boutons de contrôle du zoom
+                    // Boutons de contr�le du zoom
                     document.getElementById('zoomInBtnSignup').addEventListener('click', function() {
                         if (signupCropper) signupCropper.zoom(0.2);
                     });
@@ -1275,7 +1281,7 @@
         }
     }
     
-    // Gérer le bouton de validation du rognage (même méthode que dans les paramètres)
+    // G�rer le bouton de validation du rognage (m�me m�thode que dans les param�tres)
     document.addEventListener('DOMContentLoaded', function() {
         console.log('DOMContentLoaded - Recherche du champ photo');
         const photoInput = document.querySelector('input[type="file"].photo-input-field') || 
@@ -1283,32 +1289,32 @@
                           document.querySelector('input[type="file"][accept="image/*"]') ||
                           document.querySelector('input[name*="photo"]');
         
-        console.log('Champ photo trouvé:', photoInput);
+        console.log('Champ photo trouv�:', photoInput);
         
         if (photoInput) {
-            console.log('Champ photo trouvé, attachement du gestionnaire change');
+            console.log('Champ photo trouv�, attachement du gestionnaire change');
             
-            // Attacher le gestionnaire d'événement change
+            // Attacher le gestionnaire d'�v�nement change
             photoInput.addEventListener('change', function(e) {
-                console.log('=== ÉVÉNEMENT CHANGE DÉCLENCHÉ ===');
-                console.log('Élément:', e.target);
+                console.log('=== �V�NEMENT CHANGE D�CLENCH� ===');
+                console.log('�l�ment:', e.target);
                 console.log('Fichiers:', e.target.files);
                 console.log('Nombre de fichiers:', e.target.files ? e.target.files.length : 0);
                 
                 if (e.target.files && e.target.files[0]) {
-                    console.log('Fichier détecté, appel de previewPhotoSignup');
+                    console.log('Fichier d�tect�, appel de previewPhotoSignup');
                     previewPhotoSignup(e.target);
                 } else {
-                    console.log('Aucun fichier sélectionné');
+                    console.log('Aucun fichier s�lectionn�');
                 }
             });
             
-            console.log('Gestionnaire change attaché avec succès');
+            console.log('Gestionnaire change attach� avec succ�s');
         } else {
             console.error('ERREUR: Champ photo introuvable dans DOMContentLoaded');
-            // Essayer de trouver tous les inputs de type file pour déboguer
+            // Essayer de trouver tous les inputs de type file pour d�boguer
             const allFileInputs = document.querySelectorAll('input[type="file"]');
-            console.log('Tous les inputs file trouvés:', allFileInputs);
+            console.log('Tous les inputs file trouv�s:', allFileInputs);
         }
         
         const photoPreviewImg = document.getElementById('photoPreviewImg');
@@ -1322,7 +1328,7 @@
             cropPhotoBtn.addEventListener('click', function() {
                 if (signupCropper) {
                     try {
-                        // Obtenir l'image rognée
+                        // Obtenir l'image rogn�e
                         const canvas = signupCropper.getCroppedCanvas({
                             width: 400,
                             height: 400,
@@ -1333,19 +1339,19 @@
                         // Convertir en blob puis en File
                         canvas.toBlob(function(blob) {
                             if (!blob) {
-                                console.error('Erreur lors de la création du blob');
-                                alert('Erreur lors du rognage de l\'image. Veuillez réessayer.');
+                                console.error('Erreur lors de la cr�ation du blob');
+                                alert('Erreur lors du rognage de l\'image. Veuillez r�essayer.');
                                 return;
                             }
                             
-                            // Créer un nouveau File à partir du blob
+                            // Cr�er un nouveau File � partir du blob
                             const croppedFile = new File([blob], signupCurrentPhotoFile.name, {
                                 type: signupCurrentPhotoFile.type,
                                 lastModified: Date.now()
                             });
                             
-                            // Créer un DataTransfer pour remplacer le fichier dans l'input
-                            console.log('Création du DataTransfer avec le fichier rogné');
+                            // Cr�er un DataTransfer pour remplacer le fichier dans l'input
+                            console.log('Cr�ation du DataTransfer avec le fichier rogn�');
                             const dataTransfer = new DataTransfer();
                             dataTransfer.items.add(croppedFile);
                             
@@ -1354,17 +1360,17 @@
                                                      document.querySelector('input[type="file"][accept="image/*"]') ||
                                                      document.querySelector('input[name*="photo"]');
                             
-                            console.log('Champ photo trouvé pour mise à jour:', currentPhotoInput);
+                            console.log('Champ photo trouv� pour mise � jour:', currentPhotoInput);
                             
                             if (currentPhotoInput) {
                                 currentPhotoInput.files = dataTransfer.files;
-                                console.log('Fichier rogn� mis � jour dans l\'input:', currentPhotoInput.files[0] ? currentPhotoInput.files[0].name : 'aucun');
-                                console.log('Taille du fichier rogn�:', currentPhotoInput.files[0] ? currentPhotoInput.files[0].size : 'N/A');
+                                console.log('Fichier rogn� mis � jour dans l\'input:', currentPhotoInput.files[0] ? currentPhotoInput.files[0].name : 'aucun');
+                                console.log('Taille du fichier rogn�:', currentPhotoInput.files[0] ? currentPhotoInput.files[0].size : 'N/A');
                             } else {
-                                console.error('ERREUR: Impossible de trouver le champ photo pour mettre à jour le fichier rogné');
+                                console.error('ERREUR: Impossible de trouver le champ photo pour mettre � jour le fichier rogn�');
                             }
                             
-                            // Afficher la prévisualisation
+                            // Afficher la pr�visualisation
                             if (photoPreviewImg) {
                                 const previewUrl = canvas.toDataURL();
                                 photoPreviewImg.src = previewUrl;
@@ -1374,7 +1380,7 @@
                             if (photoRemoveBtn) photoRemoveBtn.style.display = 'flex';
                             if (photoPreviewContainer) photoPreviewContainer.style.borderColor = '#0d6efd';
                             
-                            // Détruire l'instance cropper AVANT de fermer la modal
+                            // D�truire l'instance cropper AVANT de fermer la modal
                             if (signupCropper) {
                                 signupCropper.destroy();
                                 signupCropper = null;
@@ -1387,7 +1393,7 @@
                                 modal.hide();
                             }
                             
-                            // Forcer la suppression du backdrop si nécessaire
+                            // Forcer la suppression du backdrop si n�cessaire
                             setTimeout(function() {
                                 const backdrops = document.querySelectorAll('.modal-backdrop');
                                 backdrops.forEach(function(backdrop) {
@@ -1400,13 +1406,13 @@
                         }, signupCurrentPhotoFile.type, 0.9);
                     } catch (error) {
                         console.error('Erreur lors du rognage:', error);
-                        alert('Erreur lors du rognage de l\'image. Veuillez réessayer.');
+                        alert('Erreur lors du rognage de l\'image. Veuillez r�essayer.');
                     }
                 }
             });
         }
         
-        // Nettoyer cropper quand la modal est fermée
+        // Nettoyer cropper quand la modal est ferm�e
         const photoCropModal = document.getElementById('photoCropModal');
         if (photoCropModal) {
             photoCropModal.addEventListener('hidden.bs.modal', function() {
@@ -1414,7 +1420,7 @@
                     signupCropper.destroy();
                     signupCropper = null;
                 }
-                // S'assurer que le backdrop est supprimé
+                // S'assurer que le backdrop est supprim�
                 setTimeout(function() {
                     const backdrops = document.querySelectorAll('.modal-backdrop');
                     backdrops.forEach(function(backdrop) {
@@ -1427,7 +1433,7 @@
             });
         }
         
-        // Gérer aussi la fermeture avec le bouton Annuler
+        // G�rer aussi la fermeture avec le bouton Annuler
         const photoCropModalCancel = photoCropModal?.querySelector('[data-bs-dismiss="modal"]');
         if (photoCropModalCancel) {
             photoCropModalCancel.addEventListener('click', function() {

@@ -7,9 +7,7 @@ use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\FileType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
-use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
-use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Validator\Constraints\File;
 use Symfony\Component\Validator\Constraints\Length;
@@ -24,16 +22,19 @@ class DocumentPatientFormType extends AbstractType
                 'label' => 'Fichier',
                 'mapped' => false,
                 'constraints' => [
-                    new NotBlank(['message' => 'Veuillez sélectionner un fichier.']),
+                    new NotBlank(['message' => 'Veuillez selectionner un fichier.']),
                     new File([
                         'maxSize' => '25M',
                         'mimeTypes' => [
                             'application/pdf',
+                            'application/msword',
+                            'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
                             'image/jpeg',
                             'image/png',
                             'image/gif',
+                            'image/webp',
                         ],
-                        'mimeTypesMessage' => 'Formats autorisés : PDF, JPEG, PNG, GIF (max 25 Mo).',
+                        'mimeTypesMessage' => 'Formats autorises : PDF, DOC, DOCX, JPEG, PNG, GIF, WEBP (max 25 Mo).',
                     ]),
                 ],
             ])
@@ -42,7 +43,7 @@ class DocumentPatientFormType extends AbstractType
                 'choices' => [
                     'Analyse' => 'analyse',
                     'Radio / Imagerie' => 'radio',
-                    'Certificat médical' => 'certificat',
+                    'Certificat medical' => 'certificat',
                     'Autre' => 'autre',
                 ],
                 'placeholder' => 'Choisir',
@@ -55,10 +56,9 @@ class DocumentPatientFormType extends AbstractType
                 'required' => false,
                 'attr' => ['rows' => 2],
                 'constraints' => [
-                    new Length(['max' => 500, 'maxMessage' => 'Maximum {{ limit }} caractères.']),
+                    new Length(['max' => 500, 'maxMessage' => 'Maximum {{ limit }} caracteres.']),
                 ],
-            ])
-        ;
+            ]);
     }
 
     public function configureOptions(OptionsResolver $resolver): void
@@ -68,5 +68,3 @@ class DocumentPatientFormType extends AbstractType
         ]);
     }
 }
-
-

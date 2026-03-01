@@ -46,6 +46,7 @@
                                 class="form-control"
                                 placeholder="Nom ou description..."
                                 value="{{ filters.q }}"
+                                autocomplete="off"
                             >
                         </div>
                         <div class="col-md-3">
@@ -120,4 +121,83 @@
         </div>
     </div>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const input = document.getElementById('catalogue_q');
+    if (!input) return;
+
+    const wrap = input.parentElement;
+    wrap.style.position = 'relative';
+
+    const list = document.createElement('div');
+    list.className = 'list-group position-absolute w-100 shadow-sm catalogue-autocomplete';
+    list.style.top = '100%';
+    list.style.left = '0';
+    list.style.zIndex = '1000';
+    list.style.display = 'none';
+    wrap.appendChild(list);
+
+    let timeout = null;
+
+    function clearList() {
+        list.innerHTML = '';
+        list.style.display = 'none';
+    }
+
+    input.addEventListener('input', function() {
+        clearTimeout(timeout);
+        const query = this.value.trim();
+        if (query.length < 2) {
+            clearList();
+            return;
+        }
+
+        timeout = setTimeout(() => {
+            fetch('{{ path('app_catalogue_suggestions') }}?q=' + encodeURIComponent(query))
+                .then(res => res.json())
+                .then(data => {
+                    list.innerHTML = '';
+                    if (Array.isArray(data) && data.length > 0) {
+                        data.forEach(item => {
+                            const btn = document.createElement('button');
+                            btn.type = 'button';
+                            btn.className = 'list-group-item list-group-item-action';
+                            btn.textContent = item.nom;
+                            btn.addEventListener('click', () => {
+                                input.value = item.nom;
+                                clearList();
+                            });
+                            list.appendChild(btn);
+                        });
+                        list.style.display = 'block';
+                    } else {
+                        clearList();
+                    }
+                })
+                .catch(() => clearList());
+        }, 250);
+    });
+
+    document.addEventListener('click', function(e) {
+        if (!input.contains(e.target) && !list.contains(e.target)) {
+            clearList();
+        }
+    });
+});
+</script>
+
+<style>
+.catalogue-autocomplete {
+    max-height: 260px;
+    overflow-y: auto;
+}
+.catalogue-autocomplete .list-group-item {
+    cursor: pointer;
+    font-size: 0.9rem;
+}
+.catalogue-autocomplete .list-group-item:hover {
+    background: #f8f9fa;
+}
+</style>
 {% endblock %}

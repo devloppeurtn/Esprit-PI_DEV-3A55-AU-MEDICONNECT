@@ -3,6 +3,8 @@
 {% block title %}{{ item.title }} - Événement{% endblock %}
 
 {% block body %}
+{% set canSeeParticipants = is_granted('ROLE_ADMIN') or ((is_granted('ROLE_ORGANISATEUR') or is_granted('ROLE_SECRETAIRE')) and app.user and item.organisateur and item.organisateur.id == app.user.id) %}
+
 <div class="container mt-4">
     <a href="{{ path('app_evenement_index') }}" class="btn btn-outline-secondary mb-3">← Retour</a>
 
@@ -11,7 +13,16 @@
             <div class="card">
                 <div class="card-body">
                     <h2 class="mb-3">{{ item.title }}</h2>
-                    
+
+                    <div class="d-flex gap-2 flex-wrap mb-3">
+                        {% if item.typeEvenement %}<span class="badge bg-primary">{{ item.typeEvenement.label() }}</span>{% endif %}
+                        {% if item.attachmentPath %}
+                            <a href="{{ asset(item.attachmentPath) }}" target="_blank" rel="noopener" class="badge bg-secondary text-decoration-none">
+                                <i class="bi bi-paperclip me-1"></i>{{ item.attachmentOriginalName ?: 'Document associé' }}
+                            </a>
+                        {% endif %}
+                    </div>
+
                     <div class="row mb-4">
                         {% if item.eventDate %}
                             <div class="col-md-6 mb-3">
@@ -26,7 +37,7 @@
                                 </div>
                             </div>
                         {% endif %}
-                        
+
                         {% if item.eventTime %}
                             <div class="col-md-6 mb-3">
                                 <div class="info-box p-3 border rounded" style="background-color: #f8f9fa;">
@@ -54,6 +65,19 @@
                                 </div>
                             </div>
                         {% endif %}
+                        <div class="col-md-6 mb-3">
+                            <div class="info-box p-3 border rounded" style="background-color: #f8f9fa;">
+                                <div class="d-flex align-items-center">
+                                    <i class="bi bi-people" style="font-size: 1.5rem; color: #0d6efd; margin-right: 10px;"></i>
+                                    <div>
+                                        <small class="text-muted">Participants</small>
+                                        <div class="fw-bold">
+                                            {{ participants|length }}{% if item.maxParticipants %} / {{ item.maxParticipants }}{% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
 
                         <div class="col-md-6 mb-3">
                             <div class="info-box p-3 border rounded" style="background-color: #f8f9fa;">
@@ -68,6 +92,38 @@
                         </div>
                     </div>
 
+                    {% if item.location and item.eventDate %}
+                        <div id="weather-card" class="card border-0 shadow-sm mb-4" data-location="{{ item.location|e('html_attr') }}" data-date="{{ item.eventDate|date('Y-m-d') }}">
+                            <div class="card-body">
+                                <div class="d-flex align-items-center justify-content-between">
+                                    <div>
+                                        <strong><i class="bi bi-cloud-sun me-1"></i>Meteo du jour de l'evenement</strong>
+                                        <div id="weather-condition" class="small mt-1">Chargement...</div>
+                                        <div id="weather-locality" class="text-muted small"></div>
+                                    </div>
+                                    <div class="display-6 fw-bold" id="weather-temp">--</div>
+                                </div>
+                                <div class="row mt-3">
+                                    <div class="col-6 col-md-4">
+                                        <div class="small text-muted">Humidite</div>
+                                        <div id="weather-humidity" class="fw-semibold">--</div>
+                                    </div>
+                                    <div class="col-6 col-md-4">
+                                        <div class="small text-muted">Vent</div>
+                                        <div id="weather-wind" class="fw-semibold">--</div>
+                                    </div>
+                                    <div class="col-12 col-md-4">
+                                        <div class="small text-muted">Pluie</div>
+                                        <div id="weather-rain" class="fw-semibold">--</div>
+                                    </div>
+                                </div>
+                                <div class="alert alert-info mt-3 small mb-0">
+                                    Ces informations sont fournies par Open-Meteo.
+                                </div>
+                            </div>
+                        </div>
+                    {% endif %}
+
                     <hr>
                     <div class="mt-4">
                         <h5 class="mb-3">Description</h5>
@@ -80,7 +136,7 @@
                 </div>
             </div>
 
-            {% if is_granted('ROLE_ORGANISATEUR') and item.organisateur and item.organisateur.id == app.user.id %}
+            {% if canSeeParticipants %}
                 <div class="card mt-4">
                     <div class="card-body">
                         <h5 class="mb-3">
@@ -112,19 +168,143 @@
         <div class="col-lg-4">
             <div class="card sticky-top" style="top: 20px;">
                 <div class="card-body">
-                    <h5 class="mb-3"><i class="bi bi-info-circle me-2"></i>Actions</h5>
-                    <p class="text-muted small mb-3">
-                        Pour participer à cet événement, cliquez sur le bouton ci-dessous pour remplir votre profil de participation.
-                    </p>
-                    <a href="{{ path('app_evenement_participer_form', {id: item.id}) }}" class="btn btn-success w-100 mb-2">
-                        <i class="bi bi-check-circle me-1"></i> Participer
-                    </a>
-                    <a href="{{ path('app_evenement_index') }}" class="btn btn-outline-secondary w-100">
-                        ← Retour aux événements
-                    </a>
+                    <h5 class="mb-4">
+                        <i class="bi bi-check-circle me-2"></i>Participer à cet événement
+                    </h5>
+
+                    {% for message in app.flashes('success') %}
+                        <div class="alert alert-success alert-dismissible fade show" role="alert">
+                            <i class="bi bi-check-circle me-2"></i>{{ message }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+                    {% endfor %}
+                    {% for message in app.flashes('error') %}
+                        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                            <i class="bi bi-exclamation-circle me-2"></i>{{ message }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+                    {% endfor %}
+
+                    {% set isFull = item.maxParticipants and participants|length >= item.maxParticipants %}
+                    {% if isFull %}
+                        <div class="alert alert-warning" role="alert">
+                            Nombre maximum de participants atteint.
+                        </div>
+                    {% endif %}
+
+                    <form method="post" action="{{ path('app_evenement_participer', {id: item.id}) }}">
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Prénom</label>
+                            <input type="text" name="firstName" class="form-control" placeholder="Votre prénom" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Nom</label>
+                            <input type="text" name="lastName" class="form-control" placeholder="Votre nom" required>
+                        </div>
+                        <div class="mb-4">
+                            <label class="form-label fw-bold">Email</label>
+                            <input type="email" name="email" class="form-control" placeholder="Votre email" required>
+                        </div>
+                        <input type="hidden" name="_token" value="{{ csrf_token('participate' ~ item.id) }}">
+                        <button class="btn btn-primary w-100 btn-lg" type="submit" {% if isFull %}disabled{% endif %}>
+                            <i class="bi bi-check-circle me-1"></i>Confirmer mon inscription
+                        </button>
+                    </form>
+
+                    <a href="{{ path('app_evenement_index') }}" class="btn btn-outline-secondary w-100 mt-2">← Retour aux événements</a>
                 </div>
             </div>
         </div>
     </div>
 </div>
+
+<script>
+(function () {
+    const card = document.getElementById('weather-card');
+    if (!card) return;
+
+    const weatherCondition = document.getElementById('weather-condition');
+    const weatherTemp = document.getElementById('weather-temp');
+    const weatherLocality = document.getElementById('weather-locality');
+    const weatherHumidity = document.getElementById('weather-humidity');
+    const weatherWind = document.getElementById('weather-wind');
+    const weatherRain = document.getElementById('weather-rain');
+    const location = card.dataset.location;
+    const date = card.dataset.date;
+
+    const codeToText = {
+        0: 'Ciel degage', 1: 'Plutot degage', 2: 'Partiellement nuageux', 3: 'Nuageux',
+        45: 'Brouillard', 48: 'Brouillard givrant', 51: 'Bruine legere', 53: 'Bruine moderee',
+        55: 'Bruine forte', 61: 'Pluie legere', 63: 'Pluie moderee', 65: 'Pluie forte',
+        71: 'Neige legere', 73: 'Neige moderee', 75: 'Neige forte', 80: 'Averses legeres',
+        81: 'Averses moderees', 82: 'Averses fortes', 95: 'Orage'
+    };
+
+    fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(location)}&count=1&language=fr&format=json`)
+        .then((r) => r.json())
+        .then((geo) => {
+            if (!geo.results || !geo.results.length) {
+                throw new Error('Lieu introuvable');
+            }
+            const { latitude, longitude, name, admin1 } = geo.results[0];
+            if (weatherLocality) {
+                weatherLocality.textContent = [name, admin1].filter(Boolean).join(', ');
+            }
+            return fetch(`https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&daily=weathercode,temperature_2m_max,temperature_2m_min,precipitation_probability_max,relativehumidity_2m_max,windspeed_10m_max&timezone=auto&start_date=${date}&end_date=${date}`);
+        })
+        .then((r) => r.json())
+        .then((meteo) => {
+            const d = meteo.daily;
+            if (!d || !d.weathercode || !d.weathercode.length) {
+                throw new Error('Aucune meteo disponible');
+            }
+            const code = d.weathercode[0];
+            const tMin = d.temperature_2m_min[0];
+            const tMax = d.temperature_2m_max[0];
+            const tAvg = Math.round((tMin + tMax) / 2);
+            const rain = d.precipitation_probability_max?.[0];
+            const humidity = d.relativehumidity_2m_max?.[0];
+            const wind = d.windspeed_10m_max?.[0];
+
+            if (weatherCondition) {
+                weatherCondition.textContent = `${codeToText[code] || 'Conditions variables'}`;
+            }
+            if (weatherTemp) {
+                weatherTemp.textContent = `${tAvg}�C`;
+            }
+            if (weatherHumidity) {
+                weatherHumidity.textContent = humidity !== undefined ? `${humidity}%` : '--';
+            }
+            if (weatherWind) {
+                weatherWind.textContent = wind !== undefined ? `${Math.round(wind)} km/h` : '--';
+            }
+            if (weatherRain) {
+                weatherRain.textContent = rain !== undefined ? `${rain}%` : '--';
+            }
+        })
+        .catch(() => {
+            if (weatherCondition) {
+                weatherCondition.textContent = 'Meteo indisponible pour ce lieu/date.';
+            }
+            if (weatherTemp) {
+                weatherTemp.textContent = '--';
+            }
+            if (weatherHumidity) {
+                weatherHumidity.textContent = '--';
+            }
+            if (weatherWind) {
+                weatherWind.textContent = '--';
+            }
+            if (weatherRain) {
+                weatherRain.textContent = '--';
+            }
+        });
+})();
+</script>
 {% endblock %}
+
+
+
+
+
+

@@ -3,6 +3,7 @@
 namespace App\Entity;
 
 use App\Enum\StatutEvenement;
+use App\Enum\TypeEvenement;
 use App\Repository\EvenementRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
@@ -48,6 +49,18 @@ class Evenement
 
     #[ORM\Column(type: Types::STRING, length: 10, nullable: true)]
     private ?string $eventTime = null;
+
+    #[ORM\Column(type: Types::INTEGER, nullable: true)]
+    private ?int $maxParticipants = null;
+
+    #[ORM\Column(type: Types::STRING, length: 64, nullable: true, enumType: TypeEvenement::class)]
+    private ?TypeEvenement $typeEvenement = null;
+
+    #[ORM\Column(type: Types::STRING, length: 255, nullable: true)]
+    private ?string $attachmentPath = null;
+
+    #[ORM\Column(type: Types::STRING, length: 255, nullable: true)]
+    private ?string $attachmentOriginalName = null;
 
     #[ORM\Column(type: Types::DATETIME_IMMUTABLE)]
     private \DateTimeImmutable $createdAt;
@@ -131,6 +144,50 @@ class Evenement
     public function setEventTime(?string $eventTime): self
     {
         $this->eventTime = $eventTime;
+        return $this;
+    }
+
+    public function getMaxParticipants(): ?int
+    {
+        return $this->maxParticipants;
+    }
+
+    public function setMaxParticipants(?int $maxParticipants): self
+    {
+        $this->maxParticipants = $maxParticipants;
+        return $this;
+    }
+
+    public function getTypeEvenement(): ?TypeEvenement
+    {
+        return $this->typeEvenement;
+    }
+
+    public function setTypeEvenement(?TypeEvenement $typeEvenement): self
+    {
+        $this->typeEvenement = $typeEvenement;
+        return $this;
+    }
+
+    public function getAttachmentPath(): ?string
+    {
+        return $this->attachmentPath;
+    }
+
+    public function setAttachmentPath(?string $attachmentPath): self
+    {
+        $this->attachmentPath = $attachmentPath;
+        return $this;
+    }
+
+    public function getAttachmentOriginalName(): ?string
+    {
+        return $this->attachmentOriginalName;
+    }
+
+    public function setAttachmentOriginalName(?string $attachmentOriginalName): self
+    {
+        $this->attachmentOriginalName = $attachmentOriginalName;
         return $this;
     }
 

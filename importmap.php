@@ -35,4 +35,29 @@ return [
         'version' => '5.3.8',
         'type' => 'css',
     ],
+    '@symfony/ux-chartjs' => [
+        'version' => '2.32.0',
+    ],
+    '@symfony/ux-autocomplete' => [
+        'version' => '2.32.0',
+    ],
+    'chart.js' => [
+        'version' => '4.5.1',
+    ],
+    'tom-select' => [
+        'version' => '2.4.3',
+    ],
+    '@kurkle/color' => [
+        'version' => '0.3.4',
+    ],
+    '@orchidjs/sifter' => [
+        'version' => '1.1.0',
+    ],
+    '@orchidjs/unicode-variants' => [
+        'version' => '1.1.2',
+    ],
+    'tom-select/dist/css/tom-select.default.min.css' => [
+        'version' => '2.4.3',
+        'type' => 'css',
+    ],
 ];

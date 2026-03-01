@@ -1,19 +1,228 @@
 {% extends 'admin/base_admin.html.twig' %}
 
-{% block title %}Mon espace médecin - MediConnect{% endblock %}
+{% block title %}Mon espace medecin - MediConnect{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <style>
+        .doctor-dashboard {
+            --dash-primary: #1f6feb;
+            --dash-primary-dark: #0f4db4;
+            --dash-bg-soft: #f4f8ff;
+            --dash-text-main: #0f2147;
+            --dash-text-soft: #5f6f8f;
+            --dash-border: #d8e3f7;
+        }
+
+        .doctor-dashboard .dash-header-title {
+            font-size: 2rem;
+            font-weight: 800;
+            color: var(--dash-text-main);
+            letter-spacing: 0.2px;
+            margin-bottom: 0.15rem;
+        }
+
+        .doctor-dashboard .dash-header-subtitle {
+            margin: 0;
+            color: var(--dash-text-soft);
+            font-weight: 600;
+        }
+
+        .doctor-dashboard .dashboard-filters {
+            display: flex;
+            align-items: end;
+            gap: 0.75rem;
+            flex-wrap: wrap;
+            background: linear-gradient(135deg, #ffffff 0%, #f7faff 100%);
+            border: 1px solid var(--dash-border);
+            border-radius: 14px;
+            padding: 0.85rem 1rem;
+        }
+
+        .doctor-dashboard .dashboard-filters label {
+            display: block;
+            font-size: 0.8rem;
+            font-weight: 700;
+            color: var(--dash-text-soft);
+            margin-bottom: 0.25rem;
+        }
+
+        .doctor-dashboard .dashboard-filters .form-select,
+        .doctor-dashboard .dashboard-filters .form-control {
+            min-width: 150px;
+            border-radius: 10px;
+            border-color: var(--dash-border);
+            font-weight: 600;
+        }
+
+        .doctor-dashboard .dashboard-filters .btn {
+            font-weight: 700;
+            border-radius: 10px;
+            padding-inline: 1rem;
+        }
+
+        .doctor-dashboard .dash-kpi-card {
+            border: 1px solid var(--dash-border);
+            border-radius: 18px;
+            background: linear-gradient(160deg, #ffffff 0%, #f4f8ff 100%);
+            box-shadow: 0 14px 30px rgba(16, 50, 112, 0.08);
+        }
+
+        .doctor-dashboard .kpi-label {
+            display: block;
+            color: var(--dash-text-soft);
+            font-size: 0.82rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.35px;
+            margin-bottom: 0.25rem;
+        }
+
+        .doctor-dashboard .kpi-value {
+            display: block;
+            color: var(--dash-primary-dark);
+            font-size: 2.15rem;
+            font-weight: 800;
+            line-height: 1.05;
+            margin-bottom: 0.35rem;
+        }
+
+        .doctor-dashboard .kpi-value.kpi-value-sm {
+            font-size: 1.85rem;
+        }
+
+        .doctor-dashboard .kpi-meta {
+            display: block;
+            color: var(--dash-text-soft);
+            font-size: 0.87rem;
+            font-weight: 600;
+        }
+
+        .doctor-dashboard .kpi-separator {
+            margin: 1rem 0;
+            border-color: var(--dash-border);
+            opacity: 1;
+        }
+
+        .doctor-dashboard .dash-chart-card {
+            border: 1px solid var(--dash-border);
+            border-radius: 18px;
+            box-shadow: 0 14px 30px rgba(16, 50, 112, 0.08);
+        }
+
+        .doctor-dashboard .dash-chart-title {
+            margin: 0;
+            color: var(--dash-text-main);
+            font-weight: 800;
+            font-size: 1.35rem;
+        }
+
+        .doctor-dashboard .dash-badge {
+            background: #e9f1ff;
+            color: #1148a0;
+            border: 1px solid #cadcff;
+            font-size: 0.82rem;
+            font-weight: 700;
+            border-radius: 999px;
+            padding: 0.35rem 0.8rem;
+        }
+
+        .doctor-dashboard .quick-link-card {
+            border: 1px solid var(--dash-border);
+            border-radius: 16px;
+            box-shadow: 0 10px 24px rgba(16, 50, 112, 0.07);
+            transition: transform 0.18s ease, box-shadow 0.18s ease;
+        }
+
+        .doctor-dashboard .quick-link-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 14px 26px rgba(16, 50, 112, 0.12);
+        }
+
+        .doctor-dashboard .quick-link-card h5 {
+            font-weight: 800;
+            color: var(--dash-text-main);
+        }
+
+        .doctor-dashboard .quick-link-card p {
+            font-weight: 600;
+        }
+    </style>
+{% endblock %}
 
 {% block admin_content %}
-<div class="medecin-espace">
+<div class="medecin-espace doctor-dashboard">
     <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
         <div>
-            <h1 class="h3 mb-1">Mon espace médecin</h1>
-            <p class="text-muted mb-0">Bienvenue Dr {{ medecin.nomComplet }}</p>
+            <h1 class="dash-header-title">Mon espace medecin</h1>
+            <p class="dash-header-subtitle">Bienvenue Dr {{ medecin.nomComplet }}</p>
+        </div>
+
+        <form method="get" action="{{ path('app_medecin_index') }}" class="dashboard-filters">
+            <div>
+                <label for="filter-view">Affichage</label>
+                <select id="filter-view" name="view" class="form-select form-select-sm">
+                    <option value="day" {{ dashboardView == 'day' ? 'selected' : '' }}>Par jour</option>
+                    <option value="month" {{ dashboardView == 'month' ? 'selected' : '' }}>Par mois</option>
+                </select>
+            </div>
+            <div>
+                <label for="filter-month">Mois</label>
+                <input id="filter-month" type="month" name="month" value="{{ selectedMonthInput }}" class="form-control form-control-sm">
+            </div>
+            <div>
+                <button type="submit" class="btn btn-primary btn-sm">Filtrer</button>
+            </div>
+        </form>
+    </div>
+
+    <div class="row g-4 mb-4">
+        <div class="col-xl-4">
+            <div class="card dash-kpi-card h-100">
+                <div class="card-body">
+                    <span class="kpi-label">Patients vus cette semaine</span>
+                    <span class="kpi-value">{{ patientsSeenThisWeek }}</span>
+                    <span class="kpi-meta">Periode: {{ weekStart|date('d/m/Y') }} - {{ weekEnd|date('d/m/Y') }}</span>
+
+                    <hr class="kpi-separator">
+
+                    <span class="kpi-label">Consultations du mois choisi</span>
+                    <span class="kpi-value kpi-value-sm">{{ consultationsThisMonth }}</span>
+                    <span class="kpi-meta">Mois: {{ monthStart|date('m/Y') }}</span>
+
+                    <hr class="kpi-separator">
+
+                    <span class="kpi-label">{{ dashboardView == 'month' ? 'Total de l annee' : 'Total de la periode' }}</span>
+                    <span class="kpi-value kpi-value-sm">{{ selectedPeriodTotal }}</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-8">
+            <div class="card dash-chart-card h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+                        <h5 class="dash-chart-title">{{ consultationChartTitle }}</h5>
+                        <span class="dash-badge">{{ consultationChartPeriodLabel }}</span>
+                    </div>
+
+                    {% if selectedPeriodTotal > 0 %}
+                        <div style="height: 340px;">
+                            <canvas id="consultationsByDayChart"></canvas>
+                        </div>
+                    {% else %}
+                        <div class="text-center text-muted py-5 fw-semibold">
+                            Aucune consultation sur la periode choisie.
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
         </div>
     </div>
 
     <div class="row g-4">
         <div class="col-md-6 col-lg-3">
-            <a href="{{ path('app_medecin_agenda') }}" class="card border-0 shadow-sm text-decoration-none text-dark h-100">
+            <a href="{{ path('app_medecin_agenda') }}" class="card quick-link-card text-decoration-none text-dark h-100">
                 <div class="card-body text-center py-4">
                     <div class="rounded-circle bg-primary bg-opacity-10 text-primary d-inline-flex align-items-center justify-content-center mb-2" style="width: 48px; height: 48px;">
                         <i class="bi bi-calendar-range-fill fs-4"></i>
@@ -24,18 +233,18 @@
             </a>
         </div>
         <div class="col-md-6 col-lg-3">
-            <a href="{{ path('app_medecin_secretaires') }}" class="card border-0 shadow-sm text-decoration-none text-dark h-100">
+            <a href="{{ path('app_medecin_secretaires') }}" class="card quick-link-card text-decoration-none text-dark h-100">
                 <div class="card-body text-center py-4">
                     <div class="rounded-circle bg-primary bg-opacity-10 text-primary d-inline-flex align-items-center justify-content-center mb-2" style="width: 48px; height: 48px;">
                         <i class="bi bi-person-badge-fill fs-4"></i>
                     </div>
-                    <h5 class="mb-0">Mes secrétaires</h5>
-                    <p class="text-muted small mb-0 mt-1">Gérer mon équipe</p>
+                    <h5 class="mb-0">Mes secretaires</h5>
+                    <p class="text-muted small mb-0 mt-1">Gerer mon equipe</p>
                 </div>
             </a>
         </div>
         <div class="col-md-6 col-lg-3">
-            <a href="{{ path('app_medecin_rendez_vous') }}" class="card border-0 shadow-sm text-decoration-none text-dark h-100">
+            <a href="{{ path('app_medecin_rendez_vous') }}" class="card quick-link-card text-decoration-none text-dark h-100">
                 <div class="card-body text-center py-4">
                     <div class="rounded-circle bg-primary bg-opacity-10 text-primary d-inline-flex align-items-center justify-content-center mb-2" style="width: 48px; height: 48px;">
                         <i class="bi bi-calendar-event-fill fs-4"></i>
@@ -46,7 +255,7 @@
             </a>
         </div>
         <div class="col-md-6 col-lg-3">
-            <a href="{{ path('app_medecin_consultations') }}" class="card border-0 shadow-sm text-decoration-none text-dark h-100">
+            <a href="{{ path('app_medecin_consultations') }}" class="card quick-link-card text-decoration-none text-dark h-100">
                 <div class="card-body text-center py-4">
                     <div class="rounded-circle bg-primary bg-opacity-10 text-primary d-inline-flex align-items-center justify-content-center mb-2" style="width: 48px; height: 48px;">
                         <i class="bi bi-clipboard2-pulse-fill fs-4"></i>
@@ -58,4 +267,83 @@
         </div>
     </div>
 </div>
+{% endblock %}
+
+{% block scripts %}
+    {{ parent() }}
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+    <script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const canvas = document.getElementById('consultationsByDayChart');
+        if (!canvas || typeof Chart === 'undefined') {
+            return;
+        }
+
+        const labels = {{ consultationChartLabels|json_encode|raw }};
+        const values = {{ consultationChartValues|json_encode|raw }};
+        const view = {{ dashboardView|json_encode|raw }};
+        const selectedMonthIndex = {{ monthStart|date('n') - 1 }};
+
+        if (!Array.isArray(labels) || !Array.isArray(values) || labels.length === 0 || values.length === 0) {
+            return;
+        }
+
+        const barColors = values.map((value, index) => {
+            if (view === 'month') {
+                return index === selectedMonthIndex ? '#1f6feb' : '#95bcff';
+            }
+
+            return value > 0 ? '#1f6feb' : '#d7e4ff';
+        });
+
+        new Chart(canvas, {
+            type: 'bar',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Consultations',
+                    data: values,
+                    backgroundColor: barColors,
+                    borderRadius: 8,
+                    maxBarThickness: 36,
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                },
+                scales: {
+                    x: {
+                        ticks: {
+                            color: '#5f6f8f',
+                            font: {
+                                weight: '600'
+                            }
+                        },
+                        grid: {
+                            color: '#edf2fb'
+                        }
+                    },
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            precision: 0,
+                            color: '#5f6f8f',
+                            font: {
+                                weight: '700'
+                            }
+                        },
+                        grid: {
+                            color: '#edf2fb'
+                        }
+                    }
+                }
+            }
+        });
+    });
+    </script>
 {% endblock %}

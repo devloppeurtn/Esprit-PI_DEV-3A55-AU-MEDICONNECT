@@ -2,6 +2,7 @@
 
 namespace App\Entity;
 
+use App\Enum\StatutCategorie;
 use App\Repository\CategorieSanteRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -25,6 +26,20 @@ class CategorieSante
 
     #[ORM\Column(type: Types::STRING, length: 100)]
     private ?string $type = null; // Culture Générale ou Spécialité Médicale
+
+    #[ORM\Column(type: Types::STRING, length: 50, enumType: StatutCategorie::class)]
+    private StatutCategorie $statut = StatutCategorie::EN_ATTENTE;
+
+    #[ORM\ManyToOne(targetEntity: Medecin::class)]
+    #[ORM\JoinColumn(nullable: true)]
+    private ?Medecin $creePar = null;
+
+    #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
+    private ?\DateTimeInterface $dateApprobation = null;
+
+    #[ORM\ManyToOne(targetEntity: Admin::class)]
+    #[ORM\JoinColumn(nullable: true)]
+    private ?Admin $approuvePar = null;
 
     #[ORM\OneToMany(mappedBy: 'categorieSante', targetEntity: CoursEducatif::class, cascade: ['persist', 'remove'])]
     private Collection $coursEducatifs;
@@ -135,6 +150,50 @@ class CategorieSante
             }
         }
 
+        return $this;
+    }
+
+    public function getStatut(): StatutCategorie
+    {
+        return $this->statut;
+    }
+
+    public function setStatut(StatutCategorie $statut): self
+    {
+        $this->statut = $statut;
+        return $this;
+    }
+
+    public function getCreePar(): ?Medecin
+    {
+        return $this->creePar;
+    }
+
+    public function setCreePar(?Medecin $creePar): self
+    {
+        $this->creePar = $creePar;
+        return $this;
+    }
+
+    public function getDateApprobation(): ?\DateTimeInterface
+    {
+        return $this->dateApprobation;
+    }
+
+    public function setDateApprobation(?\DateTimeInterface $dateApprobation): self
+    {
+        $this->dateApprobation = $dateApprobation;
+        return $this;
+    }
+
+    public function getApprouvePar(): ?Admin
+    {
+        return $this->approuvePar;
+    }
+
+    public function setApprouvePar(?Admin $approuvePar): self
+    {
+        $this->approuvePar = $approuvePar;
         return $this;
     }
 }

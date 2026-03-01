@@ -19,7 +19,11 @@ use App\Form\AjouterSecretaireFormType;
 use App\Form\ConsultationFormType;
 use App\Form\OrdonnanceFormType;
 use App\Form\RapportMedicalFormType;
+use App\Repository\ConsultationRepository;
 use App\Repository\RendezVousRepository;
+use App\Service\DisponibiliteService;
+use App\Service\RendezVousBookingValidator;
+use App\Service\RendezVousNotificationService;
 use Doctrine\ORM\EntityManagerInterface;
 use Dompdf\Dompdf;
 use Dompdf\Options;
@@ -37,6 +41,7 @@ use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Security\Csrf\CsrfToken;
 use Symfony\Component\Security\Csrf\CsrfTokenManagerInterface;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
+use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 #[Route('/medecin')]
 #[IsGranted('ROLE_MEDECIN')]
@@ -49,7 +54,11 @@ class MedecinController extends AbstractController
         private MailerInterface $mailer,
         private UrlGeneratorInterface $urlGenerator,
         private RendezVousRepository $rdvRepo,
-        private \App\Service\DisponibiliteService $dispoService,
+        private ConsultationRepository $consultationRepo,
+        private DisponibiliteService $dispoService,
+        private RendezVousBookingValidator $rdvBookingValidator,
+        private RendezVousNotificationService $rdvNotificationService,
+        private HttpClientInterface $httpClient,
     ) {
     }
 
@@ -57,11 +66,71 @@ class MedecinController extends AbstractController
     public function apiMedicamentAutocomplete(Request $request): JsonResponse
     {
         $query = $request->query->get('query', '');
-        if (strlen($query) < 2) {
+        $query = is_string($query) ? $query : '';
+        $query = preg_replace('/[^\\p{L}\\p{N}\\s\\-\\+\\\']+/u', ' ', $query);
+        $query = trim(preg_replace('/\\s+/', ' ', (string) $query));
+        if ($query === '') {
+            return new JsonResponse([]);
+        }
+        $parts = array_slice(explode(' ', $query), 0, 6);
+        $query = trim(implode(' ', $parts));
+        if (mb_strlen($query, 'UTF-8') < 2) {
             return new JsonResponse([]);
         }
 
         try {
+            $apiResults = [];
+            try {
+                $resp = $this->httpClient->request('GET', 'https://medicaments-api.giygas.dev/v1/medicaments', [
+                    'query' => [
+                        'search' => mb_substr($query, 0, 50, 'UTF-8'),
+                        'limit' => 10,
+                    ],
+                    'timeout' => 4,
+                ]);
+
+                if ($resp->getStatusCode() === 200) {
+                    $payload = $resp->toArray(false);
+                    $items = [];
+                    if (is_array($payload) && array_is_list($payload)) {
+                        $items = $payload;
+                    } elseif (is_array($payload) && isset($payload['data']) && is_array($payload['data'])) {
+                        $items = $payload['data'];
+                    }
+
+                    $seen = [];
+                    foreach ($items as $item) {
+                        if (!is_array($item)) {
+                            continue;
+                        }
+                        $name = $item['elementPharmaceutique']
+                            ?? $item['denomination']
+                            ?? $item['nom']
+                            ?? $item['libelle']
+                            ?? null;
+                        if (!is_string($name) || trim($name) === '') {
+                            continue;
+                        }
+                        $name = trim($name);
+                        $key = mb_strtolower($name, 'UTF-8');
+                        if (isset($seen[$key])) {
+                            continue;
+                        }
+                        $seen[$key] = true;
+                        $apiResults[] = ['denomination' => $name];
+                        if (count($apiResults) >= 10) {
+                            break;
+                        }
+                    }
+                }
+            } catch (\Throwable) {
+                $apiResults = [];
+            }
+
+            if (!empty($apiResults)) {
+                return new JsonResponse($apiResults);
+            }
+
             $jsonPath = $this->getParameter('kernel.project_dir') . '/public/data/medications.json';
             if (!file_exists($jsonPath)) {
                 return new JsonResponse([]);
@@ -83,7 +152,7 @@ class MedecinController extends AbstractController
     }
 
     #[Route('', name: 'app_medecin_index', methods: ['GET'])]
-    public function index(): Response
+    public function index(Request $request): Response
     {
         /** @var Medecin $medecin */
         $medecin = $this->getUser();
@@ -91,8 +160,113 @@ class MedecinController extends AbstractController
             return $this->redirectToRoute('app_profile');
         }
 
+        $now = new \DateTimeImmutable();
+        $dashboardView = (string) $request->query->get('view', 'day');
+        if (!in_array($dashboardView, ['day', 'month'], true)) {
+            $dashboardView = 'day';
+        }
+
+        $requestedMonth = (string) $request->query->get('month', $now->format('Y-m'));
+        if (!preg_match('/^\d{4}-\d{2}$/', $requestedMonth)) {
+            $requestedMonth = $now->format('Y-m');
+        }
+
+        try {
+            $selectedMonth = new \DateTimeImmutable($requestedMonth . '-01 00:00:00');
+        } catch (\Exception) {
+            $selectedMonth = $now->modify('first day of this month')->setTime(0, 0, 0);
+        }
+
+        $weekStart = $now->modify('monday this week')->setTime(0, 0, 0);
+        $weekEnd = $weekStart->modify('+7 days');
+
+        $patientsSeenThisWeek = $this->consultationRepo->countDistinctPatientsSeenBetween($medecin, $weekStart, $weekEnd);
+
+        $monthStart = $selectedMonth->setTime(0, 0, 0);
+        $monthEnd = $monthStart->modify('+1 month');
+
+        $consultationChartLabels = [];
+        $consultationChartValues = [];
+        $consultationChartTitle = 'Nombre de consultations par jour';
+        $consultationChartPeriodLabel = $monthStart->format('m/Y');
+        $consultationsThisMonth = 0;
+        $selectedPeriodTotal = 0;
+
+        if ($dashboardView === 'month') {
+            $yearStart = $monthStart->setDate((int) $monthStart->format('Y'), 1, 1)->setTime(0, 0, 0);
+            $yearEnd = $yearStart->modify('+1 year');
+            $consultationsByMonthRaw = $this->consultationRepo->countConsultationsByMonthBetween($medecin, $yearStart, $yearEnd);
+            $consultationsByMonthMap = [];
+            foreach ($consultationsByMonthRaw as $row) {
+                $monthKey = substr((string) ($row['monthKey'] ?? ''), 0, 7);
+                if ($monthKey === '') {
+                    continue;
+                }
+                $consultationsByMonthMap[$monthKey] = (int) ($row['total'] ?? 0);
+            }
+
+            $monthLabels = [
+                1 => 'Jan',
+                2 => 'Fev',
+                3 => 'Mar',
+                4 => 'Avr',
+                5 => 'Mai',
+                6 => 'Juin',
+                7 => 'Juil',
+                8 => 'Aout',
+                9 => 'Sep',
+                10 => 'Oct',
+                11 => 'Nov',
+                12 => 'Dec',
+            ];
+
+            $year = (int) $yearStart->format('Y');
+            for ($month = 1; $month <= 12; $month++) {
+                $monthKey = sprintf('%04d-%02d', $year, $month);
+                $consultationChartLabels[] = $monthLabels[$month];
+                $consultationChartValues[] = $consultationsByMonthMap[$monthKey] ?? 0;
+            }
+
+            $consultationsThisMonth = $consultationsByMonthMap[$monthStart->format('Y-m')] ?? 0;
+            $selectedPeriodTotal = array_sum($consultationChartValues);
+            $consultationChartTitle = 'Nombre de consultations par mois';
+            $consultationChartPeriodLabel = 'Annee ' . $yearStart->format('Y');
+        } else {
+            $consultationsByDayRaw = $this->consultationRepo->countConsultationsByDayBetween($medecin, $monthStart, $monthEnd);
+            $consultationsByDayMap = [];
+            foreach ($consultationsByDayRaw as $row) {
+                $dayKey = substr((string) ($row['dayKey'] ?? ''), 0, 10);
+                if ($dayKey === '') {
+                    continue;
+                }
+                $consultationsByDayMap[$dayKey] = (int) ($row['total'] ?? 0);
+            }
+
+            for ($day = $monthStart; $day < $monthEnd; $day = $day->modify('+1 day')) {
+                $dayKey = $day->format('Y-m-d');
+                $consultationChartLabels[] = $day->format('d/m');
+                $consultationChartValues[] = $consultationsByDayMap[$dayKey] ?? 0;
+            }
+
+            $consultationsThisMonth = array_sum($consultationChartValues);
+            $selectedPeriodTotal = $consultationsThisMonth;
+        }
+
         return $this->render('medecin/index.html.twig', [
             'medecin' => $medecin,
+            'patientsSeenThisWeek' => $patientsSeenThisWeek,
+            'weekStart' => $weekStart,
+            'weekEnd' => $weekEnd,
+            'consultationsThisMonth' => $consultationsThisMonth,
+            'monthStart' => $monthStart,
+            'monthEnd' => $monthEnd,
+            'dashboardView' => $dashboardView,
+            'selectedMonthInput' => $monthStart->format('Y-m'),
+            'consultationChartTitle' => $consultationChartTitle,
+            'consultationChartPeriodLabel' => $consultationChartPeriodLabel,
+            'selectedPeriodTotal' => $selectedPeriodTotal,
+            'consultationChartLabels' => $consultationChartLabels,
+            'consultationChartValues' => $consultationChartValues,
         ]);
     }
 
@@ -114,11 +288,11 @@ class MedecinController extends AbstractController
 
             if ($existing instanceof Secretaire) {
                 if ($existing->getMedecin() === $medecin) {
-                    $this->addFlash('warning', 'Ce secrétaire fait déjà partie de votre équipe.');
+                    $this->addFlash('warning', 'Ce secrÃ©taire fait dÃ©jÃ  partie de votre Ã©quipe.');
                     return $this->redirectToRoute('app_medecin_secretaires');
                 }
                 if ($existing->getMedecin() !== null) {
-                    $this->addFlash('error', 'Ce secrétaire est déjà rattaché à un autre médecin.');
+                    $this->addFlash('error', 'Ce secrÃ©taire est dÃ©jÃ  rattachÃ© Ã  un autre mÃ©decin.');
                     return $this->redirectToRoute('app_medecin_secretaires');
                 }
                 $invitationExistante = $this->entityManager->getRepository(Invitation::class)->findOneBy([
@@ -127,7 +301,7 @@ class MedecinController extends AbstractController
                     'statut' => StatutInvitation::EN_ATTENTE,
                 ]);
                 if ($invitationExistante) {
-                    $this->addFlash('warning', 'Une invitation est déjà en attente pour ce secrétaire.');
+                    $this->addFlash('warning', 'Une invitation est dÃ©jÃ  en attente pour ce secrÃ©taire.');
                     return $this->redirectToRoute('app_medecin_secretaires');
                 }
                 $invitation = new Invitation();
@@ -138,9 +312,9 @@ class MedecinController extends AbstractController
                 $this->entityManager->persist($invitation);
                 $this->entityManager->flush();
                 $this->sendInvitationSecretaire($invitation, false);
-                $this->addFlash('success', 'Invitation envoyée.');
+                $this->addFlash('success', 'Invitation envoyÃ©e.');
             } elseif ($existing !== null) {
-                $this->addFlash('error', 'Un compte existe déjà avec cet email.');
+                $this->addFlash('error', 'Un compte existe dÃ©jÃ  avec cet email.');
                 return $this->redirectToRoute('app_medecin_secretaires');
             } else {
                 $nom = explode('@', $email)[0] ?? 'Secretaire';
@@ -163,7 +337,7 @@ class MedecinController extends AbstractController
                 $this->entityManager->persist($invitation);
                 $this->entityManager->flush();
                 $this->sendInvitationSecretaire($invitation, true);
-                $this->addFlash('success', 'Invitation envoyée.');
+                $this->addFlash('success', 'Invitation envoyÃ©e.');
             }
 
             return $this->redirectToRoute('app_medecin_secretaires');
@@ -264,7 +438,7 @@ class MedecinController extends AbstractController
             $this->entityManager->persist($p);
             $m->setPlanning($p);
             $this->entityManager->flush();
-            $this->addFlash('success', 'Planning mis à jour.');
+            $this->addFlash('success', 'Planning mis Ã  jour.');
             return $this->redirectToRoute('app_medecin_agenda');
         }
         
@@ -278,7 +452,7 @@ class MedecinController extends AbstractController
     {
         /** @var Medecin $m */
         $m = $this->getUser();
-        if (!$m instanceof Medecin) return $this->json(['error'=>'Accès refusé'], 403);
+        if (!$m instanceof Medecin) return $this->json(['error'=>'AccÃ¨s refusÃ©'], 403);
         
         $p = $m->getPlanning();
         if (!$p) return $this->redirectToRoute('app_medecin_planning_config');
@@ -288,12 +462,29 @@ class MedecinController extends AbstractController
             $this->addFlash('error', 'Invalide'); return $this->redirectToRoute('app_medecin_agenda');
         }
         
-        $start = new \DateTime($request->request->get('date').' '.$request->request->get('heure'));
-        $end = (clone $start)->modify("+".($p ? $p->getDureeConsultation() : 30)." minutes");
+        try {
+            $start = new \DateTime($request->request->get('date') . ' ' . $request->request->get('heure'));
+        } catch (\Exception) {
+            $this->addFlash('error', 'Date/heure invalide.');
+
+            return $this->redirectToRoute('app_medecin_agenda');
+        }
+
+        $validation = $this->rdvBookingValidator->validateRequestedSlot($m, $start);
+        if ($validation['ok'] !== true) {
+            $this->addFlash('error', $validation['message']);
+
+            return $this->redirectToRoute('app_medecin_agenda', ['date' => $request->request->get('date')]);
+        }
+
+        $end = $validation['endAt'] instanceof \DateTimeInterface
+            ? \DateTime::createFromInterface($validation['endAt'])
+            : (clone $start)->modify("+" . ($p ? $p->getDureeConsultation() : 30) . " minutes");
         
         $rdv = (new RendezVous())->setMedecin($m)->setPatient($pat)->setDateDebut($start)->setDateFin($end)->setStatut(StatutRendezVous::CONFIRME)->setNote($request->request->get('note'));
         $this->entityManager->persist($rdv); $this->entityManager->flush();
-        $this->addFlash('success', 'RDV créé');
+        $this->rdvNotificationService->notifyPatientStatusUpdate($rdv, StatutRendezVous::CONFIRME, 'medecin');
+        $this->addFlash('success', 'RDV crÃ©Ã©');
         return $this->redirectToRoute('app_medecin_agenda', ['date'=>$request->request->get('date')]);
     }
 
@@ -320,12 +511,12 @@ class MedecinController extends AbstractController
         /** @var Medecin $medecin */
         $medecin = $this->getUser();
         if (!$medecin instanceof Medecin || $rdv->getMedecin() !== $medecin) {
-            $this->addFlash('error', 'Action non autorisée.');
+            $this->addFlash('error', 'Action non autorisÃ©e.');
             return $this->redirectToRoute('app_medecin_consultations');
         }
 
         if ($rdv->getConsultation()) {
-            $this->addFlash('warning', 'Une consultation existe déjà pour ce rendez-vous.');
+            $this->addFlash('warning', 'Une consultation existe dÃ©jÃ  pour ce rendez-vous.');
             return $this->redirectToRoute('app_medecin_consultations');
         }
 
@@ -355,7 +546,7 @@ class MedecinController extends AbstractController
             $rdv->setConsultation($consultation);
             $this->entityManager->persist($consultation);
             $this->entityManager->flush();
-            $this->addFlash('success', 'Consultation créée.');
+            $this->addFlash('success', 'Consultation crÃ©Ã©e.');
             return $this->redirectToRoute('app_medecin_consultation_voir', ['id' => $consultation->getId()]);
         }
 
@@ -409,7 +600,7 @@ class MedecinController extends AbstractController
         $patient = $consultation->getDossierMedical()?->getPatient();
         $hasRdvWithPatient = $patient && $this->rdvRepo->findOneBy(['patient' => $patient, 'medecin' => $medecin]) !== null;
         if (!$isOwnConsultation && !$hasRdvWithPatient) {
-            $this->addFlash('error', 'Action non autorisée.');
+            $this->addFlash('error', 'Action non autorisÃ©e.');
             return $this->redirectToRoute('app_medecin_consultations');
         }
 
@@ -426,14 +617,14 @@ class MedecinController extends AbstractController
         /** @var Medecin $medecin */
         $medecin = $this->getUser();
         if (!$medecin instanceof Medecin || $consultation->getMedecin()->getId() !== $medecin->getId()) {
-            $this->addFlash('error', 'Action non autorisée.');
+            $this->addFlash('error', 'Action non autorisÃ©e.');
             return $this->redirectToRoute('app_medecin_consultations');
         }
         $form = $this->createForm(ConsultationFormType::class, $consultation);
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
             $this->entityManager->flush();
-            $this->addFlash('success', 'Consultation modifiée.');
+            $this->addFlash('success', 'Consultation modifiÃ©e.');
             return $this->redirectToRoute('app_medecin_consultation_voir', ['id' => $consultation->getId()]);
         }
         return $this->render('medecin/consultation_modifier.html.twig', [
@@ -449,7 +640,7 @@ class MedecinController extends AbstractController
         /** @var Medecin $medecin */
         $medecin = $this->getUser();
         if (!$medecin instanceof Medecin || $consultation->getMedecin()->getId() !== $medecin->getId()) {
-            $this->addFlash('error', 'Action non autorisée.');
+            $this->addFlash('error', 'Action non autorisÃ©e.');
             return $this->redirectToRoute('app_medecin_consultations');
         }
         $token = $request->request->get('_token');
@@ -463,7 +654,7 @@ class MedecinController extends AbstractController
         }
         $this->entityManager->remove($consultation);
         $this->entityManager->flush();
-        $this->addFlash('success', 'Consultation supprimée.');
+        $this->addFlash('success', 'Consultation supprimÃ©e.');
         return $this->redirectToRoute('app_medecin_consultations');
     }
 
@@ -473,7 +664,7 @@ class MedecinController extends AbstractController
         /** @var Medecin $medecin */
         $medecin = $this->getUser();
         if (!$medecin instanceof Medecin || $consultation->getMedecin()->getId() !== $medecin->getId()) {
-            $this->addFlash('error', 'Action non autorisée.');
+            $this->addFlash('error', 'Action non autorisÃ©e.');
             return $this->redirectToRoute('app_medecin_consultations');
         }
 
@@ -485,7 +676,7 @@ class MedecinController extends AbstractController
             $consultation->addOrdonnance($ordonnance);
             $this->entityManager->persist($ordonnance);
             $this->entityManager->flush();
-            $this->addFlash('success', 'Ordonnance ajoutée.');
+            $this->addFlash('success', 'Ordonnance ajoutÃ©e.');
             return $this->redirectToRoute('app_medecin_consultation_voir', ['id' => $consultation->getId()]);
         }
 
@@ -503,14 +694,14 @@ class MedecinController extends AbstractController
         /** @var Medecin $medecin */
         $medecin = $this->getUser();
         if (!$medecin instanceof Medecin || !$consultation || $consultation->getMedecin()->getId() !== $medecin->getId()) {
-            $this->addFlash('error', 'Action non autorisée.');
+            $this->addFlash('error', 'Action non autorisÃ©e.');
             return $this->redirectToRoute('app_medecin_consultations');
         }
         $form = $this->createForm(OrdonnanceFormType::class, $ordonnance);
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
             $this->entityManager->flush();
-            $this->addFlash('success', 'Ordonnance modifiée.');
+            $this->addFlash('success', 'Ordonnance modifiÃ©e.');
             return $this->redirectToRoute('app_medecin_consultation_voir', ['id' => $consultation->getId()]);
         }
         return $this->render('medecin/ordonnance_modifier.html.twig', [
@@ -528,7 +719,7 @@ class MedecinController extends AbstractController
         /** @var Medecin $medecin */
         $medecin = $this->getUser();
         if (!$medecin instanceof Medecin || !$consultation || $consultation->getMedecin()->getId() !== $medecin->getId()) {
-            $this->addFlash('error', 'Action non autorisée.');
+            $this->addFlash('error', 'Action non autorisÃ©e.');
             return $this->redirectToRoute('app_medecin_consultations');
         }
         $token = $request->request->get('_token');
@@ -538,7 +729,7 @@ class MedecinController extends AbstractController
         }
         $this->entityManager->remove($ordonnance);
         $this->entityManager->flush();
-        $this->addFlash('success', 'Ordonnance supprimée.');
+        $this->addFlash('success', 'Ordonnance supprimÃ©e.');
         return $this->redirectToRoute('app_medecin_consultation_voir', ['id' => $consultation->getId()]);
     }
 
@@ -549,7 +740,7 @@ class MedecinController extends AbstractController
         /** @var Medecin $medecin */
         $medecin = $this->getUser();
         if (!$medecin || !$consultation || $consultation->getMedecin()->getId() !== $medecin->getId()) {
-            throw $this->createAccessDeniedException('Accès refusé.');
+            throw $this->createAccessDeniedException('AccÃ¨s refusÃ©.');
         }
 
         $pdfOptions = new Options();
@@ -585,7 +776,7 @@ class MedecinController extends AbstractController
         /** @var Medecin $medecin */
         $medecin = $this->getUser();
         if (!$medecin instanceof Medecin || $consultation->getMedecin()->getId() !== $medecin->getId()) {
-            $this->addFlash('error', 'Action non autorisée.');
+            $this->addFlash('error', 'Action non autorisÃ©e.');
             return $this->redirectToRoute('app_medecin_consultations');
         }
 
@@ -597,7 +788,7 @@ class MedecinController extends AbstractController
             $consultation->addRapportMedical($rapport);
             $this->entityManager->persist($rapport);
             $this->entityManager->flush();
-            $this->addFlash('success', 'Rapport médical ajouté.');
+            $this->addFlash('success', 'Rapport mÃ©dical ajoutÃ©.');
             return $this->redirectToRoute('app_medecin_consultation_voir', ['id' => $consultation->getId()]);
         }
 
@@ -615,14 +806,14 @@ class MedecinController extends AbstractController
         /** @var Medecin $medecin */
         $medecin = $this->getUser();
         if (!$medecin instanceof Medecin || !$consultation || $consultation->getMedecin()->getId() !== $medecin->getId()) {
-            $this->addFlash('error', 'Action non autorisée.');
+            $this->addFlash('error', 'Action non autorisÃ©e.');
             return $this->redirectToRoute('app_medecin_consultations');
         }
         $form = $this->createForm(RapportMedicalFormType::class, $rapport);
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
             $this->entityManager->flush();
-            $this->addFlash('success', 'Rapport médical modifié.');
+            $this->addFlash('success', 'Rapport mÃ©dical modifiÃ©.');
             return $this->redirectToRoute('app_medecin_consultation_voir', ['id' => $consultation->getId()]);
         }
         return $this->render('medecin/rapport_modifier.html.twig', [
@@ -640,7 +831,7 @@ class MedecinController extends AbstractController
         /** @var Medecin $medecin */
         $medecin = $this->getUser();
         if (!$medecin instanceof Medecin || !$consultation || $consultation->getMedecin()->getId() !== $medecin->getId()) {
-            $this->addFlash('error', 'Action non autorisée.');
+            $this->addFlash('error', 'Action non autorisÃ©e.');
             return $this->redirectToRoute('app_medecin_consultations');
         }
         $token = $request->request->get('_token');
@@ -650,7 +841,7 @@ class MedecinController extends AbstractController
         }
         $this->entityManager->remove($rapport);
         $this->entityManager->flush();
-        $this->addFlash('success', 'Rapport médical supprimé.');
+        $this->addFlash('success', 'Rapport mÃ©dical supprimÃ©.');
         return $this->redirectToRoute('app_medecin_consultation_voir', ['id' => $consultation->getId()]);
     }
 
@@ -660,11 +851,11 @@ class MedecinController extends AbstractController
         /** @var Medecin $medecin */
         $medecin = $this->getUser();
         if (!$medecin instanceof Medecin || $rdv->getMedecin()->getId() !== $medecin->getId()) {
-            $this->addFlash('error', 'Action non autorisée.');
+            $this->addFlash('error', 'Action non autorisÃ©e.');
             return $this->redirectToRoute('app_medecin_rendez_vous');
         }
         if ($rdv->getStatut() === StatutRendezVous::ANNULE) {
-            $this->addFlash('warning', 'Ce rendez-vous est déjà annulé.');
+            $this->addFlash('warning', 'Ce rendez-vous est dÃ©jÃ  annulÃ©.');
             return $this->redirectToRoute('app_medecin_rendez_vous');
         }
         $token = $request->request->get('_token');
@@ -674,7 +865,8 @@ class MedecinController extends AbstractController
         }
         $rdv->setStatut(StatutRendezVous::ANNULE);
         $this->entityManager->flush();
-        $this->addFlash('success', 'Rendez-vous annulé.');
+        $this->rdvNotificationService->notifyPatientStatusUpdate($rdv, StatutRendezVous::ANNULE, 'medecin');
+        $this->addFlash('success', 'Rendez-vous annulÃ©.');
         return $this->redirectToRoute('app_medecin_rendez_vous');
     }
 
@@ -690,13 +882,13 @@ class MedecinController extends AbstractController
         /** @var Medecin $medecin */
         $medecin = $this->getUser();
         if (!$medecin instanceof Medecin || $secretaire->getMedecin()->getId() !== $medecin->getId()) {
-            $this->addFlash('error', 'Action non autorisée.');
+            $this->addFlash('error', 'Action non autorisÃ©e.');
             return $this->redirectToRoute('app_medecin_secretaires');
         }
 
         $secretaire->setMedecin(null);
         $this->entityManager->flush();
-        $this->addFlash('success', 'Secrétaire retiré de votre équipe.');
+        $this->addFlash('success', 'SecrÃ©taire retirÃ© de votre Ã©quipe.');
 
         return $this->redirectToRoute('app_medecin_secretaires');
     }
@@ -801,3 +993,4 @@ class MedecinController extends AbstractController
         return $m . 'min';
     }
 }
+

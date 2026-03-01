@@ -65,17 +65,29 @@ class Utilisateur implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(type: Types::BOOLEAN, options: ['default' => false])]
     private bool $emailVerified = false;
 
+    #[ORM\Column(type: Types::BOOLEAN, options: ['default' => false])]
+    private bool $biometricEnabled = false;
+
     #[ORM\Column(type: Types::STRING, length: 255, nullable: true)]
     private ?string $photo = null;
 
+    /** Embedding facial 128-d (face-api.js / faceRecognitionNet), stocké en JSON. */
+    #[ORM\Column(type: Types::JSON, nullable: true)]
+    private ?array $faceEmbedding = null;
+
     #[ORM\OneToMany(mappedBy: 'utilisateur', targetEntity: CommandeProduit::class, cascade: ['persist'])]
     private Collection $commandes;
+
+    /** @var Collection<int, Notification> */
+    #[ORM\OneToMany(mappedBy: 'utilisateur', targetEntity: Notification::class, cascade: ['persist', 'remove'])]
+    private Collection $notifications;
 
     public function __construct()
     {
         $this->dateCreation = new \DateTimeImmutable();
         $this->statut = StatutCompte::ACTIF;
         $this->commandes = new ArrayCollection();
+        $this->notifications = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -248,6 +260,17 @@ class Utilisateur implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
+    public function isBiometricEnabled(): bool
+    {
+        return $this->biometricEnabled;
+    }
+
+    public function setBiometricEnabled(bool $biometricEnabled): static
+    {
+        $this->biometricEnabled = $biometricEnabled;
+        return $this;
+    }
+
     public function getPhoto(): ?string
     {
         return $this->photo;
@@ -256,6 +279,25 @@ class Utilisateur implements UserInterface, PasswordAuthenticatedUserInterface
     public function setPhoto(?string $photo): static
     {
         $this->photo = $photo;
+        return $this;
+    }
+
+    /** @return list<float>|null */
+    public function getFaceEmbedding(): ?array
+    {
+        return $this->faceEmbedding;
+    }
+
+    /** @param list<float> $faceEmbedding */
+    public function setFaceEmbedding(array $faceEmbedding): static
+    {
+        $this->faceEmbedding = $faceEmbedding;
+        return $this;
+    }
+
+    public function clearFaceEmbedding(): static
+    {
+        $this->faceEmbedding = null;
         return $this;
     }
 
@@ -284,5 +326,38 @@ class Utilisateur implements UserInterface, PasswordAuthenticatedUserInterface
             }
         }
         return $this;
+    }
+
+    /** @return Collection<int, Notification> */
+    public function getNotifications(): Collection
+    {
+        return $this->notifications;
+    }
+
+    public function addNotification(Notification $notification): static
+    {
+        if (!$this->notifications->contains($notification)) {
+            $this->notifications->add($notification);
+            $notification->setUtilisateur($this);
+        }
+        return $this;
+    }
+
+    public function removeNotification(Notification $notification): static
+    {
+        if ($this->notifications->removeElement($notification)) {
+            if ($notification->getUtilisateur() === $this) {
+                $notification->setUtilisateur(null);
+            }
+        }
+        return $this;
+    }
+
+    public function getUnreadNotificationsCount(): int
+    {
+        if (!$this->notifications) {
+            return 0;
+        }
+        return $this->notifications->filter(fn ($n) => !$n->isEstLu())->count();
     }
 }

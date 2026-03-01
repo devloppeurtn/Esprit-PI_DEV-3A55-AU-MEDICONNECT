@@ -1,6 +1,6 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}{{ isEdit ? 'Modifier' : 'Nouvel' }} événement{% endblock %}
+{% block title %}{{ isEdit ? 'Modifier' : 'Nouvel' }} Ã©vÃ©nement{% endblock %}
 
 {% block body %}
 <div class="container mt-4">
@@ -14,6 +14,12 @@
                 {{ form_label(form.title) }}
                 {{ form_widget(form.title) }}
                 {{ form_errors(form.title) }}
+            </div>
+
+            <div class="mb-3">
+                {{ form_label(form.typeEvenement) }}
+                {{ form_widget(form.typeEvenement) }}
+                {{ form_errors(form.typeEvenement) }}
             </div>
 
             <div class="mb-3">
@@ -41,6 +47,25 @@
                 </div>
             </div>
 
+            <div class="mb-3">
+                {{ form_label(form.maxParticipants) }}
+                {{ form_widget(form.maxParticipants) }}
+                {{ form_errors(form.maxParticipants) }}
+                <div class="form-text">Laissez vide pour illimite.</div>
+            </div>
+
+            <div class="mb-3">
+                {{ form_label(form.attachmentFile) }}
+                {{ form_widget(form.attachmentFile) }}
+                {{ form_errors(form.attachmentFile) }}
+                {% if item.attachmentPath %}
+                    <div class="form-text mt-1">
+                        Document actuel:
+                        <a href="{{ asset(item.attachmentPath) }}" target="_blank" rel="noopener">{{ item.attachmentOriginalName ?: 'Voir le document' }}</a>
+                    </div>
+                {% endif %}
+            </div>
+
             <div class="form-check mb-3">
                 {{ form_widget(form.isActive) }}
                 {{ form_label(form.isActive) }}
@@ -48,7 +73,7 @@
 
             <div class="d-flex justify-content-between">
                 <a href="{{ path('app_evenement_index') }}" class="btn btn-outline-secondary">Annuler</a>
-                <button class="btn btn-primary" type="submit">{{ isEdit ? 'Enregistrer' : 'Créer' }}</button>
+                <button class="btn btn-primary" type="submit">{{ isEdit ? 'Enregistrer' : 'CrÃ©er' }}</button>
             </div>
 
             {{ form_end(form) }}

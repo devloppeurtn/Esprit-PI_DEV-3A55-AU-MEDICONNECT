@@ -38,7 +38,9 @@
             }
         </style>
         
-        {% block javascripts %}{% endblock %}
+        {% block javascripts %}
+            {{ importmap('app') }}
+        {% endblock %}
     </head>
     <body {% block body_class %}{% endblock %}>
         {{ include('components/navbar.html.twig') }}

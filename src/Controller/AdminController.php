@@ -9,6 +9,7 @@ use App\Entity\DossierMedical;
 use App\Entity\Evenement;
 use App\Entity\MedicamentActuel;
 use App\Entity\Ordonnance;
+use App\Entity\Participant;
 use App\Entity\RapportMedical;
 use App\Entity\RendezVous;
 use App\Entity\RoleUtilisateur;
@@ -18,6 +19,7 @@ use App\Entity\Utilisateur;
 use App\Enum\StatutCommande;
 use App\Enum\StatutEvenement;
 use App\Repository\EvenementRepository;
+use App\Service\OrderAnalyticsService;
 use App\Service\OrderWorkflowService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -29,6 +31,8 @@ use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Csrf\CsrfTokenManagerInterface;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
+use Symfony\UX\Chartjs\Builder\ChartBuilderInterface;
+use Symfony\UX\Chartjs\Model\Chart;
 
 #[Route('/admin')]
 #[IsGranted('ROLE_ADMIN')]
@@ -46,12 +50,13 @@ class AdminController extends AbstractController
     public function dashboard(): Response
     {
         $userRepo = $this->entityManager->getRepository(Utilisateur::class);
+        $participantRepo = $this->entityManager->getRepository(Participant::class);
         $totalUsers = $userRepo->count([]);
         $countPatients = $userRepo->count(['role' => RoleUtilisateur::PATIENT]);
         $countMedecins = $userRepo->count(['role' => RoleUtilisateur::MEDECIN]);
         $countSecretaires = $userRepo->count(['role' => RoleUtilisateur::SECRETAIRE]);
         $countAdmins = $userRepo->count(['role' => RoleUtilisateur::ADMIN]);
-        $countParticipations = $userRepo->count(['role' => RoleUtilisateur::PARTICIPATION]);
+        $countParticipations = $participantRepo->count([]);
         $countOrganisateurs = $userRepo->count(['role' => RoleUtilisateur::ORGANISATEUR]);
         $pendingEvenements = $this->evenementRepository->findPending();
 
@@ -158,6 +163,111 @@ class AdminController extends AbstractController
                 'avg_abs_delay_days' => $avgAbsDelayDays,
                 'penalty_points_total' => $sumPenaltyPoints,
             ],
+        ]);
+    }
+
+    #[Route('/analytics/customers', name: 'app_admin_customer_analytics', methods: ['GET'])]
+    public function customerAnalytics(
+        Request $request,
+        OrderAnalyticsService $orderAnalyticsService,
+        ChartBuilderInterface $chartBuilder
+    ): Response
+    {
+        $userRepo = $this->entityManager->getRepository(Utilisateur::class);
+
+        $customers = $userRepo->createQueryBuilder('u')
+            ->innerJoin('u.commandes', 'c')
+            ->groupBy('u.id')
+            ->having('COUNT(c.id) > 0')
+            ->orderBy('u.nomComplet', 'ASC')
+            ->setMaxResults(500)
+            ->getQuery()
+            ->getResult();
+
+        $selectedId = $request->query->getInt('customer', 0);
+        if ($selectedId <= 0 && !empty($customers) && $customers[0] instanceof Utilisateur) {
+            $selectedId = $customers[0]->getId() ?? 0;
+        }
+
+        $selectedCustomer = null;
+        $analytics = null;
+        $ordersChart = null;
+
+        if ($selectedId > 0) {
+            $selectedCustomer = $userRepo->find($selectedId);
+            if ($selectedCustomer instanceof Utilisateur) {
+                $analytics = $orderAnalyticsService->getCustomerAnalytics($selectedCustomer);
+            } else {
+                $this->addFlash('warning', 'Client introuvable pour analytics.');
+            }
+        }
+
+        if ($analytics) {
+            $labels = [];
+            $revenues = [];
+            $orders = [];
+
+            foreach (($analytics['ordersOverTime'] ?? []) as $row) {
+                $labels[] = (string) ($row['month'] ?? '');
+                $revenues[] = (float) ($row['monthlyRevenue'] ?? 0);
+                $orders[] = (int) ($row['orderCount'] ?? 0);
+            }
+
+            if ($labels === []) {
+                $labels = ['Total'];
+                $revenues = [(float) ($analytics['totalSpent'] ?? 0)];
+                $orders = [(int) ($analytics['orderCount'] ?? 0)];
+            }
+
+            $ordersChart = $chartBuilder->createChart(Chart::TYPE_LINE);
+            $ordersChart->setData([
+                'labels' => $labels,
+                'datasets' => [
+                    [
+                        'label' => 'Revenu mensuel (TND)',
+                        'data' => $revenues,
+                        'borderColor' => 'rgba(37, 99, 235, 0.9)',
+                        'backgroundColor' => 'rgba(37, 99, 235, 0.2)',
+                        'tension' => 0.3,
+                        'fill' => true,
+                    ],
+                    [
+                        'label' => 'Nb commandes',
+                        'data' => $orders,
+                        'borderColor' => 'rgba(16, 185, 129, 0.9)',
+                        'backgroundColor' => 'rgba(16, 185, 129, 0.2)',
+                        'tension' => 0.3,
+                        'fill' => false,
+                        'yAxisID' => 'y1',
+                    ],
+                ],
+            ]);
+            $ordersChart->setOptions([
+                'responsive' => true,
+                'plugins' => [
+                    'legend' => ['position' => 'bottom'],
+                ],
+                'scales' => [
+                    'y' => [
+                        'beginAtZero' => true,
+                        'title' => ['display' => true, 'text' => 'Revenu (TND)'],
+                    ],
+                    'y1' => [
+                        'beginAtZero' => true,
+                        'position' => 'right',
+                        'grid' => ['drawOnChartArea' => false],
+                        'title' => ['display' => true, 'text' => 'Commandes'],
+                    ],
+                ],
+            ]);
+        }
+
+        return $this->render('admin/analytics/customer.html.twig', [
+            'customers' => $customers,
+            'selectedCustomer' => $selectedCustomer,
+            'selectedCustomerId' => $selectedId,
+            'analytics' => $analytics,
+            'ordersChart' => $ordersChart,
         ]);
     }
 
@@ -322,7 +432,7 @@ class AdminController extends AbstractController
             'countMedecins' => $userRepo->count(['role' => RoleUtilisateur::MEDECIN]),
             'countSecretaires' => $userRepo->count(['role' => RoleUtilisateur::SECRETAIRE]),
             'countAdmins' => $userRepo->count(['role' => RoleUtilisateur::ADMIN]),
-            'countParticipations' => $userRepo->count(['role' => RoleUtilisateur::PARTICIPATION]),
+            'countParticipations' => $em->getRepository(Participant::class)->count([]),
 
             // Dossier médical / consultations
             'countDossiers' => $em->getRepository(DossierMedical::class)->count([]),

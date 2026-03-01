@@ -1,0 +1,27 @@
+# Liste des commandes Scheduler (documentation interne)
+parameters:
+  scheduler_commands:
+    - name: 'app:scheduler:train-stock-model'
+      class: 'App\\Command\\SchedulerTrainStockModelCommand'
+      description: "Reentraine l'IA avec les ventes recentes."
+    - name: 'app:scheduler:stock-rupture-alerts'
+      class: 'App\\Command\\SchedulerStockRuptureAlertsCommand'
+      description: "Detecte les produits qui risquent d'etre en rupture et envoie des alertes."
+    - name: 'app:scheduler:cleanup-expired-orders'
+      class: 'App\\Command\\SchedulerCleanupExpiredOrdersCommand'
+      description: "Supprime les anciennes commandes non payees et remet le stock."
+    - name: 'app:scheduler:order-audit-report'
+      class: 'App\\Command\\SchedulerOrderAuditReportCommand'
+      description: "Controle le workflow des commandes et repere celles bloquees trop longtemps."
+    - name: 'app:scheduler:order-delay-alerts'
+      class: 'App\\Command\\SchedulerOrderDelayAlertsCommand'
+      description: "Detecte les commandes en retard et fait une alerte."
+    - name: 'app:scheduler:recalculate-prices'
+      class: 'App\\Command\\SchedulerRecalculatePricesCommand'
+      description: "Recalcule les prix dynamiques/intelligents des produits."
+    - name: 'app:scheduler:update-analytics'
+      class: 'App\\Command\\SchedulerUpdateAnalyticsCommand'
+      description: "Recalcule les analytics clients."
+    - name: 'app:scheduler:verify-stripe-webhooks'
+      class: 'App\\Command\\SchedulerVerifyStripeWebhooksCommand'
+      description: "Verifie la coherence des statuts de paiement Stripe."

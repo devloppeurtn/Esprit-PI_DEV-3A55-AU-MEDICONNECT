@@ -1,0 +1,129 @@
+{% extends 'admin/base_admin.html.twig' %}
+
+{% block title %}Mes notifications{% endblock %}
+
+{% block body %}
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1><i class="bi bi-bell"></i> Mes notifications</h1>
+        {% if notifications|length > 0 %}
+            <button id="markAllRead" class="btn btn-outline-primary">
+                <i class="bi bi-check-all"></i> Tout marquer comme lu
+            </button>
+        {% endif %}
+    </div>
+
+    {% if notifications is empty %}
+        <div class="alert alert-info text-center">
+            <i class="bi bi-inbox" style="font-size: 3rem;"></i>
+            <p class="mt-3 mb-0">Aucune notification pour le moment</p>
+        </div>
+    {% else %}
+        <div class="list-group">
+            {% for notification in notifications %}
+                <div class="list-group-item list-group-item-action notification-item {{ notification.lu ? '' : 'notification-unread' }}" 
+                     data-notification-id="{{ notification.id.toRfc4122() }}"
+                     data-notification-link="{{ notification.lien }}">
+                    <div class="d-flex w-100 justify-content-between align-items-start">
+                        <div class="flex-grow-1">
+                            <div class="d-flex align-items-center mb-2">
+                                {% if notification.type == 'CATEGORIE_EN_ATTENTE' %}
+                                    <i class="bi bi-clock-history text-warning me-2" style="font-size: 1.5rem;"></i>
+                                {% elseif notification.type == 'CATEGORIE_APPROUVEE' %}
+                                    <i class="bi bi-check-circle text-success me-2" style="font-size: 1.5rem;"></i>
+                                {% elseif notification.type == 'CATEGORIE_REJETEE' %}
+                                    <i class="bi bi-x-circle text-danger me-2" style="font-size: 1.5rem;"></i>
+                                {% elseif notification.type == 'NOUVELLE_CATEGORIE' %}
+                                    <i class="bi bi-star text-info me-2" style="font-size: 1.5rem;"></i>
+                                {% else %}
+                                    <i class="bi bi-bell text-primary me-2" style="font-size: 1.5rem;"></i>
+                                {% endif %}
+                                
+                                <h5 class="mb-0">{{ notification.titre }}</h5>
+                                
+                                {% if not notification.lu %}
+                                    <span class="badge bg-primary ms-2">Nouveau</span>
+                                {% endif %}
+                            </div>
+                            
+                            <p class="mb-2 text-muted">{{ notification.message }}</p>
+                            
+                            <small class="text-muted">
+                                <i class="bi bi-clock"></i>
+                                {{ notification.dateCreation|date('d/m/Y à H:i') }}
+                            </small>
+                        </div>
+                        
+                        {% if notification.lien %}
+                            <a href="{{ notification.lien }}" class="btn btn-sm btn-outline-primary ms-3">
+                                <i class="bi bi-arrow-right"></i> Voir
+                            </a>
+                        {% endif %}
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+</div>
+
+<style>
+.notification-unread {
+    background-color: #f0f8ff;
+    border-left: 4px solid #175cdd;
+}
+
+.notification-item {
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.notification-item:hover {
+    background-color: #f8f9fa;
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Mark all as read
+    const markAllBtn = document.getElementById('markAllRead');
+    if (markAllBtn) {
+        markAllBtn.addEventListener('click', function() {
+            fetch('{{ path('app_notifications_mark_all_read') }}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    location.reload();
+                }
+            });
+        });
+    }
+
+    // Mark as read when clicking on notification
+    document.querySelectorAll('.notification-item').forEach(item => {
+        item.addEventListener('click', function(e) {
+            if (e.target.tagName === 'A' || e.target.closest('a')) {
+                return; // Let the link handle navigation
+            }
+
+            const notificationId = this.dataset.notificationId;
+            const link = this.dataset.notificationLink;
+
+            // Mark as read
+            fetch(`/notifications/api/${notificationId}/mark-read`, {
+                method: 'POST',
+            })
+            .then(() => {
+                if (link) {
+                    window.location.href = link;
+                }
+            });
+        });
+    });
+});
+</script>
+{% endblock %}

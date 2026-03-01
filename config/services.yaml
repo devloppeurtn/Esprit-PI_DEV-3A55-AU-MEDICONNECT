@@ -6,6 +6,11 @@
 parameters:
     documents_directory: '%kernel.project_dir%/public/uploads/documents'
     photos_directory: '%kernel.project_dir%/public/uploads/photos'
+    app_url: '%env(APP_URL)%'
+    face_id_threshold_default: 0.55
+    face_id_threshold: '%env(float:default:face_id_threshold_default:FACE_ID_THRESHOLD)%'
+    face_id_service_url_default: 'http://localhost:8001'
+    face_id_service_url: '%env(default:face_id_service_url_default:FACE_ID_SERVICE_URL)%'
 
 services:
     # default configuration for services in *this* file
@@ -32,6 +37,19 @@ services:
     App\Controller\UserController:
         arguments:
             $photosDirectory: '%photos_directory%'
+
+    App\Service\FaceEmbeddingService:
+        arguments:
+            $threshold: '%face_id_threshold%'
+
+    App\Service\FaceIdClient:
+        arguments:
+            $faceIdServiceUrl: '%face_id_service_url%'
+
+    Webauthn\Bundle\Security\Guesser\CurrentUserEntityGuesser:
+        arguments:
+            $tokenStorage: '@security.token_storage'
+            $userEntityRepository: '@Webauthn\Bundle\Repository\PublicKeyCredentialUserEntityRepository'
     
     App\Security\UserProvider:
         arguments:
