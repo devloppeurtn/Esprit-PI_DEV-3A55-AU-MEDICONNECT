@@ -14,6 +14,14 @@ return [
     Symfony\Bundle\MonologBundle\MonologBundle::class => ['all' => true],
     Symfony\Bundle\MakerBundle\MakerBundle::class => ['dev' => true],
     Symfony\Bundle\MercureBundle\MercureBundle::class => ['all' => true],
+<<<<<<< HEAD
     SpomkyLabs\CborBundle\SpomkyLabsCborBundle::class => ['all' => true],
     Webauthn\Bundle\WebauthnBundle::class => ['all' => true],
+=======
+<<<<<<< HEAD
+=======
+    SpomkyLabs\CborBundle\SpomkyLabsCborBundle::class => ['all' => true],
+    Webauthn\Bundle\WebauthnBundle::class => ['all' => true],
+>>>>>>> isramedi
+>>>>>>> 4f714e473f4c6306d8cd13fadaae1828cd26d7f1
 ];

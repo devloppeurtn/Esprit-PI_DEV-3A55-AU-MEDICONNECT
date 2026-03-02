@@ -20,6 +20,7 @@
 
     <div id="alerts"></div>
 
+<<<<<<< HEAD
     {% if aiRecommendations is defined and aiRecommendations|length > 0 %}
         <div class="alert alert-info border-0 shadow-sm mb-4" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
             <div class="d-flex align-items-center mb-3">
@@ -80,6 +81,10 @@
         </div>
     {% endif %}
 
+=======
+<<<<<<< HEAD
+=======
+>>>>>>> 4f714e473f4c6306d8cd13fadaae1828cd26d7f1
     <div class="card mb-4">
         <div class="card-body">
             <form method="get" class="row g-3 align-items-end">
@@ -124,7 +129,11 @@
                                     <div class="btn-group btn-group-sm">
                                         <a href="{{ path('app_evenement_show', {id: item.id}) }}" class="btn btn-outline-primary"><i class="bi bi-eye"></i></a>
                                         <a href="{{ path('app_evenement_edit', {id: item.id}) }}" class="btn btn-outline-secondary"><i class="bi bi-pencil"></i></a>
+<<<<<<< HEAD
                                         <form method="POST" action="{{ path('app_evenement_delete', {id: item.id}) }}" class="d-inline" onsubmit="return confirm('Supprimer cet �v�nement ?');">
+=======
+                                        <form method="POST" action="{{ path('app_evenement_delete', {id: item.id}) }}" class="d-inline" onsubmit="return confirm('Supprimer cet �v�nement ?');">
+>>>>>>> 4f714e473f4c6306d8cd13fadaae1828cd26d7f1
                                             <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ item.id) }}">
                                             <button type="submit" class="btn btn-outline-danger btn-sm"><i class="bi bi-trash"></i></button>
                                         </form>
@@ -140,12 +149,17 @@
         <h4 class="mb-3">Événements publiés</h4>
     {% endif %}
 
+<<<<<<< HEAD
+=======
+>>>>>>> isramedi
+>>>>>>> 4f714e473f4c6306d8cd13fadaae1828cd26d7f1
     <div id="items-list">
         {% for item in items %}
             <div class="card mb-4 shadow-sm">
                 <div class="card-body">
                     <div class="row">
                         <div class="col-md-8">
+<<<<<<< HEAD
                             <div class="d-flex align-items-center gap-3 mb-3">
                                 <h5 class="card-title mb-0">{{ item.title }}</h5>
                                 
@@ -161,6 +175,9 @@
                                     </div>
                                 {% endif %}
                             </div>
+=======
+                            <h5 class="card-title mb-3">{{ item.title }}</h5>
+>>>>>>> 4f714e473f4c6306d8cd13fadaae1828cd26d7f1
                             
                             {% if item.eventDate %}
                                 <div class="mb-3">
@@ -181,7 +198,15 @@
                         </div>
 
                         <div class="col-md-4 d-flex flex-column justify-content-center">
+<<<<<<< HEAD
                             <a href="{{ path('app_evenement_participer_form', {id: item.id}) }}" class="btn btn-success btn-lg mb-2">
+=======
+<<<<<<< HEAD
+                            <a href="{{ path('app_evenement_show', {id: item.id}) }}" class="btn btn-success btn-lg mb-2">
+=======
+                            <a href="{{ path('app_evenement_participer_form', {id: item.id}) }}" class="btn btn-success btn-lg mb-2">
+>>>>>>> isramedi
+>>>>>>> 4f714e473f4c6306d8cd13fadaae1828cd26d7f1
                                 <i class="bi bi-check-circle me-1"></i> Participer
                             </a>
                             
@@ -189,13 +214,29 @@
                                 <a href="{{ path('app_evenement_show', {id: item.id}) }}" class="btn btn-outline-primary">
                                     <i class="bi bi-eye"></i> Détails
                                 </a>
+<<<<<<< HEAD
                                 {% if is_granted('ROLE_ORGANISATEUR') and item.organisateur and item.organisateur.id == app.user.id %}
+=======
+<<<<<<< HEAD
+                                {% if is_granted('ROLE_ORGANISATEUR') %}
+=======
+                                {% if is_granted('ROLE_ORGANISATEUR') and item.organisateur and item.organisateur.id == app.user.id %}
+>>>>>>> isramedi
+>>>>>>> 4f714e473f4c6306d8cd13fadaae1828cd26d7f1
                                     <a href="{{ path('app_evenement_edit', {id: item.id}) }}" class="btn btn-outline-secondary">
                                         <i class="bi bi-pencil"></i> Modifier
                                     </a>
                                     <form method="POST" action="{{ path('app_evenement_delete', {id: item.id}) }}" style="display:inline;">
                                         <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ item.id) }}">
+<<<<<<< HEAD
                                         <button type="submit" class="btn btn-outline-danger btn-sm" onclick="return confirm('�tes-vous s�r de vouloir supprimer cet �v�nement ?');">
+=======
+<<<<<<< HEAD
+                                        <button type="submit" class="btn btn-outline-danger btn-sm" onclick="return confirm('Êtes-vous sûr de vouloir supprimer cet événement ?');">
+=======
+                                        <button type="submit" class="btn btn-outline-danger btn-sm" onclick="return confirm('�tes-vous s�r de vouloir supprimer cet �v�nement ?');">
+>>>>>>> isramedi
+>>>>>>> 4f714e473f4c6306d8cd13fadaae1828cd26d7f1
                                             <i class="bi bi-trash"></i> Supprimer
                                         </button>
                                     </form>
@@ -208,7 +249,15 @@
         {% else %}
             <div class="alert alert-info" role="alert">
                 <i class="bi bi-info-circle me-2"></i>
+<<<<<<< HEAD
                 <strong>Aucun événement publié pour le moment.</strong>
+=======
+<<<<<<< HEAD
+                <strong>Aucun événement pour le moment.</strong>
+=======
+                <strong>Aucun événement publié pour le moment.</strong>
+>>>>>>> isramedi
+>>>>>>> 4f714e473f4c6306d8cd13fadaae1828cd26d7f1
                 {% if is_granted('ROLE_ORGANISATEUR') %}
                     <a href="{{ path('app_evenement_new') }}" class="alert-link">Créez un nouvel événement</a>
                 {% endif %}
@@ -260,6 +309,58 @@
 </div>
 
 {% block scripts %}
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const participateModal = document.getElementById('participateModal');
+            const participateForm = document.getElementById('participateForm');
+            
+            if (!participateModal || !participateForm) return;
+
+            // When modal is shown, set up the form action and clear fields
+            participateModal.addEventListener('show.bs.modal', function (event) {
+                const button = event.relatedTarget;
+                const eventId = button.getAttribute('data-event-id');
+
+                // Set form action to the participation endpoint
+                participateForm.action = "{{ path('app_evenement_participer', {id: '__ID__'}) }}".replace('__ID__', eventId);
+                
+                // Set CSRF token
+                const csrfTokenElement = document.getElementById('csrf_token');
+                if (csrfTokenElement && button.hasAttribute('data-csrf')) {
+                    csrfTokenElement.value = button.getAttribute('data-csrf');
+                }
+                
+                // Clear form fields
+                document.getElementById('firstName').value = '';
+                document.getElementById('lastName').value = '';
+                document.getElementById('email').value = '';
+            });
+
+            // Handle form submission
+            participateForm.addEventListener('submit', function (e) {
+                e.preventDefault();
+                
+                const firstName = document.getElementById('firstName').value.trim();
+                const lastName = document.getElementById('lastName').value.trim();
+                const email = document.getElementById('email').value.trim();
+
+                if (!firstName || !lastName || !email) {
+                    alert('Veuillez remplir tous les champs.');
+                    return;
+                }
+
+                // Submit the form
+                participateForm.submit();
+            });
+        });
+    </script>
+{% endblock %}
+
+=======
+>>>>>>> 4f714e473f4c6306d8cd13fadaae1828cd26d7f1
 <script>
 document.addEventListener('DOMContentLoaded', function () {
     const participateModal = document.getElementById('participateModal');
@@ -294,4 +395,8 @@ document.addEventListener('DOMContentLoaded', function () {
 });
 </script>
 {% endblock %}
+<<<<<<< HEAD
+=======
+>>>>>>> isramedi
+>>>>>>> 4f714e473f4c6306d8cd13fadaae1828cd26d7f1
 {% endblock %}

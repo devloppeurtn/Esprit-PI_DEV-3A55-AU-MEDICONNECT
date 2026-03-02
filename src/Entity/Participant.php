@@ -3,6 +3,13 @@
 namespace App\Entity;
 
 use App\Repository\ParticipantRepository;
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+use App\Entity\Evenement;
+=======
+>>>>>>> isramedi
+>>>>>>> 4f714e473f4c6306d8cd13fadaae1828cd26d7f1
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
@@ -49,6 +56,13 @@ class Participant
     public function setFirstName(string $firstName): self
     {
         $this->firstName = $firstName;
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+
+=======
+>>>>>>> isramedi
+>>>>>>> 4f714e473f4c6306d8cd13fadaae1828cd26d7f1
         return $this;
     }
 
@@ -60,6 +74,13 @@ class Participant
     public function setLastName(string $lastName): self
     {
         $this->lastName = $lastName;
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+
+=======
+>>>>>>> isramedi
+>>>>>>> 4f714e473f4c6306d8cd13fadaae1828cd26d7f1
         return $this;
     }
 
@@ -71,6 +92,13 @@ class Participant
     public function setEmail(string $email): self
     {
         $this->email = $email;
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+
+=======
+>>>>>>> isramedi
+>>>>>>> 4f714e473f4c6306d8cd13fadaae1828cd26d7f1
         return $this;
     }
 
@@ -82,9 +110,33 @@ class Participant
     public function setEvenement(Evenement $evenement): self
     {
         $this->evenement = $evenement;
+<<<<<<< HEAD
         return $this;
     }
 
+=======
+<<<<<<< HEAD
+
+        return $this;
+    }
+
+    // Backwards compatibility
+    public function getModuleFour(): ?Evenement
+    {
+        return $this->getEvenement();
+    }
+
+    public function setModuleFour(Evenement $moduleFour): self
+    {
+        return $this->setEvenement($moduleFour);
+    }
+
+=======
+        return $this;
+    }
+
+>>>>>>> isramedi
+>>>>>>> 4f714e473f4c6306d8cd13fadaae1828cd26d7f1
     public function getCreatedAt(): \DateTimeImmutable
     {
         return $this->createdAt;

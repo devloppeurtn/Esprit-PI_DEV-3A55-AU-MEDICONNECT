@@ -1,6 +1,14 @@
 {% extends 'base.html.twig' %}
 
+<<<<<<< HEAD
 {% block title %}{{ isEdit ? 'Modifier' : 'Nouvel' }} événement{% endblock %}
+=======
+<<<<<<< HEAD
+{% block title %}{{ isEdit ? 'Modifier' : 'Nouvel' }} Ã©vÃ©nement{% endblock %}
+=======
+{% block title %}{{ isEdit ? 'Modifier' : 'Nouvel' }} événement{% endblock %}
+>>>>>>> isramedi
+>>>>>>> 4f714e473f4c6306d8cd13fadaae1828cd26d7f1
 
 {% block body %}
 <div class="container mt-4">
@@ -22,6 +30,11 @@
                 {{ form_errors(form.content) }}
             </div>
 
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+=======
+>>>>>>> 4f714e473f4c6306d8cd13fadaae1828cd26d7f1
             <div class="mb-3">
                 {{ form_label(form.location) }}
                 {{ form_widget(form.location) }}
@@ -41,6 +54,10 @@
                 </div>
             </div>
 
+<<<<<<< HEAD
+=======
+>>>>>>> isramedi
+>>>>>>> 4f714e473f4c6306d8cd13fadaae1828cd26d7f1
             <div class="form-check mb-3">
                 {{ form_widget(form.isActive) }}
                 {{ form_label(form.isActive) }}
@@ -48,11 +65,26 @@
 
             <div class="d-flex justify-content-between">
                 <a href="{{ path('app_evenement_index') }}" class="btn btn-outline-secondary">Annuler</a>
+<<<<<<< HEAD
                 <button class="btn btn-primary" type="submit">{{ isEdit ? 'Enregistrer' : 'Créer' }}</button>
+=======
+<<<<<<< HEAD
+                <button class="btn btn-primary" type="submit">{{ isEdit ? 'Enregistrer' : 'CrÃ©er' }}</button>
+=======
+                <button class="btn btn-primary" type="submit">{{ isEdit ? 'Enregistrer' : 'Créer' }}</button>
+>>>>>>> isramedi
+>>>>>>> 4f714e473f4c6306d8cd13fadaae1828cd26d7f1
             </div>
 
             {{ form_end(form) }}
         </div>
     </div>
 </div>
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+
+=======
+>>>>>>> isramedi
+>>>>>>> 4f714e473f4c6306d8cd13fadaae1828cd26d7f1
 {% endblock %}

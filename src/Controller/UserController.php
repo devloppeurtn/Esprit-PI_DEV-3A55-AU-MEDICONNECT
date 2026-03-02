@@ -6,22 +6,45 @@ use App\Form\ProfileSettingsFormType;
 use App\Entity\Utilisateur;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+<<<<<<< HEAD
 use Symfony\Component\HttpFoundation\File\Exception\FileException;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
+=======
+<<<<<<< HEAD
+=======
+use Symfony\Component\HttpFoundation\File\Exception\FileException;
+use Symfony\Component\HttpFoundation\File\UploadedFile;
+>>>>>>> isramedi
+>>>>>>> 4f714e473f4c6306d8cd13fadaae1828cd26d7f1
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
+<<<<<<< HEAD
 use Symfony\Component\String\Slugger\SluggerInterface;
+=======
+<<<<<<< HEAD
+=======
+use Symfony\Component\String\Slugger\SluggerInterface;
+>>>>>>> isramedi
+>>>>>>> 4f714e473f4c6306d8cd13fadaae1828cd26d7f1
 
 class UserController extends AbstractController
 {
     public function __construct(
         private EntityManagerInterface $entityManager,
         private UserPasswordHasherInterface $passwordHasher,
+<<<<<<< HEAD
         private SluggerInterface $slugger,
         private string $photosDirectory
+=======
+<<<<<<< HEAD
+=======
+        private SluggerInterface $slugger,
+        private string $photosDirectory
+>>>>>>> isramedi
+>>>>>>> 4f714e473f4c6306d8cd13fadaae1828cd26d7f1
     ) {
     }
 
@@ -40,6 +63,11 @@ class UserController extends AbstractController
         ]);
     }
 
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+=======
+>>>>>>> 4f714e473f4c6306d8cd13fadaae1828cd26d7f1
     #[Route('/profile/voir/{id}', name: 'app_user_profile_view', requirements: ['id' => '\d+'], methods: ['GET'])]
     #[IsGranted('ROLE_USER')]
     public function profileView(int $id): Response
@@ -56,6 +84,10 @@ class UserController extends AbstractController
         ]);
     }
 
+<<<<<<< HEAD
+=======
+>>>>>>> isramedi
+>>>>>>> 4f714e473f4c6306d8cd13fadaae1828cd26d7f1
     #[Route('/parametres', name: 'app_settings', methods: ['GET', 'POST'])]
     #[IsGranted('ROLE_USER')]
     public function settings(Request $request): Response
@@ -70,11 +102,25 @@ class UserController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+<<<<<<< HEAD
             // VÃ©rifier que l'email n'est pas dÃ©jÃ  utilisÃ© par un autre utilisateur
+=======
+<<<<<<< HEAD
+            // Vérifier que l'email n'est pas déjà utilisé par un autre utilisateur
+=======
+            // VÃ©rifier que l'email n'est pas dÃ©jÃ  utilisÃ© par un autre utilisateur
+>>>>>>> isramedi
+>>>>>>> 4f714e473f4c6306d8cd13fadaae1828cd26d7f1
             $newEmail = $form->get('email')->getData();
             if ($newEmail !== $user->getEmail()) {
                 $existing = $this->entityManager->getRepository(Utilisateur::class)->findOneBy(['email' => $newEmail]);
                 if ($existing) {
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+                    $this->addFlash('error', 'Cet email est déjà utilisé par un autre compte.');
+=======
+>>>>>>> 4f714e473f4c6306d8cd13fadaae1828cd26d7f1
                     $this->addFlash('error', 'Cet email est dÃ©jÃ  utilisÃ© par un autre compte.');
                     return $this->render('user/settings.html.twig', ['form' => $form, 'user' => $user]);
                 }
@@ -96,6 +142,10 @@ class UserController extends AbstractController
                     $user->setPhoto($photoPath);
                 } else {
                     $this->addFlash('error', 'Erreur lors de l\'upload de la photo. Veuillez rÃ©essayer.');
+<<<<<<< HEAD
+=======
+>>>>>>> isramedi
+>>>>>>> 4f714e473f4c6306d8cd13fadaae1828cd26d7f1
                     return $this->render('user/settings.html.twig', ['form' => $form, 'user' => $user]);
                 }
             }
@@ -106,7 +156,15 @@ class UserController extends AbstractController
             }
 
             $this->entityManager->flush();
+<<<<<<< HEAD
             $this->addFlash('success', 'Vos paramÃ¨tres ont Ã©tÃ© enregistrÃ©s avec succÃ¨s.');
+=======
+<<<<<<< HEAD
+            $this->addFlash('success', 'Vos paramètres ont été enregistrés avec succès.');
+=======
+            $this->addFlash('success', 'Vos paramÃ¨tres ont Ã©tÃ© enregistrÃ©s avec succÃ¨s.');
+>>>>>>> isramedi
+>>>>>>> 4f714e473f4c6306d8cd13fadaae1828cd26d7f1
             return $this->redirectToRoute('app_settings');
         }
 
@@ -115,6 +173,12 @@ class UserController extends AbstractController
             'user' => $user,
         ]);
     }
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+}
+=======
+>>>>>>> 4f714e473f4c6306d8cd13fadaae1828cd26d7f1
 
     private function handlePhotoUpload(UploadedFile $file): ?string
     {
@@ -163,3 +227,7 @@ class UserController extends AbstractController
     }
 }
 
+<<<<<<< HEAD
+=======
+>>>>>>> isramedi
+>>>>>>> 4f714e473f4c6306d8cd13fadaae1828cd26d7f1

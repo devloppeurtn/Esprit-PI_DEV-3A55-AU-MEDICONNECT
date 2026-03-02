@@ -8,7 +8,14 @@ use Symfony\Component\Form\Extension\Core\Type\PasswordType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
+<<<<<<< HEAD
 use Symfony\Component\Validator\Constraints\Email;
+=======
+<<<<<<< HEAD
+=======
+use Symfony\Component\Validator\Constraints\Email;
+>>>>>>> isramedi
+>>>>>>> 4f714e473f4c6306d8cd13fadaae1828cd26d7f1
 use Symfony\Component\Validator\Constraints\NotBlank;
 
 class LoginFormType extends AbstractType
@@ -18,10 +25,27 @@ class LoginFormType extends AbstractType
         $builder
             ->add('email', EmailType::class, [
                 'label' => false,
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+                'attr' => [
+                    'placeholder' => 'Email',
+                    'class' => 'form-control',
+                ],
+                'constraints' => [
+                    new NotBlank([
+                        'message' => 'Veuillez entrer votre email',
+                    ]),
+=======
+>>>>>>> 4f714e473f4c6306d8cd13fadaae1828cd26d7f1
                 'attr' => ['placeholder' => 'Email', 'class' => 'form-control'],
                 'constraints' => [
                     new NotBlank(['message' => 'Veuillez entrer votre email']),
                     new Email(['message' => 'Email invalide.']),
+<<<<<<< HEAD
+=======
+>>>>>>> isramedi
+>>>>>>> 4f714e473f4c6306d8cd13fadaae1828cd26d7f1
                 ],
             ])
             ->add('password', PasswordType::class, [

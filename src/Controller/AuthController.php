@@ -4,7 +4,14 @@ namespace App\Controller;
 
 use App\Entity\Admin;
 use App\Entity\Medecin;
+<<<<<<< HEAD
 use App\Entity\Organisateur;
+=======
+<<<<<<< HEAD
+=======
+use App\Entity\Organisateur;
+>>>>>>> isramedi
+>>>>>>> 4f714e473f4c6306d8cd13fadaae1828cd26d7f1
 use App\Entity\Participation;
 use App\Entity\Patient;
 use App\Entity\RoleParticipation;
@@ -12,6 +19,17 @@ use App\Entity\RoleUtilisateur;
 use App\Entity\Secretaire;
 use App\Entity\StatutCompte;
 use App\Entity\Utilisateur;
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+use App\Form\LoginFormType;
+use App\Form\SignupFormType;
+use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
+=======
+>>>>>>> 4f714e473f4c6306d8cd13fadaae1828cd26d7f1
 use App\Form\ForgotPasswordFormType;
 use App\Form\LoginFormType;
 use App\Form\ResetPasswordFormType;
@@ -28,6 +46,10 @@ use Symfony\Component\Mailer\MailerInterface;
 use Symfony\Component\String\Slugger\SluggerInterface;
 use Symfony\Component\Mailer\Exception\TransportExceptionInterface;
 use Symfony\Component\Mime\Address;
+<<<<<<< HEAD
+=======
+>>>>>>> isramedi
+>>>>>>> 4f714e473f4c6306d8cd13fadaae1828cd26d7f1
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Core\Exception\AccountStatusException;
@@ -37,10 +59,20 @@ class AuthController extends AbstractController
 {
     public function __construct(
         private EntityManagerInterface $entityManager,
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+        private UserPasswordHasherInterface $passwordHasher
+=======
+>>>>>>> 4f714e473f4c6306d8cd13fadaae1828cd26d7f1
         private UserPasswordHasherInterface $passwordHasher,
         private MailerInterface $mailer,
         private SluggerInterface $slugger,
         private string $photosDirectory
+<<<<<<< HEAD
+=======
+>>>>>>> isramedi
+>>>>>>> 4f714e473f4c6306d8cd13fadaae1828cd26d7f1
     ) {
     }
 
@@ -54,15 +86,33 @@ class AuthController extends AbstractController
         $error = $authenticationUtils->getLastAuthenticationError();
         $lastUsername = $authenticationUtils->getLastUsername();
 
+<<<<<<< HEAD
         // GÃ©rer les messages d'erreur spÃ©cifiques
         // Les comptes SUSPENDU/BANNI : le message est dÃ©jÃ  ajoutÃ© par LoginFailureHandler.
+=======
+<<<<<<< HEAD
+        // Gérer les messages d'erreur spécifiques
+        // Les comptes SUSPENDU/BANNI : le message est déjà ajouté par LoginFailureHandler.
+=======
+        // GÃ©rer les messages d'erreur spÃ©cifiques
+        // Les comptes SUSPENDU/BANNI : le message est dÃ©jÃ  ajoutÃ© par LoginFailureHandler.
+>>>>>>> isramedi
+>>>>>>> 4f714e473f4c6306d8cd13fadaae1828cd26d7f1
         // Pour les autres erreurs, on ajoute le flash ici.
         if ($error) {
             $accountStatusError = $error instanceof AccountStatusException
                 ? $error
                 : (($previous = $error->getPrevious()) instanceof AccountStatusException ? $previous : null);
 
+<<<<<<< HEAD
             // Ne pas ajouter de flash pour AccountStatusException (dÃ©jÃ  fait par LoginFailureHandler)
+=======
+<<<<<<< HEAD
+            // Ne pas ajouter de flash pour AccountStatusException (déjà fait par LoginFailureHandler)
+=======
+            // Ne pas ajouter de flash pour AccountStatusException (dÃ©jÃ  fait par LoginFailureHandler)
+>>>>>>> isramedi
+>>>>>>> 4f714e473f4c6306d8cd13fadaae1828cd26d7f1
             if (!$accountStatusError) {
                 $errorMessage = $error->getMessageKey();
                 switch ($errorMessage) {
@@ -70,6 +120,21 @@ class AuthController extends AbstractController
                         $this->addFlash('error', 'Email ou mot de passe incorrect.');
                         break;
                     case 'User account is disabled.':
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+                        $this->addFlash('error', 'Votre compte est désactivé.');
+                        break;
+                    case 'User account is locked.':
+                        $this->addFlash('error', 'Votre compte est verrouillé.');
+                        break;
+                    case 'User account has expired.':
+                        $this->addFlash('error', 'Votre compte a expiré.');
+                        break;
+                    default:
+                        $this->addFlash('error', 'Une erreur est survenue lors de la connexion. Veuillez réessayer.');
+=======
+>>>>>>> 4f714e473f4c6306d8cd13fadaae1828cd26d7f1
                         $this->addFlash('error', 'Votre compte est dÃ©sactivÃ©.');
                         break;
                     case 'User account is locked.':
@@ -80,6 +145,10 @@ class AuthController extends AbstractController
                         break;
                     default:
                         $this->addFlash('error', 'Une erreur est survenue lors de la connexion. Veuillez rÃ©essayer.');
+<<<<<<< HEAD
+=======
+>>>>>>> isramedi
+>>>>>>> 4f714e473f4c6306d8cd13fadaae1828cd26d7f1
                 }
             }
         }
@@ -93,6 +162,13 @@ class AuthController extends AbstractController
         ]);
     }
 
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+
+
+=======
+>>>>>>> 4f714e473f4c6306d8cd13fadaae1828cd26d7f1
     #[Route('/oubli-mot-de-passe', name: 'app_forgot_password')]
     public function forgotPassword(Request $request): Response
     {
@@ -196,6 +272,10 @@ class AuthController extends AbstractController
         $this->addFlash('success', 'Votre adresse email a Ã©tÃ© vÃ©rifiÃ©e avec succÃ¨s ! Vous pouvez maintenant vous connecter.');
         return $this->redirectToRoute('app_login');
     }
+<<<<<<< HEAD
+=======
+>>>>>>> isramedi
+>>>>>>> 4f714e473f4c6306d8cd13fadaae1828cd26d7f1
 
 
 
@@ -206,13 +286,29 @@ class AuthController extends AbstractController
             return $this->redirectToRoute('app_home');
         }
 
+<<<<<<< HEAD
         // Valider le rÃ´le
+=======
+<<<<<<< HEAD
+        // Valider le rôle
+=======
+        // Valider le rÃ´le
+>>>>>>> isramedi
+>>>>>>> 4f714e473f4c6306d8cd13fadaae1828cd26d7f1
         $roleEnum = null;
         if ($role) {
             try {
                 $roleEnum = RoleUtilisateur::from($role);
             } catch (\ValueError $e) {
+<<<<<<< HEAD
                 $this->addFlash('error', 'RÃ´le invalide.');
+=======
+<<<<<<< HEAD
+                $this->addFlash('error', 'Rôle invalide.');
+=======
+                $this->addFlash('error', 'RÃ´le invalide.');
+>>>>>>> isramedi
+>>>>>>> 4f714e473f4c6306d8cd13fadaae1828cd26d7f1
                 return $this->redirectToRoute('app_signup');
             }
         }
@@ -227,19 +323,43 @@ class AuthController extends AbstractController
             $data = $form->getData();
             $confirmPassword = $form->get('confirmPassword')->getData();
 
+<<<<<<< HEAD
             // VÃ©rifier si l'email existe dÃ©jÃ 
+=======
+<<<<<<< HEAD
+            // Vérifier si l'email existe déjà
+=======
+            // VÃ©rifier si l'email existe dÃ©jÃ 
+>>>>>>> isramedi
+>>>>>>> 4f714e473f4c6306d8cd13fadaae1828cd26d7f1
             $existingUser = $this->entityManager->getRepository(Utilisateur::class)
                 ->findOneBy(['email' => $data['email']]);
 
             if ($existingUser) {
+<<<<<<< HEAD
                 $this->addFlash('error', 'Cet email est dÃ©jÃ  utilisÃ©.');
+=======
+<<<<<<< HEAD
+                $this->addFlash('error', 'Cet email est déjà utilisé.');
+=======
+                $this->addFlash('error', 'Cet email est dÃ©jÃ  utilisÃ©.');
+>>>>>>> isramedi
+>>>>>>> 4f714e473f4c6306d8cd13fadaae1828cd26d7f1
                 return $this->render('auth/signup.html.twig', [
                     'form' => $form,
                     'role' => $roleEnum,
                 ]);
             }
 
+<<<<<<< HEAD
             // VÃ©rifier la confirmation du mot de passe
+=======
+<<<<<<< HEAD
+            // Vérifier la confirmation du mot de passe
+=======
+            // VÃ©rifier la confirmation du mot de passe
+>>>>>>> isramedi
+>>>>>>> 4f714e473f4c6306d8cd13fadaae1828cd26d7f1
             if ($data['password'] !== $confirmPassword) {
                 $this->addFlash('error', 'Les mots de passe ne correspondent pas.');
                 return $this->render('auth/signup.html.twig', [
@@ -248,6 +368,15 @@ class AuthController extends AbstractController
                 ]);
             }
 
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+            // Créer l'utilisateur selon le rôle
+            $user = $this->createUserByRole($roleEnum ?? RoleUtilisateur::PATIENT, $data);
+
+            // Les admins inscrits restent SUSPENDU jusqu'à validation par un autre admin
+=======
+>>>>>>> 4f714e473f4c6306d8cd13fadaae1828cd26d7f1
             // GÃ©rer l'upload de photo si prÃ©sent
             $photoFile = $form->get('photo')->getData();
             $photoPath = null;
@@ -271,16 +400,29 @@ class AuthController extends AbstractController
             }
 
             // Les admins inscrits restent SUSPENDU jusqu'Ã  validation par un autre admin
+<<<<<<< HEAD
+=======
+>>>>>>> isramedi
+>>>>>>> 4f714e473f4c6306d8cd13fadaae1828cd26d7f1
             if ($user instanceof Admin) {
                 $user->setStatut(StatutCompte::SUSPENDU);
             }
 
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+=======
+>>>>>>> 4f714e473f4c6306d8cd13fadaae1828cd26d7f1
             // VÃ©rification email : token + envoi
             $user->setEmailVerified(false);
             $verifyToken = bin2hex(random_bytes(32));
             $user->setVerificationToken($verifyToken);
             $user->setVerificationTokenExpiresAt(new \DateTimeImmutable('+24 hours'));
 
+<<<<<<< HEAD
+=======
+>>>>>>> isramedi
+>>>>>>> 4f714e473f4c6306d8cd13fadaae1828cd26d7f1
             // Hasher le mot de passe
             $hashedPassword = $this->passwordHasher->hashPassword($user, $data['password']);
             $user->setPassword($hashedPassword);
@@ -288,6 +430,15 @@ class AuthController extends AbstractController
             $this->entityManager->persist($user);
             $this->entityManager->flush();
 
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+            if ($user instanceof Admin) {
+                $this->addFlash('success', 'Inscription réussie ! Votre compte admin est en attente de validation par un administrateur.');
+            } else {
+                $this->addFlash('success', 'Inscription réussie ! Vous pouvez maintenant vous connecter.');
+=======
+>>>>>>> 4f714e473f4c6306d8cd13fadaae1828cd26d7f1
             // Envoyer l'email de vÃ©rification
             try {
                 $fromAddress = $_ENV['MAILER_FROM'] ?? getenv('MAILER_FROM') ?: 'MediConnect <noreply@mediconnect.com>';
@@ -310,6 +461,10 @@ class AuthController extends AbstractController
                 $this->addFlash('success', 'Inscription rÃ©ussie ! Un email de vÃ©rification vous a Ã©tÃ© envoyÃ©. Cliquez sur le lien pour activer votre compte, puis attendez la validation par un administrateur.');
             } else {
                 $this->addFlash('success', 'Inscription rÃ©ussie ! Un email de vÃ©rification vous a Ã©tÃ© envoyÃ©. Cliquez sur le lien pour activer votre compte et vous connecter.');
+<<<<<<< HEAD
+=======
+>>>>>>> isramedi
+>>>>>>> 4f714e473f4c6306d8cd13fadaae1828cd26d7f1
             }
             return $this->redirectToRoute('app_login');
         }
@@ -324,6 +479,15 @@ class AuthController extends AbstractController
 
 
 
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+    #[Route('/logout', name: 'app_logout')]
+    public function logout(): void
+    {
+        throw new \LogicException('Cette méthode peut être vide - elle sera interceptée par la clé logout de votre firewall.');
+=======
+>>>>>>> 4f714e473f4c6306d8cd13fadaae1828cd26d7f1
     #[Route('/api/login', name: 'app_api_login', methods: ['POST'])]
     public function apiLogin(Request $request, AuthenticationUtils $authenticationUtils): JsonResponse
     {
@@ -635,6 +799,10 @@ class AuthController extends AbstractController
     public function logout(): void
     {
         throw new \LogicException('Cette mÃ©thode peut Ãªtre vide - elle sera interceptÃ©e par la clÃ© logout de votre firewall.');
+<<<<<<< HEAD
+=======
+>>>>>>> isramedi
+>>>>>>> 4f714e473f4c6306d8cd13fadaae1828cd26d7f1
     }
 
 
@@ -670,6 +838,11 @@ class AuthController extends AbstractController
 
 
 
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+=======
+>>>>>>> 4f714e473f4c6306d8cd13fadaae1828cd26d7f1
     private function getResetUrl(string $token): string
     {
         $appUrl = $_ENV['APP_URL'] ?? getenv('APP_URL') ?: null;
@@ -690,6 +863,10 @@ class AuthController extends AbstractController
         return $this->generateUrl('app_verify_email', ['token' => $token], \Symfony\Component\Routing\Generator\UrlGeneratorInterface::ABSOLUTE_URL);
     }
 
+<<<<<<< HEAD
+=======
+>>>>>>> isramedi
+>>>>>>> 4f714e473f4c6306d8cd13fadaae1828cd26d7f1
     private function createUserByRole(RoleUtilisateur $role, array $data): Utilisateur
     {
         $user = match ($role) {
@@ -698,12 +875,29 @@ class AuthController extends AbstractController
             RoleUtilisateur::MEDECIN => new Medecin(),
             RoleUtilisateur::SECRETAIRE => new Secretaire(),
             RoleUtilisateur::PARTICIPATION => new Participation(),
+<<<<<<< HEAD
             RoleUtilisateur::ORGANISATEUR => new Organisateur(),
+=======
+<<<<<<< HEAD
+=======
+            RoleUtilisateur::ORGANISATEUR => new Organisateur(),
+>>>>>>> isramedi
+>>>>>>> 4f714e473f4c6306d8cd13fadaae1828cd26d7f1
         };
 
         $user->setEmail($data['email']);
         $user->setNomComplet($data['nomComplet']);
 
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+        // Remplir les champs spécifiques selon le rôle
+        if ($user instanceof Patient) {
+            if (isset($data['telephone'])) {
+                $user->setTelephone($data['telephone']);
+            }
+=======
+>>>>>>> 4f714e473f4c6306d8cd13fadaae1828cd26d7f1
         // TÃ©lÃ©phone obligatoire pour tous les types d'utilisateurs (sauf MÃ©decin gÃ©rÃ© ailleurs si besoin)
         if (isset($data['telephone']) && !empty($data['telephone'])) {
             if ($user instanceof Patient || $user instanceof Secretaire || $user instanceof Admin || $user instanceof Participation || $user instanceof Organisateur) {
@@ -714,6 +908,10 @@ class AuthController extends AbstractController
         // Remplir les champs spÃ©cifiques selon le rÃ´le
         if ($user instanceof Patient) {
             // TÃ©lÃ©phone dÃ©jÃ  gÃ©rÃ© ci-dessus
+<<<<<<< HEAD
+=======
+>>>>>>> isramedi
+>>>>>>> 4f714e473f4c6306d8cd13fadaae1828cd26d7f1
             if (isset($data['dateNaissance'])) {
                 $user->setDateNaissance($data['dateNaissance']);
             }
@@ -730,8 +928,20 @@ class AuthController extends AbstractController
             if (isset($data['numeroLicence'])) {
                 $user->setNumeroLicence($data['numeroLicence']);
             }
+<<<<<<< HEAD
         } elseif ($user instanceof Secretaire || $user instanceof Organisateur) {
             // TÃ©lÃ©phone dÃ©jÃ  gÃ©rÃ© ci-dessus
+=======
+<<<<<<< HEAD
+        } elseif ($user instanceof Secretaire) {
+            if (isset($data['telephone'])) {
+                $user->setTelephone($data['telephone']);
+            }
+=======
+        } elseif ($user instanceof Secretaire || $user instanceof Organisateur) {
+            // TÃ©lÃ©phone dÃ©jÃ  gÃ©rÃ© ci-dessus
+>>>>>>> isramedi
+>>>>>>> 4f714e473f4c6306d8cd13fadaae1828cd26d7f1
         } elseif ($user instanceof Participation) {
             if (isset($data['roleDansEvenement'])) {
                 $user->setRoleDansEvenement($data['roleDansEvenement'] instanceof RoleParticipation
@@ -747,6 +957,12 @@ class AuthController extends AbstractController
 
         return $user;
     }
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+}
+=======
+>>>>>>> 4f714e473f4c6306d8cd13fadaae1828cd26d7f1
 
     private function handlePhotoUpload(UploadedFile $file): ?string
     {
@@ -795,3 +1011,7 @@ class AuthController extends AbstractController
     }
 }
 
+<<<<<<< HEAD
+=======
+>>>>>>> isramedi
+>>>>>>> 4f714e473f4c6306d8cd13fadaae1828cd26d7f1

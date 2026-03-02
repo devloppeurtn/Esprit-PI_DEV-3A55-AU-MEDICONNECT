@@ -1,13 +1,35 @@
+<<<<<<< HEAD
 {% extends 'admin/base_admin.html.twig' %}
 
 {% block title %}{{ isEdit ? 'Modifier' : 'Nouvelle' }} Catégorie - MediConnect{% endblock %}
+=======
+<<<<<<< HEAD
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ isEdit ? 'Modifier' : 'Nouvelle' }} CatÃ©gorie - MediConnect{% endblock %}
+=======
+{% extends 'admin/base_admin.html.twig' %}
+
+{% block title %}{{ isEdit ? 'Modifier' : 'Nouvelle' }} Catégorie - MediConnect{% endblock %}
+>>>>>>> isramedi
+>>>>>>> 4f714e473f4c6306d8cd13fadaae1828cd26d7f1
 
 {% block stylesheets %}
     <link href="{{ asset('assets/vendor/bootstrap/css/bootstrap.min.css') }}" rel="stylesheet">
     <style>
         .form-header {
+<<<<<<< HEAD
             background: transparent;
             color: #333;
+=======
+<<<<<<< HEAD
+            background: linear-gradient(135deg, #175cdd 0%, #1a4db5 100%);
+            color: white;
+=======
+            background: transparent;
+            color: #333;
+>>>>>>> isramedi
+>>>>>>> 4f714e473f4c6306d8cd13fadaae1828cd26d7f1
             padding: 3rem 0;
             margin-bottom: 2rem;
         }
@@ -37,7 +59,15 @@
         }
         
         .btn-primary {
+<<<<<<< HEAD
             background: #175cdd;
+=======
+<<<<<<< HEAD
+            background: linear-gradient(135deg, #175cdd 0%, #1a4db5 100%);
+=======
+            background: #175cdd;
+>>>>>>> isramedi
+>>>>>>> 4f714e473f4c6306d8cd13fadaae1828cd26d7f1
             border: none;
             padding: 0.75rem 2rem;
             border-radius: 8px;
@@ -45,7 +75,14 @@
         }
         
         .btn-primary:hover {
+<<<<<<< HEAD
             background: #1a4db5;
+=======
+<<<<<<< HEAD
+=======
+            background: #1a4db5;
+>>>>>>> isramedi
+>>>>>>> 4f714e473f4c6306d8cd13fadaae1828cd26d7f1
             transform: translateY(-2px);
             box-shadow: 0 5px 15px rgba(23, 92, 221, 0.3);
         }
@@ -55,14 +92,34 @@
 {% block body %}
 <div class="form-header">
     <div class="container">
+<<<<<<< HEAD
         <a href="{{ path('app_savoir_medical_index') }}" class="btn btn-outline-secondary btn-sm mb-3">
+=======
+<<<<<<< HEAD
+        <a href="{{ path('app_savoir_medical_index') }}" class="btn btn-light btn-sm mb-3">
+=======
+        <a href="{{ path('app_savoir_medical_index') }}" class="btn btn-outline-secondary btn-sm mb-3">
+>>>>>>> isramedi
+>>>>>>> 4f714e473f4c6306d8cd13fadaae1828cd26d7f1
             <i class="bi bi-arrow-left me-1"></i>Retour aux catÃ©gories
         </a>
         <h1 class="display-5 mb-2">
             <i class="bi bi-{{ isEdit ? 'pencil-square' : 'plus-circle' }} me-2"></i>
+<<<<<<< HEAD
             {{ isEdit ? 'Modifier la catégorie' : 'Nouvelle catégorie' }}
         </h1>
         <p class="mb-0">{{ isEdit ? 'Modifiez les informations de la catégorie' : 'Créez une nouvelle catégorie de santé' }}</p>
+=======
+<<<<<<< HEAD
+            {{ isEdit ? 'Modifier la catÃ©gorie' : 'Nouvelle catÃ©gorie' }}
+        </h1>
+        <p class="mb-0">{{ isEdit ? 'Modifiez les informations de la catÃ©gorie' : 'CrÃ©ez une nouvelle catÃ©gorie de santÃ©' }}</p>
+=======
+            {{ isEdit ? 'Modifier la catégorie' : 'Nouvelle catégorie' }}
+        </h1>
+        <p class="mb-0">{{ isEdit ? 'Modifiez les informations de la catégorie' : 'Créez une nouvelle catégorie de santé' }}</p>
+>>>>>>> isramedi
+>>>>>>> 4f714e473f4c6306d8cd13fadaae1828cd26d7f1
     </div>
 </div>
 
@@ -123,7 +180,15 @@
                     
                     <button type="submit" class="btn btn-primary">
                         <i class="bi bi-{{ isEdit ? 'check-circle' : 'plus-circle' }} me-2"></i>
+<<<<<<< HEAD
                         {{ isEdit ? 'Enregistrer les modifications' : 'Créer la catégorie' }}
+=======
+<<<<<<< HEAD
+                        {{ isEdit ? 'Enregistrer les modifications' : 'CrÃ©er la catÃ©gorie' }}
+=======
+                        {{ isEdit ? 'Enregistrer les modifications' : 'Créer la catégorie' }}
+>>>>>>> isramedi
+>>>>>>> 4f714e473f4c6306d8cd13fadaae1828cd26d7f1
                     </button>
                 </div>
 
@@ -138,7 +203,15 @@
                         <p class="text-muted small mb-3">
                             La suppression de cette catÃ©gorie supprimera Ã©galement tous les cours et progressions associÃ©s. Cette action est irrÃ©versible.
                         </p>
+<<<<<<< HEAD
                         <form method="post" action="{{ path('app_savoir_medical_supprimer_categorie', {id: categorie.id}) }}" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer cette catégorie ? Cette action est irréversible.');">
+=======
+<<<<<<< HEAD
+                        <form method="post" action="{{ path('app_savoir_medical_supprimer_categorie', {id: categorie.id}) }}" onsubmit="return confirm('ÃŠtes-vous sÃ»r de vouloir supprimer cette catÃ©gorie ? Cette action est irrÃ©versible.');">
+=======
+                        <form method="post" action="{{ path('app_savoir_medical_supprimer_categorie', {id: categorie.id}) }}" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer cette catégorie ? Cette action est irréversible.');">
+>>>>>>> isramedi
+>>>>>>> 4f714e473f4c6306d8cd13fadaae1828cd26d7f1
                             <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ categorie.id) }}">
                             <button type="submit" class="btn btn-danger">
                                 <i class="bi bi-trash me-2"></i>Supprimer la catÃ©gorie

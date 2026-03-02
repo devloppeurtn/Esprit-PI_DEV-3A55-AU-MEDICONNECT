@@ -1,4 +1,12 @@
+<<<<<<< HEAD
 ﻿{% extends 'base.html.twig' %}
+=======
+<<<<<<< HEAD
+{% extends 'base.html.twig' %}
+=======
+﻿{% extends 'base.html.twig' %}
+>>>>>>> isramedi
+>>>>>>> 4f714e473f4c6306d8cd13fadaae1828cd26d7f1
 
 {% block title %}Accueil - MediConnect{% endblock %}
 
@@ -14,6 +22,11 @@
 {% endblock %}
 
 {% block body %}
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+=======
+>>>>>>> 4f714e473f4c6306d8cd13fadaae1828cd26d7f1
   {% if app.user and is_granted('ROLE_PATIENT') %}
     {% set rdv_link = path('app_patient_medecins') %}
   {% elseif app.user and is_granted('ROLE_ADMIN') %}
@@ -27,6 +40,10 @@
   {% endif %}
   {% set doctors_list_link = path('app_medecins_public') %}
 
+<<<<<<< HEAD
+=======
+>>>>>>> isramedi
+>>>>>>> 4f714e473f4c6306d8cd13fadaae1828cd26d7f1
   <main class="main">
 
     <!-- Hero Section -->
@@ -79,7 +96,15 @@
               </div>
 
               <div class="hero-actions" data-aos="fade-right" data-aos-delay="600">
+<<<<<<< HEAD
                 <a href="{{ rdv_link }}" class="btn btn-primary">Prendre un Rendez-vous</a>
+=======
+<<<<<<< HEAD
+                <a href="#!" class="btn btn-primary">Prendre un Rendez-vous</a>
+=======
+                <a href="{{ rdv_link }}" class="btn btn-primary">Prendre un Rendez-vous</a>
+>>>>>>> isramedi
+>>>>>>> 4f714e473f4c6306d8cd13fadaae1828cd26d7f1
                 <a href="https://www.youtube.com/watch?v=Y7f98aduVJ8" class="btn btn-outline glightbox">
                   <i class="bi bi-play-circle me-2"></i>
                   Découvrir la Plateforme
@@ -142,6 +167,20 @@
     <!-- Events Preview Section -->
     <section id="home-events" class="home-events section py-5">
       <div class="container" data-aos="fade-up">
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+        <div class="section-title">
+          <h2>Événements à venir</h2>
+          <p>Découvrez nos prochains événements et inscrivez-vous sans créer de compte</p>
+        </div>
+
+        <div class="row g-4">
+          {% for item in events %}
+            <div class="col-lg-4" data-aos="fade-up">
+              <div class="card event-card shadow-sm">
+=======
+>>>>>>> 4f714e473f4c6306d8cd13fadaae1828cd26d7f1
         <div class="section-title text-center mb-4">
           <h2>?v?nements ? venir</h2>
           <p>Découvrez nos prochains événements et inscrivez-vous sans créer de compte</p>
@@ -150,11 +189,31 @@
           {% for item in events|default([]) %}
             <div class="col-lg-4" data-aos="fade-up">
               <div class="card event-card shadow-sm h-100">
+<<<<<<< HEAD
+=======
+>>>>>>> isramedi
+>>>>>>> 4f714e473f4c6306d8cd13fadaae1828cd26d7f1
                 <div class="card-body">
                   <h5 class="card-title">{{ item.title }}</h5>
                   {% if item.eventDate %}
                     <p class="text-info small mb-2"><i class="bi bi-calendar-event"></i> {{ item.eventDate|date('d-m-Y') }}</p>
                   {% endif %}
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+                  <p class="card-text text-muted">{{ (item.content|length > 120) ? item.content|slice(0,120) ~ '...' : item.content }}</p>
+                </div>
+                <div class="card-footer bg-white border-0 d-flex justify-content-between align-items-center">
+                  <a href="{{ path('app_evenement_show', {id: item.id}) }}" class="btn btn-outline-primary btn-sm">Détails</a>
+                  <button class="btn btn-success btn-sm participate-btn" 
+                          data-event-id="{{ item.id }}" 
+                          data-event-title="{{ item.title }}"
+                          data-csrf="{{ csrf_token('participate' ~ item.id) }}"
+                          data-bs-toggle="modal" data-bs-target="#guestParticipateModal">
+                    <i class="bi bi-check-circle me-1"></i> Participer
+                  </button>
+=======
+>>>>>>> 4f714e473f4c6306d8cd13fadaae1828cd26d7f1
                   <p class="card-text text-muted">{{ (item.content|length > 120) ? item.content|slice(0,120) ~ '...' : (item.content ?? '') }}</p>
                 </div>
                 <div class="card-footer bg-white border-0 d-flex justify-content-between align-items-center">
@@ -162,12 +221,24 @@
                   <a href="{{ path('app_evenement_show', {id: item.id}) }}#participer" class="btn btn-success btn-sm">
                     <i class="bi bi-check-circle me-1"></i> Participer
                   </a>
+<<<<<<< HEAD
+=======
+>>>>>>> isramedi
+>>>>>>> 4f714e473f4c6306d8cd13fadaae1828cd26d7f1
                 </div>
               </div>
             </div>
           {% else %}
             <div class="col-12">
+<<<<<<< HEAD
               <div class="alert alert-info mb-0">Aucun événement à venir pour le moment.</div>
+=======
+<<<<<<< HEAD
+              <div class="alert alert-info">Aucun événement à venir pour le moment.</div>
+=======
+              <div class="alert alert-info mb-0">Aucun événement à venir pour le moment.</div>
+>>>>>>> isramedi
+>>>>>>> 4f714e473f4c6306d8cd13fadaae1828cd26d7f1
             </div>
           {% endfor %}
         </div>
@@ -403,7 +474,15 @@
               <div class="service-details">
                 <h2>Plateforme Médicale Complète</h2>
                 <p>MediConnect offre une solution complète pour la gestion de votre santé. Que vous soyez patient ou médecin, bénéficiez d'outils modernes et sécurisés pour optimiser vos soins médicaux.</p>
+<<<<<<< HEAD
                 <a href="{{ path('app_home') }}#featured-services" class="main-cta">Découvrir nos Services</a>
+=======
+<<<<<<< HEAD
+                <a href="#!" class="main-cta">Découvrir nos Services</a>
+=======
+                <a href="{{ path('app_home') }}#featured-services" class="main-cta">Découvrir nos Services</a>
+>>>>>>> isramedi
+>>>>>>> 4f714e473f4c6306d8cd13fadaae1828cd26d7f1
               </div>
             </div>
           </div>
@@ -524,6 +603,27 @@
               <h3 class="search-title">Trouvez le Médecin Idéal</h3>
               <p class="search-subtitle">Recherchez parmi notre répertoire complet de professionnels de santé expérimentés
               </p>
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+              <form class="search-form" action="#!" method="#">
+                <div class="search-input-group">
+                  <div class="input-wrapper">
+                    <i class="bi bi-person"></i>
+                    <input type="text" class="form-control" name="doctor_name" placeholder="Nom du médecin">
+                  </div>
+                  <div class="select-wrapper">
+                    <i class="bi bi-heart-pulse"></i>
+                    <select class="form-select" name="specialty">
+                      <option value="">Toutes les Spécialités</option>
+                      <option value="cardiology">Cardiologie</option>
+                      <option value="neurology">Neurologie</option>
+                      <option value="orthopedics">Orthopédie</option>
+                      <option value="pediatrics">Pédiatrie</option>
+                      <option value="dermatology">Dermatologie</option>
+                      <option value="oncology">Oncologie</option>
+=======
+>>>>>>> 4f714e473f4c6306d8cd13fadaae1828cd26d7f1
               <form class="search-form" action="{{ doctors_list_link }}" method="get">
                 <div class="search-input-group">
                   <div class="input-wrapper">
@@ -537,6 +637,10 @@
                       {% for specialty in homeDoctorSpecialites|default([]) %}
                         <option value="{{ specialty }}">{{ specialty }}</option>
                       {% endfor %}
+<<<<<<< HEAD
+=======
+>>>>>>> isramedi
+>>>>>>> 4f714e473f4c6306d8cd13fadaae1828cd26d7f1
                     </select>
                   </div>
                   <button type="submit" class="search-btn">
@@ -550,6 +654,207 @@
         </div>
 
         <div class="doctors-grid" data-aos="fade-up" data-aos-delay="300">
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+          <div class="doctor-profile" data-aos="zoom-in" data-aos-delay="100">
+            <div class="profile-header">
+              <div class="doctor-avatar">
+                <img src="{{ asset('assets/img/health/staff-2.webp') }}" alt="Dr. Amanda Foster" class="img-fluid">
+                <div class="status-indicator available"></div>
+              </div>
+              <div class="doctor-details">
+                <h4>Dr. Amanda Foster</h4>
+                <span class="specialty-tag">Spécialiste Cardiologie</span>
+                <div class="experience-info">
+                  <i class="bi bi-award"></i>
+                  <span>14 ans d'expérience</span>
+                </div>
+              </div>
+            </div>
+            <div class="rating-section">
+              <div class="stars">
+                <i class="bi bi-star-fill"></i>
+                <i class="bi bi-star-fill"></i>
+                <i class="bi bi-star-fill"></i>
+                <i class="bi bi-star-fill"></i>
+                <i class="bi bi-star-fill"></i>
+              </div>
+              <span class="rating-score">4.9</span>
+              <span class="review-count">(127 avis)</span>
+            </div>
+            <div class="action-buttons">
+              <a href="#!" class="btn-secondary">Voir Détails</a>
+              <a href="#!" class="btn-primary">Réserver</a>
+            </div>
+          </div><!-- End Doctor Profile -->
+
+          <div class="doctor-profile" data-aos="zoom-in" data-aos-delay="200">
+            <div class="profile-header">
+              <div class="doctor-avatar">
+                <img src="{{ asset('assets/img/health/staff-6.webp') }}" alt="Dr. Marcus Johnson" class="img-fluid">
+                <div class="status-indicator busy"></div>
+              </div>
+              <div class="doctor-details">
+                <h4>Dr. Marcus Johnson</h4>
+                <span class="specialty-tag">Expert Neurologie</span>
+                <div class="experience-info">
+                  <i class="bi bi-award"></i>
+                  <span>16 ans d'expérience</span>
+                </div>
+              </div>
+            </div>
+            <div class="rating-section">
+              <div class="stars">
+                <i class="bi bi-star-fill"></i>
+                <i class="bi bi-star-fill"></i>
+                <i class="bi bi-star-fill"></i>
+                <i class="bi bi-star-fill"></i>
+                <i class="bi bi-star-half"></i>
+              </div>
+              <span class="rating-score">4.8</span>
+              <span class="review-count">(89 avis)</span>
+            </div>
+            <div class="action-buttons">
+              <a href="#!" class="btn-secondary">Voir Détails</a>
+              <a href="#!" class="btn-primary">Réserver</a>
+            </div>
+          </div><!-- End Doctor Profile -->
+
+          <div class="doctor-profile" data-aos="zoom-in" data-aos-delay="300">
+            <div class="profile-header">
+              <div class="doctor-avatar">
+                <img src="{{ asset('assets/img/health/staff-4.webp') }}" alt="Dr. Rachel Williams" class="img-fluid">
+                <div class="status-indicator available"></div>
+              </div>
+              <div class="doctor-details">
+                <h4>Dr. Rachel Williams</h4>
+                <span class="specialty-tag">Soins Pédiatriques</span>
+                <div class="experience-info">
+                  <i class="bi bi-award"></i>
+                  <span>11 ans d'expérience</span>
+                </div>
+              </div>
+            </div>
+            <div class="rating-section">
+              <div class="stars">
+                <i class="bi bi-star-fill"></i>
+                <i class="bi bi-star-fill"></i>
+                <i class="bi bi-star-fill"></i>
+                <i class="bi bi-star-fill"></i>
+                <i class="bi bi-star-fill"></i>
+              </div>
+              <span class="rating-score">5.0</span>
+              <span class="review-count">(203 avis)</span>
+            </div>
+            <div class="action-buttons">
+              <a href="#!" class="btn-secondary">Voir Détails</a>
+              <a href="#!" class="btn-primary">Réserver</a>
+            </div>
+          </div><!-- End Doctor Profile -->
+
+          <div class="doctor-profile" data-aos="zoom-in" data-aos-delay="400">
+            <div class="profile-header">
+              <div class="doctor-avatar">
+                <img src="{{ asset('assets/img/health/staff-8.webp') }}" alt="Dr. David Chen" class="img-fluid">
+                <div class="status-indicator offline"></div>
+              </div>
+              <div class="doctor-details">
+                <h4>Dr. David Chen</h4>
+                <span class="specialty-tag">Chirurgie Orthopédique</span>
+                <div class="experience-info">
+                  <i class="bi bi-award"></i>
+                  <span>22 ans d'expérience</span>
+                </div>
+              </div>
+            </div>
+            <div class="rating-section">
+              <div class="stars">
+                <i class="bi bi-star-fill"></i>
+                <i class="bi bi-star-fill"></i>
+                <i class="bi bi-star-fill"></i>
+                <i class="bi bi-star-fill"></i>
+                <i class="bi bi-star-half"></i>
+              </div>
+              <span class="rating-score">4.7</span>
+              <span class="review-count">(156 avis)</span>
+            </div>
+            <div class="action-buttons">
+              <a href="#!" class="btn-secondary">Voir Détails</a>
+              <a href="#!" class="btn-primary">Réserver</a>
+            </div>
+          </div><!-- End Doctor Profile -->
+
+          <div class="doctor-profile" data-aos="zoom-in" data-aos-delay="500">
+            <div class="profile-header">
+              <div class="doctor-avatar">
+                <img src="{{ asset('assets/img/health/staff-11.webp') }}" alt="Dr. Victoria Torres" class="img-fluid">
+                <div class="status-indicator available"></div>
+              </div>
+              <div class="doctor-details">
+                <h4>Dr. Victoria Torres</h4>
+                <span class="specialty-tag">Soins Dermatologiques</span>
+                <div class="experience-info">
+                  <i class="bi bi-award"></i>
+                  <span>9 ans d'expérience</span>
+                </div>
+              </div>
+            </div>
+            <div class="rating-section">
+              <div class="stars">
+                <i class="bi bi-star-fill"></i>
+                <i class="bi bi-star-fill"></i>
+                <i class="bi bi-star-fill"></i>
+                <i class="bi bi-star-fill"></i>
+                <i class="bi bi-star"></i>
+              </div>
+              <span class="rating-score">4.5</span>
+              <span class="review-count">(74 avis)</span>
+            </div>
+            <div class="action-buttons">
+              <a href="#!" class="btn-secondary">Voir Détails</a>
+              <a href="#!" class="btn-primary">Réserver</a>
+            </div>
+          </div><!-- End Doctor Profile -->
+
+          <div class="doctor-profile" data-aos="zoom-in" data-aos-delay="600">
+            <div class="profile-header">
+              <div class="doctor-avatar">
+                <img src="{{ asset('assets/img/health/staff-14.webp') }}" alt="Dr. Benjamin Lee" class="img-fluid">
+                <div class="status-indicator available"></div>
+              </div>
+              <div class="doctor-details">
+                <h4>Dr. Benjamin Lee</h4>
+                <span class="specialty-tag">Traitement Oncologique</span>
+                <div class="experience-info">
+                  <i class="bi bi-award"></i>
+                  <span>19 ans d'expérience</span>
+                </div>
+              </div>
+            </div>
+            <div class="rating-section">
+              <div class="stars">
+                <i class="bi bi-star-fill"></i>
+                <i class="bi bi-star-fill"></i>
+                <i class="bi bi-star-fill"></i>
+                <i class="bi bi-star-fill"></i>
+                <i class="bi bi-star-fill"></i>
+              </div>
+              <span class="rating-score">4.9</span>
+              <span class="review-count">(194 avis)</span>
+            </div>
+            <div class="action-buttons">
+              <a href="#!" class="btn-secondary">Voir Détails</a>
+              <a href="#!" class="btn-primary">Réserver</a>
+            </div>
+          </div><!-- End Doctor Profile -->
+
+        </div>
+
+        <div class="text-center mt-5" data-aos="fade-up" data-aos-delay="700">
+          <a href="#!" class="btn-view-all">
+=======
+>>>>>>> 4f714e473f4c6306d8cd13fadaae1828cd26d7f1
           {% set statusClasses = ['available', 'busy', 'available', 'offline', 'available', 'available'] %}
           {% set ratingScores = ['4.9', '4.8', '5.0', '4.7', '4.5', '4.9'] %}
           {% set reviewCounts = ['127', '89', '203', '156', '74', '194'] %}
@@ -613,6 +918,10 @@
 
         <div class="text-center mt-5" data-aos="fade-up" data-aos-delay="700">
           <a href="{{ doctors_list_link }}" class="btn-view-all">
+<<<<<<< HEAD
+=======
+>>>>>>> isramedi
+>>>>>>> 4f714e473f4c6306d8cd13fadaae1828cd26d7f1
             Voir Tous les Médecins
             <i class="bi bi-arrow-right"></i>
           </a>
@@ -636,11 +945,25 @@
                 <p>MediConnect transforme votre expérience médicale en vous offrant une plateforme complète pour gérer votre santé. Rejoignez des milliers de patients et médecins qui font confiance à notre solution numérique.</p>
 
                 <div class="cta-wrapper">
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+                  <a href="#!" class="primary-cta">
+                    <span>Prendre un Rendez-vous</span>
+                    <i class="bi bi-arrow-right"></i>
+                  </a>
+                  <a href="#!" class="secondary-cta">
+=======
+>>>>>>> 4f714e473f4c6306d8cd13fadaae1828cd26d7f1
                   <a href="{{ rdv_link }}" class="primary-cta">
                     <span>Prendre un Rendez-vous</span>
                     <i class="bi bi-arrow-right"></i>
                   </a>
                   <a href="{{ path('app_home') }}#featured-services" class="secondary-cta">
+<<<<<<< HEAD
+=======
+>>>>>>> isramedi
+>>>>>>> 4f714e473f4c6306d8cd13fadaae1828cd26d7f1
                     <span>Découvrir les Services</span>
                     <i class="bi bi-arrow-right"></i>
                   </a>
@@ -724,6 +1047,66 @@
 
   </main>
 
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+  <!-- Guest Participate Modal -->
+  <div class="modal fade" id="guestParticipateModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">S'inscrire à l'événement</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <form id="guestParticipateForm" method="post" action="#">
+          <div class="modal-body">
+            <p id="guestEventTitle" class="fw-bold"></p>
+            <div class="mb-3">
+              <label class="form-label">Prénom</label>
+              <input type="text" name="firstName" class="form-control" required>
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Nom</label>
+              <input type="text" name="lastName" class="form-control" required>
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Email</label>
+              <input type="email" name="email" class="form-control" required>
+            </div>
+            <input type="hidden" name="_token" id="guestCsrfToken" value="">
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+            <button type="submit" class="btn btn-primary">Confirmer</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    (function(){
+      const modal = document.getElementById('guestParticipateModal');
+      const form = document.getElementById('guestParticipateForm');
+      const eventTitleEl = document.getElementById('guestEventTitle');
+      const csrfInput = document.getElementById('guestCsrfToken');
+
+      document.querySelectorAll('.participate-btn').forEach(btn => {
+        btn.addEventListener('click', function(e){
+          const id = this.dataset.eventId;
+          const title = this.dataset.eventTitle;
+          const csrf = this.dataset.csrf;
+          eventTitleEl.textContent = title;
+          csrfInput.value = csrf;
+          form.action = '/evenement/' + id + '/participer';
+        });
+      });
+    })();
+  </script>
+
+=======
+>>>>>>> isramedi
+>>>>>>> 4f714e473f4c6306d8cd13fadaae1828cd26d7f1
   <footer id="footer" class="footer-16 footer position-relative">
 
     <div class="container">
@@ -734,7 +1117,15 @@
           <div class="col-lg-5">
             <div class="brand-section">
               <a href="{{ path('app_home') }}" class="logo d-flex align-items-center mb-4">
+<<<<<<< HEAD
                 <img src="{{ asset('assets/img/logomed.png') }}" alt="Logo MediConnect" class="me-2" style="max-width: 60px; height: auto;">
+=======
+<<<<<<< HEAD
+                <img src="{{ asset('assets/img/logomed.png') }}" alt="Logo MediConnect" class="me-2">
+=======
+                <img src="{{ asset('assets/img/logomed.png') }}" alt="Logo MediConnect" class="me-2" style="max-width: 60px; height: auto;">
+>>>>>>> isramedi
+>>>>>>> 4f714e473f4c6306d8cd13fadaae1828cd26d7f1
                 <span class="sitename">MediConnect</span>
               </a>
               <p class="brand-description">La plateforme numérique qui connecte patients et médecins pour une gestion médicale moderne, sécurisée et efficace.</p>
@@ -765,7 +1156,15 @@
                     <h6>Pour les Patients</h6>
                     <nav class="footer-nav">
                       <a href="#!">Trouver un Médecin</a>
+<<<<<<< HEAD
                       <a href="{{ rdv_link }}">Prendre Rendez-vous</a>
+=======
+<<<<<<< HEAD
+                      <a href="#!">Prendre Rendez-vous</a>
+=======
+                      <a href="{{ rdv_link }}">Prendre Rendez-vous</a>
+>>>>>>> isramedi
+>>>>>>> 4f714e473f4c6306d8cd13fadaae1828cd26d7f1
                       <a href="#!">Consultation en Ligne</a>
                       <a href="#!">Dossier Médical</a>
                       <a href="#!">Ordonnances</a>
@@ -867,4 +1266,11 @@
   <!-- Main JS File -->
   <script src="{{ asset('assets/js/main.js') }}"></script>
 {% endblock %}
+<<<<<<< HEAD
 
+=======
+<<<<<<< HEAD
+=======
+
+>>>>>>> isramedi
+>>>>>>> 4f714e473f4c6306d8cd13fadaae1828cd26d7f1

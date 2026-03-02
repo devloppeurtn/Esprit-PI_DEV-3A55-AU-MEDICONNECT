@@ -5,24 +5,48 @@ namespace App\Controller;
 use App\Entity\CategorieSante;
 use App\Entity\ProgressionUtilisateur;
 use App\Entity\CoursEducatif;
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+=======
+>>>>>>> 4f714e473f4c6306d8cd13fadaae1828cd26d7f1
 use App\Entity\Medecin;
 use App\Entity\Utilisateur;
 use App\Entity\ReponseUtilisateur;
 use App\Entity\QuestionQuiz;
 use App\Enum\StatutQuestion;
+<<<<<<< HEAD
+=======
+>>>>>>> isramedi
+>>>>>>> 4f714e473f4c6306d8cd13fadaae1828cd26d7f1
 use App\Form\CategorieSanteFormType;
 use App\Repository\CategorieSanteRepository;
 use App\Repository\ProgressionUtilisateurRepository;
 use App\Repository\CoursEducatifRepository;
+<<<<<<< HEAD
 use App\Repository\ReponseUtilisateurRepository;
 use App\Service\QuizAIGenerator;
+=======
+<<<<<<< HEAD
+=======
+use App\Repository\ReponseUtilisateurRepository;
+use App\Service\QuizAIGenerator;
+>>>>>>> isramedi
+>>>>>>> 4f714e473f4c6306d8cd13fadaae1828cd26d7f1
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
+<<<<<<< HEAD
 use Symfony\Component\Uid\Uuid;
+=======
+<<<<<<< HEAD
+=======
+use Symfony\Component\Uid\Uuid;
+>>>>>>> isramedi
+>>>>>>> 4f714e473f4c6306d8cd13fadaae1828cd26d7f1
 
 #[Route('/savoir-medical')]
 #[IsGranted('ROLE_USER')]
@@ -32,8 +56,17 @@ class SavoirMedicalController extends AbstractController
         private EntityManagerInterface $entityManager,
         private CategorieSanteRepository $categorieSanteRepository,
         private ProgressionUtilisateurRepository $progressionRepository,
+<<<<<<< HEAD
         private CoursEducatifRepository $coursRepository,
         private ReponseUtilisateurRepository $reponseRepository
+=======
+<<<<<<< HEAD
+        private CoursEducatifRepository $coursRepository
+=======
+        private CoursEducatifRepository $coursRepository,
+        private ReponseUtilisateurRepository $reponseRepository
+>>>>>>> isramedi
+>>>>>>> 4f714e473f4c6306d8cd13fadaae1828cd26d7f1
     ) {
     }
 
@@ -45,6 +78,18 @@ class SavoirMedicalController extends AbstractController
         // Récupérer toutes les catégories
         $categories = $this->categorieSanteRepository->findAll();
         
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+        // Récupérer les progressions de l'utilisateur
+        $progressions = $this->progressionRepository->findByUtilisateur($user);
+        
+        // Créer un tableau associatif pour accès rapide
+        $progressionsParCategorie = [];
+        foreach ($progressions as $progression) {
+            $progressionsParCategorie[$progression->getCategorieSante()->getId()->toRfc4122()] = $progression;
+=======
+>>>>>>> 4f714e473f4c6306d8cd13fadaae1828cd26d7f1
         // Récupérer les progressions de l'utilisateur (uniquement pour les patients)
         $progressionsParCategorie = [];
         if ($this->isGranted('ROLE_PATIENT')) {
@@ -52,6 +97,10 @@ class SavoirMedicalController extends AbstractController
             foreach ($progressions as $progression) {
                 $progressionsParCategorie[$progression->getCategorieSante()->getId()->toRfc4122()] = $progression;
             }
+<<<<<<< HEAD
+=======
+>>>>>>> isramedi
+>>>>>>> 4f714e473f4c6306d8cd13fadaae1828cd26d7f1
         }
         
         return $this->render('savoir_medical/index.html.twig', [
@@ -91,11 +140,22 @@ class SavoirMedicalController extends AbstractController
         // Récupérer les cours de cette catégorie
         $cours = $this->coursRepository->findByCategorie($categorie);
         
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+        // Récupérer la progression de l'utilisateur pour cette catégorie
+        $progression = $this->progressionRepository->findByUtilisateurAndCategorie($user, $categorie);
+=======
+>>>>>>> 4f714e473f4c6306d8cd13fadaae1828cd26d7f1
         // Récupérer la progression de l'utilisateur pour cette catégorie (uniquement pour les patients)
         $progression = null;
         if ($this->isGranted('ROLE_PATIENT')) {
             $progression = $this->progressionRepository->findByUtilisateurAndCategorie($user, $categorie);
         }
+<<<<<<< HEAD
+=======
+>>>>>>> isramedi
+>>>>>>> 4f714e473f4c6306d8cd13fadaae1828cd26d7f1
         
         return $this->render('savoir_medical/categorie.html.twig', [
             'categorie' => $categorie,
@@ -105,7 +165,14 @@ class SavoirMedicalController extends AbstractController
     }
 
     #[Route('/progression', name: 'app_progression_utilisateur')]
+<<<<<<< HEAD
     #[IsGranted('ROLE_PATIENT')]
+=======
+<<<<<<< HEAD
+=======
+    #[IsGranted('ROLE_PATIENT')]
+>>>>>>> isramedi
+>>>>>>> 4f714e473f4c6306d8cd13fadaae1828cd26d7f1
     public function progression(): Response
     {
         $user = $this->getUser();
@@ -127,7 +194,15 @@ class SavoirMedicalController extends AbstractController
         foreach ($progressions as $progression) {
             $totalScoreMax += $progression->getScoreMax();
             $totalTentatives += $progression->getNbTentatives();
+<<<<<<< HEAD
             if ($progression->getBadgeNom() && $progression->getCategorieSante()) {
+=======
+<<<<<<< HEAD
+            if ($progression->getBadgeNom()) {
+=======
+            if ($progression->getBadgeNom() && $progression->getCategorieSante()) {
+>>>>>>> isramedi
+>>>>>>> 4f714e473f4c6306d8cd13fadaae1828cd26d7f1
                 $badges[] = [
                     'nom' => $progression->getBadgeNom(),
                     'categorie' => $progression->getCategorieSante()->getNom(),
@@ -156,6 +231,16 @@ class SavoirMedicalController extends AbstractController
     {
         $user = $this->getUser();
         
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+        // Récupérer la progression pour cette catégorie
+        $progression = $this->progressionRepository->findByUtilisateurAndCategorie(
+            $user,
+            $cours->getCategorieSante()
+        );
+=======
+>>>>>>> 4f714e473f4c6306d8cd13fadaae1828cd26d7f1
         // Récupérer la progression pour cette catégorie (uniquement pour les patients)
         $progression = null;
         if ($this->isGranted('ROLE_PATIENT')) {
@@ -164,6 +249,10 @@ class SavoirMedicalController extends AbstractController
                 $cours->getCategorieSante()
             );
         }
+<<<<<<< HEAD
+=======
+>>>>>>> isramedi
+>>>>>>> 4f714e473f4c6306d8cd13fadaae1828cd26d7f1
         
         // Récupérer les questions du cours
         $questions = $cours->getQuestions();
@@ -209,6 +298,11 @@ class SavoirMedicalController extends AbstractController
 
         return $this->redirectToRoute('app_savoir_medical_index');
     }
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+=======
+>>>>>>> 4f714e473f4c6306d8cd13fadaae1828cd26d7f1
 
     #[Route('/categorie/{categorieId}/cours/nouveau', name: 'app_savoir_medical_nouveau_cours')]
     #[IsGranted('ROLE_MEDECIN')]
@@ -654,4 +748,8 @@ class SavoirMedicalController extends AbstractController
             'questions' => $questions,
         ]);
     }
+<<<<<<< HEAD
+=======
+>>>>>>> isramedi
+>>>>>>> 4f714e473f4c6306d8cd13fadaae1828cd26d7f1
 }

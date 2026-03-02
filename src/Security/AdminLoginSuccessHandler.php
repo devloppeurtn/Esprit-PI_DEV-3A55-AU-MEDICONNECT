@@ -26,6 +26,11 @@ class AdminLoginSuccessHandler implements AuthenticationSuccessHandlerInterface
             ]);
         }
 
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+=======
+>>>>>>> 4f714e473f4c6306d8cd13fadaae1828cd26d7f1
         if ($user instanceof Utilisateur && \in_array('ROLE_SECRETAIRE', $user->getRoles(), true)) {
             return new Response('', Response::HTTP_FOUND, [
                 'Location' => $this->urlGenerator->generate('app_secretaire_index'),
@@ -44,6 +49,10 @@ class AdminLoginSuccessHandler implements AuthenticationSuccessHandlerInterface
             ]);
         }
 
+<<<<<<< HEAD
+=======
+>>>>>>> isramedi
+>>>>>>> 4f714e473f4c6306d8cd13fadaae1828cd26d7f1
         return new Response('', Response::HTTP_FOUND, [
             'Location' => $this->urlGenerator->generate('app_profile'),
         ]);

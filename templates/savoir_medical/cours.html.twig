@@ -1,4 +1,12 @@
+<<<<<<< HEAD
 {% extends 'admin/base_admin.html.twig' %}
+=======
+<<<<<<< HEAD
+{% extends 'base.html.twig' %}
+=======
+{% extends 'admin/base_admin.html.twig' %}
+>>>>>>> isramedi
+>>>>>>> 4f714e473f4c6306d8cd13fadaae1828cd26d7f1
 
 {% block title %}{{ cours.titre }} - MediConnect{% endblock %}
 
@@ -6,8 +14,18 @@
     <link href="{{ asset('assets/vendor/bootstrap/css/bootstrap.min.css') }}" rel="stylesheet">
     <style>
         .cours-header {
+<<<<<<< HEAD
             background: transparent;
             color: #333;
+=======
+<<<<<<< HEAD
+            background: linear-gradient(135deg, #175cdd 0%, #1a4db5 100%);
+            color: white;
+=======
+            background: transparent;
+            color: #333;
+>>>>>>> isramedi
+>>>>>>> 4f714e473f4c6306d8cd13fadaae1828cd26d7f1
             padding: 3rem 0;
             margin-bottom: 2rem;
         }
@@ -34,13 +52,31 @@
 {% block body %}
 <div class="cours-header">
     <div class="container">
+<<<<<<< HEAD
         <a href="{{ path('app_savoir_medical_categorie', {id: cours.categorieSante.id}) }}" class="btn btn-outline-secondary btn-sm mb-3">
+=======
+<<<<<<< HEAD
+        <a href="{{ path('app_savoir_medical_categorie', {id: cours.categorieSante.id}) }}" class="btn btn-light btn-sm mb-3">
+=======
+        <a href="{{ path('app_savoir_medical_categorie', {id: cours.categorieSante.id}) }}" class="btn btn-outline-secondary btn-sm mb-3">
+>>>>>>> isramedi
+>>>>>>> 4f714e473f4c6306d8cd13fadaae1828cd26d7f1
             <i class="bi bi-arrow-left me-1"></i>Retour à la catégorie
         </a>
         <h1 class="display-5 mb-2">{{ cours.titre }}</h1>
         <p class="mb-0">
+<<<<<<< HEAD
             <span class="badge bg-primary">{{ cours.categorieSante.nom }}</span>
             <span class="badge bg-warning text-dark ms-2">
+=======
+<<<<<<< HEAD
+            <span class="badge bg-light text-dark">{{ cours.categorieSante.nom }}</span>
+            <span class="badge bg-light text-dark ms-2">
+=======
+            <span class="badge bg-primary">{{ cours.categorieSante.nom }}</span>
+            <span class="badge bg-warning text-dark ms-2">
+>>>>>>> isramedi
+>>>>>>> 4f714e473f4c6306d8cd13fadaae1828cd26d7f1
                 <i class="bi bi-trophy me-1"></i>{{ cours.scorePourBadge }} points pour badge
             </span>
         </p>
@@ -65,6 +101,15 @@
             </div>
             
             <div class="cours-content">
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+                <h3 class="mb-4">
+                    <i class="bi bi-question-circle me-2"></i>
+                    Quiz ({{ questions|length }} questions)
+                </h3>
+=======
+>>>>>>> 4f714e473f4c6306d8cd13fadaae1828cd26d7f1
                 <div class="d-flex justify-content-between align-items-center mb-4">
                     <h3 class="mb-0">
                         <i class="bi bi-question-circle me-2"></i>
@@ -76,6 +121,10 @@
                         </a>
                     {% endif %}
                 </div>
+<<<<<<< HEAD
+=======
+>>>>>>> isramedi
+>>>>>>> 4f714e473f4c6306d8cd13fadaae1828cd26d7f1
                 
                 {% if questions is empty %}
                     <div class="text-center py-4">
@@ -106,6 +155,17 @@
                         </div>
                     {% endfor %}
                     
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+                    <div class="d-grid gap-2 mt-4">
+                        <button class="btn btn-primary btn-lg" disabled>
+                            <i class="bi bi-play-circle me-2"></i>
+                            Commencer le quiz (Bientôt disponible)
+                        </button>
+                    </div>
+=======
+>>>>>>> 4f714e473f4c6306d8cd13fadaae1828cd26d7f1
                     {% set questionsValidees = questions|filter(q => q.statut.value == 'VALIDE_MEDECIN') %}
                     {% if is_granted('ROLE_PATIENT') and questionsValidees|length > 0 %}
                         <div class="d-grid gap-2 mt-4">
@@ -129,6 +189,10 @@
                             </a>
                         </div>
                     {% endif %}
+<<<<<<< HEAD
+=======
+>>>>>>> isramedi
+>>>>>>> 4f714e473f4c6306d8cd13fadaae1828cd26d7f1
                 {% endif %}
             </div>
         </div>

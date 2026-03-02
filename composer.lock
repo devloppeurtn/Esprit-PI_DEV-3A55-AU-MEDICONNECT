@@ -4,6 +4,14 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+    "content-hash": "d344d282c11e535c076fd8f95defa8c0",
+    "packages": [
+        {
+=======
+>>>>>>> 4f714e473f4c6306d8cd13fadaae1828cd26d7f1
     "content-hash": "3c81e358cc1927cbcdebcb42c28745b3",
     "packages": [
         {
@@ -67,6 +75,10 @@
             "time": "2025-02-28T13:11:00+00:00"
         },
         {
+<<<<<<< HEAD
+=======
+>>>>>>> isramedi
+>>>>>>> 4f714e473f4c6306d8cd13fadaae1828cd26d7f1
             "name": "composer/semver",
             "version": "3.4.4",
             "source": {
@@ -1324,6 +1336,11 @@
             "time": "2025-03-06T22:45:56+00:00"
         },
         {
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+=======
+>>>>>>> 4f714e473f4c6306d8cd13fadaae1828cd26d7f1
             "name": "fgrosse/phpasn1",
             "version": "v2.5.0",
             "source": {
@@ -1400,6 +1417,10 @@
             "time": "2022-12-19T11:08:26+00:00"
         },
         {
+<<<<<<< HEAD
+=======
+>>>>>>> isramedi
+>>>>>>> 4f714e473f4c6306d8cd13fadaae1828cd26d7f1
             "name": "lcobucci/clock",
             "version": "2.3.0",
             "source": {
@@ -1643,6 +1664,11 @@
             "time": "2026-01-02T08:56:05+00:00"
         },
         {
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+=======
+>>>>>>> 4f714e473f4c6306d8cd13fadaae1828cd26d7f1
             "name": "nyholm/psr7",
             "version": "1.8.2",
             "source": {
@@ -1884,6 +1910,10 @@
             "time": "2025-12-30T16:12:18+00:00"
         },
         {
+<<<<<<< HEAD
+=======
+>>>>>>> isramedi
+>>>>>>> 4f714e473f4c6306d8cd13fadaae1828cd26d7f1
             "name": "phpdocumentor/reflection-common",
             "version": "2.2.0",
             "source": {
@@ -2298,6 +2328,11 @@
             "time": "2019-01-08T18:20:26+00:00"
         },
         {
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+=======
+>>>>>>> 4f714e473f4c6306d8cd13fadaae1828cd26d7f1
             "name": "psr/http-client",
             "version": "1.0.3",
             "source": {
@@ -2458,6 +2493,10 @@
             "time": "2023-04-04T09:54:51+00:00"
         },
         {
+<<<<<<< HEAD
+=======
+>>>>>>> isramedi
+>>>>>>> 4f714e473f4c6306d8cd13fadaae1828cd26d7f1
             "name": "psr/link",
             "version": "2.0.1",
             "source": {
@@ -2564,6 +2603,11 @@
             "time": "2024-09-11T13:17:53+00:00"
         },
         {
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+=======
+>>>>>>> 4f714e473f4c6306d8cd13fadaae1828cd26d7f1
             "name": "spomky-labs/cbor-bundle",
             "version": "v3.0.0",
             "source": {
@@ -2824,6 +2868,10 @@
             "time": "2025-12-20T12:57:40+00:00"
         },
         {
+<<<<<<< HEAD
+=======
+>>>>>>> isramedi
+>>>>>>> 4f714e473f4c6306d8cd13fadaae1828cd26d7f1
             "name": "stella-maris/clock",
             "version": "0.1.7",
             "source": {
@@ -2871,6 +2919,11 @@
             "time": "2022-11-25T16:15:06+00:00"
         },
         {
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+=======
+>>>>>>> 4f714e473f4c6306d8cd13fadaae1828cd26d7f1
             "name": "stripe/stripe-php",
             "version": "v19.3.0",
             "source": {
@@ -2930,6 +2983,10 @@
             "time": "2026-01-28T21:15:45+00:00"
         },
         {
+<<<<<<< HEAD
+=======
+>>>>>>> isramedi
+>>>>>>> 4f714e473f4c6306d8cd13fadaae1828cd26d7f1
             "name": "symfony/asset",
             "version": "v6.4.32",
             "source": {
@@ -6899,6 +6956,11 @@
             "time": "2026-01-27T15:12:57+00:00"
         },
         {
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+=======
+>>>>>>> 4f714e473f4c6306d8cd13fadaae1828cd26d7f1
             "name": "symfony/psr-http-message-bridge",
             "version": "v2.3.1",
             "source": {
@@ -6988,6 +7050,10 @@
             "time": "2023-07-26T11:53:26+00:00"
         },
         {
+<<<<<<< HEAD
+=======
+>>>>>>> isramedi
+>>>>>>> 4f714e473f4c6306d8cd13fadaae1828cd26d7f1
             "name": "symfony/routing",
             "version": "v6.4.32",
             "source": {
@@ -9094,6 +9160,11 @@
             "time": "2026-01-23T21:00:41+00:00"
         },
         {
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+=======
+>>>>>>> 4f714e473f4c6306d8cd13fadaae1828cd26d7f1
             "name": "web-auth/cose-lib",
             "version": "4.5.0",
             "source": {
@@ -9555,6 +9626,10 @@
             "time": "2024-02-22T07:19:34+00:00"
         },
         {
+<<<<<<< HEAD
+=======
+>>>>>>> isramedi
+>>>>>>> 4f714e473f4c6306d8cd13fadaae1828cd26d7f1
             "name": "webmozart/assert",
             "version": "1.12.1",
             "source": {
@@ -11948,5 +12023,13 @@
         "ext-iconv": "*"
     },
     "platform-dev": {},
+<<<<<<< HEAD
     "plugin-api-version": "2.9.0"
+=======
+<<<<<<< HEAD
+    "plugin-api-version": "2.6.0"
+=======
+    "plugin-api-version": "2.9.0"
+>>>>>>> isramedi
+>>>>>>> 4f714e473f4c6306d8cd13fadaae1828cd26d7f1
 }

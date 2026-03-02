@@ -4,6 +4,11 @@
     - is_admin_context: true pour les interfaces admin (affiche le toggle sidebar)
 #}
 {% set is_admin = is_admin_context|default(false) %}
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+=======
+>>>>>>> 4f714e473f4c6306d8cd13fadaae1828cd26d7f1
 {% set dashboard_home_route = 'app_home' %}
 {% if is_admin and app.user %}
     {% if is_granted('ROLE_ADMIN') %}
@@ -16,6 +21,10 @@
         {% set dashboard_home_route = 'app_patient_index' %}
     {% endif %}
 {% endif %}
+<<<<<<< HEAD
+=======
+>>>>>>> isramedi
+>>>>>>> 4f714e473f4c6306d8cd13fadaae1828cd26d7f1
 
 <header id="header" class="header fixed-top {{ is_admin ? 'navbar-admin-context' : '' }}">
     <div class="topbar d-flex align-items-center dark-background">
@@ -41,7 +50,15 @@
                 </button>
             {% endif %}
 
+<<<<<<< HEAD
             <a href="{{ path(dashboard_home_route) }}" class="logo d-flex align-items-center">
+=======
+<<<<<<< HEAD
+            <a href="{{ is_admin ? path('app_admin_dashboard') : path('app_home') }}" class="logo d-flex align-items-center">
+=======
+            <a href="{{ path(dashboard_home_route) }}" class="logo d-flex align-items-center">
+>>>>>>> isramedi
+>>>>>>> 4f714e473f4c6306d8cd13fadaae1828cd26d7f1
                 <img src="{{ asset('assets/img/logomed.png') }}" alt="Logo MediConnect" {{ is_admin ? 'height="32"' : '' }}>
                 <h1 class="sitename">MediConnect</h1>
             </a>
@@ -49,6 +66,22 @@
             <nav id="navmenu" class="navmenu">
                 <ul>
                     <li><a href="{{ path('app_home') }}" {% if app.request.get('_route') == 'app_home' %}class="active"{% endif %}>Accueil</a></li>
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+                    <li><a href="#!">À propos</a></li>
+                    <li><a href="#!">Services</a></li>
+                    <li><a href="{{ path('app_evenement_index') }}" {% if app.request.get('_route') starts with 'app_evenement_' %}class="active"{% endif %}>Événements</a></li>
+                    <li><a href="#!">Contact</a></li>
+                    {% if app.user %}
+                        {# Savoir Médical : accessible à tous les utilisateurs connectés #}
+                        <li><a href="{{ path('app_savoir_medical_index') }}" {% if app.request.get('_route') starts with 'app_savoir_medical_' %}class="active"{% endif %}><i class="bi bi-book me-1"></i>Savoir Médical</a></li>
+                        {# Événements : accessible aux organisateurs #}
+                        {% if is_granted('ROLE_ORGANISATEUR') %}
+                        <li><a href="{{ path('app_evenement_index') }}" {% if app.request.get('_route') starts with 'app_evenement_' %}class="active"{% endif %}><i class="bi bi-calendar-event me-1"></i>Événements</a></li>
+                        {% endif %}
+=======
+>>>>>>> 4f714e473f4c6306d8cd13fadaae1828cd26d7f1
                     <li><a href="{{ path('app_catalogue') }}" {% if app.request.get('_route') starts with 'app_catalogue' %}class="active"{% endif %}>Catalogue</a></li>
                     <li><a href="{{ path('app_evenement_index') }}" {% if app.request.get('_route') starts with 'app_evenement_' %}class="active"{% endif %}>
                         <i class="bi bi-calendar-event me-1"></i> &Eacute;v&eacute;nements
@@ -60,13 +93,25 @@
                         {# Savoir Médical : accessible à tous les utilisateurs connectés #}
                         <li><a href="{{ path('app_savoir_medical_index') }}" {% if app.request.get('_route') starts with 'app_savoir_medical_' %}class="active"{% endif %}><i class="bi bi-book me-1"></i>Savoir Médical</a></li>
                         <li><a href="{{ path('app_orders_list') }}" {% if app.request.get('_route') starts with 'app_orders_' %}class="active"{% endif %}><i class="bi bi-bag me-1"></i>Mes commandes</a></li>
+<<<<<<< HEAD
+=======
+>>>>>>> isramedi
+>>>>>>> 4f714e473f4c6306d8cd13fadaae1828cd26d7f1
                         {# Admin : lien vers tableau de bord #}
                         {% if is_granted('ROLE_ADMIN') %}
                         <li><a href="{{ path('app_admin_dashboard') }}" {% if app.request.get('_route') starts with 'app_admin_' %}class="active"{% endif %}><i class="bi bi-speedometer2 me-1"></i>Administration</a></li>
                         {% endif %}
                         {# Médecin : lien espace médecin (si route existe) #}
                         {% if is_granted('ROLE_MEDECIN') %}
+<<<<<<< HEAD
                         <li><a href="{{ path('app_medecin_index') }}" {% if app.request.get('_route') starts with 'app_medecin_' %}class="active"{% endif %}>Espace Medecin</a></li>
+=======
+<<<<<<< HEAD
+                        <li><a href="{{ path('app_home') }}#medecins">Espace Médecin</a></li>
+=======
+                        <li><a href="{{ path('app_medecin_index') }}" {% if app.request.get('_route') starts with 'app_medecin_' %}class="active"{% endif %}>Espace Medecin</a></li>
+>>>>>>> isramedi
+>>>>>>> 4f714e473f4c6306d8cd13fadaae1828cd26d7f1
                         {% endif %}
                         {# Menu utilisateur style Bootstrap (Profile, Paramètres, Déconnexion) #}
                         <li class="nav-user-dropdown">

@@ -1,9 +1,23 @@
 when@dev:
     web_profiler:
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+        toolbar: true
+
+    framework:
+        profiler:
+            collect_serializer_data: true
+=======
+>>>>>>> 4f714e473f4c6306d8cd13fadaae1828cd26d7f1
         toolbar: false
 
     framework:
         profiler: { collect: false }
+<<<<<<< HEAD
+=======
+>>>>>>> isramedi
+>>>>>>> 4f714e473f4c6306d8cd13fadaae1828cd26d7f1
 
 when@test:
     framework:

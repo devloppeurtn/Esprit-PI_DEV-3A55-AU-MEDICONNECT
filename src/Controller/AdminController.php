@@ -2,6 +2,14 @@
 
 namespace App\Controller;
 
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+use App\Entity\RoleUtilisateur;
+use App\Entity\StatutCompte;
+use App\Entity\Utilisateur;
+=======
+>>>>>>> 4f714e473f4c6306d8cd13fadaae1828cd26d7f1
 use App\Entity\Consultation;
 use App\Entity\DocumentPatient;
 use App\Entity\DossierMedical;
@@ -16,6 +24,10 @@ use App\Entity\StatutRendezVous;
 use App\Entity\Utilisateur;
 use App\Enum\StatutEvenement;
 use App\Repository\EvenementRepository;
+<<<<<<< HEAD
+=======
+>>>>>>> isramedi
+>>>>>>> 4f714e473f4c6306d8cd13fadaae1828cd26d7f1
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -24,7 +36,14 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Routing\Attribute\Route;
+<<<<<<< HEAD
 use Symfony\Component\Security\Csrf\CsrfTokenManagerInterface;
+=======
+<<<<<<< HEAD
+=======
+use Symfony\Component\Security\Csrf\CsrfTokenManagerInterface;
+>>>>>>> isramedi
+>>>>>>> 4f714e473f4c6306d8cd13fadaae1828cd26d7f1
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 #[Route('/admin')]
@@ -34,8 +53,16 @@ class AdminController extends AbstractController
     public function __construct(
         private EntityManagerInterface $entityManager,
         private UserPasswordHasherInterface $passwordHasher,
+<<<<<<< HEAD
         private EvenementRepository $evenementRepository,
         private CsrfTokenManagerInterface $csrfTokenManager,
+=======
+<<<<<<< HEAD
+=======
+        private EvenementRepository $evenementRepository,
+        private CsrfTokenManagerInterface $csrfTokenManager,
+>>>>>>> isramedi
+>>>>>>> 4f714e473f4c6306d8cd13fadaae1828cd26d7f1
     ) {
     }
 
@@ -49,8 +76,16 @@ class AdminController extends AbstractController
         $countSecretaires = $userRepo->count(['role' => RoleUtilisateur::SECRETAIRE]);
         $countAdmins = $userRepo->count(['role' => RoleUtilisateur::ADMIN]);
         $countParticipations = $userRepo->count(['role' => RoleUtilisateur::PARTICIPATION]);
+<<<<<<< HEAD
         $countOrganisateurs = $userRepo->count(['role' => RoleUtilisateur::ORGANISATEUR]);
         $pendingEvenements = $this->evenementRepository->findPending();
+=======
+<<<<<<< HEAD
+=======
+        $countOrganisateurs = $userRepo->count(['role' => RoleUtilisateur::ORGANISATEUR]);
+        $pendingEvenements = $this->evenementRepository->findPending();
+>>>>>>> isramedi
+>>>>>>> 4f714e473f4c6306d8cd13fadaae1828cd26d7f1
 
         return $this->render('admin/dashboard/index.html.twig', [
             'totalUsers' => $totalUsers,
@@ -59,6 +94,14 @@ class AdminController extends AbstractController
             'countSecretaires' => $countSecretaires,
             'countAdmins' => $countAdmins,
             'countParticipations' => $countParticipations,
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+        ]);
+    }
+
+=======
+>>>>>>> 4f714e473f4c6306d8cd13fadaae1828cd26d7f1
             'countOrganisateurs' => $countOrganisateurs,
             'pendingEvenements' => $pendingEvenements,
         ]);
@@ -152,10 +195,20 @@ class AdminController extends AbstractController
         return $this->redirectToRoute('app_admin_evenements');
     }
 
+<<<<<<< HEAD
+=======
+>>>>>>> isramedi
+>>>>>>> 4f714e473f4c6306d8cd13fadaae1828cd26d7f1
     #[Route('/stats', name: 'app_admin_stats', methods: ['GET'])]
     public function stats(): JsonResponse
     {
         $userRepo = $this->entityManager->getRepository(Utilisateur::class);
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+        return new JsonResponse([
+=======
+>>>>>>> 4f714e473f4c6306d8cd13fadaae1828cd26d7f1
         $em = $this->entityManager;
 
         $rdvRepo = $em->getRepository(RendezVous::class);
@@ -179,12 +232,21 @@ class AdminController extends AbstractController
 
         return new JsonResponse([
             // Utilisateurs
+<<<<<<< HEAD
+=======
+>>>>>>> isramedi
+>>>>>>> 4f714e473f4c6306d8cd13fadaae1828cd26d7f1
             'totalUsers' => $userRepo->count([]),
             'countPatients' => $userRepo->count(['role' => RoleUtilisateur::PATIENT]),
             'countMedecins' => $userRepo->count(['role' => RoleUtilisateur::MEDECIN]),
             'countSecretaires' => $userRepo->count(['role' => RoleUtilisateur::SECRETAIRE]),
             'countAdmins' => $userRepo->count(['role' => RoleUtilisateur::ADMIN]),
             'countParticipations' => $userRepo->count(['role' => RoleUtilisateur::PARTICIPATION]),
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+=======
+>>>>>>> 4f714e473f4c6306d8cd13fadaae1828cd26d7f1
 
             // Dossier médical / consultations
             'countDossiers' => $em->getRepository(DossierMedical::class)->count([]),
@@ -202,6 +264,10 @@ class AdminController extends AbstractController
             'countRdvConfirmes' => $rdvRepo->count(['statut' => StatutRendezVous::CONFIRME]),
             'countRdvAnnules' => $rdvRepo->count(['statut' => StatutRendezVous::ANNULE]),
             'countRdvTermines' => $rdvRepo->count(['statut' => StatutRendezVous::TERMINE]),
+<<<<<<< HEAD
+=======
+>>>>>>> isramedi
+>>>>>>> 4f714e473f4c6306d8cd13fadaae1828cd26d7f1
         ]);
     }
 
@@ -381,11 +447,23 @@ class AdminController extends AbstractController
             'email' => $u->getEmail(),
             'role' => $u->getRole()?->value ?? '',
             'statut' => $u->getStatut()?->value ?? '',
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+            'dateCreation' => $u->getDateCreation()?->format('Y-m-d'),
+            'derniereConnexion' => $u->getDerniereConnexion()?->format('d/m/Y H:i') ?? '—',
+            'lastActive' => $u->getDerniereConnexion() ? $this->formatLastActive($u->getDerniereConnexion()) : '—',
+=======
+>>>>>>> 4f714e473f4c6306d8cd13fadaae1828cd26d7f1
             'emailVerified' => $u->isEmailVerified(),
             'dateCreation' => $u->getDateCreation()?->format('Y-m-d'),
             'derniereConnexion' => $u->getDerniereConnexion()?->format('d/m/Y H:i') ?? '—',
             'lastActive' => $u->getDerniereConnexion() ? $this->formatLastActive($u->getDerniereConnexion()) : '—',
             'photo' => $u->getPhoto(),
+<<<<<<< HEAD
+=======
+>>>>>>> isramedi
+>>>>>>> 4f714e473f4c6306d8cd13fadaae1828cd26d7f1
             'avatar' => '', // sera remplacé par l'asset dans le template
         ], $users);
 
@@ -443,6 +521,11 @@ class AdminController extends AbstractController
         ]);
     }
 
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+=======
+>>>>>>> 4f714e473f4c6306d8cd13fadaae1828cd26d7f1
     #[Route('/users/{id}/profile/data', name: 'app_admin_user_profile_data', methods: ['GET'])]
     public function userProfileData(int $id): JsonResponse
     {
@@ -490,6 +573,10 @@ class AdminController extends AbstractController
         return new JsonResponse(['success' => true, 'user' => $userData]);
     }
 
+<<<<<<< HEAD
+=======
+>>>>>>> isramedi
+>>>>>>> 4f714e473f4c6306d8cd13fadaae1828cd26d7f1
     #[Route('/users/export', name: 'app_admin_users_export', methods: ['GET'])]
     public function exportUsers(Request $request): StreamedResponse
     {
@@ -519,6 +606,11 @@ class AdminController extends AbstractController
         return $response;
     }
 
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+=======
+>>>>>>> 4f714e473f4c6306d8cd13fadaae1828cd26d7f1
     #[Route('/users/export/status', name: 'app_admin_users_export_status', methods: ['GET'])]
     public function exportUsersStatus(): JsonResponse
     {
@@ -533,6 +625,10 @@ class AdminController extends AbstractController
         ]);
     }
 
+<<<<<<< HEAD
+=======
+>>>>>>> isramedi
+>>>>>>> 4f714e473f4c6306d8cd13fadaae1828cd26d7f1
     #[Route('/users/create', name: 'app_admin_users_create', methods: ['GET', 'POST'])]
     public function createUser(Request $request): Response
     {
@@ -541,12 +637,29 @@ class AdminController extends AbstractController
             return new JsonResponse(['success' => false, 'error' => 'Données invalides'], 400);
         }
 
+<<<<<<< HEAD
         $email = is_string($data['email'] ?? '') ? trim($data['email']) : '';
         $nomComplet = is_string($data['nomComplet'] ?? '') ? strip_tags(trim($data['nomComplet'])) : '';
+=======
+<<<<<<< HEAD
+        $email = $data['email'] ?? '';
+        $nomComplet = $data['nomComplet'] ?? '';
+=======
+        $email = is_string($data['email'] ?? '') ? trim($data['email']) : '';
+        $nomComplet = is_string($data['nomComplet'] ?? '') ? strip_tags(trim($data['nomComplet'])) : '';
+>>>>>>> isramedi
+>>>>>>> 4f714e473f4c6306d8cd13fadaae1828cd26d7f1
         $roleValue = $data['role'] ?? 'PATIENT';
         $statutValue = $data['statut'] ?? 'ACTIF';
         $password = $data['password'] ?? bin2hex(random_bytes(8));
 
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+        if (!$email || !$nomComplet) {
+            return new JsonResponse(['success' => false, 'error' => 'Email et nom requis'], 400);
+=======
+>>>>>>> 4f714e473f4c6306d8cd13fadaae1828cd26d7f1
         if ($email === '') {
             return new JsonResponse(['success' => false, 'error' => 'Email requis'], 400);
         }
@@ -564,6 +677,10 @@ class AdminController extends AbstractController
         }
         if (is_string($password) && mb_strlen($password) > 0 && mb_strlen($password) < 6) {
             return new JsonResponse(['success' => false, 'error' => 'Le mot de passe doit contenir au moins 6 caractères'], 400);
+<<<<<<< HEAD
+=======
+>>>>>>> isramedi
+>>>>>>> 4f714e473f4c6306d8cd13fadaae1828cd26d7f1
         }
 
         $existing = $this->entityManager->getRepository(Utilisateur::class)->findOneBy(['email' => $email]);
@@ -590,7 +707,14 @@ class AdminController extends AbstractController
         $user->setNomComplet($nomComplet);
         $user->setRole($role);
         $user->setStatut($statut);
+<<<<<<< HEAD
         $user->setEmailVerified(true); // Créé par admin = email considéré vérifié
+=======
+<<<<<<< HEAD
+=======
+        $user->setEmailVerified(true); // Créé par admin = email considéré vérifié
+>>>>>>> isramedi
+>>>>>>> 4f714e473f4c6306d8cd13fadaae1828cd26d7f1
         $user->setPassword($this->passwordHasher->hashPassword($user, $password));
 
         $this->entityManager->persist($user);
@@ -609,6 +733,28 @@ class AdminController extends AbstractController
 
         $data = json_decode($request->getContent(), true) ?? $request->request->all();
         if (isset($data['nomComplet'])) {
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+            $user->setNomComplet($data['nomComplet']);
+        }
+        if (isset($data['email'])) {
+            $other = $this->entityManager->getRepository(Utilisateur::class)->findOneBy(['email' => $data['email']]);
+            if ($other && $other->getId() !== $id) {
+                return new JsonResponse(['success' => false, 'error' => 'Cet email est déjà utilisé'], 400);
+            }
+            $user->setEmail($data['email']);
+        }
+        if (isset($data['role'])) {
+            $user->setRole(RoleUtilisateur::from($data['role']));
+        }
+        if (isset($data['statut'])) {
+            $user->setStatut(StatutCompte::from($data['statut']));
+        }
+        if (!empty($data['password'])) {
+            $user->setPassword($this->passwordHasher->hashPassword($user, $data['password']));
+=======
+>>>>>>> 4f714e473f4c6306d8cd13fadaae1828cd26d7f1
             $nom = is_string($data['nomComplet']) ? strip_tags(trim($data['nomComplet'])) : '';
             if ($nom === '' || mb_strlen($nom) < 2 || mb_strlen($nom) > 255) {
                 return new JsonResponse(['success' => false, 'error' => 'Nom invalide (2 à 255 caractères)'], 400);
@@ -649,6 +795,10 @@ class AdminController extends AbstractController
                 return new JsonResponse(['success' => false, 'error' => 'Le mot de passe doit contenir au moins 6 caractères'], 400);
             }
             $user->setPassword($this->passwordHasher->hashPassword($user, $pw));
+<<<<<<< HEAD
+=======
+>>>>>>> isramedi
+>>>>>>> 4f714e473f4c6306d8cd13fadaae1828cd26d7f1
         }
 
         $this->entityManager->flush();

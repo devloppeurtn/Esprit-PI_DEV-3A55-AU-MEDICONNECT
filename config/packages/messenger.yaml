@@ -10,7 +10,15 @@ framework:
                     max_retries: 3
                     multiplier: 2
             failed: 'doctrine://default?queue_name=failed'
+<<<<<<< HEAD
             sync: 'sync://'
+=======
+<<<<<<< HEAD
+            # sync: 'sync://'
+=======
+            sync: 'sync://'
+>>>>>>> isramedi
+>>>>>>> 4f714e473f4c6306d8cd13fadaae1828cd26d7f1
 
         default_bus: messenger.bus.default
 
@@ -18,9 +26,19 @@ framework:
             messenger.bus.default: []
 
         routing:
+<<<<<<< HEAD
             # En dev : envoi immédiat (pas besoin de lancer messenger:consume)
             # En prod : utiliser async et lancer un worker
             Symfony\Component\Mailer\Messenger\SendEmailMessage: sync
+=======
+<<<<<<< HEAD
+            Symfony\Component\Mailer\Messenger\SendEmailMessage: async
+=======
+            # En dev : envoi immédiat (pas besoin de lancer messenger:consume)
+            # En prod : utiliser async et lancer un worker
+            Symfony\Component\Mailer\Messenger\SendEmailMessage: sync
+>>>>>>> isramedi
+>>>>>>> 4f714e473f4c6306d8cd13fadaae1828cd26d7f1
             Symfony\Component\Notifier\Message\ChatMessage: async
             Symfony\Component\Notifier\Message\SmsMessage: async
 

@@ -12,6 +12,13 @@
                 <div class="card-body">
                     <h2 class="mb-3">{{ item.title }}</h2>
                     
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+                    <!-- Event Info Cards -->
+=======
+>>>>>>> isramedi
+>>>>>>> 4f714e473f4c6306d8cd13fadaae1828cd26d7f1
                     <div class="row mb-4">
                         {% if item.eventDate %}
                             <div class="col-md-6 mb-3">
@@ -55,6 +62,7 @@
                             </div>
                         {% endif %}
 
+<<<<<<< HEAD
                         {% if weather %}
                             <div class="col-md-6 mb-3">
                                 <div class="info-box p-3 border rounded" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
@@ -72,6 +80,8 @@
                             </div>
                         {% endif %}
 
+=======
+>>>>>>> 4f714e473f4c6306d8cd13fadaae1828cd26d7f1
                         <div class="col-md-6 mb-3">
                             <div class="info-box p-3 border rounded" style="background-color: #f8f9fa;">
                                 <div class="d-flex align-items-center">
@@ -85,6 +95,7 @@
                         </div>
                     </div>
 
+<<<<<<< HEAD
                     {% if weather %}
                         <div class="card mb-4" style="border-left: 4px solid #667eea;">
                             <div class="card-body">
@@ -128,6 +139,12 @@
                         </div>
                     {% endif %}
 
+=======
+<<<<<<< HEAD
+                    <!-- Event Description -->
+=======
+>>>>>>> isramedi
+>>>>>>> 4f714e473f4c6306d8cd13fadaae1828cd26d7f1
                     <hr>
                     <div class="mt-4">
                         <h5 class="mb-3">Description</h5>
@@ -140,6 +157,7 @@
                 </div>
             </div>
 
+<<<<<<< HEAD
             <!-- Section Feedbacks -->
             <div class="card mt-4">
                 <div class="card-header text-white" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
@@ -196,6 +214,77 @@
                 </div>
             </div>
 
+=======
+<<<<<<< HEAD
+            <!-- Participants List -->
+            <div class="card mt-4">
+                <div class="card-body">
+                    <h5 class="mb-3">
+                        <i class="bi bi-people me-2"></i>Liste des participants ({{ participants|length }})
+                    </h5>
+                    {% if participants is not empty %}
+                        <ul class="list-group list-group-flush">
+                            {% for p in participants %}
+                                <li class="list-group-item">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <div>
+                                            <strong>{{ p.firstName }} {{ p.lastName }}</strong>
+                                            <br>
+                                            <small class="text-muted">{{ p.email }}</small>
+                                        </div>
+                                        <small class="text-muted">{{ p.createdAt|date('d/m/Y H:i') }}</small>
+                                    </div>
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    {% else %}
+                        <p class="text-muted mb-0">Aucun participant pour le moment.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Participation Form (Right Sidebar) -->
+        <div class="col-lg-4">
+            <div class="card sticky-top" style="top: 20px;">
+                <div class="card-body">
+                    <h5 class="mb-4">
+                        <i class="bi bi-check-circle me-2"></i>Participer à cet événement
+                    </h5>
+
+                    {% for message in app.flashes('success') %}
+                        <div class="alert alert-success alert-dismissible fade show" role="alert">
+                            <i class="bi bi-check-circle me-2"></i>{{ message }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+                    {% endfor %}
+                    {% for message in app.flashes('error') %}
+                        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                            <i class="bi bi-exclamation-circle me-2"></i>{{ message }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+                    {% endfor %}
+
+                    <form method="post" action="{{ path('app_evenement_participer', {id: item.id}) }}">
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Prénom</label>
+                            <input type="text" name="firstName" class="form-control" placeholder="Votre prénom" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Nom</label>
+                            <input type="text" name="lastName" class="form-control" placeholder="Votre nom" required>
+                        </div>
+                        <div class="mb-4">
+                            <label class="form-label fw-bold">Email</label>
+                            <input type="email" name="email" class="form-control" placeholder="Votre email" required>
+                        </div>
+                        <input type="hidden" name="_token" value="{{ csrf_token('participate' ~ item.id) }}">
+                        <button class="btn btn-primary w-100 btn-lg" type="submit">
+                            <i class="bi bi-check-circle me-1"></i>Confirmer mon inscription
+                        </button>
+                    </form>
+=======
+>>>>>>> 4f714e473f4c6306d8cd13fadaae1828cd26d7f1
             {% if is_granted('ROLE_ORGANISATEUR') and item.organisateur and item.organisateur.id == app.user.id %}
                 <div class="card mt-4">
                     <div class="card-body">
@@ -235,6 +324,7 @@
                     <a href="{{ path('app_evenement_participer_form', {id: item.id}) }}" class="btn btn-success w-100 mb-2">
                         <i class="bi bi-check-circle me-1"></i> Participer
                     </a>
+<<<<<<< HEAD
                     {% if item.avisEvenement|length > 0 %}
                         <a href="{{ path('app_evenement_consulter_avis', {id: item.id}) }}" class="btn btn-info w-100 mb-2">
                             <i class="bi bi-chat-left-quote me-1"></i> Consulter les avis ({{ item.avisEvenement|length }})
@@ -243,11 +333,18 @@
                     <a href="{{ path('app_evenement_index') }}" class="btn btn-outline-secondary w-100">
                         ← Retour aux événements
                     </a>
+=======
+                    <a href="{{ path('app_evenement_index') }}" class="btn btn-outline-secondary w-100">
+                        ← Retour aux événements
+                    </a>
+>>>>>>> isramedi
+>>>>>>> 4f714e473f4c6306d8cd13fadaae1828cd26d7f1
                 </div>
             </div>
         </div>
     </div>
 </div>
+<<<<<<< HEAD
 
 <!-- Modal pour demander l'email avant le feedback -->
 <div class="modal fade" id="feedbackModal" tabindex="-1" aria-labelledby="feedbackModalLabel" aria-hidden="true">
@@ -305,4 +402,10 @@
     border-bottom: none;
 }
 </style>
+=======
+<<<<<<< HEAD
+
+=======
+>>>>>>> isramedi
+>>>>>>> 4f714e473f4c6306d8cd13fadaae1828cd26d7f1
 {% endblock %}

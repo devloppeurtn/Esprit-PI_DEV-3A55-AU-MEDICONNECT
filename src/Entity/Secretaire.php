@@ -11,6 +11,11 @@ class Secretaire extends Utilisateur
     #[ORM\Column(type: Types::STRING, length: 20, nullable: true)]
     private ?string $telephone = null;
 
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+=======
+>>>>>>> 4f714e473f4c6306d8cd13fadaae1828cd26d7f1
     #[ORM\ManyToOne(targetEntity: Medecin::class, inversedBy: 'secretaires')]
     #[ORM\JoinColumn(nullable: true, onDelete: 'SET NULL')]
     private ?Medecin $medecin = null;
@@ -19,11 +24,22 @@ class Secretaire extends Utilisateur
     #[ORM\OneToMany(targetEntity: Invitation::class, mappedBy: 'secretaire')]
     private \Doctrine\Common\Collections\Collection $invitations;
 
+<<<<<<< HEAD
+=======
+>>>>>>> isramedi
+>>>>>>> 4f714e473f4c6306d8cd13fadaae1828cd26d7f1
     public function __construct()
     {
         parent::__construct();
         $this->setRole(RoleUtilisateur::SECRETAIRE);
+<<<<<<< HEAD
         $this->invitations = new \Doctrine\Common\Collections\ArrayCollection();
+=======
+<<<<<<< HEAD
+=======
+        $this->invitations = new \Doctrine\Common\Collections\ArrayCollection();
+>>>>>>> isramedi
+>>>>>>> 4f714e473f4c6306d8cd13fadaae1828cd26d7f1
     }
 
     public function getTelephone(): ?string
@@ -36,6 +52,11 @@ class Secretaire extends Utilisateur
         $this->telephone = $telephone;
         return $this;
     }
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+=======
+>>>>>>> 4f714e473f4c6306d8cd13fadaae1828cd26d7f1
 
     public function getMedecin(): ?Medecin
     {
@@ -53,4 +74,8 @@ class Secretaire extends Utilisateur
     {
         return $this->invitations;
     }
+<<<<<<< HEAD
+=======
+>>>>>>> isramedi
+>>>>>>> 4f714e473f4c6306d8cd13fadaae1828cd26d7f1
 }

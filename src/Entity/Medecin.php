@@ -2,17 +2,34 @@
 
 namespace App\Entity;
 
+<<<<<<< HEAD
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
+=======
+<<<<<<< HEAD
+=======
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
+>>>>>>> isramedi
+>>>>>>> 4f714e473f4c6306d8cd13fadaae1828cd26d7f1
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity]
 class Medecin extends Utilisateur
 {
+<<<<<<< HEAD
     #[ORM\Column(type: Types::STRING, length: 20, nullable: true)]
     private ?string $telephone = null;
 
+=======
+<<<<<<< HEAD
+=======
+    #[ORM\Column(type: Types::STRING, length: 20, nullable: true)]
+    private ?string $telephone = null;
+
+>>>>>>> isramedi
+>>>>>>> 4f714e473f4c6306d8cd13fadaae1828cd26d7f1
     #[ORM\Column(type: Types::STRING, length: 255, nullable: true)]
     private ?string $specialite = null;
 
@@ -22,6 +39,11 @@ class Medecin extends Utilisateur
     #[ORM\Column(type: Types::STRING, length: 100, nullable: true)]
     private ?string $numeroLicence = null;
 
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+=======
+>>>>>>> 4f714e473f4c6306d8cd13fadaae1828cd26d7f1
     #[ORM\OneToMany(targetEntity: Secretaire::class, mappedBy: 'medecin')]
     private Collection $secretaires;
 
@@ -36,19 +58,31 @@ class Medecin extends Utilisateur
     #[ORM\OneToMany(targetEntity: Consultation::class, mappedBy: 'medecin', cascade: ['persist'])]
     private Collection $consultations;
 
+<<<<<<< HEAD
     /** @var Collection<int, AvisMedecin> */
     #[ORM\OneToMany(targetEntity: AvisMedecin::class, mappedBy: 'medecin', cascade: ['persist', 'remove'])]
     private Collection $avisMedecin;
 
+=======
+>>>>>>> isramedi
+>>>>>>> 4f714e473f4c6306d8cd13fadaae1828cd26d7f1
     public function __construct()
     {
         parent::__construct();
         $this->setRole(RoleUtilisateur::MEDECIN);
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+=======
+>>>>>>> 4f714e473f4c6306d8cd13fadaae1828cd26d7f1
         $this->secretaires = new ArrayCollection();
         $this->invitations = new ArrayCollection();
         $this->rendezVous = new ArrayCollection();
         $this->consultations = new ArrayCollection();
+<<<<<<< HEAD
         $this->avisMedecin = new ArrayCollection();
+=======
+>>>>>>> 4f714e473f4c6306d8cd13fadaae1828cd26d7f1
     }
 
     /** @return Collection<int, RendezVous> */
@@ -90,6 +124,10 @@ class Medecin extends Utilisateur
     {
         $this->telephone = $telephone;
         return $this;
+<<<<<<< HEAD
+=======
+>>>>>>> isramedi
+>>>>>>> 4f714e473f4c6306d8cd13fadaae1828cd26d7f1
     }
 
     public function getSpecialite(): ?string
@@ -124,6 +162,11 @@ class Medecin extends Utilisateur
         $this->numeroLicence = $numeroLicence;
         return $this;
     }
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+=======
+>>>>>>> 4f714e473f4c6306d8cd13fadaae1828cd26d7f1
 
     /** @return Collection<int, Secretaire> */
     public function getSecretaires(): Collection
@@ -164,6 +207,7 @@ class Medecin extends Utilisateur
         }
         return $this;
     }
+<<<<<<< HEAD
 
     /** @return Collection<int, AvisMedecin> */
     public function getAvisMedecin(): Collection
@@ -189,4 +233,7 @@ class Medecin extends Utilisateur
         }
         return $this;
     }
+=======
+>>>>>>> isramedi
+>>>>>>> 4f714e473f4c6306d8cd13fadaae1828cd26d7f1
 }

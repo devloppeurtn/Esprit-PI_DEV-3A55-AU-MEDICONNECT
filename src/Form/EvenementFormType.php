@@ -6,7 +6,10 @@ use App\Entity\Evenement;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\Form\Extension\Core\Type\DateType;
+<<<<<<< HEAD
 use Symfony\Component\Form\Extension\Core\Type\IntegerType;
+=======
+>>>>>>> 4f714e473f4c6306d8cd13fadaae1828cd26d7f1
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
@@ -44,11 +47,14 @@ class EvenementFormType extends AbstractType
                 'required' => false,
                 'attr' => ['class' => 'form-control', 'type' => 'time', 'placeholder' => 'HH:MM']
             ])
+<<<<<<< HEAD
             ->add('maxParticipants', IntegerType::class, [
                 'label' => 'Nombre maximal de participants (optionnel)',
                 'required' => false,
                 'attr' => ['class' => 'form-control', 'placeholder' => 'Ex: 50', 'min' => 1]
             ])
+=======
+>>>>>>> 4f714e473f4c6306d8cd13fadaae1828cd26d7f1
             ->add('isActive', CheckboxType::class, [
                 'label' => 'Actif',
                 'required' => false,

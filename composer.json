@@ -12,7 +12,14 @@
         "doctrine/orm": "^3.6",
         "phpdocumentor/reflection-docblock": "5.2",
         "phpstan/phpdoc-parser": "^2.3",
+<<<<<<< HEAD
         "stripe/stripe-php": "^19.3",
+=======
+<<<<<<< HEAD
+=======
+        "stripe/stripe-php": "^19.3",
+>>>>>>> isramedi
+>>>>>>> 4f714e473f4c6306d8cd13fadaae1828cd26d7f1
         "symfony/asset": "6.4.*",
         "symfony/asset-mapper": "6.4.*",
         "symfony/console": "6.4.*",
@@ -45,8 +52,17 @@
         "symfony/web-link": "6.4.*",
         "symfony/yaml": "6.4.*",
         "twig/extra-bundle": "^2.12|^3.0",
+<<<<<<< HEAD
         "twig/twig": "^2.12|^3.0",
         "web-auth/webauthn-symfony-bundle": "^4.4"
+=======
+<<<<<<< HEAD
+        "twig/twig": "^2.12|^3.0"
+=======
+        "twig/twig": "^2.12|^3.0",
+        "web-auth/webauthn-symfony-bundle": "^4.4"
+>>>>>>> isramedi
+>>>>>>> 4f714e473f4c6306d8cd13fadaae1828cd26d7f1
     },
     "config": {
         "allow-plugins": {

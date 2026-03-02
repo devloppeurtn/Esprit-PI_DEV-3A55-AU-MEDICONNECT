@@ -22,6 +22,17 @@ class CoursEducatifRepository extends ServiceEntityRepository
      */
     public function findByCategorie(CategorieSante $categorie): array
     {
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+        return $this->createQueryBuilder('c')
+            ->andWhere('c.categorieSante = :categorie')
+            ->setParameter('categorie', $categorie)
+            ->orderBy('c.dateCreation', 'DESC')
+            ->getQuery()
+            ->getResult();
+=======
+>>>>>>> 4f714e473f4c6306d8cd13fadaae1828cd26d7f1
         // Use native SQL to avoid UUID conversion issues
         $conn = $this->getEntityManager()->getConnection();
         $sql = 'SELECT * FROM cours_educatif WHERE categorie_sante_id = ? ORDER BY date_creation DESC';
@@ -40,6 +51,10 @@ class CoursEducatifRepository extends ServiceEntityRepository
         }
         
         return $cours;
+<<<<<<< HEAD
+=======
+>>>>>>> isramedi
+>>>>>>> 4f714e473f4c6306d8cd13fadaae1828cd26d7f1
     }
 
     /**

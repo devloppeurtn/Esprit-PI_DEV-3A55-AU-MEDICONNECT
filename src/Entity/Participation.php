@@ -8,9 +8,18 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\Entity]
 class Participation extends Utilisateur
 {
+<<<<<<< HEAD
     #[ORM\Column(type: Types::STRING, length: 20, nullable: true)]
     private ?string $telephone = null;
 
+=======
+<<<<<<< HEAD
+=======
+    #[ORM\Column(type: Types::STRING, length: 20, nullable: true)]
+    private ?string $telephone = null;
+
+>>>>>>> isramedi
+>>>>>>> 4f714e473f4c6306d8cd13fadaae1828cd26d7f1
     #[ORM\Column(type: Types::STRING, enumType: RoleParticipation::class)]
     private ?RoleParticipation $roleDansEvenement = null;
 
@@ -24,6 +33,11 @@ class Participation extends Utilisateur
         $this->roleDansEvenement = RoleParticipation::PARTICIPANT;
     }
 
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+=======
+>>>>>>> 4f714e473f4c6306d8cd13fadaae1828cd26d7f1
     public function getTelephone(): ?string
     {
         return $this->telephone;
@@ -35,6 +49,10 @@ class Participation extends Utilisateur
         return $this;
     }
 
+<<<<<<< HEAD
+=======
+>>>>>>> isramedi
+>>>>>>> 4f714e473f4c6306d8cd13fadaae1828cd26d7f1
     public function getRoleDansEvenement(): ?RoleParticipation
     {
         return $this->roleDansEvenement;

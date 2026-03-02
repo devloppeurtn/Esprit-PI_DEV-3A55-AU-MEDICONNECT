@@ -2,16 +2,48 @@
 
 namespace App\Controller;
 
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Routing\Attribute\Route;
+use App\Repository\EvenementRepository;
+=======
+>>>>>>> 4f714e473f4c6306d8cd13fadaae1828cd26d7f1
 use App\Repository\EvenementRepository;
 use App\Repository\MedecinRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
+<<<<<<< HEAD
+=======
+>>>>>>> isramedi
+>>>>>>> 4f714e473f4c6306d8cd13fadaae1828cd26d7f1
 
 class HomeController extends AbstractController
 {
     #[Route('/', name: 'app_home')]
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+    public function index(EvenementRepository $evenementRepository): Response
+    {
+        $events = $evenementRepository->createQueryBuilder('m')
+            ->where('m.isActive = :active')
+            ->setParameter('active', true)
+            ->orderBy('m.eventDate', 'ASC')
+            ->setMaxResults(3)
+            ->getQuery()
+            ->getResult();
+
+        return $this->render('home/index.html.twig', [
+            'events' => $events,
+        ]);
+    }
+=======
+>>>>>>> 4f714e473f4c6306d8cd13fadaae1828cd26d7f1
     public function index(
         EvenementRepository $evenementRepository,
         MedecinRepository $medecinRepository
@@ -92,4 +124,8 @@ class HomeController extends AbstractController
 
         return $selected;
     }
+<<<<<<< HEAD
+=======
+>>>>>>> isramedi
+>>>>>>> 4f714e473f4c6306d8cd13fadaae1828cd26d7f1
 }

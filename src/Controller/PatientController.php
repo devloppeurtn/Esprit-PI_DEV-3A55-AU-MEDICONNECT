@@ -9,12 +9,18 @@ use App\Entity\MedicamentActuel;
 use App\Entity\Ordonnance;
 use App\Entity\Patient;
 use App\Entity\RendezVous;
+<<<<<<< HEAD
 use App\Entity\AvisMedecin;
 use App\Form\DocumentPatientFormType;
 use App\Form\AvisMedecinFormType;
 use App\Repository\MedecinRepository;
 use App\Repository\RendezVousRepository;
 use App\Repository\AvisMedecinRepository;
+=======
+use App\Form\DocumentPatientFormType;
+use App\Repository\MedecinRepository;
+use App\Repository\RendezVousRepository;
+>>>>>>> 4f714e473f4c6306d8cd13fadaae1828cd26d7f1
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
@@ -35,7 +41,10 @@ class PatientController extends AbstractController
         private EntityManagerInterface $em,
         private RendezVousRepository $rdvRepo,
         private MedecinRepository $medecinRepo,
+<<<<<<< HEAD
         private AvisMedecinRepository $avisRepo,
+=======
+>>>>>>> 4f714e473f4c6306d8cd13fadaae1828cd26d7f1
         private SluggerInterface $slugger,
     ) {
     }
@@ -487,6 +496,7 @@ class PatientController extends AbstractController
             'message' => 'Demande de rendez-vous envoyée. La secrétaire du médecin la validera sous peu.',
         ]);
     }
+<<<<<<< HEAD
 
     #[Route('/avis-medecin/{medecinId}', name: 'app_patient_rate_doctor', methods: ['GET', 'POST'])]
     public function rateMedecin(Request $request, string $medecinId): Response
@@ -552,6 +562,8 @@ class PatientController extends AbstractController
             'avis' => $avis,
         ]);
     }
+=======
+>>>>>>> 4f714e473f4c6306d8cd13fadaae1828cd26d7f1
 }
 
 

@@ -24,11 +24,21 @@
                             <div class="col-auto profile-avatar-col">
                                 <div class="profile-avatar-wrap">
                                     <div class="profile-avatar-circle">
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+                                        <i class="bi bi-person-fill"></i>
+=======
+>>>>>>> 4f714e473f4c6306d8cd13fadaae1828cd26d7f1
                                         {% if user.photo %}
                                             <img src="{{ asset(user.photo) }}" alt="{{ user.nomComplet }}" class="profile-avatar-img">
                                         {% else %}
                                             <i class="bi bi-person-fill"></i>
                                         {% endif %}
+<<<<<<< HEAD
+=======
+>>>>>>> isramedi
+>>>>>>> 4f714e473f4c6306d8cd13fadaae1828cd26d7f1
                                     </div>
                                     <div class="profile-status-indicator {% if user.statut == constant('App\\Entity\\StatutCompte::ACTIF') %}active{% elseif user.statut == constant('App\\Entity\\StatutCompte::SUSPENDU') %}suspended{% else %}banned{% endif %}"></div>
                                 </div>
@@ -44,8 +54,16 @@
                                         <span class="profile-role-badge patient"><i class="bi bi-person-fill me-1"></i>Patient</span>
                                     {% elseif user.role == constant('App\\Entity\\RoleUtilisateur::SECRETAIRE') %}
                                         <span class="profile-role-badge secretaire"><i class="bi bi-person-badge-fill me-1"></i>Secrétaire</span>
+<<<<<<< HEAD
                                     {% elseif user.role == constant('App\\Entity\\RoleUtilisateur::ORGANISATEUR') %}
                                         <span class="profile-role-badge organisateur"><i class="bi bi-calendar-event-fill me-1"></i>Organisateur</span>
+=======
+<<<<<<< HEAD
+=======
+                                    {% elseif user.role == constant('App\\Entity\\RoleUtilisateur::ORGANISATEUR') %}
+                                        <span class="profile-role-badge organisateur"><i class="bi bi-calendar-event-fill me-1"></i>Organisateur</span>
+>>>>>>> isramedi
+>>>>>>> 4f714e473f4c6306d8cd13fadaae1828cd26d7f1
                                     {% elseif user.role == constant('App\\Entity\\RoleUtilisateur::PARTICIPATION') %}
                                         <span class="profile-role-badge participation"><i class="bi bi-people-fill me-1"></i>Participation</span>
                                     {% endif %}
@@ -73,6 +91,11 @@
                                     </div>
                                 </div>
                             </div>
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+=======
+>>>>>>> 4f714e473f4c6306d8cd13fadaae1828cd26d7f1
                             {% if user.telephone %}
                             <div class="col-md-6 col-lg-4">
                                 <div class="profile-info-card h-100">
@@ -84,6 +107,10 @@
                                 </div>
                             </div>
                             {% endif %}
+<<<<<<< HEAD
+=======
+>>>>>>> isramedi
+>>>>>>> 4f714e473f4c6306d8cd13fadaae1828cd26d7f1
                             <div class="col-md-6 col-lg-4">
                                 <div class="profile-info-card h-100">
                                     <div class="profile-info-icon"><i class="bi bi-calendar-event-fill"></i></div>
@@ -150,6 +177,11 @@
                                         </div>
                                     </div>
                                     {% endif %}
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+=======
+>>>>>>> 4f714e473f4c6306d8cd13fadaae1828cd26d7f1
                                     {% if user.telephone %}
                                     <div class="col-md-6">
                                         <div class="profile-detail-item">
@@ -158,6 +190,10 @@
                                         </div>
                                     </div>
                                     {% endif %}
+<<<<<<< HEAD
+=======
+>>>>>>> isramedi
+>>>>>>> 4f714e473f4c6306d8cd13fadaae1828cd26d7f1
                                     {% if user.numeroLicence %}
                                     <div class="col-md-6">
                                         <div class="profile-detail-item">
@@ -174,7 +210,15 @@
                                         </div>
                                     </div>
                                     {% endif %}
+<<<<<<< HEAD
                                     {% if not user.specialite and not user.numeroLicence and not user.adresseCabinet and not user.telephone %}
+=======
+<<<<<<< HEAD
+                                    {% if not user.specialite and not user.numeroLicence and not user.adresseCabinet %}
+=======
+                                    {% if not user.specialite and not user.numeroLicence and not user.adresseCabinet and not user.telephone %}
+>>>>>>> isramedi
+>>>>>>> 4f714e473f4c6306d8cd13fadaae1828cd26d7f1
                                     <div class="col-12"><p class="text-muted mb-0"><em>Aucune information professionnelle</em></p></div>
                                     {% endif %}
                                 </div>
@@ -191,6 +235,18 @@
                                     {% endif %}
                                     {% if not user.telephone %}<div class="col-12"><p class="text-muted mb-0"><em>Aucune information complémentaire</em></p></div>{% endif %}
                                 </div>
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+                            {% elseif user.role.value == 'PARTICIPATION' %}
+                                <h5 class="profile-section-title"><i class="bi bi-people-fill me-2"></i>Informations Participation</h5>
+                                <div class="row g-4">
+                                    <div class="col-md-6">
+                                        <div class="profile-detail-item">
+                                            <i class="bi bi-person-badge"></i>
+                                            <div><span class="label">Rôle dans l'événement</span><span class="value">{{ user.roleDansEvenement.value ?? '—' }}</span></div>
+=======
+>>>>>>> 4f714e473f4c6306d8cd13fadaae1828cd26d7f1
                             {% elseif user.role.value == 'ADMIN' %}
                                 <h5 class="profile-section-title"><i class="bi bi-shield-lock-fill me-2"></i>Informations Administrateur</h5>
                                 <div class="row g-4">
@@ -239,6 +295,10 @@
                                         <div class="profile-detail-item">
                                             <i class="bi bi-person-badge"></i>
                                             <div><span class="label">R�le dans l'�v�nement</span><span class="value">{{ user.roleDansEvenement.value ?? '?' }}</span></div>
+<<<<<<< HEAD
+=======
+>>>>>>> isramedi
+>>>>>>> 4f714e473f4c6306d8cd13fadaae1828cd26d7f1
                                         </div>
                                     </div>
                                     <div class="col-md-6">
@@ -248,12 +308,28 @@
                                         </div>
                                     </div>
                                 </div>
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+                            {% elseif user.role.value == 'ADMIN' %}
+                                <h5 class="profile-section-title"><i class="bi bi-shield-lock-fill me-2"></i>Administrateur MediConnect</h5>
+                                <p class="text-muted mb-0">Compte administrateur avec accès complet à la plateforme.</p>
+=======
+>>>>>>> isramedi
+>>>>>>> 4f714e473f4c6306d8cd13fadaae1828cd26d7f1
                             {% endif %}
                         </div>
 
                         {# Actions #}
                         <div class="profile-actions mt-5 pt-4 border-top">
+<<<<<<< HEAD
                             {% if is_own_profile|default(true) %}
+=======
+<<<<<<< HEAD
+=======
+                            {% if is_own_profile|default(true) %}
+>>>>>>> isramedi
+>>>>>>> 4f714e473f4c6306d8cd13fadaae1828cd26d7f1
                             <a href="{{ path('app_settings') }}" class="btn btn-primary btn-lg px-4">
                                 <i class="bi bi-gear-fill me-2"></i>Paramètres
                             </a>
@@ -268,6 +344,11 @@
                             <a href="{{ path('app_logout') }}" class="btn btn-danger btn-lg px-4">
                                 <i class="bi bi-box-arrow-right me-2"></i>Déconnexion
                             </a>
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+=======
+>>>>>>> 4f714e473f4c6306d8cd13fadaae1828cd26d7f1
                             {% else %}
                             <a href="javascript:history.back()" class="btn btn-outline-primary btn-lg px-4">
                                 <i class="bi bi-arrow-left me-2"></i>Retour
@@ -276,6 +357,10 @@
                                 <i class="bi bi-house-door-fill me-2"></i>Accueil
                             </a>
                             {% endif %}
+<<<<<<< HEAD
+=======
+>>>>>>> isramedi
+>>>>>>> 4f714e473f4c6306d8cd13fadaae1828cd26d7f1
                         </div>
                     </div>
                 </div>

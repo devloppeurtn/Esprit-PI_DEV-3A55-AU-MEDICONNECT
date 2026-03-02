@@ -2,8 +2,16 @@
 
 namespace App\Entity;
 
+<<<<<<< HEAD
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
+=======
+<<<<<<< HEAD
+=======
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
+>>>>>>> isramedi
+>>>>>>> 4f714e473f4c6306d8cd13fadaae1828cd26d7f1
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
@@ -19,6 +27,11 @@ class Patient extends Utilisateur
     #[ORM\Column(type: Types::TEXT, nullable: true)]
     private ?string $adresse = null;
 
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+=======
+>>>>>>> 4f714e473f4c6306d8cd13fadaae1828cd26d7f1
     #[ORM\OneToOne(targetEntity: DossierMedical::class, mappedBy: 'patient', cascade: ['persist', 'remove'])]
     private ?DossierMedical $dossierMedical = null;
 
@@ -26,10 +39,19 @@ class Patient extends Utilisateur
     #[ORM\OneToMany(targetEntity: RendezVous::class, mappedBy: 'patient', cascade: ['persist'])]
     private Collection $rendezVous;
 
+<<<<<<< HEAD
+=======
+>>>>>>> isramedi
+>>>>>>> 4f714e473f4c6306d8cd13fadaae1828cd26d7f1
     public function __construct()
     {
         parent::__construct();
         $this->setRole(RoleUtilisateur::PATIENT);
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+=======
+>>>>>>> 4f714e473f4c6306d8cd13fadaae1828cd26d7f1
         $this->rendezVous = new ArrayCollection();
     }
 
@@ -68,6 +90,10 @@ class Patient extends Utilisateur
             $rdv->setPatient(null);
         }
         return $this;
+<<<<<<< HEAD
+=======
+>>>>>>> isramedi
+>>>>>>> 4f714e473f4c6306d8cd13fadaae1828cd26d7f1
     }
 
     public function getTelephone(): ?string

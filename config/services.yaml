@@ -4,10 +4,18 @@
 # Put parameters here that don't need to change on each machine where the app is deployed
 # https://symfony.com/doc/current/best_practices.html#use-parameters-for-application-configuration
 parameters:
+<<<<<<< HEAD
     documents_directory: '%kernel.project_dir%/public/uploads/documents'
     photos_directory: '%kernel.project_dir%/public/uploads/photos'
     openweather_api_key: '%env(OPENWEATHER_API_KEY)%'
     groq_api_key: '%env(GROQ_API_KEY)%'
+=======
+<<<<<<< HEAD
+=======
+    documents_directory: '%kernel.project_dir%/public/uploads/documents'
+    photos_directory: '%kernel.project_dir%/public/uploads/photos'
+>>>>>>> isramedi
+>>>>>>> 4f714e473f4c6306d8cd13fadaae1828cd26d7f1
 
 services:
     # default configuration for services in *this* file
@@ -27,6 +35,11 @@ services:
     # add more service definitions when explicit configuration is needed
     # please note that last definitions always *replace* previous ones
     
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+=======
+>>>>>>> 4f714e473f4c6306d8cd13fadaae1828cd26d7f1
     App\Controller\AuthController:
         arguments:
             $photosDirectory: '%photos_directory%'
@@ -35,6 +48,10 @@ services:
         arguments:
             $photosDirectory: '%photos_directory%'
     
+<<<<<<< HEAD
+=======
+>>>>>>> isramedi
+>>>>>>> 4f714e473f4c6306d8cd13fadaae1828cd26d7f1
     App\Security\UserProvider:
         arguments:
             $entityManager: '@doctrine.orm.entity_manager'
@@ -42,7 +59,10 @@ services:
     App\Security\LoginFailureHandler:
         arguments:
             $options: []
+<<<<<<< HEAD
 
     App\Service\GroqAIService:
         arguments:
             $groqApiKey: '%groq_api_key%'
+=======
+>>>>>>> 4f714e473f4c6306d8cd13fadaae1828cd26d7f1

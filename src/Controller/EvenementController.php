@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use App\Entity\Evenement;
 use App\Entity\Participant;
+<<<<<<< HEAD
 use App\Entity\AvisEvenement;
 use App\Enum\StatutEvenement;
 use App\Form\EvenementFormType;
@@ -13,13 +14,29 @@ use App\Repository\ParticipantRepository;
 use App\Repository\AvisEvenementRepository;
 use App\Service\WeatherService;
 use App\Service\EventRecommendationService;
+=======
+<<<<<<< HEAD
+=======
+use App\Enum\StatutEvenement;
+>>>>>>> isramedi
+use App\Form\EvenementFormType;
+use App\Repository\EvenementRepository;
+use App\Repository\ParticipantRepository;
+>>>>>>> 4f714e473f4c6306d8cd13fadaae1828cd26d7f1
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+<<<<<<< HEAD
 use Symfony\Component\Security\Http\Attribute\IsGranted;
+=======
+<<<<<<< HEAD
+=======
+use Symfony\Component\Security\Http\Attribute\IsGranted;
+>>>>>>> isramedi
+>>>>>>> 4f714e473f4c6306d8cd13fadaae1828cd26d7f1
 
 #[Route('/evenement')]
 class EvenementController extends AbstractController
@@ -27,15 +44,30 @@ class EvenementController extends AbstractController
     public function __construct(
         private EntityManagerInterface $entityManager,
         private EvenementRepository $evenementRepository,
+<<<<<<< HEAD
         private ParticipantRepository $participantRepository,
         private AvisEvenementRepository $avisEvenementRepository,
         private WeatherService $weatherService,
         private EventRecommendationService $recommendationService,
         private \App\Repository\EventFeedbackRepository $feedbackRepository
+=======
+        private ParticipantRepository $participantRepository
+>>>>>>> 4f714e473f4c6306d8cd13fadaae1828cd26d7f1
     ) {
     }
 
     #[Route('/', name: 'app_evenement_index')]
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+    public function index(): Response
+    {
+        $items = $this->evenementRepository->findAll();
+
+        return $this->render('evenement/index.html.twig', [
+            'items' => $items,
+=======
+>>>>>>> 4f714e473f4c6306d8cd13fadaae1828cd26d7f1
     public function index(Request $request): Response
     {
         $search = trim((string) $request->query->get('q', ''));
@@ -63,6 +95,7 @@ class EvenementController extends AbstractController
         }
 
         $items = $qb->getQuery()->getResult();
+<<<<<<< HEAD
         
         // Ajouter les données météo pour chaque événement
         $weatherData = [];
@@ -78,11 +111,14 @@ class EvenementController extends AbstractController
             }
         }
         
+=======
+>>>>>>> 4f714e473f4c6306d8cd13fadaae1828cd26d7f1
         $mesEvenements = [];
         if ($this->isGranted('ROLE_ORGANISATEUR')) {
             $mesEvenements = $this->evenementRepository->findByOrganisateur($this->getUser());
         }
 
+<<<<<<< HEAD
         // Recommandations IA pour les patients
         $aiRecommendations = [];
         if ($this->isGranted('ROLE_PATIENT')) {
@@ -93,13 +129,18 @@ class EvenementController extends AbstractController
             }
         }
 
+=======
+>>>>>>> 4f714e473f4c6306d8cd13fadaae1828cd26d7f1
         return $this->render('evenement/index.html.twig', [
             'items' => $items,
             'mesEvenements' => $mesEvenements,
             'search' => $search,
             'periode' => $period,
+<<<<<<< HEAD
             'weatherData' => $weatherData,
             'aiRecommendations' => $aiRecommendations,
+=======
+>>>>>>> 4f714e473f4c6306d8cd13fadaae1828cd26d7f1
         ]);
     }
 
@@ -129,16 +170,33 @@ class EvenementController extends AbstractController
             'total' => count($mesEvenements),
             'parStatut' => $parStatut,
             'totalParticipants' => $totalParticipants,
+<<<<<<< HEAD
+=======
+>>>>>>> isramedi
+>>>>>>> 4f714e473f4c6306d8cd13fadaae1828cd26d7f1
         ]);
     }
 
     #[Route('/nouveau', name: 'app_evenement_new')]
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+    public function new(Request $request): Response
+    {
+        $this->denyAccessUnlessGranted('ROLE_ORGANISATEUR');
+        $item = new Evenement();
+=======
+>>>>>>> 4f714e473f4c6306d8cd13fadaae1828cd26d7f1
     #[IsGranted('ROLE_ORGANISATEUR')]
     public function new(Request $request): Response
     {
         $item = new Evenement();
         $item->setOrganisateur($this->getUser());
         $item->setStatut(StatutEvenement::EN_ATTENTE);
+<<<<<<< HEAD
+=======
+>>>>>>> isramedi
+>>>>>>> 4f714e473f4c6306d8cd13fadaae1828cd26d7f1
         $form = $this->createForm(EvenementFormType::class, $item);
         $form->handleRequest($request);
 
@@ -146,7 +204,15 @@ class EvenementController extends AbstractController
             $this->entityManager->persist($item);
             $this->entityManager->flush();
 
+<<<<<<< HEAD
             $this->addFlash('success', 'Événement créé. Il est en attente de validation par un administrateur.');
+=======
+<<<<<<< HEAD
+            $this->addFlash('success', 'Événement créé avec succès.');
+=======
+            $this->addFlash('success', 'Événement créé. Il est en attente de validation par un administrateur.');
+>>>>>>> isramedi
+>>>>>>> 4f714e473f4c6306d8cd13fadaae1828cd26d7f1
             return $this->redirectToRoute('app_evenement_index');
         }
 
@@ -157,12 +223,21 @@ class EvenementController extends AbstractController
         ]);
     }
 
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+    #[Route('/{id}', name: 'app_evenement_show')]
+    public function show(Evenement $item): Response
+    {
+=======
+>>>>>>> 4f714e473f4c6306d8cd13fadaae1828cd26d7f1
     #[Route('/{id}', name: 'app_evenement_show', requirements: ['id' => '[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}'])]
     public function show(Evenement $item): Response
     {
         if ($item->getStatut() !== StatutEvenement::VALIDE && !$this->canManageEvent($item)) {
             throw $this->createAccessDeniedException('Cet événement n\'est pas encore publié.');
         }
+<<<<<<< HEAD
         $participants = $this->participantRepository->findByEvenement($item);
         
         // Fetch weather data if location and date are available
@@ -184,6 +259,19 @@ class EvenementController extends AbstractController
         ]);
     }
 
+=======
+>>>>>>> isramedi
+        $participants = $this->participantRepository->findByEvenement($item);
+        return $this->render('evenement/show.html.twig', ['item' => $item, 'participants' => $participants]);
+    }
+
+<<<<<<< HEAD
+    #[Route('/{id}/modifier', name: 'app_evenement_edit')]
+    public function edit(Request $request, Evenement $item): Response
+    {
+        $this->denyAccessUnlessGranted('ROLE_ORGANISATEUR');
+=======
+>>>>>>> 4f714e473f4c6306d8cd13fadaae1828cd26d7f1
     #[Route('/{id}/participer-page', name: 'app_evenement_participer_form', methods: ['GET'], requirements: ['id' => '[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}'])]
     public function participerPage(Evenement $item): Response
     {
@@ -201,6 +289,10 @@ class EvenementController extends AbstractController
         if (!$this->canManageEvent($item)) {
             throw $this->createAccessDeniedException('Vous ne pouvez pas modifier cet événement.');
         }
+<<<<<<< HEAD
+=======
+>>>>>>> isramedi
+>>>>>>> 4f714e473f4c6306d8cd13fadaae1828cd26d7f1
         $form = $this->createForm(EvenementFormType::class, $item);
         $form->handleRequest($request);
 
@@ -217,12 +309,25 @@ class EvenementController extends AbstractController
         ]);
     }
 
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+    #[Route('/{id}/supprimer', name: 'app_evenement_delete', methods: ['POST'])]
+    public function delete(Request $request, Evenement $item): Response
+    {
+        $this->denyAccessUnlessGranted('ROLE_ORGANISATEUR');
+=======
+>>>>>>> 4f714e473f4c6306d8cd13fadaae1828cd26d7f1
     #[Route('/{id}/supprimer', name: 'app_evenement_delete', methods: ['POST'], requirements: ['id' => '[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}'])]
     public function delete(Request $request, Evenement $item): Response
     {
         if (!$this->canManageEvent($item)) {
             throw $this->createAccessDeniedException('Vous ne pouvez pas supprimer cet événement.');
         }
+<<<<<<< HEAD
+=======
+>>>>>>> isramedi
+>>>>>>> 4f714e473f4c6306d8cd13fadaae1828cd26d7f1
         if ($this->isCsrfTokenValid('delete'.$item->getId(), $request->request->get('_token'))) {
             $this->entityManager->remove($item);
             $this->entityManager->flush();
@@ -232,6 +337,16 @@ class EvenementController extends AbstractController
         return $this->redirectToRoute('app_evenement_index');
     }
 
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+    // Participation endpoints
+    #[Route('/{id}/participer', name: 'app_evenement_participer', methods: ['POST'])]
+    public function participer(Request $request, Evenement $item): Response
+    {
+        if (! $this->isCsrfTokenValid('participate'.$item->getId(), $request->request->get('_token'))) {
+=======
+>>>>>>> 4f714e473f4c6306d8cd13fadaae1828cd26d7f1
     private function canManageEvent(Evenement $item): bool
     {
         if ($this->isGranted('ROLE_ADMIN')) {
@@ -247,6 +362,10 @@ class EvenementController extends AbstractController
     public function participer(Request $request, Evenement $item): Response
     {
         if (!$this->isCsrfTokenValid('participate'.$item->getId(), $request->request->get('_token'))) {
+<<<<<<< HEAD
+=======
+>>>>>>> isramedi
+>>>>>>> 4f714e473f4c6306d8cd13fadaae1828cd26d7f1
             $this->addFlash('error', 'Jeton CSRF invalide.');
             return $this->redirectToRoute('app_evenement_show', ['id' => $item->getId()]);
         }
@@ -255,11 +374,20 @@ class EvenementController extends AbstractController
         $lastName = $request->request->get('lastName');
         $email = $request->request->get('email');
 
+<<<<<<< HEAD
         if (!$firstName || !$lastName || !$email) {
+=======
+<<<<<<< HEAD
+        if (! $firstName || ! $lastName || ! $email) {
+=======
+        if (!$firstName || !$lastName || !$email) {
+>>>>>>> isramedi
+>>>>>>> 4f714e473f4c6306d8cd13fadaae1828cd26d7f1
             $this->addFlash('error', 'Veuillez remplir le prénom, le nom et l\'email.');
             return $this->redirectToRoute('app_evenement_show', ['id' => $item->getId()]);
         }
 
+<<<<<<< HEAD
         // Check if max participants limit is reached
         if ($item->getMaxParticipants() !== null) {
             $currentParticipantCount = count($this->participantRepository->findByEvenement($item));
@@ -269,6 +397,8 @@ class EvenementController extends AbstractController
             }
         }
 
+=======
+>>>>>>> 4f714e473f4c6306d8cd13fadaae1828cd26d7f1
         $participant = new Participant();
         $participant->setFirstName($firstName)
             ->setLastName($lastName)
@@ -283,7 +413,15 @@ class EvenementController extends AbstractController
         return $this->redirectToRoute('app_evenement_show', ['id' => $item->getId()]);
     }
 
+<<<<<<< HEAD
     #[Route('/{id}/participer/ajax', name: 'app_evenement_participer_ajax', methods: ['POST'], requirements: ['id' => '[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}'])]
+=======
+<<<<<<< HEAD
+    #[Route('/{id}/participer/ajax', name: 'app_evenement_participer_ajax', methods: ['POST'])]
+=======
+    #[Route('/{id}/participer/ajax', name: 'app_evenement_participer_ajax', methods: ['POST'], requirements: ['id' => '[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}'])]
+>>>>>>> isramedi
+>>>>>>> 4f714e473f4c6306d8cd13fadaae1828cd26d7f1
     public function participerAjax(Request $request, Evenement $item): JsonResponse
     {
         $payload = json_decode($request->getContent(), true);
@@ -291,6 +429,7 @@ class EvenementController extends AbstractController
         $lastName = $payload['lastName'] ?? null;
         $email = $payload['email'] ?? null;
 
+<<<<<<< HEAD
         if (!$firstName || !$lastName || !$email) {
             return $this->json(['error' => 'Missing fields'], 400);
         }
@@ -303,6 +442,16 @@ class EvenementController extends AbstractController
             }
         }
 
+=======
+<<<<<<< HEAD
+        if (! $firstName || ! $lastName || ! $email) {
+=======
+        if (!$firstName || !$lastName || !$email) {
+>>>>>>> isramedi
+            return $this->json(['error' => 'Missing fields'], 400);
+        }
+
+>>>>>>> 4f714e473f4c6306d8cd13fadaae1828cd26d7f1
         $participant = new Participant();
         $participant->setFirstName($firstName)
             ->setLastName($lastName)
@@ -312,6 +461,15 @@ class EvenementController extends AbstractController
         $this->entityManager->persist($participant);
         $this->entityManager->flush();
 
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+        return $this->json(['id' => $participant->getId(), 'firstName' => $participant->getFirstName(), 'lastName' => $participant->getLastName(), 'email' => $participant->getEmail()], 201);
+    }
+
+    // AJAX endpoints
+=======
+>>>>>>> 4f714e473f4c6306d8cd13fadaae1828cd26d7f1
         return $this->json([
             'id' => $participant->getId(),
             'firstName' => $participant->getFirstName(),
@@ -320,6 +478,10 @@ class EvenementController extends AbstractController
         ], 201);
     }
 
+<<<<<<< HEAD
+=======
+>>>>>>> isramedi
+>>>>>>> 4f714e473f4c6306d8cd13fadaae1828cd26d7f1
     #[Route('/ajax/list', name: 'app_evenement_ajax_list', methods: ['GET'])]
     public function ajaxList(): JsonResponse
     {
@@ -338,7 +500,14 @@ class EvenementController extends AbstractController
     }
 
     #[Route('/ajax/create', name: 'app_evenement_ajax_create', methods: ['POST'])]
+<<<<<<< HEAD
     #[IsGranted('ROLE_ORGANISATEUR')]
+=======
+<<<<<<< HEAD
+=======
+    #[IsGranted('ROLE_ORGANISATEUR')]
+>>>>>>> isramedi
+>>>>>>> 4f714e473f4c6306d8cd13fadaae1828cd26d7f1
     public function ajaxCreate(Request $request): JsonResponse
     {
         $payload = json_decode($request->getContent(), true);
@@ -358,6 +527,7 @@ class EvenementController extends AbstractController
 
         return $this->json(['id' => $item->getId(), 'title' => $item->getTitle()], 201);
     }
+<<<<<<< HEAD
 
     #[Route('/{id}/avis', name: 'app_evenement_avis', methods: ['GET', 'POST'], requirements: ['id' => '[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}'])]
     public function laisserAvis(Request $request, Evenement $evenement): Response
@@ -511,4 +681,6 @@ class EvenementController extends AbstractController
             'ratingDistribution' => $ratingDistribution,
         ]);
     }
+=======
+>>>>>>> 4f714e473f4c6306d8cd13fadaae1828cd26d7f1
 }

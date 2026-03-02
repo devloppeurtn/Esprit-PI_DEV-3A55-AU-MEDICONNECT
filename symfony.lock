@@ -35,6 +35,11 @@
             "./migrations/.gitignore"
         ]
     },
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+=======
+>>>>>>> 4f714e473f4c6306d8cd13fadaae1828cd26d7f1
     "nyholm/psr7": {
         "version": "1.8",
         "recipe": {
@@ -47,6 +52,10 @@
             "./config/packages/nyholm_psr7.yaml"
         ]
     },
+<<<<<<< HEAD
+=======
+>>>>>>> isramedi
+>>>>>>> 4f714e473f4c6306d8cd13fadaae1828cd26d7f1
     "phpunit/phpunit": {
         "version": "11.5",
         "recipe": {
@@ -62,6 +71,11 @@
             "./bin/phpunit"
         ]
     },
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+=======
+>>>>>>> 4f714e473f4c6306d8cd13fadaae1828cd26d7f1
     "spomky-labs/cbor-bundle": {
         "version": "v3.0.0"
     },
@@ -74,6 +88,10 @@
             "ref": "d6829c693e3927a8972c7671d74a1a5c505712b0"
         }
     },
+<<<<<<< HEAD
+=======
+>>>>>>> isramedi
+>>>>>>> 4f714e473f4c6306d8cd13fadaae1828cd26d7f1
     "symfony/asset-mapper": {
         "version": "6.4",
         "recipe": {
@@ -340,6 +358,11 @@
     },
     "twig/extra-bundle": {
         "version": "v3.23.0"
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+=======
+>>>>>>> 4f714e473f4c6306d8cd13fadaae1828cd26d7f1
     },
     "web-auth/webauthn-symfony-bundle": {
         "version": "4.4",
@@ -353,5 +376,9 @@
             "./config/packages/webauthn.yaml",
             "./config/routes/webauthn_routes.yaml"
         ]
+<<<<<<< HEAD
+=======
+>>>>>>> isramedi
+>>>>>>> 4f714e473f4c6306d8cd13fadaae1828cd26d7f1
     }
 }

@@ -3,8 +3,16 @@
 namespace App\Repository;
 
 use App\Entity\Evenement;
+<<<<<<< HEAD
 use App\Entity\Utilisateur;
 use App\Enum\StatutEvenement;
+=======
+<<<<<<< HEAD
+=======
+use App\Entity\Utilisateur;
+use App\Enum\StatutEvenement;
+>>>>>>> isramedi
+>>>>>>> 4f714e473f4c6306d8cd13fadaae1828cd26d7f1
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
@@ -16,11 +24,30 @@ class EvenementRepository extends ServiceEntityRepository
     }
 
     /**
+<<<<<<< HEAD
      * Événements actifs et validés (visibles par le public)
+=======
+<<<<<<< HEAD
+=======
+     * Événements actifs et validés (visibles par le public)
+>>>>>>> isramedi
+>>>>>>> 4f714e473f4c6306d8cd13fadaae1828cd26d7f1
      * @return Evenement[]
      */
     public function findAllActive(): array
     {
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+        return $this->createQueryBuilder('m')
+            ->andWhere('m.isActive = :active')
+            ->setParameter('active', true)
+            ->orderBy('m.createdAt', 'DESC')
+            ->getQuery()
+            ->getResult();
+    }
+=======
+>>>>>>> 4f714e473f4c6306d8cd13fadaae1828cd26d7f1
         return $this->createQueryBuilder('e')
             ->andWhere('e.isActive = :active')
             ->andWhere('e.statut = :statut')
@@ -95,4 +122,8 @@ class EvenementRepository extends ServiceEntityRepository
         }
         return $qb->getQuery()->getResult();
     }
+<<<<<<< HEAD
+=======
+>>>>>>> isramedi
+>>>>>>> 4f714e473f4c6306d8cd13fadaae1828cd26d7f1
 }

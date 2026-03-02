@@ -31,9 +31,21 @@
         <button type="button" class="btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#importModal">
             <i class="bi bi-upload me-2"></i>Import Users
         </button>
+<<<<<<< HEAD
         <button type="button" class="btn btn-outline-secondary" id="exportUsersBtn">
             <i class="bi bi-download me-2"></i>Export
         </button>
+=======
+<<<<<<< HEAD
+        <a href="{{ path('app_admin_users_export') }}" class="btn btn-outline-secondary">
+            <i class="bi bi-download me-2"></i>Export
+        </a>
+=======
+        <button type="button" class="btn btn-outline-secondary" id="exportUsersBtn">
+            <i class="bi bi-download me-2"></i>Export
+        </button>
+>>>>>>> isramedi
+>>>>>>> 4f714e473f4c6306d8cd13fadaae1828cd26d7f1
         <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#userModal" id="addUserBtn">
             <i class="bi bi-person-plus me-2"></i>Add User
         </button>
@@ -249,9 +261,21 @@
                                     </button>
                                 </div>
                                 <div class="col-6">
+<<<<<<< HEAD
                                     <button class="btn btn-outline-success btn-sm w-100" id="exportUsersBtnSmall">
                                         <i class="bi bi-download me-1"></i>Export
                                     </button>
+=======
+<<<<<<< HEAD
+                                    <a href="{{ path('app_admin_users_export') }}" class="btn btn-outline-success btn-sm w-100">
+                                        <i class="bi bi-download me-1"></i>Export
+                                    </a>
+=======
+                                    <button class="btn btn-outline-success btn-sm w-100" id="exportUsersBtnSmall">
+                                        <i class="bi bi-download me-1"></i>Export
+                                    </button>
+>>>>>>> isramedi
+>>>>>>> 4f714e473f4c6306d8cd13fadaae1828cd26d7f1
                                 </div>
                                 <div class="col-6">
                                     <button class="btn btn-outline-warning btn-sm w-100" @click="alert('Fonctionnalit√© √† venir')">
@@ -259,9 +283,21 @@
                                     </button>
                                 </div>
                                 <div class="col-12">
+<<<<<<< HEAD
                                     <button class="btn btn-outline-secondary btn-sm w-100" id="exportUsersBtnReport">
                                         <i class="bi bi-file-earmark-text me-1"></i>Generate Report
                                     </button>
+=======
+<<<<<<< HEAD
+                                    <a href="{{ path('app_admin_users_export') }}" class="btn btn-outline-secondary btn-sm w-100">
+                                        <i class="bi bi-file-earmark-text me-1"></i>Generate Report
+                                    </a>
+=======
+                                    <button class="btn btn-outline-secondary btn-sm w-100" id="exportUsersBtnReport">
+                                        <i class="bi bi-file-earmark-text me-1"></i>Generate Report
+                                    </button>
+>>>>>>> isramedi
+>>>>>>> 4f714e473f4c6306d8cd13fadaae1828cd26d7f1
                                 </div>
                             </div>
                         </div>
@@ -329,7 +365,14 @@
                             <th @click="sortBy('email')" class="sortable">Email</th>
                             <th>Role</th>
                             <th>Status</th>
+<<<<<<< HEAD
                             <th>Email v√©rifi√©</th>
+=======
+<<<<<<< HEAD
+=======
+                            <th>Email v√©rifi√©</th>
+>>>>>>> isramedi
+>>>>>>> 4f714e473f4c6306d8cd13fadaae1828cd26d7f1
                             <th @click="sortBy('lastActive')" class="sortable">Last Active</th>
                             <th style="width: 120px;">Actions</th>
                         </tr>
@@ -341,6 +384,13 @@
                                     <input type="checkbox" class="form-check-input user-select-checkbox" :checked="selectedUsers.includes(user.id)" @change="toggleUser(user.id)">
                                 </td>
                                 <td>
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+                                    <a :href="'{{ path('app_admin_user_profile', {id: '__ID__'}) }}'.replace('__ID__', user.id)" class="text-decoration-none text-dark d-flex align-items-center">
+                                        <img :src="avatarUrl || user.avatar" class="rounded-circle me-2" width="32" height="32" alt="">
+=======
+>>>>>>> 4f714e473f4c6306d8cd13fadaae1828cd26d7f1
                                     <a :href="`/profile/voir/${user.id}`" class="text-decoration-none text-dark d-flex align-items-center">
                                         <img :src="user.photo ? '{{ app.request.basepath }}/' + user.photo : (avatarUrl || user.avatar || '{{ asset('assets/img/avatar-placeholder.svg') }}')" 
                                              class="rounded-circle me-2" 
@@ -351,6 +401,10 @@
                                              @mouseenter="$el.style.transform = 'scale(1.1)'"
                                              @mouseleave="$el.style.transform = 'scale(1)'"
                                              @click.stop="window.location.href = `/profile/voir/${user.id}`">
+<<<<<<< HEAD
+=======
+>>>>>>> isramedi
+>>>>>>> 4f714e473f4c6306d8cd13fadaae1828cd26d7f1
                                         <div>
                                             <div class="fw-medium" x-text="user.nomComplet"></div>
                                             <small class="text-muted" x-text="'ID: ' + user.id"></small>
@@ -364,9 +418,18 @@
                                 <td>
                                     <span class="badge" :class="{'bg-success':user.statut==='ACTIF','bg-secondary':user.statut==='BANNI'||user.statut==='SUSPENDU'}" x-text="user.statut||'‚Äî'"></span>
                                 </td>
+<<<<<<< HEAD
                                 <td>
                                     <span class="badge" :class="user.emailVerified ? 'bg-success' : 'bg-warning text-dark'" x-text="user.emailVerified ? 'VÈrifiÈ' : 'Non vÈrifiÈ'"></span>
                                 </td>
+=======
+<<<<<<< HEAD
+=======
+                                <td>
+                                    <span class="badge" :class="user.emailVerified ? 'bg-success' : 'bg-warning text-dark'" x-text="user.emailVerified ? 'VÈrifiÈ' : 'Non vÈrifiÈ'"></span>
+                                </td>
+>>>>>>> isramedi
+>>>>>>> 4f714e473f4c6306d8cd13fadaae1828cd26d7f1
                                 <td x-text="user.lastActive || user.derniereConnexion || '‚Äî'"></td>
                                 <td>
                                     <div class="dropdown">
@@ -422,11 +485,33 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
+<<<<<<< HEAD
                 <form id="userForm" novalidate>
+=======
+<<<<<<< HEAD
+                <form id="userForm">
+=======
+                <form id="userForm" novalidate>
+>>>>>>> isramedi
+>>>>>>> 4f714e473f4c6306d8cd13fadaae1828cd26d7f1
                     <input type="hidden" name="userId" id="userId" value="">
                     <div class="row g-3">
                         <div class="col-12">
                             <label class="form-label">Nom complet</label>
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+                            <input type="text" class="form-control" name="nomComplet" required>
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label">Email</label>
+                            <input type="email" class="form-control" name="email" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Role</label>
+                            <select class="form-select" name="role" required>
+=======
+>>>>>>> 4f714e473f4c6306d8cd13fadaae1828cd26d7f1
                             <input type="text" class="form-control" name="nomComplet">
                         </div>
                         <div class="col-12">
@@ -436,6 +521,10 @@
                         <div class="col-md-6">
                             <label class="form-label">Role</label>
                             <select class="form-select" name="role">
+<<<<<<< HEAD
+=======
+>>>>>>> isramedi
+>>>>>>> 4f714e473f4c6306d8cd13fadaae1828cd26d7f1
                                 <option value="PATIENT">Patient</option>
                                 <option value="MEDECIN">M√©decin</option>
                                 <option value="SECRETAIRE">Secr√©taire</option>
@@ -594,6 +683,13 @@ document.addEventListener('alpine:init', () => {
             document.querySelector('[name="role"]').value = user.role || 'PATIENT';
             document.querySelector('[name="statut"]').value = user.statut || 'ACTIF';
             document.querySelector('[name="password"]').value = '';
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+            document.querySelector('[name="password"]').required = false;
+=======
+>>>>>>> isramedi
+>>>>>>> 4f714e473f4c6306d8cd13fadaae1828cd26d7f1
             new bootstrap.Modal(document.getElementById('userModal')).show();
         },
 
@@ -689,15 +785,36 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('userId').value = '';
         form.reset();
         document.getElementById('userModalLabel').textContent = 'Add New User';
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+        document.querySelector('[name="password"]').required = true;
+=======
+>>>>>>> isramedi
+>>>>>>> 4f714e473f4c6306d8cd13fadaae1828cd26d7f1
     });
     saveBtn.addEventListener('click', () => {
         const userId = document.getElementById('userId').value;
         const data = { nomComplet: form.querySelector('[name="nomComplet"]').value, email: form.querySelector('[name="email"]').value, role: form.querySelector('[name="role"]').value, statut: form.querySelector('[name="statut"]').value, password: form.querySelector('[name="password"]').value };
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+        if (!data.nomComplet || !data.email) { alert('Nom et email requis'); return; }
+        if (!userId && (!data.password || data.password.length < 6)) { alert('Mot de passe min. 6 caract√®res requis'); return; }
+        if (data.password && data.password.length > 0 && data.password.length < 6) { alert('Mot de passe min. 6 caract√®res'); return; }
+=======
+>>>>>>> isramedi
+>>>>>>> 4f714e473f4c6306d8cd13fadaae1828cd26d7f1
         const url = userId ? '{{ path('app_admin_users_update', {id: '__ID__'}) }}'.replace('__ID__', userId) : '{{ path('app_admin_users_create') }}';
         fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-Requested-With': 'XMLHttpRequest' }, body: JSON.stringify(data) })
             .then(r => r.json()).then(res => { if (res.success) { bootstrap.Modal.getInstance(modal).hide(); location.reload(); } else alert(res.error); }).catch(() => alert('Erreur'));
     });
 });
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+=======
+>>>>>>> 4f714e473f4c6306d8cd13fadaae1828cd26d7f1
 
 // Gestion de l'export avec notification AJAX
 document.addEventListener('DOMContentLoaded', function() {
@@ -742,5 +859,9 @@ document.addEventListener('DOMContentLoaded', function() {
     document.getElementById('exportUsersBtnSmall')?.addEventListener('click', handleExport);
     document.getElementById('exportUsersBtnReport')?.addEventListener('click', handleExport);
 });
+<<<<<<< HEAD
+=======
+>>>>>>> isramedi
+>>>>>>> 4f714e473f4c6306d8cd13fadaae1828cd26d7f1
 </script>
 {% endblock %}
