@@ -1,0 +1,870 @@
+﻿{% extends 'base.html.twig' %}
+
+{% block title %}Accueil - MediConnect{% endblock %}
+
+{% block body_class %}index-page{% endblock %}
+
+{% block stylesheets %}
+  <!-- Vendor CSS Files -->
+  <link href="{{ asset('assets/vendor/bootstrap/css/bootstrap.min.css') }}" rel="stylesheet">
+  <link href="{{ asset('assets/vendor/aos/aos.css') }}" rel="stylesheet">
+  <link href="{{ asset('assets/vendor/glightbox/css/glightbox.min.css') }}" rel="stylesheet">
+  <link href="{{ asset('assets/vendor/fontawesome-free/css/all.min.css') }}" rel="stylesheet">
+  <link href="{{ asset('assets/vendor/swiper/swiper-bundle.min.css') }}" rel="stylesheet">
+{% endblock %}
+
+{% block body %}
+  {% if app.user and is_granted('ROLE_PATIENT') %}
+    {% set rdv_link = path('app_patient_medecins') %}
+  {% elseif app.user and is_granted('ROLE_ADMIN') %}
+    {% set rdv_link = path('app_admin_rendezvous_index') %}
+  {% elseif app.user and is_granted('ROLE_MEDECIN') %}
+    {% set rdv_link = path('app_medecin_rendez_vous') %}
+  {% elseif app.user and is_granted('ROLE_SECRETAIRE') %}
+    {% set rdv_link = path('app_secretaire_rendez_vous') %}
+  {% else %}
+    {% set rdv_link = path('app_login') %}
+  {% endif %}
+  {% set doctors_list_link = path('app_medecins_public') %}
+
+  <main class="main">
+
+    <!-- Hero Section -->
+    <section id="hero" class="hero section">
+
+      <div class="container" data-aos="fade-up" data-aos-delay="100">
+
+        <div class="row align-items-center">
+          <div class="col-lg-6">
+            <div class="hero-content">
+              <div class="trust-badges mb-4" data-aos="fade-right" data-aos-delay="200">
+                <div class="badge-item">
+                  <i class="bi bi-shield-check"></i>
+                  <span>Sécurisé</span>
+                </div>
+                <div class="badge-item">
+                  <i class="bi bi-clock"></i>
+                  <span>Disponible 24/7</span>
+                </div>
+                <div class="badge-item">
+                  <i class="bi bi-star-fill"></i>
+                  <span>4.9/5 Note</span>
+                </div>
+              </div>
+
+              <h1 data-aos="fade-right" data-aos-delay="300">
+                Votre <span class="highlight">Santé</span> Numérique Simplifiée
+              </h1>
+
+              <p class="hero-description" data-aos="fade-right" data-aos-delay="400">
+                MediConnect est la plateforme numérique qui connecte patients et médecins. Trouvez votre médecin, prenez rendez-vous en ligne, consultez à distance et gérez votre dossier médical en toute simplicité.
+              </p>
+
+              <div class="hero-stats mb-4" data-aos="fade-right" data-aos-delay="500">
+                <div class="stat-item">
+                  <h3><span data-purecounter-start="0" data-purecounter-end="1000" data-purecounter-duration="2"
+                      class="purecounter"></span>+</h3>
+                  <p>Médecins Disponibles</p>
+                </div>
+                <div class="stat-item">
+                  <h3><span data-purecounter-start="0" data-purecounter-end="50000" data-purecounter-duration="2"
+                      class="purecounter"></span>+</h3>
+                  <p>Patients Inscrits</p>
+                </div>
+                <div class="stat-item">
+                  <h3><span data-purecounter-start="0" data-purecounter-end="100000" data-purecounter-duration="2"
+                      class="purecounter"></span>+</h3>
+                  <p>Consultations Réalisées</p>
+                </div>
+              </div>
+
+              <div class="hero-actions" data-aos="fade-right" data-aos-delay="600">
+                <a href="{{ rdv_link }}" class="btn btn-primary">Prendre un Rendez-vous</a>
+                <a href="https://www.youtube.com/watch?v=Y7f98aduVJ8" class="btn btn-outline glightbox">
+                  <i class="bi bi-play-circle me-2"></i>
+                  Découvrir la Plateforme
+                </a>
+              </div>
+
+              <div class="emergency-contact" data-aos="fade-right" data-aos-delay="700">
+                <div class="emergency-icon">
+                  <i class="bi bi-telephone-fill"></i>
+                </div>
+                <div class="emergency-info">
+                  <small>Support Client</small>
+                  <strong>+216 52 251 112 </strong>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-lg-6">
+            <div class="hero-visual" data-aos="fade-left" data-aos-delay="400">
+              <div class="main-image">
+                <img src="{{ asset('assets/img/health/staff-10.webp') }}" alt="Modern Healthcare Facility" class="img-fluid">
+                <div class="floating-card appointment-card">
+                  <div class="card-icon">
+                    <i class="bi bi-calendar-check"></i>
+                  </div>
+                  <div class="card-content">
+                    <h6>Prochain Créneau</h6>
+                    <p>Aujourd'hui 14h30</p>
+                    <small>Dr. Sarah Johnson</small>
+                  </div>
+                </div>
+                <div class="floating-card rating-card">
+                  <div class="card-content">
+                    <div class="rating-stars">
+                      <i class="bi bi-star-fill"></i>
+                      <i class="bi bi-star-fill"></i>
+                      <i class="bi bi-star-fill"></i>
+                      <i class="bi bi-star-fill"></i>
+                      <i class="bi bi-star-fill"></i>
+                    </div>
+                    <h6>4.9/5</h6>
+                    <small>1,234 Avis</small>
+                  </div>
+                </div>
+              </div>
+              <div class="background-elements">
+                <div class="element element-1"></div>
+                <div class="element element-2"></div>
+                <div class="element element-3"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+    </section><!-- /Hero Section -->
+
+    <!-- Events Preview Section -->
+    <section id="home-events" class="home-events section py-5">
+      <div class="container" data-aos="fade-up">
+        <div class="section-title text-center mb-4">
+          <h2>?v?nements ? venir</h2>
+          <p>Découvrez nos prochains événements et inscrivez-vous sans créer de compte</p>
+        </div>
+        <div class="row g-4">
+          {% for item in events|default([]) %}
+            <div class="col-lg-4" data-aos="fade-up">
+              <div class="card event-card shadow-sm h-100">
+                <div class="card-body">
+                  <h5 class="card-title">{{ item.title }}</h5>
+                  {% if item.eventDate %}
+                    <p class="text-info small mb-2"><i class="bi bi-calendar-event"></i> {{ item.eventDate|date('d-m-Y') }}</p>
+                  {% endif %}
+                  <p class="card-text text-muted">{{ (item.content|length > 120) ? item.content|slice(0,120) ~ '...' : (item.content ?? '') }}</p>
+                </div>
+                <div class="card-footer bg-white border-0 d-flex justify-content-between align-items-center">
+                  <a href="{{ path('app_evenement_show', {id: item.id}) }}" class="btn btn-outline-primary btn-sm">Détails</a>
+                  <a href="{{ path('app_evenement_show', {id: item.id}) }}#participer" class="btn btn-success btn-sm">
+                    <i class="bi bi-check-circle me-1"></i> Participer
+                  </a>
+                </div>
+              </div>
+            </div>
+          {% else %}
+            <div class="col-12">
+              <div class="alert alert-info mb-0">Aucun événement à venir pour le moment.</div>
+            </div>
+          {% endfor %}
+        </div>
+      </div>
+    </section>
+
+    <!-- Home About Section -->
+    <section id="home-about" class="home-about section">
+
+      <div class="container" data-aos="fade-up" data-aos-delay="100">
+
+        <div class="row align-items-center">
+          <div class="col-lg-6 mb-5 mb-lg-0" data-aos="fade-right" data-aos-delay="200">
+            <div class="about-content">
+              <h2 class="section-heading">Gestion Médicale Numérique Complète</h2>
+              <p class="lead-text">MediConnect révolutionne la façon dont vous gérez votre santé. Notre plateforme connecte patients et médecins pour une expérience médicale moderne, sécurisée et efficace.</p>
+
+              <p>Pour les patients : trouvez facilement votre médecin, prenez rendez-vous en ligne, consultez à distance et accédez à votre dossier médical complet. Pour les médecins : gérez vos rendez-vous numériquement, rédigez ordonnances et rapports en ligne, et suivez vos patients en temps réel.</p>
+
+              <div class="stats-grid">
+                <div class="stat-item">
+                  <div class="stat-number purecounter" data-purecounter-start="0" data-purecounter-end="50000"
+                    data-purecounter-duration="1"></div>
+                  <div class="stat-label">Patients Inscrits</div>
+                </div>
+                <div class="stat-item">
+                  <div class="stat-number purecounter" data-purecounter-start="0" data-purecounter-end="1000"
+                    data-purecounter-duration="1"></div>
+                  <div class="stat-label">Médecins Partenaires</div>
+                </div>
+                <div class="stat-item">
+                  <div class="stat-number purecounter" data-purecounter-start="0" data-purecounter-end="100000"
+                    data-purecounter-duration="1"></div>
+                  <div class="stat-label">Consultations Réalisées</div>
+                </div>
+              </div>
+
+              <div class="cta-section">
+                <a href="#!" class="btn-primary">En Savoir Plus</a>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-lg-6" data-aos="fade-left" data-aos-delay="300">
+            <div class="about-visual">
+              <div class="main-image">
+                <img src="{{ asset('assets/img/health/facilities-9.webp') }}" alt="Modern medical facility" class="img-fluid">
+              </div>
+              <div class="floating-card">
+                <div class="card-content">
+                  <div class="icon">
+                    <i class="bi bi-heart-pulse"></i>
+                  </div>
+                  <div class="card-text">
+                    <h4>Consultations en Ligne</h4>
+                    <p>Disponible quand vous en avez besoin</p>
+                  </div>
+                </div>
+              </div>
+              <div class="experience-badge">
+                <div class="badge-content">
+                  <span class="years">24/7</span>
+                  <span class="text">Accès Permanent</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+    </section><!-- /Home About Section -->
+
+    <!-- Featured Departments Section -->
+    <section id="featured-departments" class="featured-departments section">
+
+      <!-- Section Title -->
+      <div class="container section-title" data-aos="fade-up">
+        <h2>Fonctionnalités Principales</h2>
+        <p>Découvrez toutes les fonctionnalités qui font de MediConnect votre partenaire santé numérique</p>
+      </div><!-- End Section Title -->
+
+      <div class="container" data-aos="fade-up" data-aos-delay="100">
+
+        <div class="row g-5">
+
+          <div class="col-lg-6" data-aos="zoom-in" data-aos-delay="100">
+            <div class="specialty-card">
+              <div class="specialty-content">
+                <div class="specialty-meta">
+                  <span class="specialty-label">Pour les Patients</span>
+                </div>
+                <h3>Recherche de Médecins</h3>
+                <p>Trouvez facilement le médecin qui correspond à vos besoins. Recherchez par spécialité, localisation, disponibilité et consultez les avis des autres patients pour faire le meilleur choix.</p>
+                <div class="specialty-features">
+                  <span><i class="bi bi-check-circle-fill"></i>Recherche Avancée</span>
+                  <span><i class="bi bi-check-circle-fill"></i>Avis et Notes</span>
+                </div>
+                <a href="#!" class="specialty-link">
+                  Trouver un Médecin <i class="bi bi-arrow-right"></i>
+                </a>
+              </div>
+              <div class="specialty-visual">
+                <img src="{{ asset('assets/img/health/cardiology-1.webp') }}" alt="Cardiovascular Medicine" class="img-fluid">
+                <div class="visual-overlay">
+                  <i class="bi bi-heart-pulse"></i>
+                </div>
+              </div>
+            </div>
+          </div><!-- End Specialty Card -->
+
+          <div class="col-lg-6" data-aos="zoom-in" data-aos-delay="200">
+            <div class="specialty-card">
+              <div class="specialty-content">
+                <div class="specialty-meta">
+                  <span class="specialty-label">Pour les Médecins</span>
+                </div>
+                <h3>Gestion Numérique</h3>
+                <p>Gérez tous vos rendez-vous, rédigez ordonnances et rapports médicaux directement depuis la plateforme. Suivez vos patients et organisez votre pratique médicale en toute simplicité.</p>
+                <div class="specialty-features">
+                  <span><i class="bi bi-check-circle-fill"></i>Rendez-vous Numériques</span>
+                  <span><i class="bi bi-check-circle-fill"></i>Ordonnances en Ligne</span>
+                </div>
+                <a href="#!" class="specialty-link">
+                  Espace Médecin <i class="bi bi-arrow-right"></i>
+                </a>
+              </div>
+              <div class="specialty-visual">
+                <img src="{{ asset('assets/img/health/neurology-4.webp') }}" alt="Neurological Sciences" class="img-fluid">
+                <div class="visual-overlay">
+                  <i class="bi bi-cpu"></i>
+                </div>
+              </div>
+            </div>
+          </div><!-- End Specialty Card -->
+
+          <div class="col-lg-4" data-aos="fade-up" data-aos-delay="100">
+            <div class="department-highlight">
+              <div class="highlight-icon">
+                <i class="bi bi-shield-plus"></i>
+              </div>
+              <h4>Rendez-vous en Ligne</h4>
+              <p>Prenez rendez-vous avec votre médecin en quelques clics. Consultez les disponibilités en temps réel et réservez le créneau qui vous convient.</p>
+              <ul class="highlight-list">
+                <li>Réservation Instantanée</li>
+                <li>Rappels Automatiques</li>
+                <li>Annulation Facile</li>
+              </ul>
+              <a href="#!" class="highlight-cta">En Savoir Plus</a>
+            </div>
+          </div><!-- End Department Highlight -->
+
+          <div class="col-lg-4" data-aos="fade-up" data-aos-delay="200">
+            <div class="department-highlight">
+              <div class="highlight-icon">
+                <i class="bi bi-cpu"></i>
+              </div>
+              <h4>Rapport IA</h4>
+              <p>Générez automatiquement des rapports médicaux intelligents pour vos analyses et examens. L'intelligence artificielle analyse vos données médicales pour produire des rapports détaillés et précis.</p>
+              <ul class="highlight-list">
+                <li>Analyse Automatique</li>
+                <li>Rapports Médicaux IA</li>
+                <li>Interprétation des Analyses</li>
+              </ul>
+              <a href="#!" class="highlight-cta">En Savoir Plus</a>
+            </div>
+          </div><!-- End Department Highlight -->
+
+          <div class="col-lg-4" data-aos="fade-up" data-aos-delay="300">
+            <div class="department-highlight">
+              <div class="highlight-icon">
+                <i class="bi bi-activity"></i>
+              </div>
+              <h4>Dossier Médical</h4>
+              <p>Accédez à votre dossier médical complet en ligne. Consultez vos ordonnances, rapports médicaux et historique de consultations en toute sécurité.</p>
+              <ul class="highlight-list">
+                <li>Accès 24/7</li>
+                <li>Historique Complet</li>
+                <li>Partage Sécurisé</li>
+              </ul>
+              <a href="#!" class="highlight-cta">En Savoir Plus</a>
+            </div>
+          </div><!-- End Department Highlight -->
+
+        </div>
+
+        <div class="emergency-banner" data-aos="fade-up" data-aos-delay="400">
+          <div class="row align-items-center">
+            <div class="col-lg-8">
+              <div class="emergency-content">
+                <h3>Support Client Disponible 24/7</h3>
+                <p>Notre équipe de support est disponible à tout moment pour répondre à vos questions et vous aider à utiliser la plateforme MediConnect.</p>
+              </div>
+            </div>
+            <div class="col-lg-4 text-lg-end">
+              <a href="tel:+33123456789" class="emergency-btn">
+                <i class="bi bi-telephone-fill"></i>
+                Support : +216 52 251 112 
+              </a>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+    </section><!-- /Featured Departments Section -->
+
+    <!-- Featured Services Section -->
+    <section id="featured-services" class="featured-services section">
+
+      <!-- Section Title -->
+      <div class="container section-title" data-aos="fade-up">
+        <h2>Nos Services</h2>
+        <p>Découvrez tous les services que MediConnect met à votre disposition pour une gestion médicale optimale</p>
+      </div><!-- End Section Title -->
+
+      <div class="container" data-aos="fade-up" data-aos-delay="100">
+
+        <div class="row g-0">
+
+          <div class="col-lg-8" data-aos="fade-right" data-aos-delay="200">
+            <div class="featured-service-main">
+              <div class="service-image-wrapper">
+                <img src="{{ asset('assets/img/health/consultation-4.webp') }}" alt="Premier Healthcare Services" class="img-fluid"
+                  loading="lazy">
+                <div class="service-overlay">
+                  <div class="service-badge">
+                    <i class="bi bi-heart-pulse"></i>
+                    <span>Consultation en Ligne</span>
+                  </div>
+                </div>
+              </div>
+              <div class="service-details">
+                <h2>Plateforme Médicale Complète</h2>
+                <p>MediConnect offre une solution complète pour la gestion de votre santé. Que vous soyez patient ou médecin, bénéficiez d'outils modernes et sécurisés pour optimiser vos soins médicaux.</p>
+                <a href="{{ path('app_home') }}#featured-services" class="main-cta">Découvrir nos Services</a>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-lg-4" data-aos="fade-left" data-aos-delay="300">
+            <div class="services-sidebar">
+
+              <div class="service-item" data-aos="fade-up" data-aos-delay="400">
+                <div class="service-icon-wrapper">
+                  <i class="bi bi-capsule"></i>
+                </div>
+                <div class="service-info">
+                  <h4>Gestion des Rendez-vous</h4>
+                  <p>Planifiez et gérez vos rendez-vous médicaux en toute simplicité. Consultez les disponibilités, réservez et recevez des rappels automatiques.</p>
+                  <a href="#!" class="service-link">En Savoir Plus</a>
+                </div>
+              </div>
+
+              <div class="service-item" data-aos="fade-up" data-aos-delay="500">
+                <div class="service-icon-wrapper">
+                  <i class="bi bi-bandaid"></i>
+                </div>
+                <div class="service-info">
+                  <h4>Ordonnances Numériques</h4>
+                  <p>Recevez vos ordonnances directement sur la plateforme. Les médecins peuvent les rédiger et les transmettre instantanément de manière sécurisée.</p>
+                  <a href="#!" class="service-link">En Savoir Plus</a>
+                </div>
+              </div>
+
+              <div class="service-item" data-aos="fade-up" data-aos-delay="600">
+                <div class="service-icon-wrapper">
+                  <i class="bi bi-activity"></i>
+                </div>
+                <div class="service-info">
+                  <h4>Rapports Médicaux</h4>
+                  <p>Accédez à tous vos rapports médicaux en ligne. Les médecins peuvent les créer, les partager et les archiver numériquement.</p>
+                  <a href="#!" class="service-link">En Savoir Plus</a>
+                </div>
+              </div>
+
+            </div>
+          </div>
+
+        </div>
+
+        <div class="specialties-grid" data-aos="fade-up" data-aos-delay="300">
+          <div class="row align-items-center">
+
+            <div class="col-lg-3 col-md-6">
+              <div class="specialty-card">
+                <div class="specialty-image">
+                  <img src="{{ asset('assets/img/health/maternal-2.webp') }}" alt="Maternal Care" class="img-fluid" loading="lazy">
+                </div>
+                <div class="specialty-content">
+                  <h5>Recherche de Médecins</h5>
+                  <span>Trouvez le professionnel adapté à vos besoins</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="col-lg-3 col-md-6">
+              <div class="specialty-card">
+                <div class="specialty-image">
+                  <img src="{{ asset('assets/img/health/vaccination-3.webp') }}" alt="Vaccination" class="img-fluid" loading="lazy">
+                </div>
+                <div class="specialty-content">
+                  <h5>Consultations en Ligne</h5>
+                  <span>Consultez à distance en toute sécurité</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="col-lg-3 col-md-6">
+              <div class="specialty-card">
+                <div class="specialty-image">
+                  <img src="{{ asset('assets/img/health/emergency-1.webp') }}" alt="Emergency Care" class="img-fluid" loading="lazy">
+                </div>
+                <div class="specialty-content">
+                  <h5>Dossier Médical</h5>
+                  <span>Accédez à votre historique complet</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="col-lg-3 col-md-6">
+              <div class="specialty-card">
+                <div class="specialty-image">
+                  <img src="{{ asset('assets/img/health/facilities-6.webp') }}" alt="Advanced Tech" class="img-fluid" loading="lazy">
+                </div>
+                <div class="specialty-content">
+                  <h5>Technologie Avancée</h5>
+                  <span>Plateforme sécurisée et moderne</span>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+      </div>
+
+    </section><!-- /Featured Services Section -->
+
+    <!-- Find A Doctor Section -->
+    <section id="find-a-doctor" class="find-a-doctor section">
+
+      <!-- Section Title -->
+      <div class="container section-title" data-aos="fade-up">
+        <h2>Trouver un Médecin</h2>
+        <p>Recherchez parmi notre réseau de médecins qualifiés et trouvez celui qui correspond à vos besoins</p>
+      </div><!-- End Section Title -->
+
+      <div class="container" data-aos="fade-up" data-aos-delay="100">
+
+        <div class="row justify-content-center mb-5" data-aos="fade-up" data-aos-delay="200">
+          <div class="col-lg-8 text-center">
+            <div class="search-section">
+              <h3 class="search-title">Trouvez le Médecin Idéal</h3>
+              <p class="search-subtitle">Recherchez parmi notre répertoire complet de professionnels de santé expérimentés
+              </p>
+              <form class="search-form" action="{{ doctors_list_link }}" method="get">
+                <div class="search-input-group">
+                  <div class="input-wrapper">
+                    <i class="bi bi-person"></i>
+                    <input type="text" class="form-control" name="nom" placeholder="Nom du médecin">
+                  </div>
+                  <div class="select-wrapper">
+                    <i class="bi bi-heart-pulse"></i>
+                    <select class="form-select" name="specialite">
+                      <option value="">Toutes les Spécialités</option>
+                      {% for specialty in homeDoctorSpecialites|default([]) %}
+                        <option value="{{ specialty }}">{{ specialty }}</option>
+                      {% endfor %}
+                    </select>
+                  </div>
+                  <button type="submit" class="search-btn">
+                    <i class="bi bi-search"></i>
+                    Rechercher
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+
+        <div class="doctors-grid" data-aos="fade-up" data-aos-delay="300">
+          {% set statusClasses = ['available', 'busy', 'available', 'offline', 'available', 'available'] %}
+          {% set ratingScores = ['4.9', '4.8', '5.0', '4.7', '4.5', '4.9'] %}
+          {% set reviewCounts = ['127', '89', '203', '156', '74', '194'] %}
+
+          {% for medecin in homeDoctors|default([]) %}
+            {% set imgIndex = loop.index0 % (staffImages|length) %}
+            {% set staffImg = staffImages[imgIndex] %}
+            {% set statusClass = statusClasses[loop.index0 % (statusClasses|length)] %}
+            {% set ratingScore = ratingScores[loop.index0 % (ratingScores|length)] %}
+            {% set reviewCount = reviewCounts[loop.index0 % (reviewCounts|length)] %}
+            {% set details_link = (app.user and is_granted('ROLE_USER')) ? path('app_user_profile_view', {id: medecin.id}) : path('app_login') %}
+            {% if app.user and is_granted('ROLE_PATIENT') %}
+              {% set booking_link = path('app_patient_prendre_rdv', {medecin: medecin.id}) %}
+            {% elseif app.user and is_granted('ROLE_USER') %}
+              {% set booking_link = details_link %}
+            {% else %}
+              {% set booking_link = path('app_login') %}
+            {% endif %}
+
+            <div class="doctor-profile" data-aos="zoom-in" data-aos-delay="{{ 100 + (loop.index0 * 100) }}">
+              <div class="profile-header">
+                <div class="doctor-avatar">
+                  {% if medecin.photo %}
+                    <img src="{{ asset(medecin.photo) }}" alt="{{ medecin.nomComplet }}" class="img-fluid">
+                  {% else %}
+                    <img src="{{ asset('assets/img/health/' ~ staffImg ~ '.webp') }}" alt="{{ medecin.nomComplet }}" class="img-fluid">
+                  {% endif %}
+                  <div class="status-indicator {{ statusClass }}"></div>
+                </div>
+                <div class="doctor-details">
+                  <h4>{{ medecin.nomComplet }}</h4>
+                  <span class="specialty-tag">{{ medecin.specialite|default('Médecin généraliste') }}</span>
+                  <div class="experience-info">
+                    <i class="bi bi-award"></i>
+                    <span>{{ medecin.adresseCabinet ? (medecin.adresseCabinet|length > 30 ? medecin.adresseCabinet|slice(0, 30) ~ '...' : medecin.adresseCabinet) : 'Cabinet MediConnect' }}</span>
+                  </div>
+                </div>
+              </div>
+              <div class="rating-section">
+                <div class="stars">
+                  <i class="bi bi-star-fill"></i>
+                  <i class="bi bi-star-fill"></i>
+                  <i class="bi bi-star-fill"></i>
+                  <i class="bi bi-star-fill"></i>
+                  <i class="bi bi-star-fill"></i>
+                </div>
+                <span class="rating-score">{{ ratingScore }}</span>
+                <span class="review-count">({{ reviewCount }} avis)</span>
+              </div>
+              <div class="action-buttons">
+                <a href="{{ details_link }}" class="btn-secondary">Voir Détails</a>
+                <a href="{{ booking_link }}" class="btn-primary">Réserver</a>
+              </div>
+            </div><!-- End Doctor Profile -->
+          {% else %}
+            <div class="alert alert-info mb-0">
+              Aucun médecin disponible pour le moment.
+            </div>
+          {% endfor %}
+        </div>
+
+        <div class="text-center mt-5" data-aos="fade-up" data-aos-delay="700">
+          <a href="{{ doctors_list_link }}" class="btn-view-all">
+            Voir Tous les Médecins
+            <i class="bi bi-arrow-right"></i>
+          </a>
+        </div>
+
+      </div>
+
+    </section><!-- /Find A Doctor Section -->
+
+    <!-- Call To Action Section -->
+    <section id="call-to-action" class="call-to-action section light-background">
+
+      <div class="container" data-aos="fade-up" data-aos-delay="100">
+
+        <div class="hero-content">
+          <div class="row align-items-center">
+
+            <div class="col-lg-6">
+              <div class="content-wrapper" data-aos="fade-up" data-aos-delay="200">
+                <h1>Excellence en Soins Médicaux, Chaque Jour</h1>
+                <p>MediConnect transforme votre expérience médicale en vous offrant une plateforme complète pour gérer votre santé. Rejoignez des milliers de patients et médecins qui font confiance à notre solution numérique.</p>
+
+                <div class="cta-wrapper">
+                  <a href="{{ rdv_link }}" class="primary-cta">
+                    <span>Prendre un Rendez-vous</span>
+                    <i class="bi bi-arrow-right"></i>
+                  </a>
+                  <a href="{{ path('app_home') }}#featured-services" class="secondary-cta">
+                    <span>Découvrir les Services</span>
+                    <i class="bi bi-arrow-right"></i>
+                  </a>
+                </div>
+              </div>
+            </div>
+
+            <div class="col-lg-6">
+              <div class="image-container" data-aos="fade-left" data-aos-delay="300">
+                <img src="{{ asset('assets/img/health/facilities-9.webp') }}" alt="Medical Excellence" class="img-fluid">
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <div class="features-section">
+
+          <div class="row g-0">
+
+            <div class="col-lg-4">
+              <div class="feature-block" data-aos="fade-up" data-aos-delay="200">
+                <div class="feature-icon">
+                  <i class="bi bi-shield-check"></i>
+                </div>
+                <h3>Technologie Avancée</h3>
+                <p>Notre plateforme utilise les dernières technologies pour garantir sécurité, rapidité et facilité d'utilisation pour tous vos besoins médicaux.</p>
+              </div>
+            </div>
+
+            <div class="col-lg-4">
+              <div class="feature-block" data-aos="fade-up" data-aos-delay="300">
+                <div class="feature-icon">
+                  <i class="bi bi-clock"></i>
+                </div>
+                <h3>Disponibilité 24/7</h3>
+                <p>Accédez à votre compte, consultez votre dossier médical et gérez vos rendez-vous à tout moment, où que vous soyez.</p>
+              </div>
+            </div>
+
+            <div class="col-lg-4">
+              <div class="feature-block" data-aos="fade-up" data-aos-delay="400">
+                <div class="feature-icon">
+                  <i class="bi bi-people"></i>
+                </div>
+                <h3>Réseau de Professionnels</h3>
+                <p>Bénéficiez d'un réseau étendu de médecins qualifiés et expérimentés dans toutes les spécialités médicales.</p>
+              </div>
+            </div>
+
+          </div>
+
+        </div>
+
+        <div class="contact-block">
+          <div class="row">
+
+            <div class="col-lg-8">
+              <div class="contact-content" data-aos="fade-up" data-aos-delay="200">
+                <h2>Besoin d'Aide Immédiate ?</h2>
+                <p>Notre équipe de support est disponible 24h/24 et 7j/7 pour répondre à toutes vos questions et vous aider à utiliser la plateforme MediConnect.</p>
+              </div>
+            </div>
+
+            <div class="col-lg-4">
+              <div class="contact-actions" data-aos="fade-up" data-aos-delay="300">
+                <a href="tel:+33123456789" class="emergency-call">
+                  <i class="bi bi-telephone"></i>
+                  <span>+216 52 251 112 </span>
+                </a>
+                <a href="#!" class="contact-link">Nous Contacter</a>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+      </div>
+
+    </section><!-- /Call To Action Section -->
+
+  </main>
+
+  <footer id="footer" class="footer-16 footer position-relative">
+
+    <div class="container">
+
+      <div class="footer-main" data-aos="fade-up" data-aos-delay="100">
+        <div class="row align-items-start">
+
+          <div class="col-lg-5">
+            <div class="brand-section">
+              <a href="{{ path('app_home') }}" class="logo d-flex align-items-center mb-4">
+                <img src="{{ asset('assets/img/logomed.png') }}" alt="Logo MediConnect" class="me-2" style="max-width: 60px; height: auto;">
+                <span class="sitename">MediConnect</span>
+              </a>
+              <p class="brand-description">La plateforme numérique qui connecte patients et médecins pour une gestion médicale moderne, sécurisée et efficace.</p>
+
+              <div class="contact-info mt-5">
+                <div class="contact-item">
+                  <i class="bi bi-geo-alt"></i>
+                  <span>brirem , tabarka 8110 tunisie </span>
+                </div>
+                <div class="contact-item">
+                  <i class="bi bi-telephone"></i>
+                  <span>+216 52 251 112 </span>
+                </div>
+                <div class="contact-item">
+                  <i class="bi bi-envelope"></i>
+                  <span>contact@mediconnect.fr</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-lg-7">
+            <div class="footer-nav-wrapper">
+              <div class="row">
+
+                <div class="col-6 col-lg-3">
+                  <div class="nav-column">
+                    <h6>Pour les Patients</h6>
+                    <nav class="footer-nav">
+                      <a href="#!">Trouver un Médecin</a>
+                      <a href="{{ rdv_link }}">Prendre Rendez-vous</a>
+                      <a href="#!">Consultation en Ligne</a>
+                      <a href="#!">Dossier Médical</a>
+                      <a href="#!">Ordonnances</a>
+                    </nav>
+                  </div>
+                </div>
+
+                <div class="col-6 col-lg-3">
+                  <div class="nav-column">
+                    <h6>Pour les Médecins</h6>
+                    <nav class="footer-nav">
+                      <a href="#!">Gérer Rendez-vous</a>
+                      <a href="#!">Ordonnances Numériques</a>
+                      <a href="#!">Rapports Médicaux</a>
+                      <a href="#!">Suivi Patients</a>
+                      <a href="#!">Espace Médecin</a>
+                    </nav>
+                  </div>
+                </div>
+
+                <div class="col-6 col-lg-3">
+                  <div class="nav-column">
+                    <h6>Ressources</h6>
+                    <nav class="footer-nav">
+                      <a href="#!">Blog Santé</a>
+                      <a href="#!">Guide d'Utilisation</a>
+                      <a href="#!">FAQ</a>
+                      <a href="#!">Tutoriels</a>
+                      <a href="#!">Actualités</a>
+                    </nav>
+                  </div>
+                </div>
+
+                <div class="col-6 col-lg-3">
+                  <div class="nav-column">
+                    <h6>Contact</h6>
+                    <nav class="footer-nav">
+                      <a href="#!">Nous Contacter</a>
+                      <a href="#!">Support Client</a>
+                      <a href="#!">Newsletter</a>
+                      <a href="#!">Suivez-nous</a>
+                      <a href="#!">Partenariats</a>
+                    </nav>
+                  </div>
+                </div>
+
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+
+    <div class="footer-bottom">
+      <div class="container">
+        <div class="bottom-content" data-aos="fade-up" data-aos-delay="300">
+          <div class="row align-items-center">
+
+            <div class="col-lg-6">
+              <div class="copyright">
+                <p>© <span class="sitename">MediConnect</span>. Tous droits réservés.</p>
+              </div>
+            </div>
+
+            <div class="col-lg-6">
+              <div class="legal-links">
+                <a href="#!">Politique de Confidentialité</a>
+                <a href="#!">Conditions d'Utilisation</a>
+                <a href="#!">Politique des Cookies</a>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </footer>
+
+  <!-- Scroll Top -->
+  <a href="#!" id="scroll-top" class="scroll-top d-flex align-items-center justify-content-center"><i
+      class="bi bi-arrow-up-short"></i></a>
+
+  <!-- Preloader -->
+  <div id="preloader"></div>
+{% endblock %}
+
+{% block scripts %}
+  <!-- Vendor JS Files -->
+  <script src="{{ asset('assets/vendor/bootstrap/js/bootstrap.bundle.min.js') }}"></script>
+  <script src="{{ asset('assets/vendor/php-email-form/validate.js') }}"></script>
+  <script src="{{ asset('assets/vendor/aos/aos.js') }}"></script>
+  <script src="{{ asset('assets/vendor/glightbox/js/glightbox.min.js') }}"></script>
+  <script src="{{ asset('assets/vendor/purecounter/purecounter_vanilla.js') }}"></script>
+  <script src="{{ asset('assets/vendor/swiper/swiper-bundle.min.js') }}"></script>
+
+  <!-- Main JS File -->
+  <script src="{{ asset('assets/js/main.js') }}"></script>
+{% endblock %}
+

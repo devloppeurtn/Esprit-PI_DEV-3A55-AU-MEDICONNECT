@@ -1,0 +1,143 @@
+{% extends 'admin/base_admin.html.twig' %}
+
+{% block title %}Avis - {{ evenement.title }} - MediConnect{% endblock %}
+
+{% block admin_content %}
+<div class="container py-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="mb-2">{{ evenement.title }}</h2>
+            <p class="text-muted">Avis et retours des participants</p>
+        </div>
+        <a href="{{ path('app_evenement_show', {'id': evenement.id}) }}" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left me-2"></i>Retour
+        </a>
+    </div>
+
+    {% if avis|length > 0 %}
+        <!-- Rating Summary -->
+        <div class="row mb-4">
+            <div class="col-md-3">
+                <div class="card border-0 shadow-sm bg-light">
+                    <div class="card-body text-center">
+                        <div class="fs-3 fw-bold text-primary mb-2">{{ moyenneNote }}/5</div>
+                        <div class="text-warning mb-2">
+                            {% set note_int = moyenneNote|round(0, 'floor') %}
+                            {% for i in 1..5 %}
+                                {% if i <= note_int %}
+                                    ⭐
+                                {% else %}
+                                    ☆
+                                {% endif %}
+                            {% endfor %}
+                        </div>
+                        <small class="text-muted">Basé sur {{ avis|length }} avis</small>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-9">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-body">
+                        <h5 class="card-title mb-3">Distribution des notes</h5>
+                        {% set rating_distribution = {} %}
+                        {% for review in avis %}
+                            {% set count = rating_distribution[review.note] is defined ? rating_distribution[review.note] + 1 : 1 %}
+                            {% set rating_distribution = rating_distribution|merge({(review.note): count}) %}
+                        {% endfor %}
+
+                        {% for star in [5, 4, 3, 2, 1] %}
+                            {% set count = rating_distribution[star] is defined ? rating_distribution[star] : 0 %}
+                            {% set percentage = count > 0 ? (count / avis|length * 100)|round(0) : 0 %}
+                            <div class="mb-2">
+                                <small class="me-2">{{ star }} ⭐</small>
+                                <div class="progress" style="height: 20px;">
+                                    <div class="progress-bar bg-warning" role="progressbar" 
+                                         style="width: {{ percentage }}%;" 
+                                         aria-valuenow="{{ percentage }}" aria-valuemin="0" aria-valuemax="100">
+                                        {{ count }}
+                                    </div>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Reviews -->
+        <h5 class="mb-4">Tous les avis</h5>
+        <div class="row">
+            {% for review in avis %}
+                <div class="col-lg-6 mb-4">
+                    <div class="card border-0 shadow-sm h-100">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-start mb-3">
+                                <div>
+                                    <h6 class="card-title mb-1">{{ review.participant.firstName }} {{ review.participant.lastName }}</h6>
+                                    <small class="text-muted">{{ review.participant.email }}</small>
+                                </div>
+                                <div class="text-end">
+                                    <div class="text-warning mb-2">
+                                        {% for i in 1..5 %}
+                                            {% if i <= review.note %}
+                                                ⭐
+                                            {% else %}
+                                                ☆
+                                            {% endif %}
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                            </div>
+
+                            {% if review.commentaire %}
+                                <p class="card-text mb-3">{{ review.commentaire }}</p>
+                            {% else %}
+                                <p class="card-text text-muted mb-3 fst-italic">Pas de commentaire.</p>
+                            {% endif %}
+
+                            <small class="text-muted">
+                                <i class="bi bi-calendar-event me-1"></i>
+                                {{ review.dateCreation|format_date('long') }}
+                            </small>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+
+        <!-- Pagination or Load More -->
+        {% if avis|length > 12 %}
+            <div class="text-center mt-4">
+                <button class="btn btn-outline-primary" id="load-more">Charger plus d'avis</button>
+            </div>
+        {% endif %}
+    {% else %}
+        <div class="alert alert-info text-center py-5">
+            <i class="bi bi-chat-dots fs-1 mb-3 d-block text-info"></i>
+            <p class="mb-3">
+                <strong>Pas encore d'avis.</strong><br>
+                Les participants pourront laisser leurs retours sur cet événement une fois qu'il sera terminé.
+            </p>
+        </div>
+    {% endif %}
+</div>
+
+<style>
+    .card {
+        transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 0.5rem 1.5rem rgba(0, 0, 0, 0.15) !important;
+    }
+</style>
+
+<script>
+    document.getElementById('load-more')?.addEventListener('click', function() {
+        this.disabled = true;
+        this.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Chargement...';
+        // You can add pagination logic here
+    });
+</script>
+{% endblock %}

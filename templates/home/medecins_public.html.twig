@@ -1,0 +1,91 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Médecins - MediConnect{% endblock %}
+
+{% block body %}
+<div class="container py-5">
+    <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-4">
+        <div>
+            <h1 class="h3 mb-1">Tous les médecins</h1>
+            <p class="text-muted mb-0">Consultez les profils et prenez rendez-vous.</p>
+        </div>
+        <a href="{{ path('app_home') }}" class="btn btn-outline-secondary btn-sm">
+            <i class="bi bi-arrow-left me-1"></i>Retour accueil
+        </a>
+    </div>
+
+    <form method="get" class="row g-3 mb-4">
+        <div class="col-md-4">
+            <input type="text" name="nom" class="form-control" placeholder="Rechercher par nom..." value="{{ filtres.nom }}">
+        </div>
+        <div class="col-md-3">
+            <select name="specialite" class="form-select">
+                <option value="">Toutes les spécialités</option>
+                {% for s in specialites %}
+                    <option value="{{ s }}" {{ filtres.specialite == s ? 'selected' : '' }}>{{ s }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="col-md-2">
+            <select name="tri" class="form-select">
+                <option value="az" {{ filtres.tri == 'az' ? 'selected' : '' }}>A ? Z</option>
+                <option value="za" {{ filtres.tri == 'za' ? 'selected' : '' }}>Z ? A</option>
+            </select>
+        </div>
+        <div class="col-md-3">
+            <button type="submit" class="btn btn-primary me-2"><i class="bi bi-search me-1"></i>Filtrer</button>
+            {% if filtres.nom or filtres.specialite or filtres.tri != 'az' %}
+                <a href="{{ path('app_medecins_public') }}" class="btn btn-outline-secondary">Effacer</a>
+            {% endif %}
+        </div>
+    </form>
+
+    <div class="row g-4">
+        {% for medecin in medecins %}
+            {% set imgIndex = loop.index0 % (staffImages|length) %}
+            {% set staffImg = staffImages[imgIndex] %}
+            <div class="col-lg-3 col-md-6">
+                <div class="card h-100 shadow-sm border-0">
+                    <div class="card-body">
+                        <div class="d-flex align-items-center mb-3">
+                            <div class="me-3">
+                                {% if medecin.photo %}
+                                    <img src="{{ asset(medecin.photo) }}" alt="{{ medecin.nomComplet }}" class="rounded-circle" style="width:64px;height:64px;object-fit:cover;">
+                                {% else %}
+                                    <img src="{{ asset('assets/img/health/' ~ staffImg ~ '.webp') }}" alt="{{ medecin.nomComplet }}" class="rounded-circle" style="width:64px;height:64px;object-fit:cover;">
+                                {% endif %}
+                            </div>
+                            <div>
+                                <h6 class="mb-1">{{ medecin.nomComplet }}</h6>
+                                <span class="badge bg-primary-subtle text-primary">{{ medecin.specialite|default('Médecin généraliste') }}</span>
+                            </div>
+                        </div>
+                        <p class="text-muted small mb-3">
+                            {{ medecin.adresseCabinet ? (medecin.adresseCabinet|length > 90 ? medecin.adresseCabinet|slice(0, 90) ~ '...' : medecin.adresseCabinet) : 'Cabinet MediConnect' }}
+                        </p>
+                        <div class="d-flex gap-2">
+                            {% if app.user %}
+                                <a href="{{ path('app_user_profile_view', {id: medecin.id}) }}" class="btn btn-outline-primary btn-sm flex-grow-1">Info</a>
+                            {% else %}
+                                <a href="{{ path('app_login') }}" class="btn btn-outline-primary btn-sm flex-grow-1">Info</a>
+                            {% endif %}
+
+                            {% if app.user and is_granted('ROLE_PATIENT') %}
+                                <a href="{{ path('app_patient_prendre_rdv', {medecin: medecin.id}) }}" class="btn btn-primary btn-sm flex-grow-1">Réserver</a>
+                            {% elseif not app.user %}
+                                <a href="{{ path('app_login') }}" class="btn btn-primary btn-sm flex-grow-1">Réserver</a>
+                            {% else %}
+                                <button type="button" class="btn btn-secondary btn-sm flex-grow-1" disabled>Patient requis</button>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% else %}
+            <div class="col-12">
+                <div class="alert alert-info mb-0">Aucun médecin trouvé.</div>
+            </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

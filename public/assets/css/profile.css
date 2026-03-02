@@ -1,0 +1,289 @@
+/**
+ * Page Profil MediConnect - Design premium
+ */
+
+.profile-page-wrapper {
+  position: relative;
+  min-height: 100%;
+  padding-top: 0;
+}
+
+/* Conteneur contenu profil */
+.profile-content-container {
+  position: relative;
+}
+
+/* Bannière de couverture */
+.profile-cover {
+  position: relative;
+  height: 200px;
+  overflow: hidden;
+  margin: -1.5rem -1.5rem 0 -1.5rem;
+  margin-bottom: -80px;
+  border-radius: 12px 12px 0 0;
+}
+
+.profile-cover-gradient {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, #175cdd 0%, #112344 50%, #0d1a2d 100%);
+}
+
+.profile-cover-pattern {
+  position: absolute;
+  inset: 0;
+  background-image: radial-gradient(circle at 20% 50%, rgba(255,255,255,0.08) 0%, transparent 50%),
+                    radial-gradient(circle at 80% 20%, rgba(255,255,255,0.05) 0%, transparent 40%);
+  pointer-events: none;
+}
+
+/* Carte principale */
+.profile-main-card {
+  border-radius: 16px !important;
+  margin-bottom: 2rem;
+  position: relative;
+  z-index: 2;
+}
+
+.profile-card-header {
+  background: linear-gradient(180deg, rgba(23, 92, 221, 0.03) 0%, transparent 100%);
+  padding: 2rem 2rem 1.5rem;
+  border-bottom: 1px solid rgba(0,0,0,0.06);
+}
+
+/* Avatar */
+.profile-avatar-col {
+  margin-bottom: -50px;
+}
+
+.profile-avatar-wrap {
+  position: relative;
+}
+
+.profile-avatar-circle {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #175cdd 0%, #1a6beb 100%);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 3rem;
+  box-shadow: 0 8px 24px rgba(23, 92, 221, 0.4);
+  border: 4px solid #fff;
+}
+
+.profile-status-indicator {
+  position: absolute;
+  bottom: 8px;
+  right: 8px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: 3px solid #fff;
+}
+
+.profile-status-indicator.active {
+  background: #10b981;
+}
+
+.profile-status-indicator.suspended {
+  background: #f59e0b;
+}
+
+.profile-status-indicator.banned {
+  background: #ef4444;
+}
+
+/* En-tête */
+.profile-header-content {
+  padding-left: 1rem;
+  padding-top: 60px;
+}
+
+@media (min-width: 768px) {
+  .profile-header-content {
+    padding-top: 0;
+  }
+}
+
+.profile-name {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: #112344;
+  letter-spacing: -0.02em;
+}
+
+.profile-meta {
+  margin-top: 0.5rem;
+}
+
+.profile-role-badge,
+.profile-status-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.35rem 0.75rem;
+  border-radius: 50px;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.profile-role-badge.admin { background: rgba(239, 68, 68, 0.12); color: #dc2626; }
+.profile-role-badge.medecin { background: rgba(6, 182, 212, 0.12); color: #0891b2; }
+.profile-role-badge.patient { background: rgba(16, 185, 129, 0.12); color: #059669; }
+.profile-role-badge.secretaire { background: rgba(245, 158, 11, 0.12); color: #d97706; }
+.profile-role-badge.participation { background: rgba(100, 116, 139, 0.12); color: #475569; }
+
+.profile-status-badge.success { background: rgba(16, 185, 129, 0.12); color: #059669; }
+.profile-status-badge.warning { background: rgba(245, 158, 11, 0.12); color: #d97706; }
+.profile-status-badge.danger { background: rgba(239, 68, 68, 0.12); color: #dc2626; }
+
+/* Cartes d'info */
+.profile-info-card {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1.25rem;
+  background: #f8fafc;
+  border-radius: 12px;
+  border: 1px solid rgba(0,0,0,0.05);
+  transition: all 0.25s ease;
+}
+
+.profile-info-card:hover {
+  background: #f1f5f9;
+  border-color: rgba(23, 92, 221, 0.2);
+  transform: translateY(-2px);
+}
+
+.profile-info-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #175cdd 0%, #1a6beb 100%);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.25rem;
+  flex-shrink: 0;
+}
+
+.profile-info-content {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  min-width: 0;
+}
+
+.profile-info-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #64748b;
+}
+
+.profile-info-value {
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: #112344;
+  word-break: break-word;
+}
+
+/* Section détails */
+.profile-details-section {
+  margin-top: 2rem;
+}
+
+.profile-section-title {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #112344;
+  margin-bottom: 1.25rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 2px solid #175cdd;
+  display: inline-block;
+}
+
+.profile-detail-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  padding: 1rem 1.25rem;
+  background: #f8fafc;
+  border-radius: 12px;
+  border: 1px solid rgba(0,0,0,0.05);
+}
+
+.profile-detail-item i {
+  font-size: 1.25rem;
+  color: #175cdd;
+  flex-shrink: 0;
+  margin-top: 0.1rem;
+}
+
+.profile-detail-item .label {
+  display: block;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #64748b;
+  margin-bottom: 0.25rem;
+}
+
+.profile-detail-item .value {
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: #112344;
+}
+
+/* Actions */
+.profile-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.profile-actions .btn {
+  border-radius: 10px;
+  font-weight: 600;
+}
+
+/* Responsive */
+@media (max-width: 767px) {
+  .profile-cover {
+    height: 140px;
+    margin: -1rem -1rem 0 -1rem;
+    margin-bottom: -60px;
+  }
+
+  .profile-avatar-circle {
+    width: 90px;
+    height: 90px;
+    font-size: 2.25rem;
+  }
+
+  .profile-avatar-col {
+    margin-bottom: -40px;
+  }
+
+  .profile-header-content {
+    padding-top: 50px;
+    padding-left: 0;
+  }
+
+  .profile-name {
+    font-size: 1.35rem;
+  }
+
+  .profile-card-header {
+    padding: 1.5rem 1rem 1rem;
+  }
+
+  .card-body {
+    padding: 1.5rem !important;
+  }
+}

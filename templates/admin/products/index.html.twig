@@ -1,0 +1,80 @@
+{% extends 'admin/base_admin.html.twig' %}
+{% set title = 'Produits' %}
+{% block admin_content %}
+{% if forecastAlerts is defined and forecastAlerts|length > 0 %}
+    <div class="alert alert-warning mb-3">
+        <div class="fw-semibold mb-1">Alerte stock predictive (7 jours)</div>
+        <div class="small">Produits a risque de rupture selon l'historique des commandes:</div>
+        <ul class="mb-0 mt-2">
+            {% for item in forecastAlerts %}
+                <li>
+                    {{ item.product.nom }}:
+                    stock {{ item.stock }},
+                    prevision {{ item.forecast_next_7d }} unites / 7j
+                    {% if item.days_until_stockout is not null %}
+                        (rupture estimee dans {{ item.days_until_stockout }} jours)
+                    {% endif %}
+                </li>
+            {% endfor %}
+        </ul>
+    </div>
+{% endif %}
+<div class="d-flex justify-content-end mb-3">
+    <a href="{{ path('admin_products_new') }}" class="btn btn-primary btn-sm">Nouveau produit</a>
+</div>
+<div class="table-responsive">
+    <table class="table table-striped align-middle">
+        <thead>
+        <tr>
+            <th>#</th>
+            <th>Nom</th>
+            <th>Categorie</th>
+            <th>Prix</th>
+            <th>Stock</th>
+            <th>Forecast 7j</th>
+            <th>Risque</th>
+            <th></th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for p in products %}
+            {% set forecast = forecastByProduct[p.id] ?? null %}
+            <tr>
+                <td>{{ p.id }}</td>
+                <td>{{ p.nom }}</td>
+                <td>{{ p.categorie ? p.categorie.nom : '?' }}</td>
+                <td>{{ p.prix|number_format(2, ',', ' ') }} TND</td>
+                <td>{{ p.stock }}</td>
+                <td>
+                    {% if forecast %}
+                        {{ forecast.forecast_next_7d }}
+                    {% else %}
+                        -
+                    {% endif %}
+                </td>
+                <td>
+                    {% if forecast and forecast.should_alert %}
+                        {% if forecast.alert_level == 'critical' %}
+                            <span class="badge bg-danger">Critique</span>
+                        {% else %}
+                            <span class="badge bg-warning text-dark">A surveiller</span>
+                        {% endif %}
+                    {% else %}
+                        <span class="badge bg-success">OK</span>
+                    {% endif %}
+                </td>
+                <td class="text-end">
+                    <a class="btn btn-outline-secondary btn-sm" href="{{ path('admin_products_edit', {id:p.id}) }}">Editer</a>
+                    <form action="{{ path('admin_products_delete', {id:p.id}) }}" method="post" class="d-inline" onsubmit="return confirm('Supprimer ce produit ?');">
+                        <button class="btn btn-outline-danger btn-sm">Supprimer</button>
+                    </form>
+                </td>
+            </tr>
+        {% else %}
+            <tr><td colspan="8" class="text-center text-muted">Aucun produit</td></tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}
+

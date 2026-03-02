@@ -1,0 +1,194 @@
+{% extends 'admin/base_admin.html.twig' %}
+
+{% block title %}Résultats du Quiz - {{ cours.titre }}{% endblock %}
+
+{% block stylesheets %}
+    <link href="{{ asset('assets/vendor/bootstrap/css/bootstrap.min.css') }}" rel="stylesheet">
+    <style>
+        .results-container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        
+        .score-card {
+            background: #f8f9fa;
+            color: #333;
+            border-radius: 20px;
+            padding: 3rem;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            border: 2px solid #175cdd;
+            margin-bottom: 2rem;
+        }
+        
+        .score-display {
+            font-size: 5rem;
+            font-weight: bold;
+            margin: 1rem 0;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin: 2rem 0;
+        }
+        
+        .stat-card {
+            background: white;
+            border-radius: 15px;
+            padding: 1.5rem;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        .stat-value {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: #175cdd;
+        }
+        
+        .stat-label {
+            color: #6c757d;
+            font-size: 0.9rem;
+            margin-top: 0.5rem;
+        }
+        
+        .badge-display {
+            background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%);
+            border-radius: 15px;
+            padding: 2rem;
+            text-align: center;
+            margin: 2rem 0;
+        }
+        
+        .badge-icon {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+        }
+        
+        .progress-bar-custom {
+            height: 30px;
+            font-size: 16px;
+            font-weight: bold;
+        }
+    </style>
+{% endblock %}
+
+{% block body %}
+<div class="container my-5 results-container">
+    <div class="score-card">
+        <h1 class="mb-3">Quiz Terminé !</h1>
+        <div class="score-display">{{ totalScore }}</div>
+        <p class="lead mb-0">Points obtenus</p>
+        
+        <div class="mt-4">
+            <div class="progress" style="height: 30px;">
+                <div class="progress-bar bg-light" 
+                     role="progressbar" 
+                     style="width: {{ scorePercentage }}%; color: #175cdd;"
+                     aria-valuenow="{{ scorePercentage }}" 
+                     aria-valuemin="0" 
+                     aria-valuemax="100">
+                    {{ scorePercentage|number_format(1) }}%
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-value">{{ correctAnswers }}</div>
+            <div class="stat-label">Réponses correctes</div>
+        </div>
+        
+        <div class="stat-card">
+            <div class="stat-value">{{ totalQuestions - correctAnswers }}</div>
+            <div class="stat-label">Réponses incorrectes</div>
+        </div>
+        
+        <div class="stat-card">
+            <div class="stat-value">{{ totalQuestions }}</div>
+            <div class="stat-label">Total questions</div>
+        </div>
+        
+        <div class="stat-card">
+            <div class="stat-value">{{ progression.nbTentatives }}</div>
+            <div class="stat-label">Tentatives</div>
+        </div>
+    </div>
+    
+    {% if progression.badgeNom %}
+        <div class="badge-display">
+            <div class="badge-icon">
+                {% if progression.badgeNom == 'Expert' %}
+                    🏆
+                {% elseif progression.badgeNom == 'Avancé' %}
+                    🎖️
+                {% elseif progression.badgeNom == 'Intermédiaire' %}
+                    🥉
+                {% else %}
+                    🎯
+                {% endif %}
+            </div>
+            <h3 class="mb-2">Badge {{ progression.badgeNom }}</h3>
+            <p class="mb-0">Obtenu le {{ progression.dateObtention|date('d/m/Y') }}</p>
+        </div>
+    {% endif %}
+    
+    <div class="card border-0 shadow">
+        <div class="card-body p-4">
+            <h4 class="mb-3">Votre Performance</h4>
+            
+            {% if scorePercentage >= 90 %}
+                <div class="alert alert-success">
+                    <i class="bi bi-trophy-fill me-2"></i>
+                    <strong>Excellent !</strong> Vous maîtrisez parfaitement ce sujet.
+                </div>
+            {% elseif scorePercentage >= 70 %}
+                <div class="alert alert-info">
+                    <i class="bi bi-star-fill me-2"></i>
+                    <strong>Très bien !</strong> Vous avez une bonne compréhension du sujet.
+                </div>
+            {% elseif scorePercentage >= 50 %}
+                <div class="alert alert-warning">
+                    <i class="bi bi-bookmark-fill me-2"></i>
+                    <strong>Bien !</strong> Continuez à vous entraîner pour progresser.
+                </div>
+            {% else %}
+                <div class="alert alert-secondary">
+                    <i class="bi bi-book-fill me-2"></i>
+                    <strong>À améliorer</strong> Relisez le cours et réessayez.
+                </div>
+            {% endif %}
+            
+            <div class="mt-4">
+                <p class="mb-2"><strong>Score maximum :</strong> {{ progression.scoreMax }} points</p>
+                <p class="mb-2"><strong>Nombre de tentatives :</strong> {{ progression.nbTentatives }}</p>
+                {% if progression.estComplete %}
+                    <p class="mb-0 text-success">
+                        <i class="bi bi-check-circle-fill me-2"></i>
+                        <strong>Catégorie complétée !</strong>
+                    </p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <div class="d-flex justify-content-between mt-4">
+        <a href="{{ path('app_savoir_medical_categorie', {id: cours.categorieSante.id}) }}" class="btn btn-outline-primary">
+            <i class="bi bi-arrow-left me-2"></i>Retour à la catégorie
+        </a>
+        
+        <div>
+            <a href="{{ path('app_progression_utilisateur') }}" class="btn btn-info me-2">
+                <i class="bi bi-graph-up me-2"></i>Voir ma progression
+            </a>
+            <a href="{{ path('app_quiz_prendre', {coursId: cours.id}) }}" class="btn btn-primary">
+                <i class="bi bi-arrow-repeat me-2"></i>Refaire le quiz
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

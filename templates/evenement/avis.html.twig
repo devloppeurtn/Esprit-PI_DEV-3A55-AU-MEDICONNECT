@@ -1,0 +1,100 @@
+{% extends 'admin/base_admin.html.twig' %}
+
+{% block title %}Donner votre avis - {{ evenement.title }} - MediConnect{% endblock %}
+
+{% block admin_content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body p-5">
+                    <h2 class="mb-1">Votre retour sur l'événement</h2>
+                    <p class="text-muted mb-4">{{ evenement.title }}</p>
+
+                    <div class="alert alert-info mb-4">
+                        <i class="bi bi-info-circle me-2"></i>
+                        <strong>Votre avis est important!</strong> Aidez-nous à améliorer nos événements en partageant votre expérience.
+                    </div>
+
+                    {{ form_start(form, {'attr': {'class': 'needs-validation', 'novalidate': true}}) }}
+
+                    <div class="mb-4">
+                        <label class="form-label fw-bold mb-3">{{ form_label(form.note) }}</label>
+                        <div class="rating-options">
+                            {% for child in form.note %}
+                                <div class="form-check form-check-inline mb-2">
+                                    {{ form_widget(child, {'attr': {'class': 'form-check-input'}}) }}
+                                    <label class="form-check-label">
+                                        {{ form_label(child) }}
+                                    </label>
+                                </div>
+                            {% endfor %}
+                        </div>
+                        {% if form_errors(form.note) %}
+                            <div class="alert alert-danger mt-2">
+                                {{ form_errors(form.note) }}
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <div class="mb-4">
+                        {{ form_row(form.commentaire, {'attr': {'class': 'form-control form-control-lg'}}) }}
+                        {% if form_errors(form.commentaire) %}
+                            <div class="alert alert-danger mt-2">
+                                {{ form_errors(form.commentaire) }}
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <div class="d-grid gap-2 d-sm-flex">
+                        <button type="submit" class="btn btn-primary btn-lg">
+                            <i class="bi bi-check-circle me-2"></i>
+                            {% if isEdit %}
+                                Mettre à jour mon avis
+                            {% else %}
+                                Soumettre mon avis
+                            {% endif %}
+                        </button>
+                        <a href="{{ path('app_evenement_show', {'id': evenement.id}) }}" class="btn btn-secondary btn-lg">
+                            <i class="bi bi-x-circle me-2"></i>Annuler
+                        </a>
+                    </div>
+
+                    {{ form_end(form) }}
+
+                    {% if isEdit %}
+                        <hr class="my-4">
+                        <div class="alert alert-info small">
+                            <i class="bi bi-pencil me-2"></i>
+                            <strong>Vous modifiez votre avis précédent.</strong> Votre nouveau commentaire remplacera l'ancien.
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .rating-options .form-check {
+        display: block;
+        margin-bottom: 1rem;
+    }
+
+    .rating-options .form-check-input:checked + .form-check-label {
+        color: #ffc107;
+        font-weight: bold;
+    }
+
+    .rating-options .form-check-label {
+        cursor: pointer;
+        font-size: 1.05rem;
+        transition: color 0.2s;
+        margin-left: 0.5rem;
+    }
+
+    .rating-options .form-check-label:hover {
+        color: #ffc107;
+    }
+</style>
+{% endblock %}

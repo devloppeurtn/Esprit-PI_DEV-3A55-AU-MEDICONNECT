@@ -1,0 +1,128 @@
+{% extends 'base.html.twig' %}
+{% set is_admin_context = true %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <link href="{{ asset('assets/css/admin.css') }}" rel="stylesheet">
+{% endblock %}
+
+{% block body_class %}class="admin-layout"{% endblock %}
+
+{% block body %}
+<div class="admin-wrapper">
+    {% if app.user %}
+        {% if is_granted('ROLE_ADMIN') %}
+            {{ include('admin/components/admin_sidebar.html.twig') }}
+        {% elseif is_granted('ROLE_MEDECIN') %}
+            {{ include('components/medecin_sidebar.html.twig') }}
+        {% elseif is_granted('ROLE_SECRETAIRE') %}
+            {{ include('components/secretaire_sidebar.html.twig') }}
+        {% elseif is_granted('ROLE_PATIENT') %}
+            {{ include('components/patient_sidebar.html.twig') }}
+        {% endif %}
+    {% endif %}
+
+    <main class="admin-main">
+        <div class="container-fluid py-4">
+            {% for type, messages in app.flashes %}
+                {% for m in messages %}
+                    <div class="alert alert-{{ type == 'error' ? 'danger' : type }} alert-dismissible fade show" role="alert">
+                        {{ m }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                {% endfor %}
+            {% endfor %}
+
+            {% block admin_content %}{% endblock %}
+        </div>
+    </main>
+</div>
+{% endblock %}
+
+{% block scripts %}
+    {{ parent() }}
+    <script>
+        (function () {
+            const sidebar = document.getElementById('admin-sidebar');
+            if (!sidebar) {
+                return;
+            }
+
+            const toggleBtn = document.getElementById('sidebar-toggle-btn');
+            const openBtn = document.getElementById('sidebar-open-btn');
+            const backdrop = document.getElementById('sidebar-backdrop');
+            const navbarToggle = document.querySelector('[data-admin-sidebar-toggle]');
+            const mediaQuery = window.matchMedia('(max-width: 991.98px)');
+            const collapsedKey = 'admin_sidebar_collapsed';
+
+            const isMobile = () => mediaQuery.matches;
+
+            const saveCollapsed = (collapsed) => {
+                try {
+                    localStorage.setItem(collapsedKey, collapsed ? '1' : '0');
+                } catch (e) {}
+            };
+
+            const restoreDesktopCollapsed = () => {
+                if (isMobile()) {
+                    sidebar.classList.remove('collapsed');
+                    return;
+                }
+                try {
+                    if (localStorage.getItem(collapsedKey) === '1') {
+                        sidebar.classList.add('collapsed');
+                    }
+                } catch (e) {}
+            };
+
+            const closeMobile = () => {
+                sidebar.classList.remove('show');
+                backdrop?.classList.remove('show');
+                document.body.classList.remove('sidebar-open-mobile');
+            };
+
+            const openMobile = () => {
+                sidebar.classList.add('show');
+                backdrop?.classList.add('show');
+                document.body.classList.add('sidebar-open-mobile');
+            };
+
+            const toggleDesktopCollapse = () => {
+                const collapsed = sidebar.classList.toggle('collapsed');
+                saveCollapsed(collapsed);
+            };
+
+            const handleMainToggle = () => {
+                if (isMobile()) {
+                    if (sidebar.classList.contains('show')) {
+                        closeMobile();
+                    } else {
+                        openMobile();
+                    }
+                    return;
+                }
+                toggleDesktopCollapse();
+            };
+
+            toggleBtn?.addEventListener('click', handleMainToggle);
+            openBtn?.addEventListener('click', () => {
+                if (isMobile()) {
+                    openMobile();
+                } else {
+                    toggleDesktopCollapse();
+                }
+            });
+            navbarToggle?.addEventListener('click', handleMainToggle);
+            backdrop?.addEventListener('click', closeMobile);
+
+            mediaQuery.addEventListener('change', () => {
+                closeMobile();
+                if (!isMobile()) {
+                    restoreDesktopCollapsed();
+                }
+            });
+
+            restoreDesktopCollapsed();
+        })();
+    </script>
+{% endblock %}

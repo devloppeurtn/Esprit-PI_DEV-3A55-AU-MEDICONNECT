@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aperçu Météo - MediConnect</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 40px;
+            margin: 0;
+        }
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+        h1 {
+            color: #667eea;
+            text-align: center;
+            margin-bottom: 10px;
+        }
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 40px;
+        }
+        .success {
+            background: #d4edda;
+            border: 2px solid #28a745;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+        .success h2 {
+            color: #28a745;
+            margin: 0 0 10px 0;
+        }
+        .event-card {
+            border: 1px solid #ddd;
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        .event-header {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+        .event-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #333;
+            margin: 0;
+        }
+        .weather-badge {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 10px 20px;
+            border-radius: 25px;
+            color: white;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+        .weather-icon {
+            width: 50px;
+            height: 50px;
+            filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2));
+        }
+        .weather-info {
+            display: flex;
+            flex-direction: column;
+            line-height: 1.2;
+        }
+        .weather-temp {
+            font-size: 1.3rem;
+            font-weight: 600;
+        }
+        .weather-desc {
+            font-size: 0.85rem;
+            opacity: 0.9;
+        }
+        .event-date {
+            background: #17a2b8;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            display: inline-block;
+        }
+        .instructions {
+            background: #fff3cd;
+            border: 2px solid #ffc107;
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 30px;
+        }
+        .instructions h3 {
+            color: #856404;
+            margin-top: 0;
+        }
+        .instructions ol {
+            margin: 15px 0;
+            padding-left: 25px;
+        }
+        .instructions li {
+            margin: 10px 0;
+            color: #856404;
+        }
+        .btn {
+            display: inline-block;
+            background: #667eea;
+            color: white;
+            padding: 12px 30px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+            margin-top: 15px;
+            transition: all 0.3s;
+        }
+        .btn:hover {
+            background: #764ba2;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+        .features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin: 30px 0;
+        }
+        .feature {
+            text-align: center;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+        }
+        .feature-icon {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🌤️ Météo des Événements - MediConnect</h1>
+        <p class="subtitle">Aperçu de la nouvelle fonctionnalité</p>
+
+        <div class="success">
+            <h2>✅ Configuration Terminée!</h2>
+            <p>La météo est maintenant affichée sur tous vos événements</p>
+        </div>
+
+        <h2 style="color: #667eea; margin-top: 40px;">📋 Exemple d'Affichage</h2>
+        
+        <div class="event-card">
+            <div class="event-header">
+                <h3 class="event-title">Journée mondiale du diabète</h3>
+                <div class="weather-badge">
+                    <img src="https://openweathermap.org/img/wn/01d@2x.png" alt="Ensoleillé" class="weather-icon">
+                    <div class="weather-info">
+                        <span class="weather-temp">28°C</span>
+                        <span class="weather-desc">Ensoleillé</span>
+                    </div>
+                </div>
+            </div>
+            <div class="event-date">📅 02-02-2026</div>
+            <p style="color: #666; margin-top: 15px;">
+                Célébrez le 14 novembre. Objectif : sensibiliser à la prévention et à la gestion du diabète...
+            </p>
+        </div>
+
+        <div class="event-card">
+            <div class="event-header">
+                <h3 class="event-title">Don de sang</h3>
+                <div class="weather-badge">
+                    <img src="https://openweathermap.org/img/wn/02d@2x.png" alt="Partiellement nuageux" class="weather-icon">
+                    <div class="weather-info">
+                        <span class="weather-temp">22°C</span>
+                        <span class="weather-desc">Partiellement nuageux</span>
+                    </div>
+                </div>
+            </div>
+            <div class="event-date">📅 05-05-2026</div>
+            <p style="color: #666; margin-top: 15px;">
+                Participez à notre campagne de don de sang et sauvez des vies...
+            </p>
+        </div>
+
+        <h2 style="color: #667eea; margin-top: 40px;">✨ Fonctionnalités</h2>
+        
+        <div class="features">
+            <div class="feature">
+                <div class="feature-icon">🌡️</div>
+                <strong>Température</strong>
+                <p>Affichage en temps réel</p>
+            </div>
+            <div class="feature">
+                <div class="feature-icon">☀️</div>
+                <strong>Conditions</strong>
+                <p>Description détaillée</p>
+            </div>
+            <div class="feature">
+                <div class="feature-icon">🎨</div>
+                <strong>Design</strong>
+                <p>Interface moderne</p>
+            </div>
+            <div class="feature">
+                <div class="feature-icon">📱</div>
+                <strong>Responsive</strong>
+                <p>Tous les écrans</p>
+            </div>
+        </div>
+
+        <div class="instructions">
+            <h3>🚀 Pour Voir la Météo Maintenant</h3>
+            <ol>
+                <li>Ouvrez votre navigateur</li>
+                <li>Allez sur: <strong>http://localhost:8000/evenement</strong></li>
+                <li>La météo s'affiche automatiquement! 🎉</li>
+            </ol>
+            <p><strong>Note:</strong> Actuellement, la météo est simulée. Pour obtenir de vraies données:</p>
+            <ul style="list-style: none; padding-left: 0;">
+                <li>📝 Double-cliquez sur <strong>setup-weather.bat</strong></li>
+                <li>📖 Ou lisez <strong>WEATHER_API_SETUP.md</strong></li>
+            </ul>
+        </div>
+
+        <div style="text-align: center; margin-top: 30px;">
+            <a href="http://localhost:8000/evenement" class="btn">Voir les Événements avec Météo</a>
+        </div>
+
+        <div style="text-align: center; margin-top: 40px; padding-top: 30px; border-top: 2px solid #eee; color: #999;">
+            <p>MediConnect - Système de gestion d'événements médicaux</p>
+            <p style="font-size: 0.9rem;">Météo fournie par OpenWeatherMap</p>
+        </div>
+    </div>
+</body>
+</html>

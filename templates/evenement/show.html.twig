@@ -1,0 +1,308 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ item.title }} - Événement{% endblock %}
+
+{% block body %}
+<div class="container mt-4">
+    <a href="{{ path('app_evenement_index') }}" class="btn btn-outline-secondary mb-3">← Retour</a>
+
+    <div class="row g-4">
+        <div class="col-lg-8">
+            <div class="card">
+                <div class="card-body">
+                    <h2 class="mb-3">{{ item.title }}</h2>
+                    
+                    <div class="row mb-4">
+                        {% if item.eventDate %}
+                            <div class="col-md-6 mb-3">
+                                <div class="info-box p-3 border rounded" style="background-color: #f8f9fa;">
+                                    <div class="d-flex align-items-center">
+                                        <i class="bi bi-calendar-event" style="font-size: 1.5rem; color: #0d6efd; margin-right: 10px;"></i>
+                                        <div>
+                                            <small class="text-muted">Date</small>
+                                            <div class="fw-bold">{{ item.eventDate|date('d/m/Y') }}</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endif %}
+                        
+                        {% if item.eventTime %}
+                            <div class="col-md-6 mb-3">
+                                <div class="info-box p-3 border rounded" style="background-color: #f8f9fa;">
+                                    <div class="d-flex align-items-center">
+                                        <i class="bi bi-clock" style="font-size: 1.5rem; color: #198754; margin-right: 10px;"></i>
+                                        <div>
+                                            <small class="text-muted">Heure</small>
+                                            <div class="fw-bold">{{ item.eventTime }}</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endif %}
+
+                        {% if item.location %}
+                            <div class="col-md-6 mb-3">
+                                <div class="info-box p-3 border rounded" style="background-color: #f8f9fa;">
+                                    <div class="d-flex align-items-center">
+                                        <i class="bi bi-geo-alt" style="font-size: 1.5rem; color: #dc3545; margin-right: 10px;"></i>
+                                        <div>
+                                            <small class="text-muted">Lieu</small>
+                                            <div class="fw-bold">{{ item.location }}</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endif %}
+
+                        {% if weather %}
+                            <div class="col-md-6 mb-3">
+                                <div class="info-box p-3 border rounded" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
+                                    <div class="d-flex align-items-center justify-content-between">
+                                        <div>
+                                            <small style="color: rgba(255,255,255,0.8);">Météo</small>
+                                            <div class="fw-bold" style="font-size: 1.3rem;">{{ weather.temp }}°C</div>
+                                            <small style="color: rgba(255,255,255,0.9);">{{ weather.description }}</small>
+                                        </div>
+                                        <div style="font-size: 2rem;">
+                                            <img src="https://openweathermap.org/img/wn/{{ weather.icon }}@2x.png" alt="{{ weather.description }}" style="width: 50px; height: 50px;">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endif %}
+
+                        <div class="col-md-6 mb-3">
+                            <div class="info-box p-3 border rounded" style="background-color: #f8f9fa;">
+                                <div class="d-flex align-items-center">
+                                    <i class="bi bi-calendar-week" style="font-size: 1.5rem; color: #6f42c1; margin-right: 10px;"></i>
+                                    <div>
+                                        <small class="text-muted">Créé le</small>
+                                        <div class="fw-bold">{{ item.createdAt|date('d/m/Y à H:i') }}</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {% if weather %}
+                        <div class="card mb-4" style="border-left: 4px solid #667eea;">
+                            <div class="card-body">
+                                <h5 class="mb-3"><i class="bi bi-cloud-sun me-2"></i>Météo du jour de l'événement</h5>
+                                
+                                <div class="row align-items-center">
+                                    <div class="col-md-4 text-center">
+                                        <img src="https://openweathermap.org/img/wn/{{ weather.icon }}@2x.png" alt="{{ weather.description }}" style="width: 100px; height: 100px;">
+                                        <div style="font-size: 3rem; font-weight: bold; color: #667eea;">{{ weather.temp }}°C</div>
+                                        <div class="text-muted text-capitalize">{{ weather.description }}</div>
+                                    </div>
+                                    
+                                    <div class="col-md-4">
+                                        <div class="mb-3">
+                                            <strong>Condition</strong>
+                                            <p class="mb-0 text-capitalize">{{ weather.description }}</p>
+                                        </div>
+                                        <div class="mb-3">
+                                            <strong>Localité</strong>
+                                            <p class="mb-0">{{ item.location|default('Non spécifiée') }}</p>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="col-md-4">
+                                        <div class="mb-2 p-2 border-start border-info ps-3">
+                                            <small class="text-muted">Humidité</small>
+                                            <div class="fw-bold">{{ weather.humidity }}%</div>
+                                        </div>
+                                        <div class="mb-2 p-2 border-start border-warning ps-3">
+                                            <small class="text-muted">Vent</small>
+                                            <div class="fw-bold">{{ weather.wind_speed }} km/h</div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="alert alert-info mt-3 mb-0" style="font-size: 0.9rem;">
+                                    <i class="bi bi-info-circle me-2"></i>
+                                    Ces informations sont fournies par OpenWeatherMap. Consultez les prévisions locales pour plus de détails.
+                                </div>
+                            </div>
+                        </div>
+                    {% endif %}
+
+                    <hr>
+                    <div class="mt-4">
+                        <h5 class="mb-3">Description</h5>
+                        {% if item.content %}
+                            <p class="card-text">{{ item.content|raw }}</p>
+                        {% else %}
+                            <p class="text-muted">Aucune description disponible.</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Section Feedbacks -->
+            <div class="card mt-4">
+                <div class="card-header text-white" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                    <h5 class="mb-0">
+                        <i class="bi bi-star-fill me-2"></i>
+                        Feedbacks des participants
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="text-center mb-4">
+                        {% if totalFeedbacks > 0 %}
+                            <h2 class="display-4 mb-2" style="color: #667eea;">
+                                {{ averageRating|number_format(1, '.', '') }}
+                                <small class="text-muted">/5</small>
+                            </h2>
+                            <div class="mb-2">
+                                {% for i in 1..5 %}
+                                    {% if i <= averageRating %}
+                                        <i class="bi bi-star-fill text-warning" style="font-size: 1.5rem;"></i>
+                                    {% else %}
+                                        <i class="bi bi-star text-muted" style="font-size: 1.5rem;"></i>
+                                    {% endif %}
+                                {% endfor %}
+                            </div>
+                            <p class="text-muted mb-0">
+                                Basé sur <strong>{{ totalFeedbacks }}</strong> avis
+                            </p>
+                        {% else %}
+                            <i class="bi bi-chat-left-text text-muted" style="font-size: 3rem;"></i>
+                            <p class="text-muted mt-3 mb-0">Aucun feedback pour le moment</p>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="d-grid gap-2">
+                        {% if totalFeedbacks > 0 %}
+                            <a href="{{ path('app_evenement_feedbacks', {id: item.id}) }}" class="btn btn-outline-primary">
+                                <i class="bi bi-eye me-2"></i>
+                                Voir tous les feedbacks ({{ totalFeedbacks }})
+                            </a>
+                        {% endif %}
+                        
+                        {% if item.eventDate and item.eventDate < date() %}
+                            <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#feedbackModal">
+                                <i class="bi bi-star me-2"></i>
+                                Laisser un feedback
+                            </button>
+                        {% else %}
+                            <div class="alert alert-info mb-0">
+                                <i class="bi bi-info-circle me-2"></i>
+                                Vous pourrez laisser un feedback après l'événement
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            {% if is_granted('ROLE_ORGANISATEUR') and item.organisateur and item.organisateur.id == app.user.id %}
+                <div class="card mt-4">
+                    <div class="card-body">
+                        <h5 class="mb-3">
+                            <i class="bi bi-people me-2"></i>Liste des participants ({{ participants|length }})
+                        </h5>
+                        {% if participants is not empty %}
+                            <ul class="list-group list-group-flush">
+                                {% for p in participants %}
+                                    <li class="list-group-item">
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <div>
+                                                <strong>{{ p.firstName }} {{ p.lastName }}</strong>
+                                                <br>
+                                                <small class="text-muted">{{ p.email }}</small>
+                                            </div>
+                                            <small class="text-muted">{{ p.createdAt|date('d/m/Y H:i') }}</small>
+                                        </div>
+                                    </li>
+                                {% endfor %}
+                            </ul>
+                        {% else %}
+                            <p class="text-muted mb-0">Aucun participant pour le moment.</p>
+                        {% endif %}
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+
+        <div class="col-lg-4">
+            <div class="card sticky-top" style="top: 20px;">
+                <div class="card-body">
+                    <h5 class="mb-3"><i class="bi bi-info-circle me-2"></i>Actions</h5>
+                    <p class="text-muted small mb-3">
+                        Pour participer à cet événement, cliquez sur le bouton ci-dessous pour remplir votre profil de participation.
+                    </p>
+                    <a href="{{ path('app_evenement_participer_form', {id: item.id}) }}" class="btn btn-success w-100 mb-2">
+                        <i class="bi bi-check-circle me-1"></i> Participer
+                    </a>
+                    {% if item.avisEvenement|length > 0 %}
+                        <a href="{{ path('app_evenement_consulter_avis', {id: item.id}) }}" class="btn btn-info w-100 mb-2">
+                            <i class="bi bi-chat-left-quote me-1"></i> Consulter les avis ({{ item.avisEvenement|length }})
+                        </a>
+                    {% endif %}
+                    <a href="{{ path('app_evenement_index') }}" class="btn btn-outline-secondary w-100">
+                        ← Retour aux événements
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal pour demander l'email avant le feedback -->
+<div class="modal fade" id="feedbackModal" tabindex="-1" aria-labelledby="feedbackModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
+                <h5 class="modal-title" id="feedbackModalLabel">
+                    <i class="bi bi-star-fill me-2"></i>
+                    Laisser un feedback
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p class="mb-3">
+                    <i class="bi bi-info-circle me-2 text-primary"></i>
+                    Pour laisser un feedback, veuillez entrer l'email que vous avez utilisé lors de votre inscription à cet événement.
+                </p>
+                <form id="feedbackEmailForm" method="get" action="{{ path('app_evenement_feedback', {id: item.id}) }}">
+                    <div class="mb-3">
+                        <label for="participantEmail" class="form-label fw-bold">Votre email</label>
+                        <input type="email" 
+                               class="form-control form-control-lg" 
+                               id="participantEmail" 
+                               name="email" 
+                               placeholder="exemple@email.com" 
+                               required>
+                        <div class="form-text">
+                            <i class="bi bi-shield-check me-1"></i>
+                            Seuls les participants inscrits peuvent laisser un feedback
+                        </div>
+                    </div>
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-primary btn-lg">
+                            <i class="bi bi-arrow-right me-2"></i>
+                            Continuer
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.bi-star-fill {
+    color: #ffc107;
+}
+
+.modal-content {
+    border-radius: 15px;
+    overflow: hidden;
+}
+
+.modal-header {
+    border-bottom: none;
+}
+</style>
+{% endblock %}

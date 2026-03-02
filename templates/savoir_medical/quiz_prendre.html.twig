@@ -1,0 +1,294 @@
+{% extends 'admin/base_admin.html.twig' %}
+
+{% block title %}Quiz - {{ cours.titre }}{% endblock %}
+
+{% block stylesheets %}
+    <link href="{{ asset('assets/vendor/bootstrap/css/bootstrap.min.css') }}" rel="stylesheet">
+    <style>
+        .quiz-container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        
+        .question-card {
+            background: white;
+            border-radius: 15px;
+            padding: 2rem;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            margin-bottom: 2rem;
+        }
+        
+        .option-card {
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .option-card:hover {
+            border-color: #175cdd;
+            background: #f8f9fa;
+        }
+        
+        .option-card.selected {
+            border-color: #175cdd;
+            background: #e7f1ff;
+        }
+        
+        .option-card.correct {
+            border-color: #28a745;
+            background: #d4edda;
+        }
+        
+        .option-card.incorrect {
+            border-color: #dc3545;
+            background: #f8d7da;
+        }
+        
+        .progress-bar-custom {
+            height: 30px;
+            font-size: 16px;
+            font-weight: bold;
+        }
+        
+        .score-display {
+            background: #f8f9fa;
+            color: #175cdd;
+            padding: 1.5rem;
+            border-radius: 15px;
+            text-align: center;
+            border: 2px solid #175cdd;
+        }
+    </style>
+{% endblock %}
+
+{% block body %}
+<div class="container my-5 quiz-container">
+    {% if questions is empty %}
+        <div class="card border-0 shadow">
+            <div class="card-body p-5 text-center">
+                <i class="bi bi-inbox" style="font-size: 4rem; color: #e9ecef;"></i>
+                <h4 class="mt-4">Aucune question disponible</h4>
+                <p class="text-muted mb-4">Ce quiz n'a pas encore de questions validées.</p>
+                <a href="{{ path('app_savoir_medical_categorie', {id: cours.categorieSante.id}) }}" class="btn btn-primary">
+                    <i class="bi bi-arrow-left me-2"></i>Retour à la catégorie
+                </a>
+            </div>
+        </div>
+    {% else %}
+        <div class="card border-0 shadow-lg mb-4">
+            <div class="card-body p-4">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <div>
+                        <h2 class="mb-1">{{ cours.titre }}</h2>
+                        <p class="text-muted mb-0">{{ cours.categorieSante.nom }}</p>
+                    </div>
+                    <div class="score-display">
+                        <div class="h1 mb-0" id="currentScore">0</div>
+                        <small>Points</small>
+                    </div>
+                </div>
+                
+                <div class="progress mb-3" style="height: 25px;">
+                    <div class="progress-bar progress-bar-striped progress-bar-animated bg-success" 
+                         role="progressbar" 
+                         id="progressBar"
+                         style="width: 0%"
+                         aria-valuenow="0" 
+                         aria-valuemin="0" 
+                         aria-valuemax="100">
+                        <span id="progressText">0 / {{ questions|length }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <form id="quizForm" method="post" action="{{ path('app_quiz_soumettre', {coursId: cours.id}) }}">
+            <input type="hidden" name="reponses" id="reponsesInput">
+            
+            {% for question in questions %}
+                <div class="question-card" id="question-{{ loop.index }}" style="{{ loop.index > 1 ? 'display: none;' : '' }}">
+                    <div class="d-flex justify-content-between align-items-start mb-4">
+                        <h5 class="fw-bold">Question {{ loop.index }} / {{ questions|length }}</h5>
+                        <span class="badge bg-primary">{{ 10 }} points</span>
+                    </div>
+                    
+                    <p class="lead mb-4">{{ question.enonce }}</p>
+                    
+                    <div class="options-container" data-question-id="{{ question.id }}" data-correct-answer="{{ question.reponseCorrecte }}">
+                        {% for option in question.optionsReponsesArray %}
+                            <div class="option-card" data-option="{{ option }}">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="question_{{ question.id }}" value="{{ option }}" id="q{{ question.id }}_opt{{ loop.index }}">
+                                    <label class="form-check-label w-100" for="q{{ question.id }}_opt{{ loop.index }}">
+                                        <strong>{{ ['A', 'B', 'C', 'D'][loop.index0] }}.</strong> {{ option }}
+                                    </label>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                    
+                    <div class="explanation-box alert alert-info mt-4" style="display: none;">
+                        <h6 class="fw-bold"><i class="bi bi-lightbulb me-2"></i>Explication</h6>
+                        <p class="mb-0">{{ question.explication }}</p>
+                    </div>
+                    
+                    <div class="d-flex justify-content-between mt-4">
+                        {% if loop.index > 1 %}
+                            <button type="button" class="btn btn-outline-secondary" onclick="previousQuestion({{ loop.index }})">
+                                <i class="bi bi-arrow-left me-2"></i>Précédent
+                            </button>
+                        {% else %}
+                            <a href="{{ path('app_savoir_medical_categorie', {id: cours.categorieSante.id}) }}" class="btn btn-outline-secondary">
+                                <i class="bi bi-x-circle me-2"></i>Quitter
+                            </a>
+                        {% endif %}
+                        
+                        {% if loop.last %}
+                            <button type="button" class="btn btn-success btn-lg" onclick="submitQuiz()" id="submitBtn" disabled>
+                                <i class="bi bi-check-circle me-2"></i>Terminer le quiz
+                            </button>
+                        {% else %}
+                            <button type="button" class="btn btn-primary" onclick="nextQuestion({{ loop.index }})" id="nextBtn-{{ loop.index }}" disabled>
+                                Suivant <i class="bi bi-arrow-right ms-2"></i>
+                            </button>
+                        {% endif %}
+                    </div>
+                </div>
+            {% endfor %}
+        </form>
+    {% endif %}
+</div>
+
+<script>
+let currentScore = 0;
+let answeredQuestions = 0;
+let totalQuestions = {{ questions|length }};
+let userAnswers = {};
+
+document.querySelectorAll('.option-card').forEach(card => {
+    card.addEventListener('click', function() {
+        const radio = this.querySelector('input[type="radio"]');
+        const container = this.closest('.options-container');
+        const questionId = container.dataset.questionId;
+        const correctAnswer = container.dataset.correctAnswer;
+        const selectedAnswer = this.dataset.option;
+        const questionCard = this.closest('.question-card');
+        const questionNumber = questionCard.id.split('-')[1];
+        
+        // Remove previous selections
+        container.querySelectorAll('.option-card').forEach(opt => {
+            opt.classList.remove('selected', 'correct', 'incorrect');
+        });
+        
+        // Mark as selected
+        radio.checked = true;
+        this.classList.add('selected');
+        
+        // Check if answer is correct
+        const isCorrect = selectedAnswer === correctAnswer;
+        
+        setTimeout(() => {
+            if (isCorrect) {
+                this.classList.add('correct');
+                currentScore += 10;
+                updateScore();
+                
+                // Show success message
+                showNotification('Correct ! +10 points', 'success');
+            } else {
+                this.classList.add('incorrect');
+                // Highlight correct answer
+                container.querySelectorAll('.option-card').forEach(opt => {
+                    if (opt.dataset.option === correctAnswer) {
+                        opt.classList.add('correct');
+                    }
+                });
+                showNotification('Incorrect. La bonne réponse est surlignée en vert.', 'error');
+            }
+            
+            // Show explanation
+            const explanationBox = questionCard.querySelector('.explanation-box');
+            if (explanationBox) {
+                explanationBox.style.display = 'block';
+            }
+            
+            // Disable all options
+            container.querySelectorAll('.option-card').forEach(opt => {
+                opt.style.pointerEvents = 'none';
+            });
+            
+            // Store answer
+            userAnswers[questionId] = {
+                selected: selectedAnswer,
+                correct: isCorrect,
+                points: isCorrect ? 10 : 0
+            };
+            
+            // Update progress
+            answeredQuestions++;
+            updateProgress();
+            
+            // Enable next/submit button
+            const nextBtn = document.getElementById('nextBtn-' + questionNumber);
+            const submitBtn = document.getElementById('submitBtn');
+            if (nextBtn) nextBtn.disabled = false;
+            if (submitBtn) submitBtn.disabled = false;
+            
+        }, 300);
+    });
+});
+
+function updateScore() {
+    document.getElementById('currentScore').textContent = currentScore;
+}
+
+function updateProgress() {
+    const percentage = (answeredQuestions / totalQuestions) * 100;
+    const progressBar = document.getElementById('progressBar');
+    const progressText = document.getElementById('progressText');
+    
+    progressBar.style.width = percentage + '%';
+    progressBar.setAttribute('aria-valuenow', percentage);
+    progressText.textContent = answeredQuestions + ' / ' + totalQuestions;
+}
+
+function nextQuestion(current) {
+    document.getElementById('question-' + current).style.display = 'none';
+    document.getElementById('question-' + (current + 1)).style.display = 'block';
+    window.scrollTo(0, 0);
+}
+
+function previousQuestion(current) {
+    document.getElementById('question-' + current).style.display = 'none';
+    document.getElementById('question-' + (current - 1)).style.display = 'block';
+    window.scrollTo(0, 0);
+}
+
+function submitQuiz() {
+    document.getElementById('reponsesInput').value = JSON.stringify(userAnswers);
+    document.getElementById('quizForm').submit();
+}
+
+function showNotification(message, type) {
+    const alertClass = type === 'success' ? 'alert-success' : 'alert-danger';
+    const icon = type === 'success' ? 'check-circle' : 'x-circle';
+    
+    const notification = document.createElement('div');
+    notification.className = `alert ${alertClass} alert-dismissible fade show position-fixed top-0 start-50 translate-middle-x mt-3`;
+    notification.style.zIndex = '9999';
+    notification.innerHTML = `
+        <i class="bi bi-${icon} me-2"></i>${message}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    `;
+    
+    document.body.appendChild(notification);
+    
+    setTimeout(() => {
+        notification.remove();
+    }, 3000);
+}
+</script>
+{% endblock %}

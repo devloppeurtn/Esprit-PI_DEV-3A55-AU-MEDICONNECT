@@ -1,0 +1,68 @@
+{% extends 'admin/base_admin.html.twig' %}
+
+{% block title %}Mes avis - MediConnect{% endblock %}
+
+{% block admin_content %}
+<div class="patient-espace">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>Mes avis sur les médecins</h2>
+        <a href="{{ path('app_patient_index') }}" class="btn btn-outline-secondary">Retour</a>
+    </div>
+
+    {% if avis|length > 0 %}
+        <div class="row">
+            {% for review in avis %}
+                <div class="col-md-6 col-lg-4 mb-4">
+                    <div class="card border-0 shadow-sm h-100">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-start mb-3">
+                                <div>
+                                    <h5 class="card-title mb-1">Dr. {{ review.medecin.nomComplet }}</h5>
+                                    {% if review.medecin.specialite %}
+                                        <p class="text-muted small mb-0">{{ review.medecin.specialite }}</p>
+                                    {% endif %}
+                                </div>
+                                <div class="text-end">
+                                    <div class="text-warning fs-5 mb-2">
+                                        {% for i in 1..5 %}
+                                            {% if i <= review.note %}
+                                                ⭐
+                                            {% else %}
+                                                ☆
+                                            {% endif %}
+                                        {% endfor %}
+                                    </div>
+                                    <small class="text-muted">
+                                        {{ review.dateCreation|format_date('long') }}
+                                    </small>
+                                </div>
+                            </div>
+
+                            {% if review.commentaire %}
+                                <p class="card-text mb-3">{{ review.commentaire }}</p>
+                            {% endif %}
+
+                            <div class="d-flex gap-2">
+                                <a href="{{ path('app_patient_rate_doctor', {'medecinId': review.medecin.id}) }}" class="btn btn-sm btn-primary">
+                                    Modifier
+                                </a>
+                                <a href="{{ path('app_patient_medecins') }}" class="btn btn-sm btn-outline-secondary">
+                                    Voir profil
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="alert alert-info text-center py-5">
+            <i class="bi bi-info-circle fs-1 mb-3 d-block"></i>
+            <p class="mb-3">Vous n'avez pas encore évalué de médecin.</p>
+            <a href="{{ path('app_patient_medecins') }}" class="btn btn-primary">
+                Consulter nos médecins
+            </a>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

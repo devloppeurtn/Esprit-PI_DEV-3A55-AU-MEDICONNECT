@@ -1,0 +1,97 @@
+{% extends 'admin/base_admin.html.twig' %}
+
+{% block title %}Évaluer {{ medecin.nomComplet }} - MediConnect{% endblock %}
+
+{% block admin_content %}
+<div class="patient-espace">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body p-5">
+                    <h2 class="mb-1">Évaluer le Docteur</h2>
+                    <p class="text-muted mb-4">{{ medecin.nomComplet }}{% if medecin.specialite %} - {{ medecin.specialite }}{% endif %}</p>
+
+                    {% if is_granted('ROLE_PATIENT') %}
+                        {{ form_start(form, {'attr': {'class': 'needs-validation', 'novalidate': true}}) }}
+
+                        <div class="mb-4">
+                            <label class="form-label fw-bold mb-3">{{ form_label(form.note) }}</label>
+                            <div class="rating-options">
+                                {% for child in form.note %}
+                                    <div class="form-check form-check-inline mb-2">
+                                        {{ form_widget(child, {'attr': {'class': 'form-check-input'}}) }}
+                                        <label class="form-check-label">
+                                            {{ form_label(child) }}
+                                        </label>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                            {% if form_errors(form.note) %}
+                                <div class="alert alert-danger mt-2">
+                                    {{ form_errors(form.note) }}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <div class="mb-4">
+                            {{ form_row(form.commentaire, {'attr': {'class': 'form-control form-control-lg'}}) }}
+                            {% if form_errors(form.commentaire) %}
+                                <div class="alert alert-danger mt-2">
+                                    {{ form_errors(form.commentaire) }}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <div class="d-grid gap-2 d-sm-flex">
+                            <button type="submit" class="btn btn-primary btn-lg">
+                                {% if isEdit %}
+                                    Mettre à jour mon avis
+                                {% else %}
+                                    Soumettre mon avis
+                                {% endif %}
+                            </button>
+                            <a href="{{ path('app_patient_index') }}" class="btn btn-secondary btn-lg">Annuler</a>
+                        </div>
+
+                        {{ form_end(form) }}
+                    {% else %}
+                        <div class="alert alert-warning">
+                            Vous devez être connecté en tant que patient pour évaluer un médecin.
+                        </div>
+                        <a href="{{ path('app_login') }}" class="btn btn-primary">Se connecter</a>
+                    {% endif %}
+
+                    {% if isEdit %}
+                        <hr class="my-4">
+                        <div class="alert alert-info small">
+                            <strong>Note:</strong> Vous pouvez modifier votre évaluation à tout moment.
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .rating-options .form-check {
+        display: inline-block;
+        margin-right: 1.5rem;
+    }
+
+    .rating-options .form-check-input:checked + .form-check-label {
+        color: #ffc107;
+        font-weight: bold;
+    }
+
+    .rating-options .form-check-label {
+        cursor: pointer;
+        font-size: 1.1rem;
+        transition: color 0.2s;
+    }
+
+    .rating-options .form-check-label:hover {
+        color: #ffc107;
+    }
+</style>
+{% endblock %}

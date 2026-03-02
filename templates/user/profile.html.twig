@@ -1,0 +1,286 @@
+{% extends 'admin/base_admin.html.twig' %}
+
+{% block title %}Mon Profil - MediConnect{% endblock %}
+
+{% block stylesheets %}
+    <link href="{{ asset('assets/css/profile.css') }}" rel="stylesheet">
+{% endblock %}
+
+{% block body %}
+<div class="profile-page-wrapper">
+    {# Bannière de couverture avec dégradé #}
+    <div class="profile-cover">
+        <div class="profile-cover-gradient"></div>
+        <div class="profile-cover-pattern"></div>
+    </div>
+
+    <div class="profile-content-container py-4">
+        <div class="row justify-content-center">
+            <div class="col-xl-10">
+                {# Carte principale profil #}
+                <div class="card profile-main-card border-0 shadow-lg overflow-hidden">
+                    <div class="profile-card-header">
+                        <div class="row align-items-end">
+                            <div class="col-auto profile-avatar-col">
+                                <div class="profile-avatar-wrap">
+                                    <div class="profile-avatar-circle">
+                                        {% if user.photo %}
+                                            <img src="{{ asset(user.photo) }}" alt="{{ user.nomComplet }}" class="profile-avatar-img">
+                                        {% else %}
+                                            <i class="bi bi-person-fill"></i>
+                                        {% endif %}
+                                    </div>
+                                    <div class="profile-status-indicator {% if user.statut == constant('App\\Entity\\StatutCompte::ACTIF') %}active{% elseif user.statut == constant('App\\Entity\\StatutCompte::SUSPENDU') %}suspended{% else %}banned{% endif %}"></div>
+                                </div>
+                            </div>
+                            <div class="col profile-header-content">
+                                <h1 class="profile-name mb-1">{{ user.nomComplet }}</h1>
+                                <div class="profile-meta d-flex flex-wrap gap-3 align-items-center">
+                                    {% if user.role == constant('App\\Entity\\RoleUtilisateur::ADMIN') %}
+                                        <span class="profile-role-badge admin"><i class="bi bi-shield-lock-fill me-1"></i>Administrateur</span>
+                                    {% elseif user.role == constant('App\\Entity\\RoleUtilisateur::MEDECIN') %}
+                                        <span class="profile-role-badge medecin"><i class="bi bi-heart-pulse-fill me-1"></i>Médecin</span>
+                                    {% elseif user.role == constant('App\\Entity\\RoleUtilisateur::PATIENT') %}
+                                        <span class="profile-role-badge patient"><i class="bi bi-person-fill me-1"></i>Patient</span>
+                                    {% elseif user.role == constant('App\\Entity\\RoleUtilisateur::SECRETAIRE') %}
+                                        <span class="profile-role-badge secretaire"><i class="bi bi-person-badge-fill me-1"></i>Secrétaire</span>
+                                    {% elseif user.role == constant('App\\Entity\\RoleUtilisateur::ORGANISATEUR') %}
+                                        <span class="profile-role-badge organisateur"><i class="bi bi-calendar-event-fill me-1"></i>Organisateur</span>
+                                    {% elseif user.role == constant('App\\Entity\\RoleUtilisateur::PARTICIPATION') %}
+                                        <span class="profile-role-badge participation"><i class="bi bi-people-fill me-1"></i>Participation</span>
+                                    {% endif %}
+                                    {% if user.statut == constant('App\\Entity\\StatutCompte::ACTIF') %}
+                                        <span class="profile-status-badge success"><i class="bi bi-check-circle-fill me-1"></i>Actif</span>
+                                    {% elseif user.statut == constant('App\\Entity\\StatutCompte::SUSPENDU') %}
+                                        <span class="profile-status-badge warning"><i class="bi bi-clock-fill me-1"></i>Suspendu</span>
+                                    {% elseif user.statut == constant('App\\Entity\\StatutCompte::BANNI') %}
+                                        <span class="profile-status-badge danger"><i class="bi bi-x-circle-fill me-1"></i>Banni</span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card-body p-4 p-lg-5">
+                        {# Informations principales #}
+                        <div class="row g-4 mb-5">
+                            <div class="col-md-6 col-lg-4">
+                                <div class="profile-info-card h-100">
+                                    <div class="profile-info-icon"><i class="bi bi-envelope-at-fill"></i></div>
+                                    <div class="profile-info-content">
+                                        <span class="profile-info-label">Email</span>
+                                        <span class="profile-info-value">{{ user.email }}</span>
+                                    </div>
+                                </div>
+                            </div>
+                            {% if user.telephone %}
+                            <div class="col-md-6 col-lg-4">
+                                <div class="profile-info-card h-100">
+                                    <div class="profile-info-icon"><i class="bi bi-telephone-fill"></i></div>
+                                    <div class="profile-info-content">
+                                        <span class="profile-info-label">Téléphone</span>
+                                        <span class="profile-info-value">{{ user.telephone }}</span>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endif %}
+                            <div class="col-md-6 col-lg-4">
+                                <div class="profile-info-card h-100">
+                                    <div class="profile-info-icon"><i class="bi bi-calendar-event-fill"></i></div>
+                                    <div class="profile-info-content">
+                                        <span class="profile-info-label">Membre depuis</span>
+                                        <span class="profile-info-value">{{ user.dateCreation|date('d F Y') }}</span>
+                                    </div>
+                                </div>
+                            </div>
+                            {% if user.derniereConnexion %}
+                            <div class="col-md-6 col-lg-4">
+                                <div class="profile-info-card h-100">
+                                    <div class="profile-info-icon"><i class="bi bi-clock-history"></i></div>
+                                    <div class="profile-info-content">
+                                        <span class="profile-info-label">Dernière connexion</span>
+                                        <span class="profile-info-value">{{ user.derniereConnexion|date('d/m/Y H:i') }}</span>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endif %}
+                        </div>
+
+                        {# Section détails selon le rôle #}
+                        <div class="profile-details-section">
+                            {% if user.role.value == 'PATIENT' %}
+                                <h5 class="profile-section-title"><i class="bi bi-person-vcard-fill me-2"></i>Informations personnelles</h5>
+                                <div class="row g-4">
+                                    {% if user.telephone %}
+                                    <div class="col-md-6">
+                                        <div class="profile-detail-item">
+                                            <i class="bi bi-telephone-fill"></i>
+                                            <div><span class="label">Téléphone</span><span class="value">{{ user.telephone }}</span></div>
+                                        </div>
+                                    </div>
+                                    {% endif %}
+                                    {% if user.dateNaissance %}
+                                    <div class="col-md-6">
+                                        <div class="profile-detail-item">
+                                            <i class="bi bi-calendar3"></i>
+                                            <div><span class="label">Date de naissance</span><span class="value">{{ user.dateNaissance|date('d/m/Y') }}</span></div>
+                                        </div>
+                                    </div>
+                                    {% endif %}
+                                    {% if user.adresse %}
+                                    <div class="col-12">
+                                        <div class="profile-detail-item">
+                                            <i class="bi bi-geo-alt-fill"></i>
+                                            <div><span class="label">Adresse</span><span class="value">{{ user.adresse }}</span></div>
+                                        </div>
+                                    </div>
+                                    {% endif %}
+                                    {% if not user.telephone and not user.dateNaissance and not user.adresse %}
+                                    <div class="col-12"><p class="text-muted mb-0"><em>Aucune information complémentaire</em></p></div>
+                                    {% endif %}
+                                </div>
+                            {% elseif user.role.value == 'MEDECIN' %}
+                                <h5 class="profile-section-title"><i class="bi bi-heart-pulse-fill me-2"></i>Informations professionnelles</h5>
+                                <div class="row g-4">
+                                    {% if user.specialite %}
+                                    <div class="col-md-6">
+                                        <div class="profile-detail-item">
+                                            <i class="bi bi-briefcase-fill"></i>
+                                            <div><span class="label">Spécialité</span><span class="value">{{ user.specialite }}</span></div>
+                                        </div>
+                                    </div>
+                                    {% endif %}
+                                    {% if user.telephone %}
+                                    <div class="col-md-6">
+                                        <div class="profile-detail-item">
+                                            <i class="bi bi-telephone-fill"></i>
+                                            <div><span class="label">Téléphone</span><span class="value">{{ user.telephone }}</span></div>
+                                        </div>
+                                    </div>
+                                    {% endif %}
+                                    {% if user.numeroLicence %}
+                                    <div class="col-md-6">
+                                        <div class="profile-detail-item">
+                                            <i class="bi bi-card-checklist"></i>
+                                            <div><span class="label">Numéro de licence</span><span class="value">{{ user.numeroLicence }}</span></div>
+                                        </div>
+                                    </div>
+                                    {% endif %}
+                                    {% if user.adresseCabinet %}
+                                    <div class="col-12">
+                                        <div class="profile-detail-item">
+                                            <i class="bi bi-building"></i>
+                                            <div><span class="label">Adresse du cabinet</span><span class="value">{{ user.adresseCabinet }}</span></div>
+                                        </div>
+                                    </div>
+                                    {% endif %}
+                                    {% if not user.specialite and not user.numeroLicence and not user.adresseCabinet and not user.telephone %}
+                                    <div class="col-12"><p class="text-muted mb-0"><em>Aucune information professionnelle</em></p></div>
+                                    {% endif %}
+                                </div>
+                            {% elseif user.role.value == 'SECRETAIRE' %}
+                                <h5 class="profile-section-title"><i class="bi bi-person-badge-fill me-2"></i>Informations Secrétaire</h5>
+                                <div class="row g-4">
+                                    {% if user.telephone %}
+                                    <div class="col-md-6">
+                                        <div class="profile-detail-item">
+                                            <i class="bi bi-telephone-fill"></i>
+                                            <div><span class="label">Téléphone</span><span class="value">{{ user.telephone }}</span></div>
+                                        </div>
+                                    </div>
+                                    {% endif %}
+                                    {% if not user.telephone %}<div class="col-12"><p class="text-muted mb-0"><em>Aucune information complémentaire</em></p></div>{% endif %}
+                                </div>
+                            {% elseif user.role.value == 'ADMIN' %}
+                                <h5 class="profile-section-title"><i class="bi bi-shield-lock-fill me-2"></i>Informations Administrateur</h5>
+                                <div class="row g-4">
+                                    {% if user.telephone %}
+                                    <div class="col-md-6">
+                                        <div class="profile-detail-item">
+                                            <i class="bi bi-telephone-fill"></i>
+                                            <div><span class="label">Téléphone</span><span class="value">{{ user.telephone }}</span></div>
+                                        </div>
+                                    </div>
+                                    {% endif %}
+                                </div>
+                            {% elseif user.role.value == 'ORGANISATEUR' %}
+                                <h5 class="profile-section-title"><i class="bi bi-calendar-event-fill me-2"></i>Informations Organisateur</h5>
+                                <div class="row g-4">
+                                    {% if user.telephone %}
+                                    <div class="col-md-6">
+                                        <div class="profile-detail-item">
+                                            <i class="bi bi-telephone-fill"></i>
+                                            <div><span class="label">Téléphone</span><span class="value">{{ user.telephone }}</span></div>
+                                        </div>
+                                    </div>
+                                    {% endif %}
+                                    <div class="col-md-6">
+                                        <div class="profile-detail-item">
+                                            <i class="bi bi-calendar-event"></i>
+                                            <div><span class="label">Espace</span><span class="value"><a href="{{ path('app_evenement_index') }}">Mes événements</a></span></div>
+                                        </div>
+                                    </div>
+                                    {% if not user.telephone %}
+                                    <div class="col-12"><p class="text-muted mb-0"><em>Aucune information complémentaire</em></p></div>
+                                    {% endif %}
+                                </div>
+                            {% elseif user.role.value == 'PARTICIPATION' %}
+                                <h5 class="profile-section-title"><i class="bi bi-people-fill me-2"></i>Informations Participation</h5>
+                                <div class="row g-4">
+                                    {% if user.telephone %}
+                                    <div class="col-md-6">
+                                        <div class="profile-detail-item">
+                                            <i class="bi bi-telephone-fill"></i>
+                                            <div><span class="label">Téléphone</span><span class="value">{{ user.telephone }}</span></div>
+                                        </div>
+                                    </div>
+                                    {% endif %}
+                                    <div class="col-md-6">
+                                        <div class="profile-detail-item">
+                                            <i class="bi bi-person-badge"></i>
+                                            <div><span class="label">R�le dans l'�v�nement</span><span class="value">{{ user.roleDansEvenement.value ?? '?' }}</span></div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="profile-detail-item">
+                                            <i class="bi bi-check-circle-fill"></i>
+                                            <div><span class="label">Présence confirmée</span><span class="value">{% if user.presenceConfirmee %}Oui{% else %}Non{% endif %}</span></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        {# Actions #}
+                        <div class="profile-actions mt-5 pt-4 border-top">
+                            {% if is_own_profile|default(true) %}
+                            <a href="{{ path('app_settings') }}" class="btn btn-primary btn-lg px-4">
+                                <i class="bi bi-gear-fill me-2"></i>Paramètres
+                            </a>
+                            <a href="{{ path('app_home') }}" class="btn btn-outline-primary btn-lg px-4">
+                                <i class="bi bi-house-door-fill me-2"></i>Retour à l'accueil
+                            </a>
+                            {% if is_granted('ROLE_ADMIN') %}
+                            <a href="{{ path('app_admin_dashboard') }}" class="btn btn-outline-secondary btn-lg px-4">
+                                <i class="bi bi-speedometer2 me-2"></i>Tableau de bord
+                            </a>
+                            {% endif %}
+                            <a href="{{ path('app_logout') }}" class="btn btn-danger btn-lg px-4">
+                                <i class="bi bi-box-arrow-right me-2"></i>Déconnexion
+                            </a>
+                            {% else %}
+                            <a href="javascript:history.back()" class="btn btn-outline-primary btn-lg px-4">
+                                <i class="bi bi-arrow-left me-2"></i>Retour
+                            </a>
+                            <a href="{{ path('app_home') }}" class="btn btn-outline-secondary btn-lg px-4">
+                                <i class="bi bi-house-door-fill me-2"></i>Accueil
+                            </a>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
