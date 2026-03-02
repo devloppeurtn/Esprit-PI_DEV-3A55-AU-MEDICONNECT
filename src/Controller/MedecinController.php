@@ -38,6 +38,8 @@ use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Security\Csrf\CsrfToken;
 use Symfony\Component\Security\Csrf\CsrfTokenManagerInterface;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
+use Symfony\Contracts\Cache\CacheInterface;
+use Symfony\Contracts\Cache\ItemInterface;
 
 #[Route('/medecin')]
 #[IsGranted('ROLE_MEDECIN')]
@@ -52,6 +54,7 @@ class MedecinController extends AbstractController
         private RendezVousRepository $rdvRepo,
         private ConsultationRepository $consultationRepo,
         private \App\Service\DisponibiliteService $dispoService,
+        private CacheInterface $appCache,
     ) {
     }
 
@@ -69,7 +72,24 @@ class MedecinController extends AbstractController
                 return new JsonResponse([]);
             }
 
-            $meds = json_decode(file_get_contents($jsonPath), true);
+            $meds = $this->appCache->get('medications.autocomplete.v1', function (ItemInterface $item) use ($jsonPath): array {
+                $item->expiresAfter(3600);
+                $jsonContent = @file_get_contents($jsonPath);
+                if ($jsonContent === false || $jsonContent === '') {
+                    return [];
+                }
+
+                $decoded = json_decode($jsonContent, true, 512, JSON_THROW_ON_ERROR);
+                if (!is_array($decoded)) {
+                    return [];
+                }
+
+                // Normalise les entrées pour sécuriser le filtrage en aval.
+                return array_values(array_filter(
+                    $decoded,
+                    static fn ($item) => is_array($item) && isset($item['denomination']) && is_string($item['denomination'])
+                ));
+            });
             $queryLower = mb_strtolower($query, 'UTF-8');
             
             $results = array_filter($meds, function($item) use ($queryLower) {
@@ -492,8 +512,7 @@ class MedecinController extends AbstractController
         $dossier = $patient->getDossierMedical();
         $consultations = [];
         if ($dossier) {
-            $consultations = $dossier->getConsultations()->toArray();
-            usort($consultations, fn (Consultation $a, Consultation $b) => $b->getDate() <=> $a->getDate());
+            $consultations = $this->consultationRepo->findByDossierMedicalOrdered($dossier);
         }
 
         return $this->render('medecin/dossier_patient.html.twig', [

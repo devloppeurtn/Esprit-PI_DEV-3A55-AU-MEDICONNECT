@@ -11,6 +11,7 @@ use App\Entity\Ordonnance;
 use App\Entity\Patient;
 use App\Entity\RendezVous;
 use App\Form\DocumentPatientFormType;
+use App\Repository\ConsultationRepository;
 use App\Repository\MedecinRepository;
 use App\Repository\NotificationRepository;
 use App\Repository\RendezVousRepository;
@@ -38,6 +39,7 @@ class PatientController extends AbstractController
     public function __construct(
         private EntityManagerInterface $em,
         private RendezVousRepository $rdvRepo,
+        private ConsultationRepository $consultationRepo,
         private MedecinRepository $medecinRepo,
         private NotificationRepository $notificationRepo,
         private SluggerInterface $slugger,
@@ -128,8 +130,7 @@ class PatientController extends AbstractController
             $this->addFlash('error', 'Upload refuse. Verifiez le type de document, la taille (max 25 Mo) et le format (PDF/DOC/DOCX/JPG/PNG/GIF/WEBP).');
         }
 
-        $consultations = $dossier->getConsultations()->toArray();
-        usort($consultations, fn (Consultation $a, Consultation $b) => $b->getDate() <=> $a->getDate());
+        $consultations = $this->consultationRepo->findByDossierMedicalOrdered($dossier);
 
         return $this->render('patient/dossier.html.twig', [
             'patient' => $patient,

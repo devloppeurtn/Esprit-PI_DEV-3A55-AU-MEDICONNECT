@@ -80,6 +80,19 @@ class RendezVousRepository extends ServiceEntityRepository
             ->getResult();
     }
 
+    /** @return RendezVous[] */
+    public function findByMedecinAndStatut(Medecin $medecin, StatutRendezVous $statut): array
+    {
+        return $this->createQueryBuilder('r')
+            ->andWhere('r.medecin = :medecin')
+            ->andWhere('r.statut = :statut')
+            ->setParameter('medecin', $medecin)
+            ->setParameter('statut', $statut)
+            ->orderBy('r.dateDebut', 'ASC')
+            ->getQuery()
+            ->getResult();
+    }
+
     public function hasOverlappingForMedecin(
         Medecin $medecin,
         \DateTimeInterface $start,

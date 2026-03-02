@@ -3,6 +3,7 @@
 namespace App\Repository;
 
 use App\Entity\Consultation;
+use App\Entity\DossierMedical;
 use App\Entity\Medecin;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
@@ -15,6 +16,19 @@ class ConsultationRepository extends ServiceEntityRepository
     public function __construct(ManagerRegistry $registry)
     {
         parent::__construct($registry, Consultation::class);
+    }
+
+    /**
+     * @return Consultation[]
+     */
+    public function findByDossierMedicalOrdered(DossierMedical $dossierMedical): array
+    {
+        return $this->createQueryBuilder('c')
+            ->andWhere('c.dossierMedical = :dossier')
+            ->setParameter('dossier', $dossierMedical)
+            ->orderBy('c.date', 'DESC')
+            ->getQuery()
+            ->getResult();
     }
 
     public function countDistinctPatientsSeenBetween(

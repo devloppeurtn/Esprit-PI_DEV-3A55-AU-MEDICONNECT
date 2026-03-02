@@ -94,4 +94,5 @@ class NotificationRepository extends ServiceEntityRepository
             ->getQuery()
             ->getSingleScalarResult() > 0;
     }
+
 }

@@ -67,8 +67,8 @@ class SecretaireController extends AbstractController
                 'secretaire' => $s, 'rdvsEnAttente' => [], 'rdvsConfirmes' => [],
             ]);
         }
-        $rdvsEnAttente = $this->rdvRepo->findEnAttenteByMedecin($m);
-        $rdvsConfirmes = array_filter($this->rdvRepo->findByMedecin($m), fn($r) => $r->getStatut() === StatutRendezVous::CONFIRME);
+        $rdvsEnAttente = $this->rdvRepo->findByMedecinAndStatut($m, StatutRendezVous::EN_ATTENTE);
+        $rdvsConfirmes = $this->rdvRepo->findByMedecinAndStatut($m, StatutRendezVous::CONFIRME);
 
         return $this->render('secretaire/rendez_vous.html.twig', [
             'secretaire' => $s, 'rdvsEnAttente' => $rdvsEnAttente, 'rdvsConfirmes' => $rdvsConfirmes,
