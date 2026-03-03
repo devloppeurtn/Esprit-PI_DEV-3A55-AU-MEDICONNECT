@@ -48,14 +48,14 @@ Ce fichier contiendra vos vraies clés et ne sera JAMAIS envoyé sur GitHub:
 ```bash
 # Dans le terminal
 cd MediConnect-isramedi
-echo "OPENWEATHER_API_KEY=3e321f9414eaedbfab34983bda77a66e" > .env.local
+echo "OPENWEATHER_API_KEY=votre_vraie_cle_api_ici" > .env.local
 ```
 
 Ou créez manuellement le fichier `.env.local` avec:
 
 ```env
 # Clés API réelles (ce fichier n'est PAS versionné)
-OPENWEATHER_API_KEY=3e321f9414eaedbfab34983bda77a66e
+OPENWEATHER_API_KEY=votre_cle_openweathermap_ici
 GROQ_API_KEY=votre_vraie_cle_groq_si_vous_en_avez_une
 ```
 
@@ -119,7 +119,7 @@ Puisque vos clés ont été exposées dans Git, il est recommandé de les régé
 
 #### Pour OpenWeatherMap:
 1. Allez sur https://home.openweathermap.org/api_keys
-2. Supprimez l'ancienne clé `3e321f9414eaedbfab34983bda77a66e`
+2. Supprimez l'ancienne clé exposée
 3. Créez une nouvelle clé
 4. Mettez la nouvelle clé dans `.env.local` (PAS dans `.env`)
 
