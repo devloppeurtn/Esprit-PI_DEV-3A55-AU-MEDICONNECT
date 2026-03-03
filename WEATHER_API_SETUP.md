@@ -27,16 +27,22 @@ La météo s'affiche actuellement avec des données simulées. Pour obtenir de v
 4. Copiez cette clé (elle ressemble à: `a1b2c3d4e5f6g7h8i9j0k1l2m3n4o5p6`)
 
 ### Étape 4: Configurer votre application
-1. Ouvrez le fichier `.env` dans votre projet MediConnect
-2. Trouvez la ligne:
+1. Ouvrez le fichier `.env.local` (créez-le s'il n'existe pas) dans votre projet MediConnect
+2. Ajoutez votre clé API:
    ```
-   OPENWEATHER_API_KEY=demo_key_get_your_own_at_openweathermap_org
+   OPENWEATHER_API_KEY=your_api_key_here_from_openweathermap
    ```
-3. Remplacez `demo_key_get_your_own_at_openweathermap_org` par votre vraie clé API:
+   
+   **⚠️ IMPORTANT:** 
+   - Ne mettez JAMAIS votre vraie clé dans `.env` (ce fichier est versionné sur Git)
+   - Utilisez toujours `.env.local` pour vos secrets (ce fichier n'est PAS versionné)
+   - Le fichier `.env` doit contenir uniquement des valeurs d'exemple
+
+3. Exemple de clé (remplacez par la vôtre):
    ```
    OPENWEATHER_API_KEY=a1b2c3d4e5f6g7h8i9j0k1l2m3n4o5p6
    ```
-4. Sauvegardez le fichier
+4. Sauvegardez le fichier `.env.local`
 
 ### Étape 5: Redémarrer le serveur
 1. Arrêtez le serveur Symfony (Ctrl+C dans le terminal)
