@@ -18,6 +18,29 @@
                     <form method="post">
                         <div class="mb-4">
                             <label for="enonce" class="form-label fw-bold">Question <span class="text-danger">*</span></label>
+                            <div class="translation-widget" data-widget-id="question-form">
+                                <div class="d-flex justify-content-end mb-2">
+                                    <select class="form-select form-select-sm" style="width: auto;" id="translation-language-select-form">
+                                        <option value="" disabled selected>Traduire / Translate /Traducir</option>
+                                    </select>
+                                    <button class="btn btn-sm btn-primary ms-2" id="translate-btn-form">
+                                        <i class="bi bi-translate me-1"></i>Traduire
+                                    </button>
+                                </div>
+                                
+                                <div class="alert alert-info" id="translation-alert-form" style="display: none;">
+                                    <i class="bi bi-info-circle me-2"></i>
+                                    <span id="translation-message-form"></span>
+                                </div>
+                                
+                                <div class="mt-2" id="translated-content-form" style="display: none;">
+                                    <hr>
+                                    <h6 class="fw-bold">
+                                        <i class="bi bi-translate me-1"></i>Traduction:
+                                    </h6>
+                                    <div id="translation-result-form"></div>
+                                </div>
+                            </div>
                             <textarea class="form-control form-control-lg" id="enonce" name="enonce" rows="3" required 
                                       placeholder="Posez votre question ici...">{{ question ? question.enonce : '' }}</textarea>
                         </div>
@@ -48,7 +71,7 @@
                         <div class="mb-4">
                             <label for="explication" class="form-label fw-bold">Explication (optionnel)</label>
                             <textarea class="form-control" id="explication" name="explication" rows="3" 
-                                      placeholder="Expliquez pourquoi cette r�ponse est correcte...">{{ question ? question.explication : '' }}</textarea>
+                                      placeholder="Expliquez pourquoi cette r�ponse est correcte...">{{ question ? question.explication : '' }}</textarea>
                         </div>
                         
                         <div class="alert alert-info">
@@ -71,3 +94,94 @@
     </div>
 </div>
 {% endblock %}
+
+<script>
+// Translation widget functionality for quiz_form
+document.addEventListener('DOMContentLoaded', function() {
+    const widgetId = 'question-form';
+    const languageSelect = document.getElementById('translation-language-select-form');
+    const translateBtn = document.getElementById('translate-btn-form');
+    const translatedContent = document.getElementById('translated-content-form');
+    const translationResult = document.getElementById('translation-result-form');
+    const translationAlert = document.getElementById('translation-alert-form');
+    const translationMessage = document.getElementById('translation-message-form');
+    const originalContent = document.getElementById('enonce');
+
+    if (!languageSelect || !originalContent) return;
+
+    // Load supported languages
+    fetch('{{ path("app_translation_languages") }}')
+        .then(r => r.json())
+        .then(data => {
+            languageSelect.innerHTML = '<option value="" disabled selected>Traduire / Translate /Traducir</option>';
+            Object.entries(data.languages).forEach(([code, name]) => {
+                const option = document.createElement('option');
+                option.value = code;
+                option.textContent = name;
+                languageSelect.appendChild(option);
+            });
+        })
+        .catch(err => console.error('Failed to load languages:', err));
+
+    translateBtn.addEventListener('click', async function() {
+        const targetLanguage = languageSelect.value;
+        if (!targetLanguage) {
+            translationMessage.textContent = 'Veuillez sélectionner une langue cible';
+            translationAlert.className = 'alert alert-warning';
+            translationAlert.style.display = 'block';
+            return;
+        }
+
+        const textToTranslate = originalContent.value;
+
+        if (!textToTranslate.trim()) {
+            translationMessage.textContent = 'Le contenu est vide';
+            translationAlert.className = 'alert alert-warning';
+            translationAlert.style.display = 'block';
+            return;
+        }
+
+        translateBtn.disabled = true;
+        translateBtn.innerHTML = '<i class="bi bi-hourglass-split me-1"></i>Traduction en cours...';
+
+        try {
+            const response = await fetch('{{ path("app_translation_translate") }}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    text: textToTranslate,
+                    targetLanguage: targetLanguage,
+                    sourceLanguage: 'auto'
+                })
+            });
+
+            const result = await response.json();
+
+            if (response.ok && result.translated) {
+                translationResult.innerHTML = result.translated;
+                translatedContent.style.display = 'block';
+                translationMessage.textContent = 'Traduction réussie!';
+                translationAlert.className = 'alert alert-success';
+                translationAlert.style.display = 'block';
+            } else {
+                translationMessage.textContent = 'Échec de la traduction: ' + (result.error || 'Erreur inconnue');
+                translationAlert.className = 'alert alert-danger';
+                translationAlert.style.display = 'block';
+            }
+        } catch (error) {
+            translationMessage.textContent = 'Erreur de connexion: ' + error.message;
+            translationAlert.className = 'alert alert-danger';
+            translationAlert.style.display = 'block';
+        } finally {
+            translateBtn.disabled = false;
+            translateBtn.innerHTML = '<i class="bi bi-translate me-1"></i>Traduire';
+        }
+
+        setTimeout(() => {
+            translationAlert.style.display = 'none';
+        }, 5000);
+    });
+});
+</script>

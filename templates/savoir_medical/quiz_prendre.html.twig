@@ -4,6 +4,7 @@
 
 {% block stylesheets %}
     <link href="{{ asset('assets/vendor/bootstrap/css/bootstrap.min.css') }}" rel="stylesheet">
+    <script src="{{ asset('assets/js/tts-player.js') }}"></script>
     <style>
         .quiz-container {
             max-width: 900px;
@@ -13,7 +14,7 @@
         .question-card {
             background: white;
             border-radius: 15px;
-            padding: 2rem;
+            padding: 1.5rem;
             box-shadow: 0 5px 15px rgba(0,0,0,0.1);
             margin-bottom: 2rem;
         }
@@ -21,8 +22,8 @@
         .option-card {
             border: 2px solid #e9ecef;
             border-radius: 10px;
-            padding: 1rem;
-            margin-bottom: 1rem;
+            padding: 0.75rem 1rem;
+            margin-bottom: 0.75rem;
             cursor: pointer;
             transition: all 0.3s;
         }
@@ -40,11 +41,37 @@
         .option-card.correct {
             border-color: #28a745;
             background: #d4edda;
+            position: relative;
+            padding-left: 3rem;
+        }
+        
+        .option-card.correct::before {
+            content: '●';
+            color: #28a745;
+            font-size: 32px;
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            line-height: 1;
         }
         
         .option-card.incorrect {
             border-color: #dc3545;
             background: #f8d7da;
+            position: relative;
+            padding-left: 3rem;
+        }
+        
+        .option-card.incorrect::before {
+            content: '●';
+            color: #dc3545;
+            font-size: 32px;
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            line-height: 1;
         }
         
         .progress-bar-custom {
@@ -61,11 +88,40 @@
             text-align: center;
             border: 2px solid #175cdd;
         }
+        
+        .btn-outline-primary {
+            border: 2px solid #175cdd;
+            color: #175cdd;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-outline-primary:hover {
+            background: #175cdd;
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(23, 92, 221, 0.3);
+        }
+        
+        .btn-danger {
+            animation: pulse-red 1.5s infinite;
+        }
+        
+        @keyframes pulse-red {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.8; }
+        }
     </style>
 {% endblock %}
 
 {% block body %}
 <div class="container my-5 quiz-container">
+    {# Debug info - remove after fixing #}
+    {% if debug_total is defined %}
+        <div class="alert alert-info">
+            <strong>Debug:</strong> Total questions: {{ debug_total }}, Validated: {{ debug_validated }}
+        </div>
+    {% endif %}
+    
     {% if questions is empty %}
         <div class="card border-0 shadow">
             <div class="card-body p-5 text-center">
@@ -110,29 +166,61 @@
             
             {% for question in questions %}
                 <div class="question-card" id="question-{{ loop.index }}" style="{{ loop.index > 1 ? 'display: none;' : '' }}">
-                    <div class="d-flex justify-content-between align-items-start mb-4">
-                        <h5 class="fw-bold">Question {{ loop.index }} / {{ questions|length }}</h5>
-                        <span class="badge bg-primary">{{ 10 }} points</span>
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h5 class="fw-bold mb-0">Question {{ loop.index }} / {{ questions|length }}</h5>
+                        <div class="d-flex align-items-center gap-2">
+                            <button type="button" class="btn btn-sm btn-outline-primary" id="tts-question-btn-q{{ question.id }}" title="Écouter la question et les réponses">
+                                <i class="bi bi-volume-up-fill"></i>
+                            </button>
+                            <select class="form-select form-select-sm" style="width: auto; min-width: 120px;" id="translation-language-select-q{{ question.id }}">
+                                <option value="" disabled selected>Traduire</option>
+                            </select>
+                            <button type="button" class="btn btn-sm btn-primary" id="translate-btn-q{{ question.id }}">
+                                <i class="bi bi-translate"></i>
+                            </button>
+                            <span class="badge bg-primary">{{ 10 }} pts</span>
+                        </div>
                     </div>
                     
-                    <p class="lead mb-4">{{ question.enonce }}</p>
+                    <div class="alert alert-info py-2" id="translation-alert-q{{ question.id }}" style="display: none;">
+                        <i class="bi bi-info-circle me-2"></i>
+                        <span id="translation-message-q{{ question.id }}"></span>
+                    </div>
                     
-                    <div class="options-container" data-question-id="{{ question.id }}" data-correct-answer="{{ question.reponseCorrecte }}">
+                    <p class="mb-3" id="question-text-{{ question.id }}">{{ question.enonce }}</p>
+                    
+                    <div id="translated-question-{{ question.id }}" class="alert alert-primary" style="display: none;">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div>
+                                <strong><i class="bi bi-translate me-2"></i>Traduction:</strong>
+                                <p class="mb-0 mt-2" id="translated-question-text-{{ question.id }}"></p>
+                            </div>
+                            <button type="button" class="btn-close" onclick="document.getElementById('translated-question-{{ question.id }}').style.display='none'"></button>
+                        </div>
+                    </div>
+                    
+                    <div class="options-container" id="options-container-{{ question.id }}" data-question-id="{{ question.id }}" data-correct-answer="{{ question.reponseCorrecte|trim }}">
                         {% for option in question.optionsReponsesArray %}
-                            <div class="option-card" data-option="{{ option }}">
+                            <div class="option-card" data-option="{{ option|trim }}" data-option-index="{{ loop.index0 }}">
                                 <div class="form-check">
-                                    <input class="form-check-input" type="radio" name="question_{{ question.id }}" value="{{ option }}" id="q{{ question.id }}_opt{{ loop.index }}">
+                                    <input class="form-check-input" type="radio" name="question_{{ question.id }}" value="{{ option|trim }}" id="q{{ question.id }}_opt{{ loop.index }}">
                                     <label class="form-check-label w-100" for="q{{ question.id }}_opt{{ loop.index }}">
-                                        <strong>{{ ['A', 'B', 'C', 'D'][loop.index0] }}.</strong> {{ option }}
+                                        <strong class="option-letter">{{ ['A', 'B', 'C', 'D'][loop.index0] }}.</strong> 
+                                        <span class="option-text" data-original="{{ option|trim }}">{{ option }}</span>
+                                        <span class="option-translation" style="display: none; color: #0066cc; font-style: italic;"></span>
                                     </label>
                                 </div>
                             </div>
                         {% endfor %}
                     </div>
                     
-                    <div class="explanation-box alert alert-info mt-4" style="display: none;">
+                    <div class="explanation-box alert alert-info mt-4" id="explanation-box-{{ question.id }}" style="display: none;">
                         <h6 class="fw-bold"><i class="bi bi-lightbulb me-2"></i>Explication</h6>
-                        <p class="mb-0">{{ question.explication }}</p>
+                        <p class="mb-0" id="explanation-text-{{ question.id }}">{{ question.explication }}</p>
+                        <div id="translated-explanation-{{ question.id }}" class="mt-2 pt-2 border-top" style="display: none;">
+                            <small class="text-primary"><strong><i class="bi bi-translate me-1"></i>Traduction:</strong></small>
+                            <p class="mb-0 mt-1" id="translated-explanation-text-{{ question.id }}" style="color: #0066cc; font-style: italic;"></p>
+                        </div>
                     </div>
                     
                     <div class="d-flex justify-content-between mt-4">
@@ -173,10 +261,22 @@ document.querySelectorAll('.option-card').forEach(card => {
         const radio = this.querySelector('input[type="radio"]');
         const container = this.closest('.options-container');
         const questionId = container.dataset.questionId;
-        const correctAnswer = container.dataset.correctAnswer;
-        const selectedAnswer = this.dataset.option;
+        
+        // Get correct answer (this is the LETTER: A, B, C, or D)
+        const correctAnswerLetter = container.dataset.correctAnswer.trim().toUpperCase();
+        
+        // Get the selected option's letter (A, B, C, D)
+        const selectedOptionIndex = parseInt(this.dataset.optionIndex);
+        const selectedLetter = ['A', 'B', 'C', 'D'][selectedOptionIndex];
+        
         const questionCard = this.closest('.question-card');
         const questionNumber = questionCard.id.split('-')[1];
+        
+        // Prevent multiple clicks
+        if (container.dataset.answered === 'true') {
+            return;
+        }
+        container.dataset.answered = 'true';
         
         // Remove previous selections
         container.querySelectorAll('.option-card').forEach(opt => {
@@ -185,28 +285,36 @@ document.querySelectorAll('.option-card').forEach(card => {
         
         // Mark as selected
         radio.checked = true;
-        this.classList.add('selected');
         
-        // Check if answer is correct
-        const isCorrect = selectedAnswer === correctAnswer;
+        // Check if answer is correct by comparing LETTERS
+        const isCorrect = selectedLetter === correctAnswerLetter;
+        
+        console.log('=== Answer Check ===');
+        console.log('Selected Letter:', selectedLetter);
+        console.log('Correct Letter:', correctAnswerLetter);
+        console.log('Is Correct:', isCorrect);
         
         setTimeout(() => {
             if (isCorrect) {
+                // Mark selected answer as correct (green circle)
                 this.classList.add('correct');
                 currentScore += 10;
                 updateScore();
-                
-                // Show success message
-                showNotification('Correct ! +10 points', 'success');
+                console.log('✓ Correct answer!');
             } else {
+                // Mark selected answer as incorrect (red circle)
                 this.classList.add('incorrect');
-                // Highlight correct answer
+                console.log('✗ Incorrect answer!');
+                
+                // Find and highlight the correct answer by letter
                 container.querySelectorAll('.option-card').forEach(opt => {
-                    if (opt.dataset.option === correctAnswer) {
+                    const optIndex = parseInt(opt.dataset.optionIndex);
+                    const optLetter = ['A', 'B', 'C', 'D'][optIndex];
+                    if (optLetter === correctAnswerLetter) {
                         opt.classList.add('correct');
+                        console.log('✓ Highlighted correct answer:', optLetter);
                     }
                 });
-                showNotification('Incorrect. La bonne réponse est surlignée en vert.', 'error');
             }
             
             // Show explanation
@@ -222,7 +330,7 @@ document.querySelectorAll('.option-card').forEach(card => {
             
             // Store answer
             userAnswers[questionId] = {
-                selected: selectedAnswer,
+                selected: selectedLetter,
                 correct: isCorrect,
                 points: isCorrect ? 10 : 0
             };
@@ -234,8 +342,14 @@ document.querySelectorAll('.option-card').forEach(card => {
             // Enable next/submit button
             const nextBtn = document.getElementById('nextBtn-' + questionNumber);
             const submitBtn = document.getElementById('submitBtn');
-            if (nextBtn) nextBtn.disabled = false;
-            if (submitBtn) submitBtn.disabled = false;
+            if (nextBtn) {
+                nextBtn.disabled = false;
+                console.log('✓ Enabled next button');
+            }
+            if (submitBtn) {
+                submitBtn.disabled = false;
+                console.log('✓ Enabled submit button');
+            }
             
         }, 300);
     });
@@ -290,5 +404,161 @@ function showNotification(message, type) {
         notification.remove();
     }, 3000);
 }
+
+// Translation functionality for quiz questions and answers
+document.addEventListener('DOMContentLoaded', function() {
+    const questions = document.querySelectorAll('.question-card');
+    
+    questions.forEach(function(questionCard) {
+        const optionsContainer = questionCard.querySelector('.options-container');
+        if (!optionsContainer) return;
+        
+        const questionId = optionsContainer.dataset.questionId;
+        const languageSelect = document.getElementById('translation-language-select-q' + questionId);
+        const translateBtn = document.getElementById('translate-btn-q' + questionId);
+        const ttsQuestionBtn = document.getElementById('tts-question-btn-q' + questionId);
+        const translationAlert = document.getElementById('translation-alert-q' + questionId);
+        const translationMessage = document.getElementById('translation-message-q' + questionId);
+
+        // TTS for question text and all options
+        if (ttsQuestionBtn && window.ttsPlayer) {
+            ttsQuestionBtn.addEventListener('click', function() {
+                const questionTextElement = document.getElementById('question-text-' + questionId);
+                if (!questionTextElement) {
+                    console.error('Question text element not found');
+                    return;
+                }
+                
+                const questionText = questionTextElement.textContent;
+                const optionCards = optionsContainer.querySelectorAll('.option-card');
+                
+                // Build full text: question + all options
+                let fullText = questionText + '. Les réponses possibles sont: ';
+                
+                optionCards.forEach((card, index) => {
+                    const optionTextElement = card.querySelector('.option-text');
+                    if (optionTextElement) {
+                        const optionText = optionTextElement.textContent;
+                        const letter = ['A', 'B', 'C', 'D'][index];
+                        fullText += letter + '. ' + optionText + '. ';
+                    }
+                });
+                
+                window.ttsPlayer.play(fullText.trim(), 'fr-FR', 'female', ttsQuestionBtn);
+            });
+        }
+
+        // Load supported languages
+        fetch('{{ path("app_translation_languages") }}')
+            .then(r => r.json())
+            .then(data => {
+                languageSelect.innerHTML = '<option value="" disabled selected>Traduire</option>';
+                Object.entries(data.languages).forEach(([code, name]) => {
+                    const option = document.createElement('option');
+                    option.value = code;
+                    option.textContent = name;
+                    languageSelect.appendChild(option);
+                });
+            })
+            .catch(err => console.error('Failed to load languages:', err));
+
+        translateBtn.addEventListener('click', async function() {
+            const targetLanguage = languageSelect.value;
+            if (!targetLanguage) {
+                showAlert('Veuillez sélectionner une langue', 'warning');
+                return;
+            }
+
+            translateBtn.disabled = true;
+            translateBtn.innerHTML = '<span class="spinner-border spinner-border-sm"></span>';
+
+            try {
+                // Translate question
+                const questionText = document.getElementById('question-text-' + questionId).textContent;
+                const questionResponse = await fetch('{{ path("app_translation_translate") }}', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        text: questionText,
+                        targetLanguage: targetLanguage,
+                        sourceLanguage: 'auto'
+                    })
+                });
+
+                const questionResult = await questionResponse.json();
+
+                if (questionResponse.ok && questionResult.translated) {
+                    document.getElementById('translated-question-text-' + questionId).textContent = questionResult.translated;
+                    document.getElementById('translated-question-' + questionId).style.display = 'block';
+                }
+
+                // Translate all answer options
+                const optionsContainer = document.getElementById('options-container-' + questionId);
+                const optionCards = optionsContainer.querySelectorAll('.option-card');
+                
+                for (const optionCard of optionCards) {
+                    const optionTextSpan = optionCard.querySelector('.option-text');
+                    const optionTranslationSpan = optionCard.querySelector('.option-translation');
+                    const originalText = optionTextSpan.dataset.original;
+
+                    const optionResponse = await fetch('{{ path("app_translation_translate") }}', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            text: originalText,
+                            targetLanguage: targetLanguage,
+                            sourceLanguage: 'auto'
+                        })
+                    });
+
+                    const optionResult = await optionResponse.json();
+
+                    if (optionResponse.ok && optionResult.translated) {
+                        optionTranslationSpan.textContent = ' → ' + optionResult.translated;
+                        optionTranslationSpan.style.display = 'inline';
+                    }
+                }
+
+                // Translate explanation if it exists
+                const explanationText = document.getElementById('explanation-text-' + questionId);
+                if (explanationText && explanationText.textContent.trim()) {
+                    const explanationResponse = await fetch('{{ path("app_translation_translate") }}', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            text: explanationText.textContent,
+                            targetLanguage: targetLanguage,
+                            sourceLanguage: 'auto'
+                        })
+                    });
+
+                    const explanationResult = await explanationResponse.json();
+
+                    if (explanationResponse.ok && explanationResult.translated) {
+                        document.getElementById('translated-explanation-text-' + questionId).textContent = explanationResult.translated;
+                        document.getElementById('translated-explanation-' + questionId).style.display = 'block';
+                    }
+                }
+
+                showAlert('Traduction réussie!', 'success');
+            } catch (error) {
+                showAlert('Erreur de traduction: ' + error.message, 'danger');
+            } finally {
+                translateBtn.disabled = false;
+                translateBtn.innerHTML = '<i class="bi bi-translate"></i>';
+            }
+        });
+
+        function showAlert(message, type) {
+            translationMessage.textContent = message;
+            translationAlert.className = 'alert alert-' + type;
+            translationAlert.style.display = 'block';
+            
+            setTimeout(() => {
+                translationAlert.style.display = 'none';
+            }, 4000);
+        }
+    });
+});
 </script>
 {% endblock %}

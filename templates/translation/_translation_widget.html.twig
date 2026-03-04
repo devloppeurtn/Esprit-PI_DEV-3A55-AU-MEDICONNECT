@@ -1,0 +1,115 @@
+<div class="translation-widget" data-widget-id="{{ widget_id ?? 'translation-widget' }}">
+    <div class="d-flex justify-content-end mb-3">
+        <select class="form-select form-select-sm" style="width: auto;" id="translation-language-select-{{ widget_id }}">
+            <option value="" disabled selected>Traduire / Translate /Traducir</option>
+        </select>
+        <button class="btn btn-sm btn-primary ms-2" id="translate-btn-{{ widget_id }}">
+            <i class="bi bi-translate me-1"></i>Traduire
+        </button>
+    </div>
+
+    <div class="alert alert-info" id="translation-alert-{{ widget_id }}" style="display: none;">
+        <i class="bi bi-info-circle me-2"></i>
+        <span id="translation-message-{{ widget_id }}"></span>
+    </div>
+
+    <div class="mt-4" id="translated-content-{{ widget_id }}" style="display: none;">
+        <div class="card border-primary">
+            <div class="card-header bg-primary text-white">
+                <i class="bi bi-translate me-2"></i>Traduction:
+            </div>
+            <div class="card-body">
+                <div id="translation-result-{{ widget_id }}" style="white-space: pre-line; line-height: 1.6;"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const widgetId = '{{ widget_id ?? "translation-widget" }}';
+    const languageSelect = document.getElementById('translation-language-select-' + widgetId);
+    const translateBtn = document.getElementById('translate-btn-' + widgetId);
+    const translatedContent = document.getElementById('translated-content-' + widgetId);
+    const translationResult = document.getElementById('translation-result-' + widgetId);
+    const translationAlert = document.getElementById('translation-alert-' + widgetId);
+    const translationMessage = document.getElementById('translation-message-' + widgetId);
+
+    // Load supported languages
+    fetch('{{ path("app_translation_languages") }}')
+        .then(r => r.json())
+        .then(data => {
+            languageSelect.innerHTML = '<option value="" disabled selected>Traduire / Translate /Traducir</option>';
+            Object.entries(data.languages).forEach(([code, name]) => {
+                const option = document.createElement('option');
+                option.value = code;
+                option.textContent = name;
+                languageSelect.appendChild(option);
+            });
+        })
+        .catch(err => console.error('Failed to load languages:', err));
+
+    translateBtn.addEventListener('click', async function() {
+        const targetLanguage = languageSelect.value;
+        if (!targetLanguage) {
+            showTranslationAlert('Veuillez sélectionner une langue cible', 'warning');
+            return;
+        }
+
+        const originalContent = document.getElementById('translation-content-' + widgetId);
+        if (!originalContent) {
+            showTranslationAlert('Aucun contenu à traduire', 'danger');
+            return;
+        }
+
+        const textToTranslate = originalContent.innerText || originalContent.textContent;
+
+        if (!textToTranslate.trim()) {
+            showTranslationAlert('Le contenu est vide', 'warning');
+            return;
+        }
+
+        translateBtn.disabled = true;
+        translateBtn.innerHTML = '<i class="bi bi-hourglass-split me-1"></i>Traduction en cours...';
+
+        try {
+            const response = await fetch('{{ path("app_translation_translate") }}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    text: textToTranslate,
+                    targetLanguage: targetLanguage,
+                    sourceLanguage: 'auto'
+                })
+            });
+
+            const result = await response.json();
+
+            if (response.ok && result.translated) {
+                translationResult.innerHTML = result.translated;
+                translatedContent.style.display = 'block';
+                showTranslationAlert('Traduction réussie!', 'success');
+            } else {
+                showTranslationAlert('Échec de la traduction: ' + (result.error || 'Erreur inconnue'), 'danger');
+            }
+        } catch (error) {
+            showTranslationAlert('Erreur de connexion: ' + error.message, 'danger');
+        } finally {
+            translateBtn.disabled = false;
+            translateBtn.innerHTML = '<i class="bi bi-translate me-1"></i>Traduire';
+        }
+    });
+
+    function showTranslationAlert(message, type) {
+        translationMessage.textContent = message;
+        translationAlert.className = 'alert alert-' + type;
+        translationAlert.style.display = 'block';
+        
+        setTimeout(() => {
+            translationAlert.style.display = 'none';
+        }, 5000);
+    }
+});
+</script>

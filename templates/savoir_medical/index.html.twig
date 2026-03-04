@@ -3,538 +3,309 @@
 {% block title %}Savoir Médical - MediConnect{% endblock %}
 
 {% block stylesheets %}
-    <link href="{{ asset('assets/vendor/bootstrap/css/bootstrap.min.css') }}" rel="stylesheet">
+    {% include 'savoir_medical/_modern_styles.html.twig' %}
     <style>
-        .hero-section {
-            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-            color: #333;
-            padding: 3rem 0;
-            margin-bottom: 3rem;
-            border-bottom: 3px solid #175cdd;
-            position: relative;
-            overflow: hidden;
-        }
-        
-        .hero-section::before {
-            content: '';
-            position: absolute;
-            top: -50%;
-            right: -10%;
-            width: 400px;
-            height: 400px;
-            background: radial-gradient(circle, rgba(23, 92, 221, 0.1) 0%, transparent 70%);
-            border-radius: 50%;
-        }
-        
-        .hero-content h1 {
-            color: #175cdd;
-            font-weight: 800;
-            line-height: 1.2;
-            margin-bottom: 1.5rem;
-        }
-        
-        .hero-content .lead {
-            color: #495057;
-            font-size: 1.15rem;
-            line-height: 1.7;
-        }
-        
-        .hero-icon {
-            font-size: 10rem;
-            opacity: 0.15;
-            color: #175cdd;
-            animation: float 3s ease-in-out infinite;
-        }
-        
-        @keyframes float {
-            0%, 100% { transform: translateY(0px); }
-            50% { transform: translateY(-20px); }
-        }
-        
-        .category-card {
-            border: none;
+        .search-section {
+            background: white;
             border-radius: 20px;
+            padding: 2rem;
             box-shadow: 0 4px 20px rgba(0,0,0,0.08);
-            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            height: 100%;
-            overflow: hidden;
-            position: relative;
-            background: white;
-        }
-        
-        .category-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 5px;
-            background: linear-gradient(90deg, #175cdd 0%, #4a90e2 100%);
-            transform: scaleX(0);
-            transition: transform 0.4s ease;
-        }
-        
-        .category-card:hover {
-            transform: translateY(-12px) scale(1.02);
-            box-shadow: 0 15px 40px rgba(0,0,0,0.15);
-        }
-        
-        .category-card:hover::before {
-            transform: scaleX(1);
-        }
-        
-        .category-header {
-            background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
-            padding: 2.5rem 2rem;
-            position: relative;
-            border-bottom: 2px solid #f0f0f0;
-        }
-        
-        .category-icon {
-            width: 90px;
-            height: 90px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 2.75rem;
-            margin-bottom: 1.25rem;
-            background: white;
-            box-shadow: 0 6px 20px rgba(0,0,0,0.1);
-            transition: all 0.3s ease;
-            position: relative;
-        }
-        
-        .category-card:hover .category-icon {
-            transform: scale(1.1) rotate(5deg);
-            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
-        }
-        
-        .progress-badge {
-            position: absolute;
-            top: 1.25rem;
-            right: 1.25rem;
-            background: white;
-            border-radius: 12px;
-            padding: 0.625rem 1.25rem;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-            z-index: 10;
-        }
-        
-        .progress-badge .badge {
-            font-size: 0.85rem;
-            font-weight: 600;
-            padding: 0.5rem 0.875rem;
-        }
-        
-        .category-title {
-            font-size: 1.5rem;
-            font-weight: 700;
-            color: #2c3e50;
-            margin-bottom: 0.75rem;
-            line-height: 1.3;
-        }
-        
-        .category-type-badge {
-            display: inline-block;
-            padding: 0.5rem 1.25rem;
-            background: #175cdd;
-            color: white;
-            border-radius: 20px;
-            font-weight: 600;
-            font-size: 0.875rem;
-            box-shadow: 0 2px 8px rgba(23, 92, 221, 0.3);
-        }
-        
-        .category-description {
-            color: #6c757d;
-            font-size: 0.95rem;
-            line-height: 1.6;
-            margin-bottom: 1.5rem;
-            min-height: 3em;
-        }
-        
-        .stats-bar {
-            background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
-            border-radius: 12px;
-            padding: 1.25rem;
-            margin-top: 1rem;
-            display: flex;
-            justify-content: space-around;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-            border: 1px solid #e9ecef;
-        }
-        
-        .stat-item {
-            text-align: center;
-            padding: 0.5rem;
-            flex: 1;
-        }
-        
-        .stat-value {
-            font-size: 1.75rem;
-            font-weight: 800;
-            color: #175cdd;
-            margin-bottom: 0.25rem;
-            line-height: 1;
-        }
-        
-        .stat-label {
-            font-size: 0.8rem;
-            color: #6c757d;
-            font-weight: 500;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-        
-        .category-actions {
-            margin-top: 1.5rem;
-        }
-        
-        .btn-explore {
-            background: linear-gradient(135deg, #175cdd 0%, #1a4db5 100%);
-            border: none;
-            color: white;
-            font-weight: 600;
-            padding: 0.875rem 1.5rem;
-            border-radius: 10px;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 15px rgba(23, 92, 221, 0.3);
-        }
-        
-        .btn-explore:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(23, 92, 221, 0.4);
-            color: white;
-        }
-        
-        .empty-state {
-            text-align: center;
-            padding: 5rem 2rem;
-            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-            border-radius: 20px;
-            border: 2px dashed #dee2e6;
-        }
-        
-        .empty-state i {
-            font-size: 6rem;
-            color: #dee2e6;
             margin-bottom: 2rem;
         }
         
-        .action-buttons {
-            display: flex;
-            gap: 1rem;
-            flex-wrap: wrap;
-            margin-top: 2rem;
+        .search-box {
+            position: relative;
+            max-width: 600px;
+            margin: 0 auto;
         }
         
-        .btn-action-hero {
-            padding: 1rem 2rem;
-            font-weight: 600;
-            border-radius: 12px;
-            font-size: 1.05rem;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        .search-icon {
+            position: absolute;
+            left: 1.25rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #667eea;
+            font-size: 1.25rem;
+            pointer-events: none;
         }
         
-        .btn-action-hero:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
-        }
-        
-        .section-header {
-            margin-bottom: 2.5rem;
-        }
-        
-        .section-header h2 {
-            font-size: 2rem;
-            font-weight: 700;
-            color: #2c3e50;
-            margin-bottom: 0.5rem;
-        }
-        
-        .section-header p {
-            color: #6c757d;
-            font-size: 1.05rem;
-        }
-        
-        /* Search Bar Styles */
-        #searchCategories {
-            border-left: none;
+        .search-input {
+            width: 100%;
+            padding: 1rem 1.25rem 1rem 3.5rem;
+            border: 2px solid #e9ecef;
+            border-radius: 50px;
             font-size: 1rem;
-            padding: 0.75rem 1rem;
+            transition: all 0.3s ease;
         }
         
-        #searchCategories:focus {
-            box-shadow: 0 0 0 0.25rem rgba(23, 92, 221, 0.15);
-            border-color: #175cdd;
+        .search-input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
         }
         
-        .input-group-text {
-            border-right: none;
-            color: #175cdd;
+        .search-input::placeholder {
+            color: #adb5bd;
         }
         
-        #clearSearch {
-            border-left: none;
+        .filter-chips {
+            display: flex;
+            gap: 0.75rem;
+            flex-wrap: wrap;
+            margin-top: 1.5rem;
+            justify-content: center;
         }
         
-        .input-group:focus-within .input-group-text {
-            border-color: #175cdd;
-        }
-        
-        .input-group:focus-within #clearSearch {
-            border-color: #175cdd;
-        }
-        
-        #searchResults {
-            text-align: center;
+        .filter-chip {
+            padding: 0.5rem 1.25rem;
+            border-radius: 50px;
+            border: 2px solid #e9ecef;
+            background: white;
+            color: #495057;
+            font-size: 0.9rem;
             font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
         }
         
-        .category-item {
-            transition: opacity 0.3s ease, transform 0.3s ease;
+        .filter-chip:hover {
+            border-color: #667eea;
+            color: #667eea;
+            transform: translateY(-2px);
+        }
+        
+        .filter-chip.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-color: #667eea;
+            color: white;
+        }
+        
+        .no-results {
+            text-align: center;
+            padding: 3rem;
+            display: none;
+        }
+        
+        .no-results.show {
+            display: block;
+        }
+        
+        .category-card-wrapper {
+            transition: all 0.3s ease;
+        }
+        
+        .category-card-wrapper.hidden {
+            display: none;
+        }
+        
+        .results-count {
+            text-align: center;
+            color: #6c757d;
+            font-size: 0.95rem;
+            margin-bottom: 1.5rem;
         }
     </style>
 {% endblock %}
 
 {% block body %}
-<div class="hero-section">
-    <div class="container position-relative">
+<div class="sm-hero">
+    <div class="container">
         <div class="row align-items-center">
             <div class="col-lg-8">
-                <div class="hero-content">
-                    <h1 class="display-4 fw-bold mb-3">
-                        <i class="bi bi-book me-3"></i>
-                        Savoir Médical & Intelligence Partagée
-                    </h1>
-                    <p class="lead mb-4">
-                        Développez vos connaissances médicales à travers des cours interactifs et des quiz validés par des professionnels de santé. Apprenez à votre rythme et testez vos compétences.
-                    </p>
-                    <div class="action-buttons">
-                        {% if is_granted('ROLE_PATIENT') %}
-                            <a href="{{ path('app_progression_utilisateur') }}" class="btn btn-primary btn-action-hero">
-                                <i class="bi bi-graph-up me-2"></i>Voir ma progression
-                            </a>
-                        {% endif %}
-                        {% if is_granted('ROLE_MEDECIN') or is_granted('ROLE_ADMIN') %}
-                            <a href="{{ path('app_savoir_medical_nouvelle_categorie') }}" class="btn btn-success btn-action-hero">
-                                <i class="bi bi-plus-circle me-2"></i>Nouvelle catégorie
-                            </a>
-                        {% endif %}
-                        {% if is_granted('ROLE_ADMIN') %}
-                            <a href="{{ path('app_admin_categories_en_attente') }}" class="btn btn-warning btn-action-hero">
-                                <i class="bi bi-clock-history me-2"></i>Catégories en attente
-                            </a>
-                        {% endif %}
-                    </div>
-                </div>
-            </div>
-            <div class="col-lg-4 text-center d-none d-lg-block">
-                <i class="bi bi-mortarboard-fill hero-icon"></i>
+                <h1><i class="bi bi-book me-3"></i>Savoir Médical</h1>
+                <p class="lead mb-4">
+                    Explorez nos catégories de santé et testez vos connaissances.
+                </p>
+                {% if is_granted('ROLE_MEDECIN') or is_granted('ROLE_ADMIN') %}
+                    <a href="{{ path('app_savoir_medical_nouvelle_categorie') }}" class="btn btn-light btn-lg">
+                        <i class="bi bi-plus-circle me-2"></i>Créer une catégorie
+                    </a>
+                {% endif %}
             </div>
         </div>
     </div>
 </div>
 
 <div class="container mb-5">
-    {% if categories is empty %}
-        <div class="empty-state">
-            <i class="bi bi-folder-x"></i>
-            <h3 class="text-muted mb-3">Aucune catégorie disponible</h3>
-            <p class="text-muted mb-4">Les catégories seront bientôt ajoutées par les administrateurs</p>
-            {% if is_granted('ROLE_MEDECIN') or is_granted('ROLE_ADMIN') %}
-                                <a href="{{ path('app_savoir_medical_nouvelle_categorie') }}" class="btn btn-primary btn-lg">
-                                    <i class="bi bi-plus-circle me-2"></i>Créer la première catégorie
-                                </a>
-                            {% endif %}
+    {% if is_granted('ROLE_ADMIN') %}
+        {# Admin Pending Categories Alert #}
+        <div class="alert alert-warning border-0 shadow-sm mb-4" style="border-radius: 15px; border-left: 4px solid #ffc107 !important;">
+            <div class="d-flex align-items-center justify-content-between flex-wrap gap-3">
+                <div class="d-flex align-items-center gap-3">
+                    <div class="bg-warning bg-opacity-10 rounded-circle p-3">
+                        <i class="bi bi-clock-history text-warning" style="font-size: 2rem;"></i>
+                    </div>
+                    <div>
+                        <h5 class="mb-1 fw-bold">Catégories en attente d'approbation</h5>
+                        <p class="mb-0 text-muted">
+                            <i class="bi bi-info-circle me-1"></i>
+                            Des médecins ont soumis des catégories qui nécessitent votre validation
+                        </p>
+                    </div>
+                </div>
+                <a href="{{ path('app_admin_categories_en_attente') }}" class="btn btn-warning btn-lg">
+                    <i class="bi bi-eye me-2"></i>Voir les catégories en attente
+                </a>
+            </div>
         </div>
-    {% else %}
-        <div class="d-flex justify-content-between align-items-center mb-4">
-            <div>
-                <h2 class="mb-1">
-                    <i class="bi bi-grid-3x3-gap me-2 text-primary"></i>
-                    Catégories disponibles
-                </h2>
-                <p class="text-muted mb-0">{{ categories|length }} catégorie{{ categories|length > 1 ? 's' : '' }} à explorer</p>
+    {% endif %}
+    
+    {% if categories is not empty %}
+        {# Search Section #}
+        <div class="search-section">
+            <div class="search-box">
+                <i class="bi bi-search search-icon"></i>
+                <input type="text" 
+                       class="search-input" 
+                       id="category-search" 
+                       placeholder="Rechercher une catégorie par nom..."
+                       aria-label="Rechercher une catégorie">
             </div>
             
-            <div style="min-width: 400px;">
-                <div class="input-group shadow-sm">
-                    <span class="input-group-text bg-white">
-                        <i class="bi bi-search text-primary"></i>
-                    </span>
-                    <input type="text" 
-                           class="form-control" 
-                           id="searchCategories" 
-                           placeholder="Rechercher une catégorie..."
-                           autocomplete="off">
-                    <button class="btn btn-outline-secondary" type="button" id="clearSearch" title="Effacer">
-                        <i class="bi bi-x-lg"></i>
-                    </button>
-                </div>
-                <div id="searchResults" class="mt-1 text-muted small text-end"></div>
+            <div class="filter-chips">
+                <button class="filter-chip active" data-filter="all">
+                    <i class="bi bi-grid me-1"></i>Toutes
+                </button>
+                <button class="filter-chip" data-filter="Culture Générale">
+                    <i class="bi bi-book me-1"></i>Culture Générale
+                </button>
+                <button class="filter-chip" data-filter="Spécialité Médicale">
+                    <i class="bi bi-heart-pulse me-1"></i>Spécialité Médicale
+                </button>
             </div>
         </div>
         
-        <div class="row g-4" id="categoriesContainer">
+        {# Results Count #}
+        <div class="results-count" id="results-count">
+            {{ categories|length }} catégorie{{ categories|length > 1 ? 's' : '' }} disponible{{ categories|length > 1 ? 's' : '' }}
+        </div>
+        
+        {# Categories Grid #}
+        <div class="row g-4" id="categories-grid">
             {% for categorie in categories %}
-                {% set progression = progressionsParCategorie[categorie.id.toRfc4122()] ?? null %}
-                
-                <div class="col-lg-6 category-item" data-category-name="{{ categorie.nom|lower }}" data-category-type="{{ categorie.type|lower }}">
-                    <div class="card category-card">
-                        <div class="category-header">
-                            {% if progression %}
-                                <div class="progress-badge">
-                                    {% if progression.estComplete %}
-                                        <span class="badge bg-success">
-                                            <i class="bi bi-check-circle me-1"></i>Complété
-                                        </span>
-                                    {% elseif progression.scoreMax > 0 %}
-                                        <span class="badge bg-warning text-dark">
-                                            <i class="bi bi-clock-history me-1"></i>En cours
-                                        </span>
-                                    {% else %}
-                                        <span class="badge bg-secondary">
-                                            <i class="bi bi-circle me-1"></i>Nouveau
-                                        </span>
-                                    {% endif %}
-                                </div>
-                            {% else %}
-                                <div class="progress-badge">
-                                    <span class="badge bg-info">
-                                        <i class="bi bi-star me-1"></i>Commencer
-                                    </span>
-                                </div>
-                            {% endif %}
-                            
-                            {% if is_granted('ROLE_MEDECIN') or is_granted('ROLE_ADMIN') %}
-                                <div class="progress-badge ms-2">
-                                    <span class="badge {{ categorie.statut.badgeClass }}">
-                                        {{ categorie.statut.label }}
-                                    </span>
-                                </div>
-                            {% endif %}
-                            
-                            <div class="category-icon" style="color: {{ random(['#175cdd', '#28a745', '#ffc107', '#dc3545', '#6f42c1', '#20c997']) }}">
-                                {% if categorie.type == 'Culture Générale' %}
-                                    <i class="bi bi-globe"></i>
-                                {% else %}
+                <div class="col-md-6 col-lg-4 category-card-wrapper" 
+                     data-category-name="{{ categorie.nom|lower }}"
+                     data-category-type="{{ categorie.type }}"
+                     data-category-description="{{ categorie.description|lower }}">
+                    <a href="{{ path('app_savoir_medical_categorie', {id: categorie.id}) }}" class="text-decoration-none">
+                        <div class="sm-category-card">
+                            <div class="sm-category-header">
+                                <div class="sm-category-icon">
                                     <i class="bi bi-heart-pulse"></i>
-                                {% endif %}
-                            </div>
-                            
-                            <h4 class="category-title">{{ categorie.nom }}</h4>
-                            <span class="category-type-badge">
-                                <i class="bi bi-tag me-1"></i>{{ categorie.type }}
-                            </span>
-                        </div>
-                        
-                        <div class="card-body p-4">
-                            <p class="category-description">{{ categorie.description }}</p>
-                            
-                            {% if progression %}
-                                <div class="stats-bar">
-                                    <div class="stat-item">
-                                        <div class="stat-value">{{ progression.scoreMax }}</div>
-                                        <div class="stat-label">Score Max</div>
-                                    </div>
-                                    <div class="stat-item">
-                                        <div class="stat-value">{{ progression.nbTentatives }}</div>
-                                        <div class="stat-label">Tentatives</div>
-                                    </div>
-                                    {% if progression.badgeNom %}
-                                        <div class="stat-item">
-                                            <div class="stat-value">🏆</div>
-                                            <div class="stat-label">{{ progression.badgeNom }}</div>
-                                        </div>
-                                    {% endif %}
                                 </div>
-                            {% endif %}
-                            
-                            <div class="category-actions">
-                                <a href="{{ path('app_savoir_medical_categorie', {id: categorie.id}) }}" class="btn btn-explore w-100">
-                                    <i class="bi bi-book me-2"></i>Explorer les cours
-                                </a>
-                                {% if is_granted('ROLE_MEDECIN') or is_granted('ROLE_ADMIN') %}
-                                    <div class="d-flex gap-2 mt-2">
-                                        <a href="{{ path('app_savoir_medical_modifier_categorie', {id: categorie.id}) }}" class="btn btn-outline-secondary btn-sm flex-fill">
-                                            <i class="bi bi-pencil me-1"></i>Modifier
-                                        </a>
-                                        <form method="post" action="{{ path('app_savoir_medical_supprimer_categorie', {id: categorie.id}) }}" 
-                                              onsubmit="return confirm('�tes-vous s�r de vouloir supprimer cette cat�gorie ? Cette action est irr�versible.')" 
-                                              class="flex-fill">
-                                            <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ categorie.id) }}">
-                                            <button type="submit" class="btn btn-outline-danger btn-sm w-100">
-                                                <i class="bi bi-trash me-1"></i>Supprimer
-                                            </button>
-                                        </form>
-                                    </div>
-                                {% endif %}
+                                <h3 class="sm-category-title text-center">{{ categorie.nom }}</h3>
+                            </div>
+                            <div class="sm-category-body">
+                                <p class="text-muted mb-3">{{ categorie.description|length > 100 ? categorie.description|slice(0, 100) ~ '...' : categorie.description }}</p>
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <span class="sm-stat-badge">
+                                        <i class="bi bi-book"></i>
+                                        {{ categorie.coursEducatifs|length }} cours
+                                    </span>
+                                    <span class="badge" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); font-size: 0.75rem;">
+                                        {{ categorie.type == 'Culture Générale' ? 'Culture' : 'Spécialité' }}
+                                    </span>
+                                </div>
                             </div>
                         </div>
-                    </div>
+                    </a>
                 </div>
             {% endfor %}
         </div>
+        
+        {# No Results Message #}
+        <div class="no-results" id="no-results">
+            <i class="bi bi-search" style="font-size: 4rem; color: #dee2e6;"></i>
+            <h4 class="mt-3 text-muted">Aucune catégorie trouvée</h4>
+            <p class="text-muted">Essayez avec d'autres mots-clés</p>
+        </div>
+    {% else %}
+        <div class="sm-empty-state">
+            <i class="bi bi-inbox sm-empty-icon"></i>
+            <h4>Aucune catégorie disponible</h4>
+            {% if is_granted('ROLE_MEDECIN') or is_granted('ROLE_ADMIN') %}
+                <p class="text-muted mt-3">Commencez par créer votre première catégorie</p>
+                <a href="{{ path('app_savoir_medical_nouvelle_categorie') }}" class="btn sm-btn-primary mt-3">
+                    <i class="bi bi-plus-circle me-2"></i>Créer une catégorie
+                </a>
+            {% endif %}
+        </div>
     {% endif %}
 </div>
-{% endblock %}
 
-{% block javascripts %}
+{% if categories is not empty %}
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    const searchInput = document.getElementById('searchCategories');
-    const clearButton = document.getElementById('clearSearch');
-    const searchResults = document.getElementById('searchResults');
-    const categoryItems = document.querySelectorAll('.category-item');
+    const searchInput = document.getElementById('category-search');
+    const filterChips = document.querySelectorAll('.filter-chip');
+    const categoryCards = document.querySelectorAll('.category-card-wrapper');
+    const noResults = document.getElementById('no-results');
+    const resultsCount = document.getElementById('results-count');
     
-    if (!searchInput) return;
+    let currentFilter = 'all';
     
-    function performSearch() {
+    function updateDisplay() {
         const searchTerm = searchInput.value.toLowerCase().trim();
         let visibleCount = 0;
         
-        categoryItems.forEach(item => {
-            const categoryName = item.getAttribute('data-category-name');
-            const categoryType = item.getAttribute('data-category-type');
+        categoryCards.forEach(card => {
+            const name = card.dataset.categoryName;
+            const type = card.dataset.categoryType;
+            const description = card.dataset.categoryDescription;
             
-            if (searchTerm === '' || 
-                categoryName.includes(searchTerm) || 
-                categoryType.includes(searchTerm)) {
-                item.style.display = '';
+            // Check search term
+            const matchesSearch = searchTerm === '' || 
+                                 name.includes(searchTerm) || 
+                                 description.includes(searchTerm);
+            
+            // Check filter
+            const matchesFilter = currentFilter === 'all' || type === currentFilter;
+            
+            if (matchesSearch && matchesFilter) {
+                card.classList.remove('hidden');
                 visibleCount++;
             } else {
-                item.style.display = 'none';
+                card.classList.add('hidden');
             }
         });
         
-        // Update results text
-        if (searchTerm === '') {
-            searchResults.textContent = '';
+        // Update results count
+        if (visibleCount === 0) {
+            noResults.classList.add('show');
+            resultsCount.style.display = 'none';
         } else {
-            searchResults.textContent = `${visibleCount} catégorie${visibleCount > 1 ? 's' : ''} trouvée${visibleCount > 1 ? 's' : ''}`;
+            noResults.classList.remove('show');
+            resultsCount.style.display = 'block';
+            resultsCount.textContent = `${visibleCount} catégorie${visibleCount > 1 ? 's' : ''} trouvée${visibleCount > 1 ? 's' : ''}`;
         }
     }
     
-    // Search on input
-    searchInput.addEventListener('input', performSearch);
+    // Search input handler
+    searchInput.addEventListener('input', updateDisplay);
     
-    // Clear search
-    clearButton.addEventListener('click', function() {
-        searchInput.value = '';
-        performSearch();
-        searchInput.focus();
+    // Filter chips handler
+    filterChips.forEach(chip => {
+        chip.addEventListener('click', function() {
+            // Update active state
+            filterChips.forEach(c => c.classList.remove('active'));
+            this.classList.add('active');
+            
+            // Update current filter
+            currentFilter = this.dataset.filter;
+            
+            // Update display
+            updateDisplay();
+        });
     });
     
-    // Search on Enter key
-    searchInput.addEventListener('keypress', function(e) {
-        if (e.key === 'Enter') {
-            e.preventDefault();
-            performSearch();
+    // Clear search on ESC
+    searchInput.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+            searchInput.value = '';
+            updateDisplay();
         }
     });
 });
 </script>
+{% endif %}
 {% endblock %}

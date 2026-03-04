@@ -319,7 +319,7 @@
                             <div class="d-flex justify-content-between align-items-start mb-2">
                                 <div class="question-text">
                                     <i class="bi bi-question-circle-fill me-2"></i>
-                                    {{ question.enonce }}
+                                    <span id="translation-content-question-{{ question.id }}">{{ question.enonce }}</span>
                                     {% if nbTentatives > 1 %}
                                         <span class="badge bg-info ms-2">{{ nbTentatives }} tentatives</span>
                                     {% endif %}
@@ -328,6 +328,30 @@
                                     <i class="bi bi-star-fill"></i>
                                     {{ reponse.pointsObtenus }} pts
                                 </span>
+                            </div>
+                            
+                            <div class="translation-widget" data-widget-id="question-{{ question.id }}-response">
+                                <div class="d-flex justify-content-end mb-2">
+                                    <select class="form-select form-select-sm" style="width: auto;" id="translation-language-select-{{ question.id }}-response">
+                                        <option value="" disabled selected>Traduire / Translate /Traducir</option>
+                                    </select>
+                                    <button class="btn btn-sm btn-primary ms-2" id="translate-btn-{{ question.id }}-response">
+                                        <i class="bi bi-translate me-1"></i>Traduire
+                                    </button>
+                                </div>
+                                
+                                <div class="alert alert-info" id="translation-alert-{{ question.id }}-response" style="display: none;">
+                                    <i class="bi bi-info-circle me-2"></i>
+                                    <span id="translation-message-{{ question.id }}-response"></span>
+                                </div>
+                                
+                                <div class="mt-2" id="translated-content-{{ question.id }}-response" style="display: none;">
+                                    <hr>
+                                    <h6 class="fw-bold">
+                                        <i class="bi bi-translate me-1"></i>Traduction:
+                                    </h6>
+                                    <div id="translation-result-{{ question.id }}-response"></div>
+                                </div>
                             </div>
                             
                             {# Show all attempts, most recent first #}
@@ -394,4 +418,97 @@
         {% endfor %}
     {% endif %}
 </div>
+
+<script>
+// Translation widget functionality for quiz_reponses_patients
+document.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('.translation-widget').forEach(function(widget) {
+        const widgetId = widget.dataset.widgetId;
+        const languageSelect = document.getElementById('translation-language-select-' + widgetId);
+        const translateBtn = document.getElementById('translate-btn-' + widgetId);
+        const translatedContent = document.getElementById('translated-content-' + widgetId);
+        const translationResult = document.getElementById('translation-result-' + widgetId);
+        const translationAlert = document.getElementById('translation-alert-' + widgetId);
+        const translationMessage = document.getElementById('translation-message-' + widgetId);
+        const originalContent = document.getElementById('translation-content-' + widgetId.replace('-response', ''));
+
+        if (!languageSelect || !originalContent) return;
+
+        // Load supported languages
+        fetch('{{ path("app_translation_languages") }}')
+            .then(r => r.json())
+            .then(data => {
+                languageSelect.innerHTML = '<option value="" disabled selected>Traduire / Translate /Traducir</option>';
+                Object.entries(data.languages).forEach(([code, name]) => {
+                    const option = document.createElement('option');
+                    option.value = code;
+                    option.textContent = name;
+                    languageSelect.appendChild(option);
+                });
+            })
+            .catch(err => console.error('Failed to load languages:', err));
+
+        translateBtn.addEventListener('click', async function() {
+            const targetLanguage = languageSelect.value;
+            if (!targetLanguage) {
+                translationMessage.textContent = 'Veuillez sélectionner une langue cible';
+                translationAlert.className = 'alert alert-warning';
+                translationAlert.style.display = 'block';
+                return;
+            }
+
+            const textToTranslate = originalContent.innerText || originalContent.textContent;
+
+            if (!textToTranslate.trim()) {
+                translationMessage.textContent = 'Le contenu est vide';
+                translationAlert.className = 'alert alert-warning';
+                translationAlert.style.display = 'block';
+                return;
+            }
+
+            translateBtn.disabled = true;
+            translateBtn.innerHTML = '<i class="bi bi-hourglass-split me-1"></i>Traduction en cours...';
+
+            try {
+                const response = await fetch('{{ path("app_translation_translate") }}', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        text: textToTranslate,
+                        targetLanguage: targetLanguage,
+                        sourceLanguage: 'auto'
+                    })
+                });
+
+                const result = await response.json();
+
+                if (response.ok && result.translated) {
+                    translationResult.innerHTML = result.translated;
+                    translatedContent.style.display = 'block';
+                    translationMessage.textContent = 'Traduction réussie!';
+                    translationAlert.className = 'alert alert-success';
+                    translationAlert.style.display = 'block';
+                } else {
+                    translationMessage.textContent = 'Échec de la traduction: ' + (result.error || 'Erreur inconnue');
+                    translationAlert.className = 'alert alert-danger';
+                    translationAlert.style.display = 'block';
+                }
+            } catch (error) {
+                translationMessage.textContent = 'Erreur de connexion: ' + error.message;
+                translationAlert.className = 'alert alert-danger';
+                translationAlert.style.display = 'block';
+            } finally {
+                translateBtn.disabled = false;
+                translateBtn.innerHTML = '<i class="bi bi-translate me-1"></i>Traduire';
+            }
+
+            setTimeout(() => {
+                translationAlert.style.display = 'none';
+            }, 5000);
+        });
+    });
+});
+</script>
 {% endblock %}

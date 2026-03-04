@@ -3,59 +3,99 @@
 {% block title %}{{ categorie.nom }} - MediConnect{% endblock %}
 
 {% block stylesheets %}
-    <link href="{{ asset('assets/vendor/bootstrap/css/bootstrap.min.css') }}" rel="stylesheet">
+    {% include 'savoir_medical/_modern_styles.html.twig' %}
     <style>
-        .category-header {
-            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-            color: #333;
-            padding: 2.5rem 0;
+        .search-courses-section {
+            background: white;
+            border-radius: 15px;
+            padding: 1.5rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.08);
             margin-bottom: 2rem;
-            border-bottom: 3px solid #175cdd;
         }
         
-        .category-header h1 {
-            color: #175cdd;
-            font-weight: 700;
+        .search-courses-box {
+            position: relative;
         }
         
+        .search-courses-icon {
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #667eea;
+            font-size: 1.1rem;
+        }
+        
+        .search-courses-input {
+            width: 100%;
+            padding: 0.875rem 1rem 0.875rem 3rem;
+            border: 2px solid #e9ecef;
+            border-radius: 50px;
+            font-size: 0.95rem;
+            transition: all 0.3s ease;
+        }
+        
+        .search-courses-input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+        
+        .course-card-wrapper {
+            transition: all 0.3s ease;
+        }
+        
+        .course-card-wrapper.hidden {
+            display: none;
+        }
+        
+        .no-courses-found {
+            text-align: center;
+            padding: 3rem;
+            background: #f8f9fa;
+            border-radius: 15px;
+            display: none;
+        }
+        
+        .no-courses-found.show {
+            display: block;
+        }
+        
+        .category-type-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1.25rem;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 50px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            margin-top: 0.5rem;
+        }
+        
+        /* Course Cards Styling */
         .cours-card {
             border: none;
-            border-radius: 18px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            border-radius: 16px;
+            box-shadow: 0 3px 12px rgba(0,0,0,0.08);
             transition: all 0.3s ease;
             height: 100%;
             overflow: hidden;
-            position: relative;
             background: white;
         }
         
-        .cours-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 4px;
-            background: linear-gradient(90deg, #175cdd 0%, #4a90e2 100%);
-            transform: scaleX(0);
-            transition: transform 0.3s ease;
-        }
-        
         .cours-card:hover {
-            transform: translateY(-8px);
-            box-shadow: 0 12px 35px rgba(0,0,0,0.15);
-        }
-        
-        .cours-card:hover::before {
-            transform: scaleX(1);
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.12);
         }
         
         .cours-card .card-body {
-            padding: 1.75rem;
+            padding: 1.5rem;
         }
         
         .cours-title {
-            font-size: 1.25rem;
+            font-size: 1.15rem;
             font-weight: 700;
             color: #2c3e50;
             margin-bottom: 1rem;
@@ -83,7 +123,7 @@
             gap: 1rem;
             margin-bottom: 1.25rem;
             padding: 1rem;
-            background: #f8f9fa;
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
             border-radius: 10px;
         }
         
@@ -93,10 +133,11 @@
             gap: 0.5rem;
             font-size: 0.85rem;
             color: #495057;
+            font-weight: 500;
         }
         
         .meta-item i {
-            color: #175cdd;
+            color: #667eea;
             font-size: 1rem;
         }
         
@@ -107,12 +148,16 @@
         }
         
         .btn-action {
-            padding: 0.5rem 1rem;
-            border-radius: 8px;
-            font-weight: 500;
-            font-size: 0.875rem;
+            padding: 0.625rem 1rem;
+            border-radius: 10px;
+            font-weight: 600;
+            font-size: 0.85rem;
             transition: all 0.3s ease;
-            border: none;
+            border: 2px solid transparent;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
         }
         
         .btn-action:hover {
@@ -120,30 +165,135 @@
             box-shadow: 0 4px 12px rgba(0,0,0,0.15);
         }
         
-        .progression-summary {
+        .btn-action.btn-outline-info {
+            border-color: #17a2b8;
+            color: #17a2b8;
             background: white;
-            border-radius: 18px;
+        }
+        
+        .btn-action.btn-outline-info:hover {
+            background: #17a2b8;
+            color: white;
+        }
+        
+        .btn-action.btn-success {
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+            border: none;
+            color: white;
+        }
+        
+        .btn-action.btn-success:hover {
+            background: linear-gradient(135deg, #0f8a7f 0%, #32d96d 100%);
+        }
+        
+        .btn-action.btn-outline-secondary {
+            border-color: #6c757d;
+            color: #6c757d;
+            background: white;
+        }
+        
+        .btn-action.btn-outline-secondary:hover {
+            background: #6c757d;
+            color: white;
+        }
+        
+        .btn-action.btn-outline-danger {
+            border-color: #dc3545;
+            color: #dc3545;
+            background: white;
+        }
+        
+        .btn-action.btn-outline-danger:hover {
+            background: #dc3545;
+            color: white;
+        }
+        
+        .btn-action.btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            color: white;
+        }
+        
+        .btn-action.btn-primary:hover {
+            background: linear-gradient(135deg, #5568d3 0%, #6a3f8f 100%);
+        }
+        
+        .btn-action i {
+            font-size: 1rem;
+        }
+        
+        .info-card {
+            background: white;
+            border-radius: 15px;
             padding: 2rem;
             box-shadow: 0 4px 20px rgba(0,0,0,0.08);
             position: sticky;
             top: 120px;
-            border: 2px solid #f0f0f0;
+        }
+        
+        .info-item {
+            margin-bottom: 1.5rem;
+        }
+        
+        .info-label {
+            font-size: 0.85rem;
+            color: #6c757d;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 0.5rem;
+        }
+        
+        .info-value {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #2d3748;
+        }
+        
+        .category-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 3rem 0;
+            margin-bottom: 2rem;
+            border-radius: 0 0 20px 20px;
+        }
+        
+        .category-header h1 {
+            color: white;
+            font-weight: 700;
+        }
+        
+        .category-header .lead {
+            color: rgba(255, 255, 255, 0.9);
+        }
+        
+        .category-badge {
+            display: inline-block;
+            padding: 0.5rem 1.25rem;
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            margin-top: 0.5rem;
+            backdrop-filter: blur(10px);
+        }
+        
+        .header-actions .btn {
+            border-radius: 10px;
+            font-weight: 600;
         }
         
         .section-title {
             font-size: 1.5rem;
             font-weight: 700;
             color: #2c3e50;
-            margin-bottom: 1.5rem;
-            padding-bottom: 1rem;
-            border-bottom: 2px solid #e9ecef;
             display: flex;
             align-items: center;
             gap: 0.75rem;
         }
         
         .section-title i {
-            color: #175cdd;
+            color: #667eea;
             font-size: 1.75rem;
         }
         
@@ -166,28 +316,11 @@
             align-items: center;
             gap: 0.5rem;
             padding: 0.5rem 1rem;
-            background: #e7f1ff;
+            background: linear-gradient(135deg, #e7f1ff 0%, #d4e7ff 100%);
             border-radius: 20px;
-            color: #175cdd;
+            color: #667eea;
             font-weight: 600;
             font-size: 0.9rem;
-        }
-        
-        .header-actions {
-            display: flex;
-            gap: 0.75rem;
-            flex-wrap: wrap;
-        }
-        
-        .category-badge {
-            display: inline-block;
-            padding: 0.5rem 1.25rem;
-            background: #175cdd;
-            color: white;
-            border-radius: 20px;
-            font-weight: 600;
-            font-size: 0.9rem;
-            margin-top: 0.5rem;
         }
     </style>
 {% endblock %}
@@ -254,14 +387,28 @@
                     {% endif %}
                 </div>
             {% else %}
-                <div class="stats-badge mb-4">
+                {# Search Bar for Courses #}
+                <div class="search-courses-section">
+                    <div class="search-courses-box">
+                        <i class="bi bi-search search-courses-icon"></i>
+                        <input type="text" 
+                               class="search-courses-input" 
+                               id="course-search" 
+                               placeholder="Rechercher un cours par titre..."
+                               aria-label="Rechercher un cours">
+                    </div>
+                </div>
+                
+                <div class="stats-badge mb-4" id="courses-count">
                     <i class="bi bi-list-check"></i>
                     <span>{{ cours|length }} cours disponible{{ cours|length > 1 ? 's' : '' }}</span>
                 </div>
                 
-                <div class="row g-4">
+                <div class="row g-4" id="courses-grid">
                     {% for coursItem in cours %}
-                        <div class="col-md-6">
+                        <div class="col-md-6 course-card-wrapper" 
+                             data-course-title="{{ coursItem.titre|lower }}"
+                             data-course-content="{{ coursItem.contenu|lower|slice(0, 200) }}">
                             <div class="card cours-card">
                                 <div class="card-body">
                                     <h5 class="cours-title">{{ coursItem.titre }}</h5>
@@ -322,6 +469,61 @@
                         </div>
                     {% endfor %}
                 </div>
+                
+                {# No Results Message #}
+                <div class="no-courses-found" id="no-courses-found">
+                    <i class="bi bi-search" style="font-size: 3rem; color: #dee2e6;"></i>
+                    <h4 class="mt-3 text-muted">Aucun cours trouvé</h4>
+                    <p class="text-muted">Essayez avec d'autres mots-clés</p>
+                </div>
+                
+                <script>
+                document.addEventListener('DOMContentLoaded', function() {
+                    const searchInput = document.getElementById('course-search');
+                    const courseCards = document.querySelectorAll('.course-card-wrapper');
+                    const noResults = document.getElementById('no-courses-found');
+                    const coursesCount = document.getElementById('courses-count');
+                    const totalCourses = {{ cours|length }};
+                    
+                    if (searchInput) {
+                        searchInput.addEventListener('input', function() {
+                            const searchTerm = this.value.toLowerCase().trim();
+                            let visibleCount = 0;
+                            
+                            courseCards.forEach(card => {
+                                const title = card.dataset.courseTitle;
+                                const content = card.dataset.courseContent;
+                                
+                                if (searchTerm === '' || title.includes(searchTerm) || content.includes(searchTerm)) {
+                                    card.classList.remove('hidden');
+                                    visibleCount++;
+                                } else {
+                                    card.classList.add('hidden');
+                                }
+                            });
+                            
+                            // Update count and show/hide no results
+                            if (visibleCount === 0) {
+                                noResults.classList.add('show');
+                                coursesCount.style.display = 'none';
+                            } else {
+                                noResults.classList.remove('show');
+                                coursesCount.style.display = 'block';
+                                coursesCount.querySelector('span').textContent = 
+                                    `${visibleCount} cours trouvé${visibleCount > 1 ? 's' : ''}`;
+                            }
+                        });
+                        
+                        // Clear search on ESC
+                        searchInput.addEventListener('keydown', function(e) {
+                            if (e.key === 'Escape') {
+                                this.value = '';
+                                this.dispatchEvent(new Event('input'));
+                            }
+                        });
+                    }
+                });
+                </script>
             {% endif %}
         </div>
         

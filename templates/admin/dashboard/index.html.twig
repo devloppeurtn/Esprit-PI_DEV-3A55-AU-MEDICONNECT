@@ -6,7 +6,7 @@
 <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-3 mb-4">
     <div>
         <h1 class="h3 mb-1">Tableau de bord</h1>
-        <p class="text-muted mb-0">Bienvenue, {{ app.user.nomComplet }} ??? <small class="text-muted"><i class="bi bi-broadcast"></i> Mise à jour instantanée (push temps réel)</small></p>
+        <p class="text-muted mb-0">Bienvenue, {{ app.user.nomComplet }} ??? <small class="text-muted"><i class="bi bi-broadcast"></i> Mise ï¿½ jour instantanï¿½e (push temps rï¿½el)</small></p>
     </div>
 </div>
 
@@ -55,7 +55,7 @@
                         </div>
                     </div>
                     <div class="flex-grow-1 ms-3">
-                        <h6 class="mb-0 text-muted">Médecins</h6>
+                        <h6 class="mb-0 text-muted">Mï¿½decins</h6>
                         <h3 class="mb-0" data-stat="countMedecins">{{ countMedecins|default(0) }}</h3>
                     </div>
                 </div>
@@ -72,7 +72,7 @@
                         </div>
                     </div>
                     <div class="flex-grow-1 ms-3">
-                        <h6 class="mb-0 text-muted">Secrétaires</h6>
+                        <h6 class="mb-0 text-muted">Secrï¿½taires</h6>
                         <h3 class="mb-0" data-stat="countSecretaires">{{ countSecretaires|default(0) }}</h3>
                     </div>
                 </div>
@@ -152,6 +152,92 @@
     </div>
 </div>
 
+{# Pending Categories Alert for Admin #}
+<div class="row g-4 mb-4">
+    <div class="col-12">
+        <div class="card border-0 shadow-sm" style="border-left: 4px solid #ffc107 !important;">
+            <div class="card-body p-4">
+                <div class="d-flex align-items-center justify-content-between flex-wrap gap-3">
+                    <div class="d-flex align-items-center gap-3">
+                        <div class="bg-warning bg-opacity-10 rounded-circle p-3">
+                            <i class="bi bi-clock-history text-warning" style="font-size: 2.5rem;"></i>
+                        </div>
+                        <div>
+                            <h4 class="mb-1 fw-bold">
+                                <i class="bi bi-folder-check me-2"></i>
+                                CatÃ©gories en attente d'approbation
+                            </h4>
+                            <p class="mb-0 text-muted">
+                                <i class="bi bi-info-circle me-1"></i>
+                                Des mÃ©decins ont soumis des catÃ©gories de santÃ© qui nÃ©cessitent votre validation
+                            </p>
+                        </div>
+                    </div>
+                    <div class="d-flex gap-2">
+                        <a href="{{ path('app_admin_categories_en_attente') }}" class="btn btn-warning btn-lg">
+                            <i class="bi bi-eye me-2"></i>Voir les catÃ©gories
+                        </a>
+                        <a href="{{ path('app_savoir_medical_index') }}" class="btn btn-outline-secondary btn-lg">
+                            <i class="bi bi-book me-2"></i>Savoir MÃ©dical
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{# Notifications Section for Admin #}
+{% set notifications = app.user ? notification_service.getNotifications(app.user, 5) : [] %}
+{% if notifications|length > 0 %}
+<div class="row g-4 mb-4">
+    <div class="col-12">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-white border-bottom d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">
+                    <i class="bi bi-bell me-2"></i>Notifications rÃ©centes
+                </h5>
+                <a href="{{ path('app_notifications_index') }}" class="btn btn-sm btn-outline-primary">
+                    Voir tout
+                </a>
+            </div>
+            <div class="card-body p-0">
+                <div class="list-group list-group-flush">
+                    {% for notification in notifications %}
+                        <a href="{{ notification.lien ?: path('app_notifications_index') }}" class="list-group-item list-group-item-action {{ notification.lu ? '' : 'bg-light' }}">
+                            <div class="d-flex w-100 justify-content-between align-items-start">
+                                <div class="flex-grow-1">
+                                    <div class="d-flex align-items-center mb-1">
+                                        {% if notification.type == 'NOUVELLE_CATEGORIE' %}
+                                            <i class="bi bi-star text-warning me-2"></i>
+                                        {% elseif notification.type == 'CATEGORIE_APPROUVEE' %}
+                                            <i class="bi bi-check-circle text-success me-2"></i>
+                                        {% elseif notification.type == 'CATEGORIE_REJETEE' %}
+                                            <i class="bi bi-x-circle text-danger me-2"></i>
+                                        {% else %}
+                                            <i class="bi bi-bell text-primary me-2"></i>
+                                        {% endif %}
+                                        <strong>{{ notification.titre }}</strong>
+                                        {% if not notification.lu %}
+                                            <span class="badge bg-primary ms-2">Nouveau</span>
+                                        {% endif %}
+                                    </div>
+                                    <p class="mb-1 text-muted small">{{ notification.message }}</p>
+                                    <small class="text-muted">
+                                        <i class="bi bi-clock"></i>
+                                        {{ notification.dateCreation|date('d/m/Y Ã  H:i') }}
+                                    </small>
+                                </div>
+                            </div>
+                        </a>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
 <div class="row g-4 mb-4">
     <div class="col-lg-8">
         <div class="card border-0 shadow-sm">
@@ -174,7 +260,7 @@
     <div class="col-lg-4">
         <div class="card border-0 shadow-sm">
             <div class="card-header bg-white border-bottom">
-                <h5 class="card-title mb-0">Activité récente</h5>
+                <h5 class="card-title mb-0">Activitï¿½ rï¿½cente</h5>
             </div>
             <div class="card-body">
                 <div class="activity-feed">
@@ -182,14 +268,14 @@
                         <div class="flex-shrink-0 rounded-circle bg-primary bg-opacity-10 text-primary p-2"><i class="bi bi-person-plus"></i></div>
                         <div>
                             <p class="mb-0 small">Nouveaux utilisateurs</p>
-                            <small class="text-muted">Inscriptions en temps réel</small>
+                            <small class="text-muted">Inscriptions en temps rï¿½el</small>
                         </div>
                     </div>
                     <div class="activity-item d-flex align-items-start gap-3 mb-3">
                         <div class="flex-shrink-0 rounded-circle bg-success bg-opacity-10 text-success p-2"><i class="bi bi-graph-up"></i></div>
                         <div>
                             <p class="mb-0 small">Statistiques</p>
-                            <small class="text-muted">Rafraîchies toutes les 15 s</small>
+                            <small class="text-muted">Rafraï¿½chies toutes les 15 s</small>
                         </div>
                     </div>
                     <div class="activity-item d-flex align-items-start gap-3">
@@ -225,7 +311,7 @@
     <div class="col-lg-6">
         <div class="card border-0 shadow-sm">
             <div class="card-header bg-white border-bottom">
-                <h5 class="card-title mb-0">Répartition des utilisateurs</h5>
+                <h5 class="card-title mb-0">Rï¿½partition des utilisateurs</h5>
             </div>
             <div class="card-body">
                 <div style="height: 220px;">
@@ -246,7 +332,7 @@
                 <div class="row g-3">
                     <div class="col-md-6">
                         <a href="{{ path('app_admin_users') }}" class="btn btn-outline-primary w-100 py-3">
-                            <i class="bi bi-people me-2"></i>Gérer les utilisateurs
+                            <i class="bi bi-people me-2"></i>Gï¿½rer les utilisateurs
                         </a>
                     </div>                    <div class="col-md-6">
                         <a href="{{ path('admin_products') }}" class="btn btn-outline-primary w-100 py-3">
@@ -275,12 +361,12 @@
     <div class="col-lg-4">
         <div class="card border-0 shadow-sm">
             <div class="card-header bg-white border-bottom">
-                <h5 class="card-title mb-0">Dossier médical & consultations</h5>
+                <h5 class="card-title mb-0">Dossier mï¿½dical & consultations</h5>
             </div>
             <div class="card-body">
                 <div class="mb-2">
                     <div class="d-flex justify-content-between align-items-center">
-                        <span class="text-muted small">Dossiers médicaux</span>
+                        <span class="text-muted small">Dossiers mï¿½dicaux</span>
                         <span class="fw-semibold" data-stat="countDossiers">0</span>
                     </div>
                 </div>
@@ -298,13 +384,13 @@
                 </div>
                 <div class="mb-2">
                     <div class="d-flex justify-content-between align-items-center">
-                        <span class="text-muted small">Médicaments actuels</span>
+                        <span class="text-muted small">Mï¿½dicaments actuels</span>
                         <span class="fw-semibold" data-stat="countMedicamentsActuels">0</span>
                     </div>
                 </div>
                 <div class="mb-2">
                     <div class="d-flex justify-content-between align-items-center">
-                        <span class="text-muted small">Rapports médicaux</span>
+                        <span class="text-muted small">Rapports mï¿½dicaux</span>
                         <span class="fw-semibold" data-stat="countRapportsMedicaux">0</span>
                     </div>
                 </div>
@@ -347,15 +433,15 @@
                         <div class="fw-semibold" data-stat="countRdvEnAttente">0</div>
                     </div>
                     <div class="col-6 col-md-3">
-                        <span class="badge bg-primary mb-1">Confirmés</span>
+                        <span class="badge bg-primary mb-1">Confirmï¿½s</span>
                         <div class="fw-semibold" data-stat="countRdvConfirmes">0</div>
                     </div>
                     <div class="col-6 col-md-3">
-                        <span class="badge bg-danger mb-1">Annulés</span>
+                        <span class="badge bg-danger mb-1">Annulï¿½s</span>
                         <div class="fw-semibold" data-stat="countRdvAnnules">0</div>
                     </div>
                     <div class="col-6 col-md-3">
-                        <span class="badge bg-success mb-1">Terminés</span>
+                        <span class="badge bg-success mb-1">Terminï¿½s</span>
                         <div class="fw-semibold" data-stat="countRdvTermines">0</div>
                     </div>
                 </div>
@@ -373,7 +459,7 @@
 document.addEventListener('DOMContentLoaded', function() {
     const STATS_URL = '{{ path('app_admin_stats') }}';
     const CHARTS_BASE_URL = '{{ path('app_admin_charts') }}';
-    const REFRESH_INTERVAL = 60000; // Fallback 60s si Mercure déconnecté
+    const REFRESH_INTERVAL = 60000; // Fallback 60s si Mercure dï¿½connectï¿½
     const MERCURE_URL = (() => { try { return JSON.parse(document.getElementById('mercure-dashboard-url')?.textContent || '""'); } catch(e) { return null; } })();
 
     let userGrowthChart = null;
@@ -458,7 +544,7 @@ document.addEventListener('DOMContentLoaded', function() {
                                     fill: true
                                 },
                                 {
-                                    label: 'Médecins',
+                                    label: 'Mï¿½decins',
                                     data: data.overview.medecins,
                                     borderColor: 'rgb(34, 197, 94)',
                                     backgroundColor: 'rgba(34, 197, 94, 0.1)',
@@ -483,7 +569,7 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         }
 
-        // Graphique donut - Répartition
+        // Graphique donut - Rï¿½partition
         if (userDistributionChart) {
             userDistributionChart.data.datasets[0].data = data.distribution.data;
             userDistributionChart.update('none');
@@ -550,7 +636,7 @@ document.addEventListener('DOMContentLoaded', function() {
         fetchAndUpdateCharts();
     }
 
-    // Abonnement Mercure : mise à jour instantanée dès qu'un utilisateur change
+    // Abonnement Mercure : mise ï¿½ jour instantanï¿½e dï¿½s qu'un utilisateur change
     let mercureEventSource = null;
     if (MERCURE_URL) {
         try {
@@ -564,7 +650,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 } catch (e) {}
             };
             mercureEventSource.onerror = function() {
-                // Reconnexion automatique gérée par EventSource
+                // Reconnexion automatique gï¿½rï¿½e par EventSource
             };
         } catch (e) {}
     }

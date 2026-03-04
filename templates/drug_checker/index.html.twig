@@ -1,0 +1,262 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Drug Interaction Checker - MediConnect{% endblock %}
+
+{% block body %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card shadow-lg">
+                <div class="card-header bg-primary text-white">
+                    <h2 class="mb-0">
+                        <i class="bi bi-capsule"></i> Drug Interaction Checker
+                    </h2>
+                    <small>Vérificateur d'Interactions Médicamenteuses</small>
+                </div>
+
+                <div class="card-body p-4">
+                    <p class="text-muted mb-4">
+                        Check for potential interactions between two medications. This tool helps identify if medications may interact negatively.
+                    </p>
+
+                    <form id="drugForm">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="drug1" class="form-label">First Medication</label>
+                                <input type="text" class="form-control form-control-lg" id="drug1" placeholder="e.g., Aspirin" autocomplete="off">
+                                <div id="drug1Suggestions" class="list-group mt-2" style="display: none;"></div>
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label for="drug2" class="form-label">Second Medication</label>
+                                <input type="text" class="form-control form-control-lg" id="drug2" placeholder="e.g., Ibuprofen" autocomplete="off">
+                                <div id="drug2Suggestions" class="list-group mt-2" style="display: none;"></div>
+                            </div>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary btn-lg w-100">
+                            <i class="bi bi-search"></i> Check Interaction
+                        </button>
+                    </form>
+
+                    <div id="loading" class="mt-4" style="display: none;">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                        <p class="mt-2">Checking for interactions...</p>
+                    </div>
+
+                    <div id="result" class="mt-4" style="display: none;">
+                        <div id="resultContent"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card mt-4">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0"><i class="bi bi-info-circle"></i> About This Tool</h5>
+                </div>
+                <div class="card-body">
+                    <p><strong>Data Source:</strong> OpenFDA (U.S. Food and Drug Administration)</p>
+                    <p><strong>Disclaimer:</strong> This tool is for educational purposes only. Always consult with a healthcare professional or pharmacist before taking any medications. This is not a substitute for professional medical advice.</p>
+                    <p><strong>Severity Levels:</strong></p>
+                    <ul>
+                        <li><span class="badge bg-danger">Severe</span> - Contraindicated or severe interaction</li>
+                        <li><span class="badge bg-warning">Moderate</span> - Significant interaction</li>
+                        <li><span class="badge bg-info">Minor</span> - Minor interaction</li>
+                        <li><span class="badge bg-secondary">None</span> - No known interactions</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.list-group-item {
+    cursor: pointer;
+    padding: 8px 12px;
+    font-size: 0.9rem;
+}
+
+.list-group-item:hover {
+    background-color: #f8f9fa;
+}
+
+.severity-badge {
+    font-size: 1.1rem;
+    padding: 8px 12px;
+}
+
+.interaction-card {
+    border-left: 4px solid;
+}
+
+.interaction-card.severe {
+    border-left-color: #dc3545;
+    background-color: #fff5f5;
+}
+
+.interaction-card.moderate {
+    border-left-color: #ffc107;
+    background-color: #fffbf0;
+}
+
+.interaction-card.minor {
+    border-left-color: #17a2b8;
+    background-color: #f0f8fb;
+}
+
+.interaction-card.none {
+    border-left-color: #28a745;
+    background-color: #f0fdf4;
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const drug1Input = document.getElementById('drug1');
+    const drug2Input = document.getElementById('drug2');
+    const form = document.getElementById('drugForm');
+    const loading = document.getElementById('loading');
+    const result = document.getElementById('result');
+
+    // Drug search with autocomplete
+    function setupAutocomplete(input, suggestionsDiv) {
+        input.addEventListener('input', function() {
+            const query = this.value.trim();
+            
+            if (query.length < 2) {
+                suggestionsDiv.style.display = 'none';
+                return;
+            }
+
+            fetch(`{{ path('app_drug_checker_search') }}?q=${encodeURIComponent(query)}`)
+                .then(r => r.json())
+                .then(data => {
+                    if (data.drugs.length === 0) {
+                        suggestionsDiv.style.display = 'none';
+                        return;
+                    }
+
+                    suggestionsDiv.innerHTML = data.drugs.map(drug => `
+                        <button type="button" class="list-group-item list-group-item-action">
+                            ${drug}
+                        </button>
+                    `).join('');
+
+                    suggestionsDiv.style.display = 'block';
+
+                    suggestionsDiv.querySelectorAll('button').forEach(btn => {
+                        btn.addEventListener('click', function(e) {
+                            e.preventDefault();
+                            input.value = this.textContent;
+                            suggestionsDiv.style.display = 'none';
+                        });
+                    });
+                });
+        });
+
+        input.addEventListener('blur', function() {
+            setTimeout(() => suggestionsDiv.style.display = 'none', 200);
+        });
+    }
+
+    setupAutocomplete(drug1Input, document.getElementById('drug1Suggestions'));
+    setupAutocomplete(drug2Input, document.getElementById('drug2Suggestions'));
+
+    // Form submission
+    form.addEventListener('submit', function(e) {
+        e.preventDefault();
+
+        const drug1 = drug1Input.value.trim();
+        const drug2 = drug2Input.value.trim();
+
+        if (!drug1 || !drug2) {
+            alert('Please enter both medications');
+            return;
+        }
+
+        loading.style.display = 'block';
+        result.style.display = 'none';
+
+        fetch('{{ path('app_drug_checker_check') }}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ drug1, drug2 })
+        })
+        .then(r => r.json())
+        .then(data => {
+            loading.style.display = 'none';
+            displayResult(data);
+        })
+        .catch(error => {
+            loading.style.display = 'none';
+            result.innerHTML = `
+                <div class="alert alert-danger">
+                    <i class="bi bi-exclamation-triangle"></i> Error checking interactions: ${error.message}
+                </div>
+            `;
+            result.style.display = 'block';
+        });
+    });
+
+    function displayResult(data) {
+        let html = '';
+
+        if (data.interaction) {
+            const severityClass = data.severity || 'unknown';
+            const severityLabel = {
+                'severe': 'SEVERE',
+                'moderate': 'MODERATE',
+                'minor': 'MINOR',
+                'unknown': 'UNKNOWN'
+            }[severityClass] || 'UNKNOWN';
+
+            html = `
+                <div class="card interaction-card ${severityClass}">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-start mb-3">
+                            <h5 class="card-title mb-0">
+                                <i class="bi bi-exclamation-circle"></i> Interaction Detected
+                            </h5>
+                            <span class="badge severity-badge bg-${severityClass === 'severe' ? 'danger' : severityClass === 'moderate' ? 'warning' : 'info'}">
+                                ${severityLabel}
+                            </span>
+                        </div>
+                        <p class="mb-2"><strong>${data.drug1}</strong> + <strong>${data.drug2}</strong></p>
+                        <p class="card-text">${data.description || data.message}</p>
+                        <div class="alert alert-warning mt-3 mb-0">
+                            <i class="bi bi-info-circle"></i> <strong>Important:</strong> Consult a healthcare professional or pharmacist before taking these medications together.
+                        </div>
+                    </div>
+                </div>
+            `;
+        } else {
+            html = `
+                <div class="card interaction-card none">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-start mb-3">
+                            <h5 class="card-title mb-0">
+                                <i class="bi bi-check-circle"></i> No Interaction Found
+                            </h5>
+                            <span class="badge bg-success">SAFE</span>
+                        </div>
+                        <p class="mb-2"><strong>${data.drug1}</strong> + <strong>${data.drug2}</strong></p>
+                        <p class="card-text">${data.message}</p>
+                        <div class="alert alert-info mt-3 mb-0">
+                            <i class="bi bi-info-circle"></i> No known interactions between these medications. However, always follow your doctor's or pharmacist's advice.
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        document.getElementById('resultContent').innerHTML = html;
+        result.style.display = 'block';
+    }
+});
+</script>
+{% endblock %}

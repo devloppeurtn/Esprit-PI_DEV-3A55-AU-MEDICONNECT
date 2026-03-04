@@ -124,5 +124,62 @@
 
             restoreDesktopCollapsed();
         })();
+
+        // Sidebar Search Functionality
+        (function () {
+            const searchInput = document.getElementById('sidebar-search');
+            if (!searchInput) return;
+
+            const navItems = document.querySelectorAll('.sidebar-nav .nav-item');
+            const sections = document.querySelectorAll('.sidebar-section');
+
+            searchInput.addEventListener('input', function(e) {
+                const searchTerm = e.target.value.toLowerCase().trim();
+
+                if (searchTerm === '') {
+                    // Show all items and sections
+                    navItems.forEach(item => {
+                        item.style.display = '';
+                    });
+                    sections.forEach(section => {
+                        section.style.display = '';
+                    });
+                    return;
+                }
+
+                // Filter nav items
+                let visibleItemsPerSection = new Map();
+                
+                navItems.forEach(item => {
+                    const link = item.querySelector('.nav-link');
+                    const text = link ? link.textContent.toLowerCase() : '';
+                    const section = item.closest('.sidebar-section');
+                    
+                    if (text.includes(searchTerm)) {
+                        item.style.display = '';
+                        if (section) {
+                            visibleItemsPerSection.set(section, (visibleItemsPerSection.get(section) || 0) + 1);
+                        }
+                    } else {
+                        item.style.display = 'none';
+                    }
+                });
+
+                // Show/hide sections based on visible items
+                sections.forEach(section => {
+                    const visibleCount = visibleItemsPerSection.get(section) || 0;
+                    section.style.display = visibleCount > 0 ? '' : 'none';
+                });
+            });
+
+            // Clear search on ESC key
+            searchInput.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape') {
+                    searchInput.value = '';
+                    searchInput.dispatchEvent(new Event('input'));
+                    searchInput.blur();
+                }
+            });
+        })();
     </script>
 {% endblock %}

@@ -345,6 +345,56 @@
   overflow: visible;
 }
 
+/* Sidebar Search Bar */
+.sidebar-search {
+  padding: 0.75rem 0.875rem;
+  border-bottom: 1px solid rgba(23, 35, 68, 0.05);
+  background: rgba(255, 255, 255, 0.5);
+  flex-shrink: 0;
+}
+
+.sidebar-search .search-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.sidebar-search .search-icon {
+  position: absolute;
+  left: 0.875rem;
+  color: #94a3b8;
+  font-size: 0.95rem;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.sidebar-search .search-input {
+  width: 100%;
+  padding: 0.625rem 0.875rem 0.625rem 2.5rem;
+  border: 1px solid rgba(23, 35, 68, 0.08);
+  border-radius: 10px;
+  font-size: 0.875rem;
+  background: rgba(255, 255, 255, 0.95);
+  color: var(--admin-heading);
+  transition: all 0.25s ease;
+}
+
+.sidebar-search .search-input::placeholder {
+  color: #94a3b8;
+}
+
+.sidebar-search .search-input:focus {
+  outline: none;
+  border-color: var(--admin-accent);
+  background: #ffffff;
+  box-shadow: 0 0 0 3px rgba(23, 92, 221, 0.08);
+}
+
+/* Sidebar collapsed - hide search */
+.admin-sidebar.collapsed .sidebar-search {
+  display: none;
+}
+
 .sidebar-toggle-btn {
   display: flex;
   align-items: center;

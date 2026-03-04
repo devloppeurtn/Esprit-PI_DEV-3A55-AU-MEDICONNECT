@@ -632,25 +632,33 @@ class SavoirMedicalController extends AbstractController
     #[IsGranted('ROLE_PATIENT')]
     public function prendreQuiz(string $coursId): Response
     {
-        $cours = $this->coursRepository->find($coursId);
+        try {
+            $uuid = Uuid::fromString($coursId);
+            $cours = $this->coursRepository->find($uuid);
+        } catch (\Exception $e) {
+            $cours = null;
+        }
         
         if (!$cours) {
             throw $this->createNotFoundException('Cours non trouvé');
         }
         
-        // Get only VALIDATED questions using query builder for better reliability
-        $questions = $this->entityManager->getRepository(QuestionQuiz::class)
-            ->createQueryBuilder('q')
-            ->where('q.coursEducatif = :cours')
-            ->andWhere('q.statut = :statut')
-            ->setParameter('cours', $cours)
-            ->setParameter('statut', StatutQuestion::VALIDE_MEDECIN)
-            ->getQuery()
-            ->getResult();
+        // Get ALL questions to see what we have
+        $allQuestions = $cours->getQuestions()->toArray();
+        
+        // Filter for validated questions
+        $questions = array_filter($allQuestions, function($question) {
+            return $question->getStatut() === StatutQuestion::VALIDE_MEDECIN;
+        });
+        
+        // Re-index array
+        $questions = array_values($questions);
         
         return $this->render('savoir_medical/quiz_prendre.html.twig', [
             'cours' => $cours,
             'questions' => $questions,
+            'debug_total' => count($allQuestions),
+            'debug_validated' => count($questions),
         ]);
     }
 

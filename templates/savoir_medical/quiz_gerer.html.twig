@@ -3,204 +3,415 @@
 {% block title %}Gérer Quiz - {{ cours.titre }}{% endblock %}
 
 {% block stylesheets %}
-    <link href="{{ asset('assets/vendor/bootstrap/css/bootstrap.min.css') }}" rel="stylesheet">
+    {% include 'savoir_medical/_modern_styles.html.twig' %}
+    <style>
+        .quiz-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 2.5rem 0;
+            margin-bottom: 2rem;
+            border-radius: 0 0 20px 20px;
+        }
+        
+        .question-card-compact {
+            border: none;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+            margin-bottom: 1rem;
+            transition: all 0.3s ease;
+            background: white;
+        }
+        
+        .question-card-compact:hover {
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            transform: translateY(-2px);
+        }
+        
+        .question-card-compact.published {
+            border-left: 4px solid #28a745;
+        }
+        
+        .question-card-compact.pending {
+            border-left: 4px solid #ffc107;
+        }
+        
+        .question-header {
+            padding: 1rem 1.25rem;
+            background: #f8f9fa;
+            border-bottom: 1px solid #e9ecef;
+            border-radius: 12px 12px 0 0;
+        }
+        
+        .question-body {
+            padding: 1.25rem;
+        }
+        
+        .question-text {
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 1rem;
+            line-height: 1.5;
+        }
+        
+        .options-compact {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+        
+        .option-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 0.75rem;
+            background: #f8f9fa;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            transition: all 0.2s ease;
+        }
+        
+        .option-item.correct {
+            background: #d4edda;
+            border: 1px solid #c3e6cb;
+        }
+        
+        .option-badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: #6c757d;
+            color: white;
+            font-size: 0.75rem;
+            font-weight: 600;
+            flex-shrink: 0;
+        }
+        
+        .option-item.correct .option-badge {
+            background: #28a745;
+        }
+        
+        .question-actions {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+            padding-top: 1rem;
+            border-top: 1px solid #e9ecef;
+        }
+        
+        .btn-sm-compact {
+            padding: 0.375rem 0.75rem;
+            font-size: 0.8rem;
+            border-radius: 6px;
+        }
+        
+        .explanation-box {
+            background: #fff3cd;
+            border-left: 3px solid #ffc107;
+            padding: 0.75rem;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            margin-bottom: 1rem;
+        }
+        
+        .search-questions {
+            background: white;
+            border-radius: 12px;
+            padding: 1rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+            margin-bottom: 1.5rem;
+        }
+        
+        .search-questions input {
+            border-radius: 50px;
+            border: 2px solid #e9ecef;
+            padding: 0.625rem 1rem 0.625rem 2.75rem;
+        }
+        
+        .search-questions input:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+        
+        .search-icon-wrapper {
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #667eea;
+        }
+    </style>
 {% endblock %}
 
 {% block body %}
-<div class="container my-5">
-    <div class="row">
-        <div class="col-lg-8">
-            <div class="d-flex justify-content-between align-items-center mb-4">
-                <div>
-                    <h2>Gestion du Quiz</h2>
-                    <p class="text-muted mb-0">{{ cours.titre }}</p>
-                </div>
-                <a href="{{ path('app_savoir_medical_categorie', {id: cours.categorieSante.id}) }}" class="btn btn-outline-secondary">
-                    <i class="bi bi-arrow-left me-2"></i>Retour
-                </a>
+<div class="quiz-header">
+    <div class="container">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <h2 class="mb-2"><i class="bi bi-gear-fill me-2"></i>Gestion du Quiz</h2>
+                <p class="mb-0 opacity-75">{{ cours.titre }}</p>
             </div>
+            <a href="{{ path('app_savoir_medical_categorie', {id: cours.categorieSante.id}) }}" class="btn btn-light">
+                <i class="bi bi-arrow-left me-2"></i>Retour
+            </a>
+        </div>
+    </div>
+</div>
 
-            <div class="card border-0 shadow-sm mb-4">
+<div class="container mb-5">
+
+    {# Statistics Overview #}
+    <div class="row g-3 mb-4">
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm h-100" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                <div class="card-body text-white">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-white-50 mb-1">Questions totales</h6>
+                            <h2 class="mb-0">{{ questions|length }}</h2>
+                        </div>
+                        <div class="bg-white bg-opacity-25 rounded-circle p-3">
+                            <i class="bi bi-list-check" style="font-size: 2rem;"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm h-100" style="background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);">
+                <div class="card-body text-white">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-white-50 mb-1">Publiées</h6>
+                            <h2 class="mb-0">{{ questions|filter(q => q.statut.value == 'VALIDE_MEDECIN')|length }}</h2>
+                            <small class="text-white-50">Visibles pour les patients</small>
+                        </div>
+                        <div class="bg-white bg-opacity-25 rounded-circle p-3">
+                            <i class="bi bi-eye-fill" style="font-size: 2rem;"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm h-100" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
+                <div class="card-body text-white">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-white-50 mb-1">En attente</h6>
+                            <h2 class="mb-0">{{ questions|filter(q => q.statut.value == 'IA_PROPOSE')|length }}</h2>
+                            <small class="text-white-50">À valider</small>
+                        </div>
+                        <div class="bg-white bg-opacity-25 rounded-circle p-3">
+                            <i class="bi bi-clock-history" style="font-size: 2rem;"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {# Action Buttons #}
+    <div class="row g-3 mb-4">
+        <div class="col-md-6">
+            <div class="card border-0 shadow-sm h-100">
                 <div class="card-body p-4">
-                    <h5 class="mb-4">
-                        <i class="bi bi-magic me-2 text-success"></i>
-                        Générer des questions avec l'IA
-                    </h5>
+                    <div class="d-flex align-items-center mb-3">
+                        <div class="bg-success bg-opacity-10 text-success rounded-circle p-3 me-3">
+                            <i class="bi bi-magic" style="font-size: 1.5rem;"></i>
+                        </div>
+                        <div>
+                            <h5 class="mb-0">Générer avec l'IA</h5>
+                            <small class="text-muted">Questions automatiques basées sur le cours</small>
+                        </div>
+                    </div>
                     
                     <form method="post" action="{{ path('app_quiz_generer_ai', {coursId: cours.id}) }}" id="aiGenerateForm">
-                        <div class="mb-3">
-                            <label class="form-label fw-bold">Nombre de questions à générer</label>
-                            <select class="form-select" name="nombreQuestions">
-                                <option value="5">5 questions</option>
-                                <option value="10" selected>10 questions</option>
-                                <option value="15">15 questions</option>
-                                <option value="20">20 questions</option>
-                            </select>
+                        <div class="row g-2 mb-3">
+                            <div class="col-6">
+                                <label class="form-label small">Nombre</label>
+                                <select class="form-select form-select-sm" name="nombreQuestions">
+                                    <option value="5">5 questions</option>
+                                    <option value="10" selected>10 questions</option>
+                                    <option value="15">15 questions</option>
+                                    <option value="20">20 questions</option>
+                                </select>
+                            </div>
+                            <div class="col-6">
+                                <label class="form-label small">Difficulté</label>
+                                <select class="form-select form-select-sm" name="difficulte">
+                                    <option value="facile">Facile</option>
+                                    <option value="moyen" selected>Moyen</option>
+                                    <option value="difficile">Difficile</option>
+                                </select>
+                            </div>
                         </div>
                         
-                        <div class="mb-3">
-                            <label class="form-label fw-bold">Difficulté</label>
-                            <select class="form-select" name="difficulte">
-                                <option value="facile">Facile</option>
-                                <option value="moyen" selected>Moyen</option>
-                                <option value="difficile">Difficile</option>
-                            </select>
-                        </div>
-                        
-                        <div class="alert alert-info">
-                            <i class="bi bi-info-circle me-2"></i>
-                            L'IA va analyser le contenu du cours et générer des questions pertinentes avec des choix multiples.
-                        </div>
-                        
-                        <button type="submit" class="btn btn-success btn-lg w-100" id="generateBtn">
+                        <button type="submit" class="btn btn-success w-100" id="generateBtn">
                             <i class="bi bi-magic me-2"></i>Générer les questions
                         </button>
                     </form>
                 </div>
             </div>
-
-            <div class="card border-0 shadow-sm mb-4">
+        </div>
+        
+        <div class="col-md-6">
+            <div class="card border-0 shadow-sm h-100">
                 <div class="card-body p-4">
-                    <h5 class="mb-4">
-                        <i class="bi bi-pencil me-2 text-primary"></i>
-                        Ajouter une question manuellement
-                    </h5>
-                    <p class="text-muted mb-3">Créez vos propres questions personnalisées</p>
-                    <a href="{{ path('app_quiz_ajouter_manuel', {coursId: cours.id}) }}" class="btn btn-primary btn-lg w-100">
+                    <div class="d-flex align-items-center mb-3">
+                        <div class="bg-primary bg-opacity-10 text-primary rounded-circle p-3 me-3">
+                            <i class="bi bi-pencil-square" style="font-size: 1.5rem;"></i>
+                        </div>
+                        <div>
+                            <h5 class="mb-0">Créer manuellement</h5>
+                            <small class="text-muted">Ajoutez vos propres questions personnalisées</small>
+                        </div>
+                    </div>
+                    
+                    <a href="{{ path('app_quiz_ajouter_manuel', {coursId: cours.id}) }}" class="btn btn-primary w-100">
                         <i class="bi bi-plus-circle me-2"></i>Ajouter une question
                     </a>
-                </div>
-            </div>
-
-            <div class="card border-0 shadow-sm mb-4">
-                <div class="card-body p-4">
-                    <div class="d-flex justify-content-between align-items-center mb-4">
-                        <h5 class="mb-0">
-                            <i class="bi bi-list-check me-2"></i>
-                            Questions existantes ({{ questions|length }})
-                        </h5>
-                        <div class="d-flex gap-2">
-                            <a href="{{ path('app_quiz_reponses_patients', {coursId: cours.id}) }}" class="btn btn-primary">
-                                <i class="bi bi-people-fill me-2"></i>Voir les réponses des patients
-                            </a>
-                            <a href="{{ path('app_quiz_preview', {coursId: cours.id}) }}" class="btn btn-outline-info" target="_blank">
-                                <i class="bi bi-eye me-2"></i>Aperçu Patient
-                            </a>
-                        </div>
-                    </div>
                     
-                    <div class="alert alert-info mb-4">
-                        <div class="row text-center">
-                            <div class="col-md-4">
-                                <div class="h3 mb-0 text-success">{{ questions|filter(q => q.statut.value == 'VALIDE_MEDECIN')|length }}</div>
-                                <small class="text-muted">Publiées (visibles patients)</small>
-                            </div>
-                            <div class="col-md-4">
-                                <div class="h3 mb-0 text-warning">{{ questions|filter(q => q.statut.value == 'IA_PROPOSE')|length }}</div>
-                                <small class="text-muted">En attente de validation</small>
-                            </div>
-                            <div class="col-md-4">
-                                <div class="h3 mb-0 text-primary">{{ questions|length }}</div>
-                                <small class="text-muted">Total</small>
-                            </div>
-                        </div>
+                    <div class="mt-3">
+                        <a href="{{ path('app_quiz_reponses_patients', {coursId: cours.id}) }}" class="btn btn-outline-primary w-100">
+                            <i class="bi bi-people-fill me-2"></i>Voir les réponses des patients
+                        </a>
                     </div>
-                    
-                    {% if questions is empty %}
-                        <div class="text-center py-4">
-                            <i class="bi bi-inbox" style="font-size: 3rem; color: #e9ecef;"></i>
-                            <p class="text-muted mt-3">Aucune question pour le moment</p>
-                        </div>
-                    {% else %}
-                        {% for question in questions %}
-                            <div class="card mb-3 border {{ question.statut.value == 'VALIDE_MEDECIN' ? 'border-success' : 'border-warning' }}">
-                                <div class="card-body">
-                                    <div class="d-flex justify-content-between align-items-start mb-2">
-                                        <div>
-                                            <h6 class="fw-bold mb-1">Question {{ loop.index }}</h6>
-                                            {% if question.statut.value == 'VALIDE_MEDECIN' %}
-                                                <span class="badge bg-success">
-                                                    <i class="bi bi-check-circle me-1"></i>Publiée - Visible pour les patients
-                                                </span>
-                                            {% else %}
-                                                <span class="badge bg-warning">
-                                                    <i class="bi bi-clock me-1"></i>Brouillon - Non visible pour les patients
-                                                </span>
-                                            {% endif %}
-                                        </div>
-                                    </div>
-                                    <p class="mb-2">{{ question.enonce }}</p>
-                                    <div class="mb-2">
-                                        <small class="text-muted">Options:</small>
-                                        <ul class="mb-0">
-                                            {% for option in question.optionsReponsesArray %}
-                                                <li class="{{ option == question.reponseCorrecte ? 'text-success fw-bold' : '' }}">
-                                                    {{ option }}
-                                                    {% if option == question.reponseCorrecte %}
-                                                        <i class="bi bi-check-circle-fill text-success"></i>
-                                                    {% endif %}
-                                                </li>
-                                            {% endfor %}
-                                        </ul>
-                                    </div>
-                                    {% if question.explication %}
-                                        <div class="alert alert-light mb-2">
-                                            <small><strong>Explication:</strong> {{ question.explication }}</small>
-                                        </div>
-                                    {% endif %}
-                                    <div class="d-flex gap-2">
-                                        {% if question.statut.value == 'IA_PROPOSE' %}
-                                            <form method="post" action="{{ path('app_quiz_valider_question', {questionId: question.id}) }}" class="d-inline">
-                                                <input type="hidden" name="_token" value="{{ csrf_token('validate' ~ question.id) }}">
-                                                <button type="submit" class="btn btn-sm btn-success">
-                                                    <i class="bi bi-check-circle"></i> Valider
-                                                </button>
-                                            </form>
-                                        {% endif %}
-                                        <a href="{{ path('app_quiz_modifier_question', {questionId: question.id}) }}" class="btn btn-sm btn-outline-primary">
-                                            <i class="bi bi-pencil"></i> Modifier
-                                        </a>
-                                        <button class="btn btn-sm btn-outline-danger" onclick="if(confirm('Supprimer cette question?')) document.getElementById('delete-{{ question.id }}').submit()">
-                                            <i class="bi bi-trash"></i> Supprimer
-                                        </button>
-                                        <form id="delete-{{ question.id }}" method="post" action="{{ path('app_quiz_supprimer_question', {questionId: question.id}) }}" class="d-none">
-                                            <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ question.id) }}">
-                                        </form>
-                                    </div>
-                                </div>
-                            </div>
-                        {% endfor %}
-                    {% endif %}
                 </div>
             </div>
         </div>
+    </div>
 
-        <div class="col-lg-4">
-            <div class="card border-0 shadow-sm sticky-top" style="top: 120px;">
-                <div class="card-body">
-                    <h6 class="fw-bold mb-3">Statistiques</h6>
-                    <div class="mb-3">
-                        <small class="text-muted">Questions totales</small>
-                        <div class="h4 mb-0">{{ questions|length }}</div>
-                    </div>
-                    <div class="mb-3">
-                        <small class="text-muted">Validées</small>
-                        <div class="h4 mb-0 text-success">
-                            {{ questions|filter(q => q.statut.value == 'VALIDE_MEDECIN')|length }}
-                        </div>
-                    </div>
-                    <div class="mb-3">
-                        <small class="text-muted">Proposées par IA</small>
-                        <div class="h4 mb-0 text-warning">
-                            {{ questions|filter(q => q.statut.value == 'IA_PROPOSE')|length }}
-                        </div>
-                    </div>
-                    <hr>
-                    <a href="{{ path('app_quiz_reponses_patients', {coursId: cours.id}) }}" class="btn btn-primary w-100">
-                        <i class="bi bi-people-fill me-2"></i>Voir les réponses des patients
-                    </a>
+    {# Questions List #}
+    <div class="card border-0 shadow-sm">
+        <div class="card-header bg-white border-bottom py-3">
+            <h5 class="mb-0">
+                <i class="bi bi-list-ul me-2"></i>
+                Liste des questions ({{ questions|length }})
+            </h5>
+        </div>
+        <div class="card-body p-4">
+            {% if questions is empty %}
+                <div class="text-center py-5">
+                    <i class="bi bi-inbox" style="font-size: 4rem; color: #e9ecef;"></i>
+                    <h5 class="mt-3 text-muted">Aucune question pour le moment</h5>
+                    <p class="text-muted">Commencez par générer des questions avec l'IA ou créez-en manuellement</p>
                 </div>
-            </div>
+            {% else %}
+                {# Search Bar #}
+                <div class="search-questions position-relative mb-3">
+                    <span class="search-icon-wrapper">
+                        <i class="bi bi-search"></i>
+                    </span>
+                    <input type="text" 
+                           class="form-control" 
+                           id="question-search" 
+                           placeholder="Rechercher une question..."
+                           aria-label="Rechercher une question">
+                </div>
+                
+                <div id="questions-container">
+                    {% for question in questions %}
+                        <div class="question-card-compact {{ question.statut.value == 'VALIDE_MEDECIN' ? 'published' : 'pending' }}" 
+                             data-question-text="{{ question.enonce|lower }}">
+                            <div class="question-header">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div class="d-flex align-items-center gap-2">
+                                        <span class="badge bg-secondary">Q{{ loop.index }}</span>
+                                        {% if question.statut.value == 'VALIDE_MEDECIN' %}
+                                            <span class="badge bg-success">
+                                                <i class="bi bi-check-circle me-1"></i>Publiée
+                                            </span>
+                                        {% else %}
+                                            <span class="badge bg-warning text-dark">
+                                                <i class="bi bi-clock me-1"></i>En attente
+                                            </span>
+                                        {% endif %}
+                                    </div>
+                                    <div class="d-flex align-items-center gap-2">
+                                        <select class="form-select form-select-sm" style="width: 140px; font-size: 0.8rem;" id="translation-language-select-q{{ question.id }}">
+                                            <option value="" disabled selected>Traduire</option>
+                                        </select>
+                                        <button type="button" class="btn btn-sm btn-outline-primary btn-sm-compact" id="translate-btn-q{{ question.id }}">
+                                            <i class="bi bi-translate"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="question-body">
+                                <div class="question-text" id="question-text-{{ question.id }}">
+                                    {{ question.enonce }}
+                                </div>
+                                
+                                <div class="alert alert-info py-2 px-3" id="translation-alert-q{{ question.id }}" style="display: none; font-size: 0.85rem;">
+                                    <i class="bi bi-info-circle me-1"></i>
+                                    <span id="translation-message-q{{ question.id }}"></span>
+                                </div>
+                                
+                                <div id="translated-question-{{ question.id }}" class="alert alert-primary py-2 px-3 mb-3" style="display: none; font-size: 0.85rem;">
+                                    <div class="d-flex justify-content-between align-items-start">
+                                        <div class="flex-grow-1">
+                                            <strong><i class="bi bi-translate me-1"></i>Traduction:</strong>
+                                            <div class="mt-1" id="translated-question-text-{{ question.id }}"></div>
+                                        </div>
+                                        <button type="button" class="btn-close btn-close-sm" onclick="document.getElementById('translated-question-{{ question.id }}').style.display='none'"></button>
+                                    </div>
+                                </div>
+                                
+                                <div class="options-compact" id="options-list-{{ question.id }}">
+                                    {% for option in question.optionsReponsesArray %}
+                                        <div class="option-item {{ option == question.reponseCorrecte ? 'correct' : '' }}" data-original="{{ option }}">
+                                            <span class="option-badge">{{ ['A', 'B', 'C', 'D'][loop.index0] }}</span>
+                                            <span class="option-text flex-grow-1">{{ option }}</span>
+                                            {% if option == question.reponseCorrecte %}
+                                                <i class="bi bi-check-circle-fill text-success"></i>
+                                            {% endif %}
+                                        </div>
+                                    {% endfor %}
+                                </div>
+                                
+                                {% if question.explication %}
+                                    <div class="explanation-box">
+                                        <i class="bi bi-lightbulb-fill me-1"></i>
+                                        <strong>Explication:</strong> {{ question.explication }}
+                                    </div>
+                                {% endif %}
+                                
+                                <div class="question-actions">
+                                    {% if question.statut.value == 'IA_PROPOSE' %}
+                                        <form method="post" action="{{ path('app_quiz_valider_question', {questionId: question.id}) }}" class="d-inline">
+                                            <input type="hidden" name="_token" value="{{ csrf_token('validate' ~ question.id) }}">
+                                            <button type="submit" class="btn btn-success btn-sm-compact">
+                                                <i class="bi bi-check-circle me-1"></i>Valider
+                                            </button>
+                                        </form>
+                                    {% endif %}
+                                    <a href="{{ path('app_quiz_modifier_question', {questionId: question.id}) }}" class="btn btn-outline-primary btn-sm-compact">
+                                        <i class="bi bi-pencil me-1"></i>Modifier
+                                    </a>
+                                    <button class="btn btn-outline-danger btn-sm-compact" onclick="if(confirm('Supprimer cette question?')) document.getElementById('delete-{{ question.id }}').submit()">
+                                        <i class="bi bi-trash me-1"></i>Supprimer
+                                    </button>
+                                    <form id="delete-{{ question.id }}" method="post" action="{{ path('app_quiz_supprimer_question', {questionId: question.id}) }}" class="d-none">
+                                        <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ question.id) }}">
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+                
+                <div class="text-center py-5" id="no-questions-found" style="display: none;">
+                    <i class="bi bi-search" style="font-size: 3rem; color: #dee2e6;"></i>
+                    <h5 class="mt-3 text-muted">Aucune question trouvée</h5>
+                    <p class="text-muted">Essayez avec d'autres mots-clés</p>
+                </div>
+            {% endif %}
         </div>
     </div>
 </div>
@@ -210,6 +421,152 @@ document.getElementById('aiGenerateForm').addEventListener('submit', function(e)
     const btn = document.getElementById('generateBtn');
     btn.disabled = true;
     btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Génération en cours...';
+});
+
+// Search functionality for questions
+document.addEventListener('DOMContentLoaded', function() {
+    const searchInput = document.getElementById('question-search');
+    if (searchInput) {
+        const questionCards = document.querySelectorAll('.question-card-compact');
+        const noResults = document.getElementById('no-questions-found');
+        
+        searchInput.addEventListener('input', function() {
+            const searchTerm = this.value.toLowerCase().trim();
+            let visibleCount = 0;
+            
+            questionCards.forEach(card => {
+                const questionText = card.dataset.questionText;
+                
+                if (searchTerm === '' || questionText.includes(searchTerm)) {
+                    card.style.display = '';
+                    visibleCount++;
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+            
+            if (visibleCount === 0 && searchTerm !== '') {
+                noResults.style.display = 'block';
+            } else {
+                noResults.style.display = 'none';
+            }
+        });
+        
+        // Clear search on ESC
+        searchInput.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                this.value = '';
+                this.dispatchEvent(new Event('input'));
+            }
+        });
+    }
+});
+
+// Translation functionality for quiz management page
+document.addEventListener('DOMContentLoaded', function() {
+    const questions = document.querySelectorAll('.card.mb-3');
+    
+    questions.forEach(function(questionCard) {
+        const questionText = questionCard.querySelector('[id^="question-text-"]');
+        if (!questionText) return;
+        
+        const questionId = questionText.id.replace('question-text-', '');
+        const languageSelect = document.getElementById('translation-language-select-q' + questionId);
+        const translateBtn = document.getElementById('translate-btn-q' + questionId);
+        const translationAlert = document.getElementById('translation-alert-q' + questionId);
+        const translationMessage = document.getElementById('translation-message-q' + questionId);
+
+        if (!languageSelect || !translateBtn) return;
+
+        // Load supported languages
+        fetch('{{ path("app_translation_languages") }}')
+            .then(r => r.json())
+            .then(data => {
+                languageSelect.innerHTML = '<option value="" disabled selected>Choisir la langue</option>';
+                Object.entries(data.languages).forEach(([code, name]) => {
+                    const option = document.createElement('option');
+                    option.value = code;
+                    option.textContent = name;
+                    languageSelect.appendChild(option);
+                });
+            })
+            .catch(err => console.error('Failed to load languages:', err));
+
+        translateBtn.addEventListener('click', async function() {
+            const targetLanguage = languageSelect.value;
+            if (!targetLanguage) {
+                showAlert('Veuillez sélectionner une langue', 'warning');
+                return;
+            }
+
+            translateBtn.disabled = true;
+            translateBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>Traduction...';
+
+            try {
+                // Translate question
+                const questionTextContent = questionText.textContent.trim();
+                const questionResponse = await fetch('{{ path("app_translation_translate") }}', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        text: questionTextContent,
+                        targetLanguage: targetLanguage,
+                        sourceLanguage: 'auto'
+                    })
+                });
+
+                const questionResult = await questionResponse.json();
+
+                if (questionResponse.ok && questionResult.translated) {
+                    document.getElementById('translated-question-text-' + questionId).textContent = questionResult.translated;
+                    document.getElementById('translated-question-' + questionId).style.display = 'block';
+                }
+
+                // Translate all answer options
+                const optionsList = document.getElementById('options-list-' + questionId);
+                const optionItems = optionsList.querySelectorAll('li[data-original]');
+                
+                for (const optionItem of optionItems) {
+                    const originalText = optionItem.dataset.original;
+                    const optionTranslationSpan = optionItem.querySelector('.option-translation');
+
+                    const optionResponse = await fetch('{{ path("app_translation_translate") }}', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            text: originalText,
+                            targetLanguage: targetLanguage,
+                            sourceLanguage: 'auto'
+                        })
+                    });
+
+                    const optionResult = await optionResponse.json();
+
+                    if (optionResponse.ok && optionResult.translated) {
+                        optionTranslationSpan.textContent = ' → ' + optionResult.translated;
+                        optionTranslationSpan.style.display = 'inline';
+                    }
+                }
+
+                showAlert('Traduction réussie!', 'success');
+            } catch (error) {
+                showAlert('Erreur de traduction: ' + error.message, 'danger');
+            } finally {
+                translateBtn.disabled = false;
+                translateBtn.innerHTML = '<i class="bi bi-translate me-1"></i>Traduire';
+            }
+        });
+
+        function showAlert(message, type) {
+            translationMessage.textContent = message;
+            translationAlert.className = 'alert alert-' + type;
+            translationAlert.style.display = 'block';
+            
+            setTimeout(() => {
+                translationAlert.style.display = 'none';
+            }, 4000);
+        }
+    });
 });
 </script>
 {% endblock %}

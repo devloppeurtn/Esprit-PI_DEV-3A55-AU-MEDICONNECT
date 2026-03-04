@@ -8,10 +8,16 @@
             <span class="sidebar-title">MediConnect</span>
         </div>
         <div class="sidebar-actions">
-            {% include 'notifications/_notification_bell.html.twig' %}
             <button type="button" class="sidebar-toggle-btn" id="sidebar-toggle-btn" aria-label="Réduire le menu" title="Réduire le menu">
                 <i class="bi bi-chevron-left"></i>
             </button>
+        </div>
+    </div>
+
+    <div class="sidebar-search">
+        <div class="search-wrapper">
+            <i class="bi bi-search search-icon"></i>
+            <input type="text" class="form-control search-input" id="sidebar-search" placeholder="Rechercher..." aria-label="Rechercher dans le menu">
         </div>
     </div>
 
@@ -24,6 +30,20 @@
                         <a class="nav-link {{ app.request.get('_route') == 'app_admin_dashboard' ? 'active' : '' }}" href="{{ path('app_admin_dashboard') }}" title="Tableau de bord">
                             <span class="nav-icon-wrap"><i class="bi bi-speedometer2"></i></span>
                             <span class="nav-text">Tableau de bord</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {{ app.request.get('_route') starts with 'app_notifications' ? 'active' : '' }}" href="{{ path('app_notifications_index') }}" title="Mes notifications">
+                            <span class="nav-icon-wrap">
+                                <i class="bi bi-bell"></i>
+                                {% set unreadCount = app.user ? notification_service.compterNotificationsNonLues(app.user) : 0 %}
+                                {% if unreadCount > 0 %}
+                                    <span class="badge bg-danger rounded-pill position-absolute top-0 start-100 translate-middle" style="font-size: 0.65rem;">
+                                        {{ unreadCount > 9 ? '9+' : unreadCount }}
+                                    </span>
+                                {% endif %}
+                            </span>
+                            <span class="nav-text">Notifications</span>
                         </a>
                     </li>
                     <li class="nav-item">
