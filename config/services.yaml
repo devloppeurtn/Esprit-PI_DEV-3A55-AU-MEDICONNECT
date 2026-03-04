@@ -40,3 +40,9 @@ services:
     App\Security\LoginFailureHandler:
         arguments:
             $options: []
+
+    # Translation Service with Azure API credentials
+    App\Service\TranslationService:
+        bind:
+            $azureApiKey: '%env(AZURE_TRANSLATOR_API_KEY)%'
+            $azureRegion: '%env(AZURE_TRANSLATOR_REGION)%'

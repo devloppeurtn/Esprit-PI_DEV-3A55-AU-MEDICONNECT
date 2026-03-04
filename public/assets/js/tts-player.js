@@ -35,11 +35,11 @@ class TTSPlayer {
     /**
      * Play text as speech
      * @param {string} text - Text to convert to speech
-     * @param {string} language - Language code (fr-FR, en-US)
+     * @param {string} language - Language code (fr, en, es, de, etc.)
      * @param {string} voiceType - Voice type (male, female)
      * @param {HTMLElement} button - Button element to update UI
      */
-    async play(text, language = 'fr-FR', voiceType = 'female', button = null) {
+    async play(text, language = 'fr', voiceType = 'female', button = null) {
         if (!text || text.trim() === '') {
             console.error('No text provided for TTS');
             return;
@@ -69,14 +69,17 @@ class TTSPlayer {
             // Create utterance
             this.currentUtterance = new SpeechSynthesisUtterance(text);
             
+            // Convert short language code to full locale (fr -> fr-FR)
+            const fullLanguage = this.getFullLanguageCode(language);
+            
             // Select appropriate voice
-            const voice = this.selectVoice(language, voiceType);
+            const voice = this.selectVoice(fullLanguage, voiceType);
             if (voice) {
                 this.currentUtterance.voice = voice;
             }
             
             // Set language
-            this.currentUtterance.lang = language;
+            this.currentUtterance.lang = fullLanguage;
             
             // Set speech parameters for medical content
             this.currentUtterance.rate = 0.9; // Slightly slower for clarity
@@ -121,6 +124,38 @@ class TTSPlayer {
             }
             this.showNotification('Erreur lors de la synthèse vocale', 'error');
         }
+    }
+
+    /**
+     * Convert short language code to full locale code
+     */
+    getFullLanguageCode(language) {
+        const languageMap = {
+            'fr': 'fr-FR',
+            'en': 'en-US',
+            'es': 'es-ES',
+            'de': 'de-DE',
+            'it': 'it-IT',
+            'pt': 'pt-PT',
+            'ar': 'ar-SA',
+            'zh-Hans': 'zh-CN',
+            'zh-Hant': 'zh-TW',
+            'ja': 'ja-JP',
+            'ru': 'ru-RU',
+            'hi': 'hi-IN',
+            'nl': 'nl-NL',
+            'pl': 'pl-PL',
+            'tr': 'tr-TR',
+            'ko': 'ko-KR'
+        };
+        
+        // If already full code (contains hyphen), return as is
+        if (language.includes('-')) {
+            return language;
+        }
+        
+        // Otherwise map to full code
+        return languageMap[language] || language + '-' + language.toUpperCase();
     }
 
     /**

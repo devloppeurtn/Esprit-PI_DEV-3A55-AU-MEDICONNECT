@@ -10,9 +10,6 @@ class TranslationService
     private const AZURE_TRANSLATOR_ENDPOINT = 'https://api.cognitive.microsofttranslator.com/translate';
     private const API_VERSION = '3.0';
     
-    private string $apiKey;
-    private string $region;
-    
     private const SUPPORTED_LANGUAGES = [
         'en' => 'English',
         'fr' => 'Français',
@@ -34,10 +31,16 @@ class TranslationService
 
     public function __construct(
         private HttpClientInterface $httpClient,
-        private LoggerInterface $logger
+        private LoggerInterface $logger,
+        private string $azureApiKey,
+        private string $azureRegion
     ) {
-        $this->apiKey = 'LAVs9u5nd4Ypx2j1QNij1U9wmhc3VP9V5FSOXDy3CC9sB8DWoS9IJQQJ99CCAC5T7U2XJ3w3AAAbACOGU3Eg';
-        $this->region = 'francecentral';
+        // Debug: Log the API key and region on service initialization
+        $this->logger->info('TranslationService initialized', [
+            'api_key_length' => strlen($azureApiKey),
+            'api_key_preview' => substr($azureApiKey, 0, 10) . '...' . substr($azureApiKey, -5),
+            'region' => $azureRegion,
+        ]);
     }
 
     /**
@@ -99,8 +102,8 @@ class TranslationService
 
             $response = $this->httpClient->request('POST', $url, [
                 'headers' => [
-                    'Ocp-Apim-Subscription-Key' => $this->apiKey,
-                    'Ocp-Apim-Subscription-Region' => $this->region,
+                    'Ocp-Apim-Subscription-Key' => $this->azureApiKey,
+                    'Ocp-Apim-Subscription-Region' => $this->azureRegion,
                     'Content-Type' => 'application/json',
                 ],
                 'json' => [
@@ -221,8 +224,8 @@ class TranslationService
 
             $response = $this->httpClient->request('POST', $url, [
                 'headers' => [
-                    'Ocp-Apim-Subscription-Key' => $this->apiKey,
-                    'Ocp-Apim-Subscription-Region' => $this->region,
+                    'Ocp-Apim-Subscription-Key' => $this->azureApiKey,
+                    'Ocp-Apim-Subscription-Region' => $this->azureRegion,
                     'Content-Type' => 'application/json',
                 ],
                 'json' => [

@@ -34,10 +34,16 @@ class TranslationController extends AbstractController
         $translatedText = $this->translationService->translate($text, $targetLanguage, $sourceLanguage);
 
         if ($translatedText === null) {
-            return $this->json(['error' => 'Translation failed'], 500);
+            return $this->json([
+                'success' => false,
+                'error' => 'Translation service temporarily unavailable',
+                'message' => 'Please check your Azure API key configuration or try again later',
+                'original' => $text,
+            ], 503);
         }
 
         return $this->json([
+            'success' => true,
             'original' => $text,
             'translated' => $translatedText,
             'targetLanguage' => $targetLanguage,

@@ -337,7 +337,14 @@
                     <div class="card translation-card">
                         <div class="card-header d-flex justify-content-between align-items-center">
                             <span><i class="bi bi-translate me-2"></i>Traduction</span>
-                            <button class="btn btn-sm btn-light" onclick="document.getElementById('translated-content-{{ widget_id }}').style.display='none'">
+                            <button class="btn btn-sm btn-light" onclick="(function() {
+                                document.getElementById('translated-content-{{ widget_id }}').style.display='none';
+                                // Reset TTS to read original content
+                                if (typeof currentTranslatedText !== 'undefined') {
+                                    currentTranslatedText = null;
+                                    currentTargetLanguage = 'fr';
+                                }
+                            })()">
                                 <i class="bi bi-x-lg"></i>
                             </button>
                         </div>
@@ -370,12 +377,31 @@
                     const translationAlert = document.getElementById('translation-alert-' + widgetId);
                     const translationMessage = document.getElementById('translation-message-' + widgetId);
 
-                    // TTS functionality
+                    // TTS functionality - reads translated content if available, otherwise original
+                    let currentTranslatedText = null;
+                    let currentTargetLanguage = 'fr';
+                    
                     if (ttsBtn && window.ttsPlayer) {
                         ttsBtn.addEventListener('click', function() {
-                            const contentElement = document.getElementById('translation-content-' + widgetId);
-                            const text = contentElement.innerText || contentElement.textContent;
-                            window.ttsPlayer.play(text.trim(), 'fr', 'female', ttsBtn);
+                            // Check if there's translated content visible
+                            const translatedContentDiv = document.getElementById('translated-content-' + widgetId);
+                            const translationResultDiv = document.getElementById('translation-result-' + widgetId);
+                            
+                            let textToRead = '';
+                            let language = 'fr';
+                            
+                            // If translation is visible and has content, read the translated text
+                            if (translatedContentDiv && translatedContentDiv.style.display !== 'none' && currentTranslatedText) {
+                                textToRead = currentTranslatedText;
+                                language = currentTargetLanguage;
+                            } else {
+                                // Otherwise read the original content
+                                const contentElement = document.getElementById('translation-content-' + widgetId);
+                                textToRead = contentElement.innerText || contentElement.textContent;
+                                language = 'fr';
+                            }
+                            
+                            window.ttsPlayer.play(textToRead.trim(), language, 'female', ttsBtn);
                         });
                     }
 
@@ -432,9 +458,13 @@
                             const result = await response.json();
 
                             if (response.ok && result.translated) {
+                                // Store the translated text and language for TTS
+                                currentTranslatedText = result.translated;
+                                currentTargetLanguage = targetLanguage;
+                                
                                 translationResult.innerHTML = result.translated.replace(/\n/g, '<br>');
                                 translatedContent.style.display = 'block';
-                                showTranslationAlert('Traduction réussie!', 'success');
+                                showTranslationAlert('Traduction réussie! Cliquez sur "Écouter" pour entendre la traduction.', 'success');
                                 translatedContent.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
                             } else {
                                 showTranslationAlert('Échec de la traduction: ' + (result.error || 'Erreur inconnue'), 'danger');
