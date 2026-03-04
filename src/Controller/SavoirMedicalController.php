@@ -97,37 +97,53 @@ class SavoirMedicalController extends AbstractController
         $form = $this->createForm(CategorieSanteFormType::class, $categorie);
         $form->handleRequest($request);
 
-        if ($form->isSubmitted() && $form->isValid()) {
-            // Set creator if médecin
-            $user = $this->getUser();
-            if ($user instanceof \App\Entity\Medecin) {
-                $categorie->setCreePar($user);
+        if ($form->isSubmitted()) {
+            // Additional server-side validation
+            if (empty($categorie->getNom()) || trim($categorie->getNom()) === '') {
+                $this->addFlash('error', 'Le nom de la catégorie est obligatoire. Veuillez remplir ce champ.');
+                
+                return $this->render('savoir_medical/form_categorie.html.twig', [
+                    'form' => $form->createView(),
+                    'categorie' => $categorie,
+                    'isEdit' => false,
+                ]);
             }
             
-            // Admin can directly approve, médecin needs approval
-            if ($user instanceof \App\Entity\Admin) {
-                $categorie->setStatut(\App\Enum\StatutCategorie::APPROUVE);
-                $categorie->setApprouvePar($user);
-                $categorie->setDateApprobation(new \DateTime());
-            } else {
-                $categorie->setStatut(\App\Enum\StatutCategorie::EN_ATTENTE);
-            }
-            
-            $this->entityManager->persist($categorie);
-            $this->entityManager->flush();
+            if ($form->isValid()) {
+                // Set creator if médecin
+                $user = $this->getUser();
+                if ($user instanceof \App\Entity\Medecin) {
+                    $categorie->setCreePar($user);
+                }
+                
+                // Admin can directly approve, médecin needs approval
+                if ($user instanceof \App\Entity\Admin) {
+                    $categorie->setStatut(\App\Enum\StatutCategorie::APPROUVE);
+                    $categorie->setApprouvePar($user);
+                    $categorie->setDateApprobation(new \DateTime());
+                } else {
+                    $categorie->setStatut(\App\Enum\StatutCategorie::EN_ATTENTE);
+                }
+                
+                $this->entityManager->persist($categorie);
+                $this->entityManager->flush();
 
-            // Send notifications
-            if ($user instanceof \App\Entity\Admin) {
-                // Admin created and approved - notify all patients
-                $this->notificationService->notifierPatientsNouvelleCategorie($categorie);
-                $this->addFlash('success', 'La catégorie a été créée et approuvée avec succès !');
+                // Send notifications
+                if ($user instanceof \App\Entity\Admin) {
+                    // Admin created and approved - notify all patients
+                    $this->notificationService->notifierPatientsNouvelleCategorie($categorie);
+                    $this->addFlash('success', 'La catégorie a été créée et approuvée avec succès !');
+                } else {
+                    // Médecin created - notify admins for approval
+                    $this->notificationService->notifierAdminNouvelleCategorie($categorie, $user);
+                    $this->addFlash('success', 'La catégorie a été créée et est en attente d\'approbation par un administrateur.');
+                }
+                
+                return $this->redirectToRoute('app_savoir_medical_index');
             } else {
-                // Médecin created - notify admins for approval
-                $this->notificationService->notifierAdminNouvelleCategorie($categorie, $user);
-                $this->addFlash('success', 'La catégorie a été créée et est en attente d\'approbation par un administrateur.');
+                // Form has validation errors
+                $this->addFlash('error', 'Le formulaire contient des erreurs. Veuillez vérifier les champs marqués en rouge.');
             }
-            
-            return $this->redirectToRoute('app_savoir_medical_index');
         }
 
         return $this->render('savoir_medical/form_categorie.html.twig', [
@@ -297,9 +313,45 @@ class SavoirMedicalController extends AbstractController
         }
         
         if ($request->isMethod('POST')) {
-            $cours->setTitre($request->request->get('titre'));
-            $cours->setContenu($request->request->get('contenu'));
-            $cours->setScorePourBadge((int) $request->request->get('scorePourBadge', 100));
+            $titre = trim($request->request->get('titre', ''));
+            $contenu = trim($request->request->get('contenu', ''));
+            $scorePourBadge = (int) $request->request->get('scorePourBadge', 100);
+            
+            // Server-side validation
+            $errors = [];
+            
+            if (empty($titre)) {
+                $errors[] = 'Le titre du cours est obligatoire';
+            } elseif (strlen($titre) < 5) {
+                $errors[] = 'Le titre doit contenir au moins 5 caractères';
+            }
+            
+            if (empty($contenu)) {
+                $errors[] = 'Le contenu du cours est obligatoire';
+            } elseif (strlen($contenu) < 50) {
+                $errors[] = 'Le contenu doit contenir au moins 50 caractères';
+            }
+            
+            if (!empty($errors)) {
+                // Clear any success messages from previous actions
+                $request->getSession()->getFlashBag()->clear();
+                
+                // Add validation errors
+                $this->addFlash('error', 'Le cours n\'a PAS été créé. Veuillez corriger les erreurs ci-dessous:');
+                foreach ($errors as $error) {
+                    $this->addFlash('error', $error);
+                }
+                
+                return $this->render('savoir_medical/form_cours.html.twig', [
+                    'cours' => $cours,
+                    'categorie' => $categorie,
+                    'isEdit' => false,
+                ]);
+            }
+            
+            $cours->setTitre($titre);
+            $cours->setContenu($contenu);
+            $cours->setScorePourBadge($scorePourBadge);
             
             $this->entityManager->persist($cours);
             $this->entityManager->flush();
@@ -873,6 +925,18 @@ class SavoirMedicalController extends AbstractController
             throw $this->createNotFoundException('Catégorie non trouvée');
         }
 
+        // Validation: A category cannot be published if it has no name
+        if (empty($categorie->getNom()) || trim($categorie->getNom()) === '') {
+            $this->addFlash('error', 'Impossible d\'approuver une catégorie sans nom. Veuillez d\'abord ajouter un nom à la catégorie.');
+            return $this->redirectToRoute('app_admin_categories_en_attente');
+        }
+
+        // Validation: A category cannot be approved twice
+        if ($categorie->getStatut() === \App\Enum\StatutCategorie::APPROUVE) {
+            $this->addFlash('warning', 'Cette catégorie a déjà été approuvée le ' . $categorie->getDateApprobation()->format('d/m/Y à H:i') . ' par ' . ($categorie->getApprouvePar() ? $categorie->getApprouvePar()->getNomComplet() : 'un administrateur') . '.');
+            return $this->redirectToRoute('app_admin_categories_en_attente');
+        }
+
         $admin = $this->getUser();
         $categorie->setStatut(\App\Enum\StatutCategorie::APPROUVE);
         $categorie->setApprouvePar($admin);
@@ -903,6 +967,12 @@ class SavoirMedicalController extends AbstractController
         
         if (!$categorie) {
             throw $this->createNotFoundException('Catégorie non trouvée');
+        }
+
+        // Validation: Cannot reject an already approved category
+        if ($categorie->getStatut() === \App\Enum\StatutCategorie::APPROUVE) {
+            $this->addFlash('error', 'Impossible de rejeter une catégorie déjà approuvée. Cette catégorie a été approuvée le ' . $categorie->getDateApprobation()->format('d/m/Y à H:i') . ' et est visible par les patients.');
+            return $this->redirectToRoute('app_admin_categories_en_attente');
         }
 
         $admin = $this->getUser();

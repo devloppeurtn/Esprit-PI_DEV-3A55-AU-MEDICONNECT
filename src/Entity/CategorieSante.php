@@ -9,6 +9,7 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Uid\Uuid;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: CategorieSanteRepository::class)]
 #[ORM\Table(name: 'categorie_sante')]
@@ -19,6 +20,13 @@ class CategorieSante
     private ?Uuid $id = null;
 
     #[ORM\Column(type: Types::STRING, length: 255)]
+    #[Assert\NotBlank(message: 'Le nom de la catégorie est obligatoire')]
+    #[Assert\Length(
+        min: 3,
+        max: 255,
+        minMessage: 'Le nom doit contenir au moins {{ limit }} caractères',
+        maxMessage: 'Le nom ne peut pas dépasser {{ limit }} caractères'
+    )]
     private ?string $nom = null;
 
     #[ORM\Column(type: Types::TEXT)]
@@ -195,5 +203,45 @@ class CategorieSante
     {
         $this->approuvePar = $approuvePar;
         return $this;
+    }
+
+    /**
+     * Check if category is approved
+     * 
+     * @return bool True if category status is APPROUVE
+     */
+    public function isApproved(): bool
+    {
+        return $this->statut === StatutCategorie::APPROUVE;
+    }
+
+    /**
+     * Check if category is pending approval
+     * 
+     * @return bool True if category status is EN_ATTENTE
+     */
+    public function isPending(): bool
+    {
+        return $this->statut === StatutCategorie::EN_ATTENTE;
+    }
+
+    /**
+     * Check if category is rejected
+     * 
+     * @return bool True if category status is REJETE
+     */
+    public function isRejected(): bool
+    {
+        return $this->statut === StatutCategorie::REJETE;
+    }
+
+    /**
+     * Check if category has a valid name
+     * 
+     * @return bool True if name is not empty
+     */
+    public function hasValidName(): bool
+    {
+        return !empty($this->nom) && trim($this->nom) !== '';
     }
 }

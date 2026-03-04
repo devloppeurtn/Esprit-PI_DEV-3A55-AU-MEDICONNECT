@@ -194,6 +194,27 @@
                                     <i class="bi bi-heart-pulse"></i>
                                 </div>
                                 <h3 class="sm-category-title text-center">{{ categorie.nom }}</h3>
+                                
+                                {# Status Badge #}
+                                {% if categorie.statut.value == 'EN_ATTENTE' %}
+                                    <div class="text-center mt-2">
+                                        <span class="badge bg-warning text-dark" style="font-size: 0.75rem; padding: 0.4rem 0.8rem;">
+                                            <i class="bi bi-clock-history me-1"></i>En attente d'approbation
+                                        </span>
+                                    </div>
+                                {% elseif categorie.statut.value == 'APPROUVE' %}
+                                    <div class="text-center mt-2">
+                                        <span class="badge bg-success" style="font-size: 0.75rem; padding: 0.4rem 0.8rem;">
+                                            <i class="bi bi-check-circle-fill me-1"></i>Approuvée
+                                        </span>
+                                    </div>
+                                {% elseif categorie.statut.value == 'REJETE' %}
+                                    <div class="text-center mt-2">
+                                        <span class="badge bg-danger" style="font-size: 0.75rem; padding: 0.4rem 0.8rem;">
+                                            <i class="bi bi-x-circle-fill me-1"></i>Rejetée
+                                        </span>
+                                    </div>
+                                {% endif %}
                             </div>
                             <div class="sm-category-body">
                                 <p class="text-muted mb-3">{{ categorie.description|length > 100 ? categorie.description|slice(0, 100) ~ '...' : categorie.description }}</p>

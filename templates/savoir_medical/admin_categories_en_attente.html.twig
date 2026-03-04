@@ -18,6 +18,13 @@
         </div>
     {% endfor %}
 
+    {% for message in app.flashes('error') %}
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <i class="bi bi-exclamation-triangle-fill me-2"></i>{{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    {% endfor %}
+
     {% for message in app.flashes('warning') %}
         <div class="alert alert-warning alert-dismissible fade show" role="alert">
             {{ message }}
@@ -30,6 +37,44 @@
             <i class="bi bi-info-circle"></i> Aucune catégorie en attente d'approbation.
         </div>
     {% else %}
+        {# Summary Statistics #}
+        {% set categoriesWithoutName = categories|filter(c => c.nom is empty or c.nom|trim == '') %}
+        {% set categoriesAlreadyApproved = categories|filter(c => c.statut.value == 'APPROUVE') %}
+        {% set categoriesCanBeApproved = categories|filter(c => (c.nom is not empty and c.nom|trim != '') and c.statut.value != 'APPROUVE') %}
+        
+        <div class="row mb-4">
+            <div class="col-md-12">
+                <div class="alert alert-light border">
+                    <div class="row text-center">
+                        <div class="col-md-3">
+                            <div class="p-3">
+                                <h3 class="mb-0">{{ categories|length }}</h3>
+                                <small class="text-muted">Total catégories</small>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="p-3 border-start">
+                                <h3 class="mb-0 text-success">{{ categoriesCanBeApproved|length }}</h3>
+                                <small class="text-muted"><i class="bi bi-check-circle"></i> Prêtes à approuver</small>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="p-3 border-start">
+                                <h3 class="mb-0 text-danger">{{ categoriesWithoutName|length }}</h3>
+                                <small class="text-muted"><i class="bi bi-exclamation-triangle"></i> Sans nom</small>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="p-3 border-start">
+                                <h3 class="mb-0 text-info">{{ categoriesAlreadyApproved|length }}</h3>
+                                <small class="text-muted"><i class="bi bi-check-circle-fill"></i> Déjà approuvées</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
         <div class="row mb-4">
             <div class="col-md-6 mx-auto">
                 <div class="input-group input-group-lg">
@@ -55,16 +100,41 @@
                      data-category-name="{{ categorie.nom|lower }}" 
                      data-category-type="{{ categorie.type|lower }}"
                      data-creator-name="{{ categorie.creePar ? categorie.creePar.nomComplet|lower : '' }}">
-                    <div class="card h-100 shadow-sm">
-                        <div class="card-header bg-warning text-dark">
+                    <div class="card h-100 shadow-sm {{ categorie.nom is empty or categorie.nom|trim == '' ? 'border-danger' : '' }} {{ categorie.statut.value == 'APPROUVE' ? 'border-success' : '' }}">
+                        <div class="card-header {{ categorie.nom is empty or categorie.nom|trim == '' ? 'bg-danger text-white' : (categorie.statut.value == 'APPROUVE' ? 'bg-success text-white' : 'bg-warning text-dark') }}">
                             <h5 class="mb-0">
-                                <i class="bi bi-folder"></i> {{ categorie.nom }}
+                                <i class="bi bi-folder"></i> 
+                                {% if categorie.nom is empty or categorie.nom|trim == '' %}
+                                    <span class="text-decoration-line-through">(Sans nom)</span>
+                                    <i class="bi bi-exclamation-triangle-fill ms-2" title="Cette catégorie n'a pas de nom"></i>
+                                {% else %}
+                                    {{ categorie.nom }}
+                                {% endif %}
                                 <span class="badge {{ categorie.statut.badgeClass }} float-end">
                                     {{ categorie.statut.label }}
                                 </span>
                             </h5>
                         </div>
                         <div class="card-body">
+                            {% if categorie.nom is empty or categorie.nom|trim == '' %}
+                                <div class="alert alert-danger mb-3">
+                                    <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                                    <strong>Attention:</strong> Cette catégorie ne peut pas être approuvée car elle n'a pas de nom. 
+                                    Veuillez demander au médecin de modifier la catégorie pour ajouter un nom.
+                                </div>
+                            {% endif %}
+                            
+                            {% if categorie.statut.value == 'APPROUVE' %}
+                                <div class="alert alert-success mb-3">
+                                    <i class="bi bi-check-circle-fill me-2"></i>
+                                    <strong>Déjà approuvée:</strong> Cette catégorie a été approuvée le 
+                                    <strong>{{ categorie.dateApprobation|date('d/m/Y à H:i') }}</strong>
+                                    {% if categorie.approuvePar %}
+                                        par <strong>{{ categorie.approuvePar.nomComplet }}</strong>
+                                    {% endif %}.
+                                </div>
+                            {% endif %}
+                            
                             <p class="card-text">{{ categorie.description }}</p>
                             
                             <div class="mb-3">
@@ -176,15 +246,54 @@
                             {% endif %}
                         </div>
                         <div class="card-footer bg-light">
+                            {# Validation Summary Box #}
+                            {% set hasNoName = categorie.nom is empty or categorie.nom|trim == '' %}
+                            {% set isAlreadyApproved = categorie.statut.value == 'APPROUVE' %}
+                            {% set canBeApproved = not hasNoName and not isAlreadyApproved %}
+                            
+                            {% if not canBeApproved %}
+                                <div class="alert alert-{{ hasNoName ? 'danger' : 'info' }} mb-3 py-2">
+                                    <small>
+                                        <i class="bi bi-{{ hasNoName ? 'x-circle' : 'info-circle' }}-fill me-1"></i>
+                                        <strong>Impossible d'approuver:</strong>
+                                        {% if hasNoName %}
+                                            Le nom de la catégorie est vide
+                                        {% elseif isAlreadyApproved %}
+                                            Catégorie déjà approuvée le {{ categorie.dateApprobation|date('d/m/Y') }}
+                                        {% endif %}
+                                    </small>
+                                </div>
+                            {% endif %}
+                            
                             <div class="d-flex justify-content-between gap-2">
                                 <form method="post" action="{{ path('app_admin_approuver_categorie', {id: categorie.id}) }}" class="flex-fill">
-                                    <button type="submit" class="btn btn-success w-100" onclick="return confirm('Approuver cette catégorie ?\n\nElle sera visible par tous les patients.')">
-                                        <i class="bi bi-check-circle"></i> Approuver
+                                    <button type="submit" 
+                                            class="btn btn-success w-100 position-relative" 
+                                            {% if not canBeApproved %}
+                                                disabled 
+                                                data-bs-toggle="tooltip" 
+                                                data-bs-placement="top"
+                                                title="{% if hasNoName %}❌ Nom manquant - Cette catégorie n'a pas de nom{% elseif isAlreadyApproved %}✓ Déjà approuvée le {{ categorie.dateApprobation|date('d/m/Y') }}{% endif %}"
+                                            {% endif %}
+                                            {% if canBeApproved %}
+                                                onclick="return confirm('Approuver cette catégorie ?\n\nElle sera visible par tous les patients.')"
+                                            {% endif %}>
+                                        <i class="bi bi-{{ isAlreadyApproved ? 'check-circle' : 'check-circle' }}"></i> 
+                                        {% if isAlreadyApproved %}
+                                            Déjà approuvée
+                                        {% elseif hasNoName %}
+                                            Nom manquant
+                                        {% else %}
+                                            Approuver
+                                        {% endif %}
                                     </button>
                                 </form>
                                 
                                 <form method="post" action="{{ path('app_admin_rejeter_categorie', {id: categorie.id}) }}" class="flex-fill">
-                                    <button type="submit" class="btn btn-danger w-100" onclick="return confirm('Rejeter cette catégorie ?\n\nLe médecin sera notifié du rejet.')">
+                                    <button type="submit" 
+                                            class="btn btn-danger w-100" 
+                                            {% if categorie.statut.value == 'APPROUVE' %}disabled title="Impossible de rejeter une catégorie déjà approuvée"{% endif %}
+                                            onclick="return confirm('Rejeter cette catégorie ?\n\nLe médecin sera notifié du rejet.')">
                                         <i class="bi bi-x-circle"></i> Rejeter
                                     </button>
                                 </form>
@@ -202,6 +311,10 @@
 {% block javascripts %}
 <script>
 document.addEventListener('DOMContentLoaded', function() {
+    // Initialize Bootstrap tooltips
+    const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]');
+    const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl));
+    
     const searchInput = document.getElementById('searchCategories');
     const clearButton = document.getElementById('clearSearch');
     const searchResults = document.getElementById('searchResults');
