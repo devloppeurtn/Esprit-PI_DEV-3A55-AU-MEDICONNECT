@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use App\Entity\CommandeProduit;
 use App\Entity\LigneCommande;
+use App\Entity\Utilisateur;
 use App\Enum\StatutCommande;
 use App\Repository\CommandeProduitRepository;
 use App\Repository\ProduitRepository;
@@ -29,6 +30,9 @@ class OrderController extends AbstractController
         CartService $cartService
     ): Response {
         $user = $this->getUser();
+        if (!$user instanceof Utilisateur) {
+            throw $this->createAccessDeniedException();
+        }
         $commandes = $commandeRepo->findByUtilisateur($user);
         $cartCount = $cartService->getCartCount();
 
@@ -43,8 +47,12 @@ class OrderController extends AbstractController
         CommandeProduit $commande,
         CartService $cartService
     ): Response {
+        $user = $this->getUser();
+        if (!$user instanceof Utilisateur) {
+            throw $this->createAccessDeniedException();
+        }
         // Check that the order belongs to the current user
-        if ($commande->getUtilisateur() !== $this->getUser()) {
+        if ($commande->getUtilisateur() !== $user) {
             throw $this->createAccessDeniedException();
         }
 
@@ -70,6 +78,9 @@ class OrderController extends AbstractController
 
         $cart = $cartService->getCart();
         $user = $this->getUser();
+        if (!$user instanceof Utilisateur) {
+            throw $this->createAccessDeniedException();
+        }
 
         if (empty($cart)) {
             $this->addFlash('warning', 'Votre panier est vide');
@@ -212,8 +223,12 @@ class OrderController extends AbstractController
         StockReservationService $stockReservationService,
         OrderWorkflowService $orderWorkflowService
     ): Response {
+        $user = $this->getUser();
+        if (!$user instanceof Utilisateur) {
+            throw $this->createAccessDeniedException();
+        }
         // ensure the order belongs to current user
-        if ($commande->getUtilisateur() !== $this->getUser()) {
+        if ($commande->getUtilisateur() !== $user) {
             throw $this->createAccessDeniedException();
         }
 

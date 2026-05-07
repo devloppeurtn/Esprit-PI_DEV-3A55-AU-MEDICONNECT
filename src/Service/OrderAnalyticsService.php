@@ -2,6 +2,11 @@
 
 namespace App\Service;
 
+use App\DTO\CategoryPurchaseSummary;
+use App\DTO\CustomerAtRiskSummary;
+use App\DTO\CustomerValueSummary;
+use App\DTO\OneTimeBuyerSummary;
+use App\DTO\ProductPurchaseSummary;
 use App\Entity\Utilisateur;
 use App\Enum\StatutCommande;
 use Doctrine\ORM\EntityManagerInterface;
@@ -111,24 +116,27 @@ class OrderAnalyticsService
      */
     public function getOrderFrequency(Utilisateur $customer): float|int
     {
-        $orders = $this->entityManager->createQueryBuilder()
-            ->select('c.dateCommande')
+        $result = $this->entityManager->createQueryBuilder()
+            ->select('COUNT(c.id) as orderCount, MIN(c.dateCommande) as firstOrder, MAX(c.dateCommande) as lastOrder')
             ->from('App\Entity\CommandeProduit', 'c')
             ->where('c.utilisateur = :customer')
-            ->orderBy('c.dateCommande', 'ASC')
             ->setParameter('customer', $customer)
             ->getQuery()
-            ->getResult();
+            ->getOneOrNullResult();
 
-        if (count($orders) < 2) {
+        $count = (int) ($result['orderCount'] ?? 0);
+        if ($count < 2) {
             return -1;
         }
 
-        $firstOrder = $orders[0]['dateCommande'];
-        $lastOrder = $orders[count($orders) - 1]['dateCommande'];
+        $firstOrder = $result['firstOrder'] ?? null;
+        $lastOrder = $result['lastOrder'] ?? null;
+        if (!$firstOrder instanceof \DateTimeInterface || !$lastOrder instanceof \DateTimeInterface) {
+            return -1;
+        }
         
         $daysSpan = $firstOrder->diff($lastOrder)->days;
-        $frequency = $daysSpan / (count($orders) - 1);
+        $frequency = $daysSpan / ($count - 1);
 
         return round($frequency, 2);
     }
@@ -138,12 +146,13 @@ class OrderAnalyticsService
      * 
      * @param Utilisateur $customer The customer
      * @param int $limit Number of top categories to return
-     * @return array<string, mixed> Array of categories with purchase count
+     * @return array<int, array<string, mixed>> Array of categories with purchase count
      */
     public function getPreferredCategories(Utilisateur $customer, int $limit = 5): array
     {
-        return $this->entityManager->createQueryBuilder()
-            ->select('cat.id, cat.nom as categoryName, COUNT(lc.id) as purchaseCount, SUM(lc.quantite) as totalQuantity')
+        $rows = $this->entityManager->createQueryBuilder()
+            ->select('NEW App\\DTO\\CategoryPurchaseSummary(cat.id, cat.nom, COUNT(lc.id), SUM(lc.quantite))')
+            ->addSelect('COUNT(lc.id) AS HIDDEN purchaseCount')
             ->from('App\Entity\CommandeProduit', 'c')
             ->innerJoin('c.lignesCommande', 'lc')
             ->innerJoin('lc.produit', 'p')
@@ -155,6 +164,21 @@ class OrderAnalyticsService
             ->setMaxResults($limit)
             ->getQuery()
             ->getResult();
+
+        return array_map(
+            static fn (CategoryPurchaseSummary $row): array => $row->toArray(),
+            $rows
+        );
+    }
+
+    public function getPreferredCategory(Utilisateur $customer): ?string
+    {
+        $categories = $this->getPreferredCategories($customer, 1);
+        if ($categories === [] || !isset($categories[0]['categoryName'])) {
+            return null;
+        }
+
+        return (string) $categories[0]['categoryName'];
     }
 
     /**
@@ -162,7 +186,7 @@ class OrderAnalyticsService
      * 
      * @param Utilisateur $customer The customer
      * @param int $months Number of months to look back
-     * @return array<string, mixed> Orders grouped by month
+     * @return array<int, array<string, mixed>> Orders grouped by month
      */
     public function getOrdersOverTime(Utilisateur $customer, int $months = 12): array
     {
@@ -279,8 +303,9 @@ SQL;
      */
     public function getMostPurchasedProducts(Utilisateur $customer, int $limit = 5): array
     {
-        return $this->entityManager->createQueryBuilder()
-            ->select('p.id, p.nom, p.image, SUM(lc.quantite) as totalQuantity, COUNT(DISTINCT c.id) as orderCount')
+        $rows = $this->entityManager->createQueryBuilder()
+            ->select('NEW App\\DTO\\ProductPurchaseSummary(p.id, p.nom, p.image, SUM(lc.quantite), COUNT(DISTINCT c.id))')
+            ->addSelect('SUM(lc.quantite) AS HIDDEN totalQuantity')
             ->from('App\Entity\CommandeProduit', 'c')
             ->innerJoin('c.lignesCommande', 'lc')
             ->innerJoin('lc.produit', 'p')
@@ -291,6 +316,11 @@ SQL;
             ->setMaxResults($limit)
             ->getQuery()
             ->getResult();
+
+        return array_map(
+            static fn (ProductPurchaseSummary $row): array => $row->toArray(),
+            $rows
+        );
     }
 
     /**
@@ -325,7 +355,7 @@ SQL;
         $sixMonthsAgo = (new \DateTime())->modify('-6 months');
         $threeMonthsAgo = (new \DateTime())->modify('-3 months');
 
-        $firstHalf = (float) $this->entityManager->createQueryBuilder()
+        $firstHalfRaw = $this->entityManager->createQueryBuilder()
             ->select('SUM(c.montantTotal)')
             ->from('App\Entity\CommandeProduit', 'c')
             ->where('c.utilisateur = :customer')
@@ -334,9 +364,10 @@ SQL;
             ->setParameter('sixMonthsAgo', $sixMonthsAgo)
             ->setParameter('threeMonthsAgo', $threeMonthsAgo)
             ->getQuery()
-            ->getSingleScalarResult() ?? 0;
+            ->getSingleScalarResult();
+        $firstHalf = is_numeric($firstHalfRaw) ? (float) $firstHalfRaw : 0.0;
 
-        $secondHalf = (float) $this->entityManager->createQueryBuilder()
+        $secondHalfRaw = $this->entityManager->createQueryBuilder()
             ->select('SUM(c.montantTotal)')
             ->from('App\Entity\CommandeProduit', 'c')
             ->where('c.utilisateur = :customer')
@@ -344,7 +375,8 @@ SQL;
             ->setParameter('customer', $customer)
             ->setParameter('threeMonthsAgo', $threeMonthsAgo)
             ->getQuery()
-            ->getSingleScalarResult() ?? 0;
+            ->getSingleScalarResult();
+        $secondHalf = is_numeric($secondHalfRaw) ? (float) $secondHalfRaw : 0.0;
 
         if ($firstHalf == 0) {
             return 'new_customer';
@@ -370,8 +402,9 @@ SQL;
      */
     public function getHighValueCustomers(float $minimumSpend = 1000, int $limit = 20): array
     {
-        return $this->entityManager->createQueryBuilder()
-            ->select('u.id, u.email, SUM(c.montantTotal) as totalSpent, COUNT(c.id) as orderCount')
+        $rows = $this->entityManager->createQueryBuilder()
+            ->select('NEW App\\DTO\\CustomerValueSummary(u.id, u.email, SUM(c.montantTotal), COUNT(c.id))')
+            ->addSelect('SUM(c.montantTotal) AS HIDDEN totalSpent')
             ->from('App\Entity\Utilisateur', 'u')
             ->leftJoin('u.commandes', 'c')
             ->groupBy('u.id, u.email')
@@ -381,6 +414,11 @@ SQL;
             ->setMaxResults($limit)
             ->getQuery()
             ->getResult();
+
+        return array_map(
+            static fn (CustomerValueSummary $row): array => $row->toArray(),
+            $rows
+        );
     }
 
     /**
@@ -394,8 +432,9 @@ SQL;
     {
         $cutoffDate = (new \DateTime())->modify("-{$daysInactive} days");
 
-        return $this->entityManager->createQueryBuilder()
-            ->select('u.id, u.email, MAX(c.dateCommande) as lastOrder, COUNT(c.id) as orderCount')
+        $rows = $this->entityManager->createQueryBuilder()
+            ->select('NEW App\\DTO\\CustomerAtRiskSummary(u.id, u.email, MAX(c.dateCommande), COUNT(c.id))')
+            ->addSelect('MAX(c.dateCommande) AS HIDDEN lastOrder')
             ->from('App\Entity\Utilisateur', 'u')
             ->leftJoin('u.commandes', 'c')
             ->where('c.dateCommande <= :cutoffDate')
@@ -407,6 +446,11 @@ SQL;
             ->setMaxResults($limit)
             ->getQuery()
             ->getResult();
+
+        return array_map(
+            static fn (CustomerAtRiskSummary $row): array => $row->toArray(),
+            $rows
+        );
     }
 
     /**
@@ -417,16 +461,22 @@ SQL;
      */
     public function getOneTimeBuyers(int $limit = 20): array
     {
-        return $this->entityManager->createQueryBuilder()
-            ->select('u.id, u.email, c.dateCommande as lastOrder, c.montantTotal as orderValue')
+        $rows = $this->entityManager->createQueryBuilder()
+            ->select('NEW App\\DTO\\OneTimeBuyerSummary(u.id, u.email, MAX(c.dateCommande), MAX(c.montantTotal))')
+            ->addSelect('MAX(c.dateCommande) AS HIDDEN lastOrder')
             ->from('App\Entity\Utilisateur', 'u')
             ->leftJoin('u.commandes', 'c')
             ->groupBy('u.id, u.email')
             ->having('COUNT(c.id) = 1')
-            ->orderBy('c.dateCommande', 'DESC')
+            ->orderBy('lastOrder', 'DESC')
             ->setMaxResults($limit)
             ->getQuery()
             ->getResult();
+
+        return array_map(
+            static fn (OneTimeBuyerSummary $row): array => $row->toArray(),
+            $rows
+        );
     }
 
     /**

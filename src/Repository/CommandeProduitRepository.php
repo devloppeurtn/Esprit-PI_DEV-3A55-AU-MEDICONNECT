@@ -4,6 +4,7 @@ namespace App\Repository;
 
 use App\Entity\CommandeProduit;
 use App\Entity\Utilisateur;
+use App\Enum\StatutCommande;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
@@ -39,6 +40,19 @@ class CommandeProduitRepository extends ServiceEntityRepository
             ->setParameter('utilisateur', $utilisateur)
             ->orderBy('c.dateCommande', 'DESC')
             ->setMaxResults($limit)
+            ->getQuery()
+            ->getResult();
+    }
+
+    /**
+     * @return CommandeProduit[]
+     */
+    public function findOrdersByStatus(StatutCommande $status): array
+    {
+        return $this->createQueryBuilder('c')
+            ->where('c.statut = :status')
+            ->setParameter('status', $status->value)
+            ->orderBy('c.dateCommande', 'DESC')
             ->getQuery()
             ->getResult();
     }

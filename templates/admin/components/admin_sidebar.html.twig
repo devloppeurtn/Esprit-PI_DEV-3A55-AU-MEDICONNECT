@@ -7,12 +7,9 @@
             </div>
             <span class="sidebar-title">MediConnect</span>
         </div>
-        <div class="sidebar-actions">
-            {% include 'notifications/_notification_bell.html.twig' %}
-            <button type="button" class="sidebar-toggle-btn" id="sidebar-toggle-btn" aria-label="Réduire le menu" title="Réduire le menu">
-                <i class="bi bi-chevron-left"></i>
-            </button>
-        </div>
+        <button type="button" class="sidebar-toggle-btn" id="sidebar-toggle-btn" aria-label="Réduire le menu" title="Réduire le menu">
+            <i class="bi bi-chevron-left"></i>
+        </button>
     </div>
 
     <div class="sidebar-content">
@@ -20,22 +17,11 @@
             <div class="sidebar-section">
                 <span class="sidebar-section-title">Principal</span>
                 <ul class="nav flex-column">
+                    {% if is_granted('ROLE_ADMIN') %}
                     <li class="nav-item">
                         <a class="nav-link {{ app.request.get('_route') == 'app_admin_dashboard' ? 'active' : '' }}" href="{{ path('app_admin_dashboard') }}" title="Tableau de bord">
                             <span class="nav-icon-wrap"><i class="bi bi-speedometer2"></i></span>
                             <span class="nav-text">Tableau de bord</span>
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link {{ app.request.get('_route') == 'app_admin_categories_en_attente' ? 'active' : '' }}" href="{{ path('app_admin_categories_en_attente') }}" title="Catégories en attente">
-                            <span class="nav-icon-wrap"><i class="bi bi-clock-history"></i></span>
-                            <span class="nav-text">Catégories en attente</span>
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link {{ app.request.get('_route') starts with 'app_savoir_medical' ? 'active' : '' }}" href="{{ path('app_savoir_medical_index') }}" title="Savoir Médical">
-                            <span class="nav-icon-wrap"><i class="bi bi-book"></i></span>
-                            <span class="nav-text">Savoir Médical</span>
                         </a>
                     </li>
                     <li class="nav-item">
@@ -45,29 +31,177 @@
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link {{ app.request.get('_route') starts with 'admin_products' ? 'active' : '' }}" href="{{ path('admin_products') }}" title="Produits">
+                        <a class="nav-link {{ app.request.get('_route') == 'app_admin_evenements' ? 'active' : '' }}" href="{{ path('app_admin_evenements') }}" title="Événements en attente">
+                            <span class="nav-icon-wrap"><i class="bi bi-calendar-event"></i></span>
+                            <span class="nav-text">Événements en attente</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {{ app.request.get('_route') == 'admin_products' or app.request.get('_route') starts with 'admin_products_' ? 'active' : '' }}" href="{{ path('admin_products') }}" title="Produits">
                             <span class="nav-icon-wrap"><i class="bi bi-box-seam"></i></span>
                             <span class="nav-text">Produits</span>
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link {{ app.request.get('_route') starts with 'admin_categories' ? 'active' : '' }}" href="{{ path('admin_categories') }}" title="Catégories">
+                        <a class="nav-link {{ app.request.get('_route') == 'admin_categories' or app.request.get('_route') starts with 'admin_categories_' ? 'active' : '' }}" href="{{ path('admin_categories') }}" title="Catégories">
                             <span class="nav-icon-wrap"><i class="bi bi-tags"></i></span>
                             <span class="nav-text">Catégories</span>
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link {{ app.request.get('_route') == 'app_admin_delivery_dashboard' ? 'active' : '' }}" href="{{ path('app_admin_delivery_dashboard') }}" title="Livraison SLA">
-                            <span class="nav-icon-wrap"><i class="bi bi-truck"></i></span>
-                            <span class="nav-text">Livraison SLA</span>
+                        <a class="nav-link {{ app.request.get('_route') == 'admin_promos' or app.request.get('_route') starts with 'admin_promos_' ? 'active' : '' }}" href="{{ path('admin_promos') }}" title="Codes promo">
+                            <span class="nav-icon-wrap"><i class="bi bi-percent"></i></span>
+                            <span class="nav-text">Codes promo</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {{ app.request.get('_route') starts with 'app_admin_rendezvous_' ? 'active' : '' }}" href="{{ path('app_admin_rendezvous_index') }}" title="Rendez-vous (backoffice)">
+                            <span class="nav-icon-wrap"><i class="bi bi-calendar-check"></i></span>
+                            <span class="nav-text">Rendez-vous</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {{ app.request.get('_route') == 'app_orders_list' or app.request.get('_route') starts with 'app_order_' ? 'active' : '' }}" href="{{ path('app_orders_list') }}" title="Mes commandes">
+                            <span class="nav-icon-wrap"><i class="bi bi-bag"></i></span>
+                            <span class="nav-text">Mes commandes</span>
+                        </a>
+                    </li>
+                    {% elseif is_granted('ROLE_MEDECIN') %}
+                    <li class="nav-item">
+                        <a class="nav-link {{ app.request.get('_route') == 'app_medecin_index' ? 'active' : '' }}" href="{{ path('app_medecin_index') }}" title="Mon espace">
+                            <span class="nav-icon-wrap"><i class="bi bi-house-door-fill"></i></span>
+                            <span class="nav-text">Mon espace</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {{ app.request.get('_route') == 'app_medecin_secretaires' ? 'active' : '' }}" href="{{ path('app_medecin_secretaires') }}" title="Mes secrétaires">
+                            <span class="nav-icon-wrap"><i class="bi bi-person-badge-fill"></i></span>
+                            <span class="nav-text">Mes secrétaires</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {{ app.request.get('_route') == 'app_medecin_rendez_vous' ? 'active' : '' }}" href="{{ path('app_medecin_rendez_vous') }}" title="Mes rendez-vous">
+                            <span class="nav-icon-wrap"><i class="bi bi-calendar-event-fill"></i></span>
+                            <span class="nav-text">Mes rendez-vous</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {{ app.request.get('_route') == 'app_medecin_consultations' ? 'active' : '' }}" href="{{ path('app_medecin_consultations') }}" title="Mes consultations">
+                            <span class="nav-icon-wrap"><i class="bi bi-clipboard2-pulse-fill"></i></span>
+                            <span class="nav-text">Mes consultations</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {{ app.request.get('_route') == 'app_orders_list' or app.request.get('_route') starts with 'app_order_' ? 'active' : '' }}" href="{{ path('app_orders_list') }}" title="Mes commandes">
+                            <span class="nav-icon-wrap"><i class="bi bi-bag"></i></span>
+                            <span class="nav-text">Mes commandes</span>
+                        </a>
+                    </li>
+                    {% elseif is_granted('ROLE_SECRETAIRE') %}
+                    <li class="nav-item">
+                        <a class="nav-link {{ app.request.get('_route') == 'app_secretaire_index' ? 'active' : '' }}" href="{{ path('app_secretaire_index') }}" title="Mes invitations">
+                            <span class="nav-icon-wrap"><i class="bi bi-envelope-fill"></i></span>
+                            <span class="nav-text">Mes invitations</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {{ app.request.get('_route') == 'app_secretaire_rendez_vous' ? 'active' : '' }}" href="{{ path('app_secretaire_rendez_vous') }}" title="Rendez-vous à valider">
+                            <span class="nav-icon-wrap"><i class="bi bi-calendar-check-fill"></i></span>
+                            <span class="nav-text">Rendez-vous à valider</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {{ app.request.get('_route') == 'app_orders_list' or app.request.get('_route') starts with 'app_order_' ? 'active' : '' }}" href="{{ path('app_orders_list') }}" title="Mes commandes">
+                            <span class="nav-icon-wrap"><i class="bi bi-bag"></i></span>
+                            <span class="nav-text">Mes commandes</span>
+                        </a>
+                    </li>
+                    {% elseif is_granted('ROLE_PATIENT') %}
+                    <li class="nav-item">
+                        <a class="nav-link {{ app.request.get('_route') == 'app_patient_index' ? 'active' : '' }}" href="{{ path('app_patient_index') }}" title="Mon espace">
+                            <span class="nav-icon-wrap"><i class="bi bi-house-door-fill"></i></span>
+                            <span class="nav-text">Mon espace</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {{ app.request.get('_route') == 'app_patient_dossier' ? 'active' : '' }}" href="{{ path('app_patient_dossier') }}" title="Mon dossier médical">
+                            <span class="nav-icon-wrap"><i class="bi bi-folder2-open"></i></span>
+                            <span class="nav-text">Mon dossier médical</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {{ app.request.get('_route') == 'app_patient_medecins' ? 'active' : '' }}" href="{{ path('app_patient_medecins') }}" title="Nos médecins">
+                            <span class="nav-icon-wrap"><i class="bi bi-heart-pulse-fill"></i></span>
+                            <span class="nav-text">Nos médecins</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {{ app.request.get('_route') == 'app_patient_rendez_vous' ? 'active' : '' }}" href="{{ path('app_patient_rendez_vous') }}" title="Mes rendez-vous">
+                            <span class="nav-icon-wrap"><i class="bi bi-calendar-event-fill"></i></span>
+                            <span class="nav-text">Mes rendez-vous</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {{ app.request.get('_route') == 'app_orders_list' or app.request.get('_route') starts with 'app_order_' ? 'active' : '' }}" href="{{ path('app_orders_list') }}" title="Mes commandes">
+                            <span class="nav-icon-wrap"><i class="bi bi-bag"></i></span>
+                            <span class="nav-text">Mes commandes</span>
+                        </a>
+                    </li>
+                    {% elseif is_granted('ROLE_ORGANISATEUR') %}
+                    <li class="nav-item">
+                        <a class="nav-link {{ app.request.get('_route') starts with 'app_evenement_' ? 'active' : '' }}" href="{{ path('app_evenement_index') }}" title="Mes événements">
+                            <span class="nav-icon-wrap"><i class="bi bi-calendar-event"></i></span>
+                            <span class="nav-text">Mes événements</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {{ app.request.get('_route') == 'app_evenement_stats' ? 'active' : '' }}" href="{{ path('app_evenement_stats') }}" title="Statistiques">
+                            <span class="nav-icon-wrap"><i class="bi bi-bar-chart-fill"></i></span>
+                            <span class="nav-text">Statistiques</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {{ app.request.get('_route') == 'app_orders_list' or app.request.get('_route') starts with 'app_order_' ? 'active' : '' }}" href="{{ path('app_orders_list') }}" title="Mes commandes">
+                            <span class="nav-icon-wrap"><i class="bi bi-bag"></i></span>
+                            <span class="nav-text">Mes commandes</span>
+                        </a>
+                    </li>
+                    {% endif %}
+                </ul>
+            </div>
+
+            {# Section Savoir Médical : réservée aux patients (répondre aux quiz) #}
+            {% if is_granted('ROLE_PATIENT') %}
+            <div class="sidebar-section">
+                <span class="sidebar-section-title">Savoir Médical</span>
+                <ul class="nav flex-column">
+                    <li class="nav-item">
+                        <a class="nav-link {{ app.request.get('_route') == 'app_savoir_medical_index' or app.request.get('_route') starts with 'app_savoir_medical_categorie' or app.request.get('_route') starts with 'app_savoir_medical_cours' ? 'active' : '' }}" href="{{ path('app_savoir_medical_index') }}" title="Cours et Quiz">
+                            <span class="nav-icon-wrap"><i class="bi bi-book-fill"></i></span>
+                            <span class="nav-text">Cours et Quiz</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {{ app.request.get('_route') == 'app_progression_utilisateur' ? 'active' : '' }}" href="{{ path('app_progression_utilisateur') }}" title="Ma progression">
+                            <span class="nav-icon-wrap"><i class="bi bi-graph-up-arrow"></i></span>
+                            <span class="nav-text">Ma progression</span>
                         </a>
                     </li>
                 </ul>
             </div>
+            {% endif %}
 
             <div class="sidebar-section">
                 <span class="sidebar-section-title">Compte</span>
                 <ul class="nav flex-column">
+                    {% if (is_granted('ROLE_MEDECIN') or is_granted('ROLE_SECRETAIRE') or is_granted('ROLE_PATIENT')) and not is_granted('ROLE_ADMIN') %}
+                    <li class="nav-item">
+                        <a class="nav-link {{ app.request.get('_route') == 'app_profile' ? 'active' : '' }}" href="{{ path('app_profile') }}" title="Mon profil">
+                            <span class="nav-icon-wrap"><i class="bi bi-person-fill"></i></span>
+                            <span class="nav-text">Mon profil</span>
+                        </a>
+                    </li>
+                    {% endif %}
                     <li class="nav-item">
                         <a class="nav-link nav-link-external" href="{{ path('app_home') }}" title="Voir le site">
                             <span class="nav-icon-wrap"><i class="bi bi-box-arrow-up-right"></i></span>

@@ -1,0 +1,1335 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Burndown Chart — Semaine du 02/03/2026</title>
+    <link rel="preconnect" href="https://cdn.jsdelivr.net" />
+    <style>
+      :root {
+        --bg: #f5f7fb;
+        --card: #ffffff;
+        --text: #1f2a44;
+        --muted: #6b7280;
+        --ideal: #ef4444;
+        --real: #3b82f6;
+        --bar: rgba(167, 139, 250, 0.35);
+        --grid: rgba(15, 23, 42, 0.08);
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        background: linear-gradient(120deg, #eef2ff, #f8fafc 55%, #f1f5f9);
+        color: var(--text);
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 24px;
+        gap: 24px;
+      }
+      .card {
+        width: min(1100px, 100%);
+        background: var(--card);
+        border-radius: 18px;
+        box-shadow: 0 20px 45px rgba(15, 23, 42, 0.08);
+        padding: 28px 28px 18px;
+      }
+      header {
+        display: flex;
+        justify-content: space-between;
+        align-items: baseline;
+        gap: 16px;
+        margin-bottom: 8px;
+      }
+      h1 {
+        font-size: 20px;
+        margin: 0;
+        letter-spacing: 0.2px;
+      }
+      .subtitle {
+        color: var(--muted);
+        font-size: 13px;
+      }
+      .legend-note {
+        margin-top: 6px;
+        font-size: 12px;
+        color: var(--muted);
+      }
+      .chart-wrap {
+        position: relative;
+        height: 520px;
+      }
+      .chart-block {
+        margin-top: 6px;
+      }
+      .chart-block + .chart-block {
+        margin-top: 28px;
+      }
+            .diagram {
+        margin-top: 28px;
+      }
+      .diagram h2 {
+        margin: 0 0 8px;
+        font-size: 16px;
+      }
+      .diagram .note {
+        font-size: 12px;
+        color: var(--muted);
+        margin-bottom: 12px;
+      }
+      .diagram .mermaid {
+        background: #ffffff;
+        border: 1px solid rgba(15, 23, 42, 0.12);
+        border-radius: 12px;
+        padding: 12px;
+        font-size: 12px;
+        overflow-x: auto;
+      }.backlog {
+        margin-top: 28px;
+        overflow-x: auto;
+      }
+      .backlog h2 {
+        margin: 0 0 6px;
+        font-size: 16px;
+      }
+      .backlog-note {
+        font-size: 12px;
+        color: var(--muted);
+        margin-bottom: 12px;
+      }
+      table.backlog-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 12px;
+      }
+      .backlog-table th,
+      .backlog-table td {
+        border: 1px solid rgba(15, 23, 42, 0.12);
+        padding: 8px 10px;
+        vertical-align: top;
+      }
+      .backlog-table th {
+        background: #5b2a86;
+        color: #ffffff;
+        text-transform: uppercase;
+        letter-spacing: 0.3px;
+        font-size: 11px;
+      }
+      .backlog-table tbody tr:nth-child(even) td {
+        background: #f8f6fb;
+      }
+      .backlog-table .us {
+        font-weight: 700;
+        background: #efe6f7;
+      }
+      .backlog-table .story {
+        min-width: 220px;
+      }
+      .status {
+        display: inline-block;
+        padding: 4px 10px;
+        border-radius: 999px;
+        font-weight: 600;
+        font-size: 11px;
+      }
+      .status.todo {
+        background: #fef3c7;
+        color: #92400e;
+      }
+      .status.doing {
+        background: #dbeafe;
+        color: #1d4ed8;
+      }
+      .status.done {
+        background: #d1fae5;
+        color: #047857;
+      }
+      footer {
+        margin-top: 12px;
+        display: flex;
+        justify-content: space-between;
+        font-size: 12px;
+        color: var(--muted);
+      }
+      @media (max-width: 720px) {
+        header {
+          flex-direction: column;
+          align-items: flex-start;
+        }
+        .chart-wrap {
+          height: 420px;
+        }
+        footer {
+          flex-direction: column;
+          gap: 6px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="card">
+            <header>
+        <div>
+          <h1>Burndown Charts � 2 dernieres semaines</h1>
+          <div class="subtitle">Semaines du 16/02/2026 au 22/02/2026 et du 23/02/2026 au 01/03/2026</div>
+        </div>
+        <div class="subtitle">MediConnect � Vue globale</div>
+      </header>
+      <div class="legend-note">
+        Ligne ideale (rouge), progression reelle (bleu), SP completes par jour (violet).
+      </div>
+
+      <div class="chart-block">
+        <div class="subtitle">Semaine du 16/02/2026 au 22/02/2026</div>
+        <div class="chart-wrap">
+          <canvas id="burndownChartWeek1" aria-label="Burndown Chart Week 1" role="img"></canvas>
+        </div>
+        <footer>
+          <span>Total Sprint: 55 SP</span>
+          <span>Source: estimation basee sur l'etat actuel du projet</span>
+        </footer>
+      </div>
+
+      <div class="chart-block">
+        <div class="subtitle">Semaine du 23/02/2026 au 01/03/2026</div>
+        <div class="chart-wrap">
+          <canvas id="burndownChartWeek2" aria-label="Burndown Chart Week 2" role="img"></canvas>
+        </div>
+        <footer>
+          <span>Total Sprint: 62 SP</span>
+          <span>Source: estimation basee sur l'etat actuel du projet</span>
+        </footer>
+      </div>
+            <section class="diagram">
+        <h2>Diagramme de sequence - Module 2 (planning, disponibilite, RDV, validation)</h2>
+        <div class="note">
+          Fixation des plages horaires par la secretaire, prise de RDV par le patient selon disponibilite, validation,
+          notification et visualisation des consultations.
+        </div>
+        <pre class="mermaid">
+sequenceDiagram
+  autonumber
+  actor Secretaire
+  actor Patient
+  participant UI as Interface Web
+  participant Planning as PlanningMedecin
+  participant Dispo as DisponibiliteService
+  participant RDVRepo as RendezVousRepository
+  participant ConsultRepo as ConsultationRepository
+  participant Notif as NotificationService
+  participant DB as Database
+
+  Secretaire->>UI: Ouvrir configuration planning
+  UI->>Planning: Charger planning du medecin
+  Planning->>DB: Lire planning existant
+  DB-->>Planning: Donnees planning
+  Planning-->>UI: Afficher formulaire planning
+  Secretaire->>UI: Definir plages horaires + duree
+  UI->>Planning: Enregistrer planning
+  Planning->>DB: Persist planning
+  DB-->>Planning: OK
+  Planning-->>UI: Confirmation
+
+  Patient->>UI: Ouvrir prise de RDV
+  UI->>Dispo: Demander disponibilites(date, medecin)
+  Dispo->>Planning: Lire planning
+  Planning->>DB: Charger planning
+  Dispo->>RDVRepo: Charger RDV existants
+  RDVRepo->>DB: Lire RDV du medecin
+  Dispo-->>UI: Creneaux libres/occupes
+  Patient->>UI: Choisir creneau + soumettre
+  UI->>RDVRepo: Creer RDV (statut EN_ATTENTE)
+  RDVRepo->>DB: Insert RDV
+  RDVRepo-->>UI: RDV en attente
+  UI->>Notif: Notifier secretaire/medecin
+  Notif-->>Secretaire: Notification nouvelle demande
+
+  Secretaire->>UI: Valider ou refuser RDV
+  UI->>RDVRepo: Mettre a jour statut
+  RDVRepo->>DB: Update RDV
+  RDVRepo-->>UI: Statut mis a jour
+  UI->>Notif: Notifier patient
+  Notif-->>Patient: RDV confirme/refuse
+
+  UI->>ConsultRepo: Compter consultations pour tableau de bord
+  ConsultRepo->>DB: Aggregation
+  ConsultRepo-->>UI: Statistiques consultations
+        </pre>
+      </section><section class="backlog">
+        <h2>Sprint Backlog - Module 2 (Rendez-vous, Consultation, Dossier, Calendrier, Ordonnance)</h2>
+        <div class="backlog-note">
+          Structure inspiree du tableau fourni. Les taches mentionnent les CRUD, les API et les bundles utilises.
+        </div>
+        <table class="backlog-table" aria-label="Sprint Backlog Module 2">
+          <thead>
+            <tr>
+              <th>ID US</th>
+              <th>User Story</th>
+              <th>ID Tache</th>
+              <th>Tache / Description</th>
+              <th>Estimation</th>
+              <th>Responsable</th>
+              <th>Statut</th>
+            </tr>
+          </thead>
+                              <tbody>
+            <tr>
+              <td class="us" rowspan="8">US-1</td>
+              <td class="story" rowspan="8">En tant que patient, secretaire ou medecin, je veux creer, consulter, valider et annuler des rendez-vous de maniere securisee.</td>
+              <td>T-1.1</td>
+              <td>Definir l'entite RendezVous avec statut, dates, note et relations Patient/Medecin/Consultation, puis generer la migration.</td>
+              <td>2h</td>
+              <td>Islem Khiari</td>
+              <td><span class="status done">Termine</span></td>
+            </tr>
+            <tr>
+              <td>T-1.2</td>
+              <td>Implementer les requetes metier (RDV par patient, par medecin, en attente, par jour) pour alimenter les ecrans.</td>
+              <td>1h</td>
+              <td>Islem Khiari</td>
+              <td><span class="status done">Termine</span></td>
+            </tr>
+            <tr>
+              <td>T-1.3</td>
+              <td>Creer le formulaire de demande de RDV avec validation stricte (date future, medecin obligatoire, note optionnelle).</td>
+              <td>1h</td>
+              <td>Islem Khiari</td>
+              <td><span class="status done">Termine</span></td>
+            </tr>
+            <tr>
+              <td>T-1.4</td>
+              <td>Patient : ecran de creation + liste de ses RDV avec filtres simples.</td>
+              <td>2h</td>
+              <td>Islem Khiari</td>
+              <td><span class="status done">Termine</span></td>
+            </tr>
+            <tr>
+              <td>T-1.5</td>
+              <td>Annulation securisee d'un RDV (CSRF, verification droit, interdiction si consultation existante).</td>
+              <td>1h</td>
+              <td>Islem Khiari</td>
+              <td><span class="status done">Termine</span></td>
+            </tr>
+            <tr>
+              <td>T-1.6</td>
+              <td>Secretaire : validation ou refus des RDV avec mise a jour du statut.</td>
+              <td>1h</td>
+              <td>Islem Khiari</td>
+              <td><span class="status done">Termine</span></td>
+            </tr>
+            <tr>
+              <td>T-1.7</td>
+              <td>Medecin : annulation d'un RDV depuis sa liste, avec controles d'acces.</td>
+              <td>45min</td>
+              <td>Islem Khiari</td>
+              <td><span class="status done">Termine</span></td>
+            </tr>
+            <tr>
+              <td>T-1.8</td>
+              <td>API JSON pour creation rapide de RDV (utilisee par l'interface dynamique).</td>
+              <td>45min</td>
+              <td>Islem Khiari</td>
+              <td><span class="status done">Termine</span></td>
+            </tr>
+
+            <tr>
+              <td class="us" rowspan="7">US-2</td>
+              <td class="story" rowspan="7">En tant que medecin ou secretaire, je veux configurer un planning et visualiser un calendrier hebdomadaire des disponibilites.</td>
+              <td>T-2.1</td>
+              <td>Definir l'entite PlanningMedecin (jours ouverture, plages horaires, duree consultation) + migration.</td>
+              <td>2h</td>
+              <td>Islem Khiari</td>
+              <td><span class="status done">Termine</span></td>
+            </tr>
+            <tr>
+              <td>T-2.2</td>
+              <td>Creer le formulaire de configuration du planning avec validations des heures et des jours.</td>
+              <td>1h</td>
+              <td>Islem Khiari</td>
+              <td><span class="status done">Termine</span></td>
+            </tr>
+            <tr>
+              <td>T-2.3</td>
+              <td>Service de disponibilite : generer les creneaux libres/occupes a partir du planning et des RDV.</td>
+              <td>2h</td>
+              <td>Islem Khiari</td>
+              <td><span class="status done">Termine</span></td>
+            </tr>
+            <tr>
+              <td>T-2.4</td>
+              <td>Agenda hebdomadaire medecin avec statistiques (libres/occupes) et navigation par semaine.</td>
+              <td>1h</td>
+              <td>Islem Khiari</td>
+              <td><span class="status done">Termine</span></td>
+            </tr>
+            <tr>
+              <td>T-2.5</td>
+              <td>Agenda hebdomadaire secretaire avec creation rapide de RDV depuis un creneau.</td>
+              <td>1h</td>
+              <td>Islem Khiari</td>
+              <td><span class="status done">Termine</span></td>
+            </tr>
+            <tr>
+              <td>T-2.6</td>
+              <td>API JSON des disponibilites pour rafraichir l'agenda sans rechargement.</td>
+              <td>45min</td>
+              <td>Islem Khiari</td>
+              <td><span class="status done">Termine</span></td>
+            </tr>
+            <tr>
+              <td>T-2.7</td>
+              <td>Integration UI : tableau calendrier, badges statut, actions creation/annulation.</td>
+              <td>1h</td>
+              <td>Islem Khiari</td>
+              <td><span class="status done">Termine</span></td>
+            </tr>
+
+            <tr>
+              <td class="us" rowspan="7">US-3</td>
+              <td class="story" rowspan="7">En tant que medecin, je veux gerer les consultations liees aux RDV et permettre au patient de les consulter.</td>
+              <td>T-3.1</td>
+              <td>Definir l'entite Consultation et ses relations (RDV, Medecin, DossierMedical) + migration.</td>
+              <td>2h</td>
+              <td>Islem Khiari</td>
+              <td><span class="status done">Termine</span></td>
+            </tr>
+            <tr>
+              <td>T-3.2</td>
+              <td>Creer le formulaire consultation avec champs diagnostic/resume et validations.</td>
+              <td>1h</td>
+              <td>Islem Khiari</td>
+              <td><span class="status done">Termine</span></td>
+            </tr>
+            <tr>
+              <td>T-3.3</td>
+              <td>Creer une consultation depuis un RDV et mettre le RDV au statut termine.</td>
+              <td>1h</td>
+              <td>Islem Khiari</td>
+              <td><span class="status done">Termine</span></td>
+            </tr>
+            <tr>
+              <td>T-3.4</td>
+              <td>Liste des consultations du medecin avec acces rapide aux details.</td>
+              <td>1h</td>
+              <td>Islem Khiari</td>
+              <td><span class="status done">Termine</span></td>
+            </tr>
+            <tr>
+              <td>T-3.5</td>
+              <td>Edition et suppression d'une consultation avec controle d'acces medecin.</td>
+              <td>1h</td>
+              <td>Islem Khiari</td>
+              <td><span class="status done">Termine</span></td>
+            </tr>
+            <tr>
+              <td>T-3.6</td>
+              <td>Rapports medicaux : ajout, modification, suppression liees a la consultation.</td>
+              <td>1h</td>
+              <td>Islem Khiari</td>
+              <td><span class="status done">Termine</span></td>
+            </tr>
+            <tr>
+              <td>T-3.7</td>
+              <td>Patient : consultation en lecture seule depuis son dossier medical.</td>
+              <td>45min</td>
+              <td>Islem Khiari</td>
+              <td><span class="status done">Termine</span></td>
+            </tr>
+
+            <tr>
+              <td class="us" rowspan="7">US-4</td>
+              <td class="story" rowspan="7">En tant que patient, je veux gerer mon dossier medical, mes documents et mes medicaments actuels.</td>
+              <td>T-4.1</td>
+              <td>Definir DossierMedical, DocumentPatient et MedicamentActuel + migrations.</td>
+              <td>2h</td>
+              <td>Islem Khiari</td>
+              <td><span class="status done">Termine</span></td>
+            </tr>
+            <tr>
+              <td>T-4.2</td>
+              <td>Formulaires dossier et documents avec validation (taille, type fichier, champs obligatoires).</td>
+              <td>2h</td>
+              <td>Islem Khiari</td>
+              <td><span class="status done">Termine</span></td>
+            </tr>
+            <tr>
+              <td>T-4.3</td>
+              <td>Creation automatique du dossier si absent + edition des infos du patient.</td>
+              <td>1h</td>
+              <td>Islem Khiari</td>
+              <td><span class="status done">Termine</span></td>
+            </tr>
+            <tr>
+              <td>T-4.4</td>
+              <td>Upload et affichage des documents patients avec suppression securisee.</td>
+              <td>2h</td>
+              <td>Islem Khiari</td>
+              <td><span class="status done">Termine</span></td>
+            </tr>
+            <tr>
+              <td>T-4.5</td>
+              <td>Ajout/suppression de medicaments actuels a partir d'une ordonnance.</td>
+              <td>1h</td>
+              <td>Islem Khiari</td>
+              <td><span class="status done">Termine</span></td>
+            </tr>
+            <tr>
+              <td>T-4.6</td>
+              <td>Controle d'acces strict : ownership patient et CSRF sur actions sensibles.</td>
+              <td>1h</td>
+              <td>Islem Khiari</td>
+              <td><span class="status done">Termine</span></td>
+            </tr>
+            <tr>
+              <td>T-4.7</td>
+              <td>Templates dossier medical (infos, docs, medicaments) avec messages clairs.</td>
+              <td>1h</td>
+              <td>Islem Khiari</td>
+              <td><span class="status done">Termine</span></td>
+            </tr>
+
+            <tr>
+              <td class="us" rowspan="7">US-5</td>
+              <td class="story" rowspan="7">En tant que medecin, je veux saisir une ordonnance avec l'API Open-Medicaments et permettre au patient de la telecharger en PDF.</td>
+              <td>T-5.1</td>
+              <td>Definir l'entite Ordonnance liee a Consultation + migration.</td>
+              <td>1h</td>
+              <td>Islem Khiari</td>
+              <td><span class="status done">Termine</span></td>
+            </tr>
+            <tr>
+              <td>T-5.2</td>
+              <td>Formulaire ordonnance avec champs medicament/posologie/instructions et validations claires.</td>
+              <td>1h</td>
+              <td>Islem Khiari</td>
+              <td><span class="status done">Termine</span></td>
+            </tr>
+            <tr>
+              <td>T-5.3</td>
+              <td>Integration API Open-Medicaments : auto-completion du medicament pour aider le medecin.</td>
+              <td>1h</td>
+              <td>Islem Khiari</td>
+              <td><span class="status done">Termine</span></td>
+            </tr>
+            <tr>
+              <td>T-5.4</td>
+              <td>Creation/modification/suppression ordonnance depuis la consultation.</td>
+              <td>1h</td>
+              <td>Islem Khiari</td>
+              <td><span class="status done">Termine</span></td>
+            </tr>
+            <tr>
+              <td>T-5.5</td>
+              <td>Generation PDF via Dompdf a partir de l'ordonnance validee.</td>
+              <td>1h</td>
+              <td>Islem Khiari</td>
+              <td><span class="status done">Termine</span></td>
+            </tr>
+            <tr>
+              <td>T-5.6</td>
+              <td>Patient : telechargement et enregistrement local du PDF d'ordonnance.</td>
+              <td>45min</td>
+              <td>Islem Khiari</td>
+              <td><span class="status done">Termine</span></td>
+            </tr>
+            <tr>
+              <td>T-5.7</td>
+              <td>Templates ordonnance (formulaire, apercu, bouton PDF) avec UI explicite.</td>
+              <td>1h</td>
+              <td>Islem Khiari</td>
+              <td><span class="status done">Termine</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+      <section class="backlog">
+        <h2>Sprint Backlog - Module 4 (Evenement, Participation, Statistiques)</h2>
+        <div class="backlog-note">
+          Backlog detaille du module evenementiel avec participation et suivi. Responsable: Azza Drissi.
+        </div>
+        <table class="backlog-table" aria-label="Sprint Backlog Module 4">
+          <thead>
+            <tr>
+              <th>ID US</th>
+              <th>User Story</th>
+              <th>ID Tache</th>
+              <th>Tache / Description</th>
+              <th>Estimation</th>
+              <th>Responsable</th>
+              <th>Statut</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="us" rowspan="7">US-1</td>
+              <td class="story" rowspan="7">En tant qu'organisateur, je veux creer et publier des evenements pour informer la communaute.</td>
+              <td>T-1.1</td>
+              <td>Definir l'entite Evenement avec statut, dates, contenu et organisateur, puis generer la migration.</td>
+              <td>2h</td>
+              <td>Azza Drissi</td>
+              <td><span class="status done">Termine</span></td>
+            </tr>
+            <tr>
+              <td>T-1.2</td>
+              <td>Creer le formulaire Evenement avec validation des champs (titre, contenu, date, activation).</td>
+              <td>1h</td>
+              <td>Azza Drissi</td>
+              <td><span class="status done">Termine</span></td>
+            </tr>
+            <tr>
+              <td>T-1.3</td>
+              <td>Creation d'evenement par organisateur avec statut initial “en attente”.</td>
+              <td>1h</td>
+              <td>Azza Drissi</td>
+              <td><span class="status done">Termine</span></td>
+            </tr>
+            <tr>
+              <td>T-1.4</td>
+              <td>Modification d'evenement par son auteur avec controle d'acces strict.</td>
+              <td>1h</td>
+              <td>Azza Drissi</td>
+              <td><span class="status done">Termine</span></td>
+            </tr>
+            <tr>
+              <td>T-1.5</td>
+              <td>Suppression d'evenement avec confirmation et protection CSRF.</td>
+              <td>45min</td>
+              <td>Azza Drissi</td>
+              <td><span class="status done">Termine</span></td>
+            </tr>
+            <tr>
+              <td>T-1.6</td>
+              <td>Page liste publique des evenements avec recherche et filtre par periode (avenir/passes).</td>
+              <td>1h</td>
+              <td>Azza Drissi</td>
+              <td><span class="status done">Termine</span></td>
+            </tr>
+            <tr>
+              <td>T-1.7</td>
+              <td>Page detail d'evenement avec affichage des informations et acces controle si non publie.</td>
+              <td>1h</td>
+              <td>Azza Drissi</td>
+              <td><span class="status done">Termine</span></td>
+            </tr>
+
+            <tr>
+              <td class="us" rowspan="6">US-2</td>
+              <td class="story" rowspan="6">En tant qu'utilisateur, je veux m'inscrire a un evenement et recevoir une confirmation.</td>
+              <td>T-2.1</td>
+              <td>Definir l'entite Participant (nom, prenom, email, lien Evenement) + migration.</td>
+              <td>1h</td>
+              <td>Azza Drissi</td>
+              <td><span class="status done">Termine</span></td>
+            </tr>
+            <tr>
+              <td>T-2.2</td>
+              <td>Formulaire participation sur la page evenements avec validations (prenom, nom, email).</td>
+              <td>45min</td>
+              <td>Azza Drissi</td>
+              <td><span class="status done">Termine</span></td>
+            </tr>
+            <tr>
+              <td>T-2.3</td>
+              <td>Inscription d'un participant avec enregistrement securise et message de confirmation.</td>
+              <td>45min</td>
+              <td>Azza Drissi</td>
+              <td><span class="status done">Termine</span></td>
+            </tr>
+            <tr>
+              <td>T-2.4</td>
+              <td>API participation AJAX (JSON) pour inscription rapide sans rechargement.</td>
+              <td>45min</td>
+              <td>Azza Drissi</td>
+              <td><span class="status done">Termine</span></td>
+            </tr>
+            <tr>
+              <td>T-2.5</td>
+              <td>Afficher la liste des participants pour l'organisateur uniquement.</td>
+              <td>45min</td>
+              <td>Azza Drissi</td>
+              <td><span class="status done">Termine</span></td>
+            </tr>
+            <tr>
+              <td>T-2.6</td>
+              <td>Controle d'acces : uniquement l'organisateur ou l'admin peut gerer l'evenement.</td>
+              <td>45min</td>
+              <td>Azza Drissi</td>
+              <td><span class="status done">Termine</span></td>
+            </tr>
+
+            <tr>
+              <td class="us" rowspan="5">US-3</td>
+              <td class="story" rowspan="5">En tant qu'organisateur, je veux suivre les statistiques de mes evenements.</td>
+              <td>T-3.1</td>
+              <td>Calculer le total evenements, participants et repartition par statut.</td>
+              <td>45min</td>
+              <td>Azza Drissi</td>
+              <td><span class="status done">Termine</span></td>
+            </tr>
+            <tr>
+              <td>T-3.2</td>
+              <td>Page statistiques avec graphiques simples et indicateurs cles.</td>
+              <td>1h</td>
+              <td>Azza Drissi</td>
+              <td><span class="status done">Termine</span></td>
+            </tr>
+            <tr>
+              <td>T-3.3</td>
+              <td>API JSON pour alimenter les stats sans rechargement.</td>
+              <td>45min</td>
+              <td>Azza Drissi</td>
+              <td><span class="status done">Termine</span></td>
+            </tr>
+            <tr>
+              <td>T-3.4</td>
+              <td>Tableaux recap des evenements avec etat (en attente/valide/refuse).</td>
+              <td>45min</td>
+              <td>Azza Drissi</td>
+              <td><span class="status done">Termine</span></td>
+            </tr>
+            <tr>
+              <td>T-3.5</td>
+              <td>Ameliorations UX: filtres, tri, pagination des evenements.</td>
+              <td>1h</td>
+              <td>Azza Drissi</td>
+              <td><span class="status done">Termine</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+      <section class="backlog">
+        <h2>Sprint Backlog - Module 43 (Pharmacie, Commande, Dispensation)</h2>
+        <div class="backlog-note">
+          Backlog detaille du module pharmacie. Responsable: Isra Zguir.
+        </div>
+        <table class="backlog-table" aria-label="Sprint Backlog Module 43">
+          <thead>
+            <tr>
+              <th>ID US</th>
+              <th>User Story</th>
+              <th>ID Tache</th>
+              <th>Tache / Description</th>
+              <th>Estimation</th>
+              <th>Responsable</th>
+              <th>Statut</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="us" rowspan="7">US-1</td>
+              <td class="story" rowspan="7">En tant qu'utilisateur, je veux consulter le catalogue pharmacie et trouver facilement un produit.</td>
+              <td>T-1.1</td>
+              <td>Definir les entites ProduitPharmacie et CategoriePharmacie avec attributs complets, puis generer les migrations.</td>
+              <td>2h</td>
+              <td>Isra Zguir</td>
+              <td><span class="status done">Termine</span></td>
+            </tr>
+            <tr>
+              <td>T-1.2</td>
+              <td>Mettre en place le CRUD produits (ajout, modification, suppression) avec validations de prix, stock et libelle.</td>
+              <td>2h</td>
+              <td>Isra Zguir</td>
+              <td><span class="status done">Termine</span></td>
+            </tr>
+            <tr>
+              <td>T-1.3</td>
+              <td>Mettre en place le CRUD categories avec association produit-categorie et controle d'integrite.</td>
+              <td>1h</td>
+              <td>Isra Zguir</td>
+              <td><span class="status done">Termine</span></td>
+            </tr>
+            <tr>
+              <td>T-1.4</td>
+              <td>Creer la page catalogue avec recherche, filtrage par categorie et tri par prix.</td>
+              <td>1h</td>
+              <td>Isra Zguir</td>
+              <td><span class="status done">Termine</span></td>
+            </tr>
+            <tr>
+              <td>T-1.5</td>
+              <td>Creer la page detail produit avec informations claires (composition, usage, stock).</td>
+              <td>45min</td>
+              <td>Isra Zguir</td>
+              <td><span class="status done">Termine</span></td>
+            </tr>
+            <tr>
+              <td>T-1.6</td>
+              <td>Afficher l'etat de stock en temps reel (disponible, faible stock, rupture).</td>
+              <td>45min</td>
+              <td>Isra Zguir</td>
+              <td><span class="status done">Termine</span></td>
+            </tr>
+            <tr>
+              <td>T-1.7</td>
+              <td>API JSON catalogue pour recherche instantanee et suggestions.</td>
+              <td>45min</td>
+              <td>Isra Zguir</td>
+              <td><span class="status done">Termine</span></td>
+            </tr>
+
+            <tr>
+              <td class="us" rowspan="7">US-2</td>
+              <td class="story" rowspan="7">En tant qu'utilisateur, je veux constituer un panier et passer une commande de pharmacie.</td>
+              <td>T-2.1</td>
+              <td>Definir les entites PanierPharmacie et LignePanier avec calculs de total.</td>
+              <td>1h</td>
+              <td>Isra Zguir</td>
+              <td><span class="status done">Termine</span></td>
+            </tr>
+            <tr>
+              <td>T-2.2</td>
+              <td>Ajouter un produit au panier avec verification stock et quantite minimale.</td>
+              <td>1h</td>
+              <td>Isra Zguir</td>
+              <td><span class="status done">Termine</span></td>
+            </tr>
+            <tr>
+              <td>T-2.3</td>
+              <td>Modifier quantites, supprimer ligne et recalculer les totaux en temps reel.</td>
+              <td>1h</td>
+              <td>Isra Zguir</td>
+              <td><span class="status done">Termine</span></td>
+            </tr>
+            <tr>
+              <td>T-2.4</td>
+              <td>Creer l'entite CommandePharmacie et generer la commande depuis le panier.</td>
+              <td>2h</td>
+              <td>Isra Zguir</td>
+              <td><span class="status done">Termine</span></td>
+            </tr>
+            <tr>
+              <td>T-2.5</td>
+              <td>Gestion des statuts commande (en attente, validee, expediée, livree).</td>
+              <td>1h</td>
+              <td>Isra Zguir</td>
+              <td><span class="status done">Termine</span></td>
+            </tr>
+            <tr>
+              <td>T-2.6</td>
+              <td>Historique commandes pour l'utilisateur avec detail de chaque commande.</td>
+              <td>1h</td>
+              <td>Isra Zguir</td>
+              <td><span class="status done">Termine</span></td>
+            </tr>
+            <tr>
+              <td>T-2.7</td>
+              <td>API JSON panier/commande pour interactions dynamiques.</td>
+              <td>45min</td>
+              <td>Isra Zguir</td>
+              <td><span class="status done">Termine</span></td>
+            </tr>
+
+            <tr>
+              <td class="us" rowspan="6">US-3</td>
+              <td class="story" rowspan="6">En tant que pharmacien, je veux gerer le stock et valider la dispensation des ordonnances.</td>
+              <td>T-3.1</td>
+              <td>Definir un suivi de stock (entrees/sorties) pour chaque produit.</td>
+              <td>1h</td>
+              <td>Isra Zguir</td>
+              <td><span class="status done">Termine</span></td>
+            </tr>
+            <tr>
+              <td>T-3.2</td>
+              <td>Interface pharmacien pour ajuster le stock avec historique des mouvements.</td>
+              <td>1h</td>
+              <td>Isra Zguir</td>
+              <td><span class="status done">Termine</span></td>
+            </tr>
+            <tr>
+              <td>T-3.3</td>
+              <td>Associer une ordonnance a une commande pour verification avant dispensation.</td>
+              <td>1h</td>
+              <td>Isra Zguir</td>
+              <td><span class="status done">Termine</span></td>
+            </tr>
+            <tr>
+              <td>T-3.4</td>
+              <td>Validation pharmacien : marquer la commande comme dispensee.</td>
+              <td>45min</td>
+              <td>Isra Zguir</td>
+              <td><span class="status done">Termine</span></td>
+            </tr>
+            <tr>
+              <td>T-3.5</td>
+              <td>Notification utilisateur apres validation de dispensation.</td>
+              <td>45min</td>
+              <td>Isra Zguir</td>
+              <td><span class="status done">Termine</span></td>
+            </tr>
+            <tr>
+              <td>T-3.6</td>
+              <td>Tableau de bord pharmacien avec alertes rupture/stock faible.</td>
+              <td>1h</td>
+              <td>Isra Zguir</td>
+              <td><span class="status done">Termine</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+      <section class="backlog">
+        <h2>Sprint Backlog - Module 1 (Gestionnaire Users)</h2>
+        <div class="backlog-note">
+          Backlog detaille du module gestion des utilisateurs. Responsable: Houssem Hfaissi.
+        </div>
+        <table class="backlog-table" aria-label="Sprint Backlog Module 1">
+          <thead>
+            <tr>
+              <th>ID US</th>
+              <th>User Story</th>
+              <th>ID Tache</th>
+              <th>Tache / Description</th>
+              <th>Estimation</th>
+              <th>Responsable</th>
+              <th>Statut</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="us" rowspan="7">US-1</td>
+              <td class="story" rowspan="7">En tant qu'administrateur, je veux creer, modifier, supprimer et rechercher des utilisateurs.</td>
+              <td>T-1.1</td>
+              <td>Definir l'entite Utilisateur avec champs complets et regles de validation, puis migration.</td>
+              <td>2h</td>
+              <td>Houssem Hfaissi</td>
+              <td><span class="status done">Termine</span></td>
+            </tr>
+            <tr>
+              <td>T-1.2</td>
+              <td>Formulaire de creation utilisateur avec validation email, mot de passe et role.</td>
+              <td>1h</td>
+              <td>Houssem Hfaissi</td>
+              <td><span class="status done">Termine</span></td>
+            </tr>
+            <tr>
+              <td>T-1.3</td>
+              <td>Liste des utilisateurs avec recherche, filtre par role et tri.</td>
+              <td>1h</td>
+              <td>Houssem Hfaissi</td>
+              <td><span class="status done">Termine</span></td>
+            </tr>
+            <tr>
+              <td>T-1.4</td>
+              <td>Edition utilisateur (profil, role, statut) avec controles d'acces admin.</td>
+              <td>1h</td>
+              <td>Houssem Hfaissi</td>
+              <td><span class="status done">Termine</span></td>
+            </tr>
+            <tr>
+              <td>T-1.5</td>
+              <td>Suppression utilisateur avec confirmation et protection CSRF.</td>
+              <td>45min</td>
+              <td>Houssem Hfaissi</td>
+              <td><span class="status done">Termine</span></td>
+            </tr>
+            <tr>
+              <td>T-1.6</td>
+              <td>API JSON pour recherche instantanee et auto-complétion.</td>
+              <td>45min</td>
+              <td>Houssem Hfaissi</td>
+              <td><span class="status done">Termine</span></td>
+            </tr>
+            <tr>
+              <td>T-1.7</td>
+              <td>Templates backoffice utilisateurs (liste, creation, edition) avec messages clairs.</td>
+              <td>1h</td>
+              <td>Houssem Hfaissi</td>
+              <td><span class="status done">Termine</span></td>
+            </tr>
+
+            <tr>
+              <td class="us" rowspan="6">US-2</td>
+              <td class="story" rowspan="6">En tant qu'administrateur, je veux gerer les roles, statuts et acces des utilisateurs.</td>
+              <td>T-2.1</td>
+              <td>Definir RoleUtilisateur et StatutCompte avec leurs regles de transition.</td>
+              <td>1h</td>
+              <td>Houssem Hfaissi</td>
+              <td><span class="status done">Termine</span></td>
+            </tr>
+            <tr>
+              <td>T-2.2</td>
+              <td>Attribution et changement de role utilisateur avec journalisation des actions.</td>
+              <td>1h</td>
+              <td>Houssem Hfaissi</td>
+              <td><span class="status done">Termine</span></td>
+            </tr>
+            <tr>
+              <td>T-2.3</td>
+              <td>Activation, suspension et reactivation d'un compte utilisateur.</td>
+              <td>1h</td>
+              <td>Houssem Hfaissi</td>
+              <td><span class="status done">Termine</span></td>
+            </tr>
+            <tr>
+              <td>T-2.4</td>
+              <td>Reset du mot de passe par l'admin avec envoi de notification.</td>
+              <td>1h</td>
+              <td>Houssem Hfaissi</td>
+              <td><span class="status done">Termine</span></td>
+            </tr>
+            <tr>
+              <td>T-2.5</td>
+              <td>Controle d'acces fin sur toutes les actions de gestion utilisateurs.</td>
+              <td>45min</td>
+              <td>Houssem Hfaissi</td>
+              <td><span class="status done">Termine</span></td>
+            </tr>
+            <tr>
+              <td>T-2.6</td>
+              <td>Audit minimal des actions admin (creation, modification, suppression).</td>
+              <td>45min</td>
+              <td>Houssem Hfaissi</td>
+              <td><span class="status done">Termine</span></td>
+            </tr>
+
+            <tr>
+              <td class="us" rowspan="5">US-3</td>
+              <td class="story" rowspan="5">En tant qu'administrateur, je veux des rapports sur la gestion des utilisateurs.</td>
+              <td>T-3.1</td>
+              <td>Tableau de bord utilisateurs (total, actifs, suspendus, nouveaux).</td>
+              <td>1h</td>
+              <td>Houssem Hfaissi</td>
+              <td><span class="status done">Termine</span></td>
+            </tr>
+            <tr>
+              <td>T-3.2</td>
+              <td>Statistiques par role et evolution sur une periode.</td>
+              <td>1h</td>
+              <td>Houssem Hfaissi</td>
+              <td><span class="status done">Termine</span></td>
+            </tr>
+            <tr>
+              <td>T-3.3</td>
+              <td>Export CSV des utilisateurs avec filtres appliques.</td>
+              <td>45min</td>
+              <td>Houssem Hfaissi</td>
+              <td><span class="status done">Termine</span></td>
+            </tr>
+            <tr>
+              <td>T-3.4</td>
+              <td>API JSON des statistiques pour affichage dynamique.</td>
+              <td>45min</td>
+              <td>Houssem Hfaissi</td>
+              <td><span class="status done">Termine</span></td>
+            </tr>
+            <tr>
+              <td>T-3.5</td>
+              <td>Ameliorations UX: pagination, tri et filtres persistants.</td>
+              <td>1h</td>
+              <td>Houssem Hfaissi</td>
+              <td><span class="status done">Termine</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+      <section class="backlog">
+        <h2>Sprint Backlog - Module 5 (Quiz, Evaluation, Progression)</h2>
+        <div class="backlog-note">
+          Backlog detaille du module quiz. Responsable: Elaa Hadj Amor.
+        </div>
+        <table class="backlog-table" aria-label="Sprint Backlog Module 5">
+          <thead>
+            <tr>
+              <th>ID US</th>
+              <th>User Story</th>
+              <th>ID Tache</th>
+              <th>Tache / Description</th>
+              <th>Estimation</th>
+              <th>Responsable</th>
+              <th>Statut</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="us" rowspan="7">US-1</td>
+              <td class="story" rowspan="7">En tant qu'administrateur, je veux creer et gerer des quiz pour evaluer les utilisateurs.</td>
+              <td>T-1.1</td>
+              <td>Definir les entites Quiz, QuestionQuiz et ChoixReponse avec leurs relations, puis generer les migrations.</td>
+              <td>2h</td>
+              <td>Elaa Hadj Amor</td>
+              <td><span class="status done">Termine</span></td>
+            </tr>
+            <tr>
+              <td>T-1.2</td>
+              <td>Formulaire creation quiz avec validation (titre, description, niveau, duree).</td>
+              <td>1h</td>
+              <td>Elaa Hadj Amor</td>
+              <td><span class="status done">Termine</span></td>
+            </tr>
+            <tr>
+              <td>T-1.3</td>
+              <td>Formulaire questions + choix avec validation (bonne reponse obligatoire).</td>
+              <td>1h</td>
+              <td>Elaa Hadj Amor</td>
+              <td><span class="status done">Termine</span></td>
+            </tr>
+            <tr>
+              <td>T-1.4</td>
+              <td>CRUD quiz (liste, creation, modification, suppression) avec controle admin.</td>
+              <td>2h</td>
+              <td>Elaa Hadj Amor</td>
+              <td><span class="status done">Termine</span></td>
+            </tr>
+            <tr>
+              <td>T-1.5</td>
+              <td>CRUD questions (ajout, edition, suppression) dans un quiz existant.</td>
+              <td>1h</td>
+              <td>Elaa Hadj Amor</td>
+              <td><span class="status done">Termine</span></td>
+            </tr>
+            <tr>
+              <td>T-1.6</td>
+              <td>Templates backoffice quiz (liste, edition, builder de questions).</td>
+              <td>1h</td>
+              <td>Elaa Hadj Amor</td>
+              <td><span class="status done">Termine</span></td>
+            </tr>
+            <tr>
+              <td>T-1.7</td>
+              <td>API JSON pour charger un quiz et ses questions dans l'interface dynamique.</td>
+              <td>45min</td>
+              <td>Elaa Hadj Amor</td>
+              <td><span class="status done">Termine</span></td>
+            </tr>
+
+            <tr>
+              <td class="us" rowspan="6">US-2</td>
+              <td class="story" rowspan="6">En tant qu'utilisateur, je veux passer un quiz et obtenir un score clair.</td>
+              <td>T-2.1</td>
+              <td>Interface de passage de quiz avec navigation question par question.</td>
+              <td>1h</td>
+              <td>Elaa Hadj Amor</td>
+              <td><span class="status done">Termine</span></td>
+            </tr>
+            <tr>
+              <td>T-2.2</td>
+              <td>Enregistrement des reponses utilisateur et calcul du score final.</td>
+              <td>1h</td>
+              <td>Elaa Hadj Amor</td>
+              <td><span class="status done">Termine</span></td>
+            </tr>
+            <tr>
+              <td>T-2.3</td>
+              <td>Affichage du resultat avec feedback (bonnes/mauvaises reponses).</td>
+              <td>1h</td>
+              <td>Elaa Hadj Amor</td>
+              <td><span class="status done">Termine</span></td>
+            </tr>
+            <tr>
+              <td>T-2.4</td>
+              <td>Gestion du temps (timer) pour les quiz limites en duree.</td>
+              <td>45min</td>
+              <td>Elaa Hadj Amor</td>
+              <td><span class="status done">Termine</span></td>
+            </tr>
+            <tr>
+              <td>T-2.5</td>
+              <td>API JSON soumission des reponses et retour du score.</td>
+              <td>45min</td>
+              <td>Elaa Hadj Amor</td>
+              <td><span class="status done">Termine</span></td>
+            </tr>
+            <tr>
+              <td>T-2.6</td>
+              <td>Protection contre re-soumission et controle d'acces utilisateur.</td>
+              <td>45min</td>
+              <td>Elaa Hadj Amor</td>
+              <td><span class="status done">Termine</span></td>
+            </tr>
+
+            <tr>
+              <td class="us" rowspan="5">US-3</td>
+              <td class="story" rowspan="5">En tant qu'utilisateur et admin, je veux suivre la progression et les statistiques des quiz.</td>
+              <td>T-3.1</td>
+              <td>Definir l'entite ProgressionUtilisateur avec score, date, et lien quiz/utilisateur.</td>
+              <td>1h</td>
+              <td>Elaa Hadj Amor</td>
+              <td><span class="status done">Termine</span></td>
+            </tr>
+            <tr>
+              <td>T-3.2</td>
+              <td>Historique des tentatives de quiz pour l'utilisateur.</td>
+              <td>1h</td>
+              <td>Elaa Hadj Amor</td>
+              <td><span class="status done">Termine</span></td>
+            </tr>
+            <tr>
+              <td>T-3.3</td>
+              <td>Dashboard admin des scores moyens et participation par quiz.</td>
+              <td>1h</td>
+              <td>Elaa Hadj Amor</td>
+              <td><span class="status done">Termine</span></td>
+            </tr>
+            <tr>
+              <td>T-3.4</td>
+              <td>Export CSV des resultats pour analyse externe.</td>
+              <td>45min</td>
+              <td>Elaa Hadj Amor</td>
+              <td><span class="status done">Termine</span></td>
+            </tr>
+            <tr>
+              <td>T-3.5</td>
+              <td>API JSON des statistiques pour affichage dynamique.</td>
+              <td>45min</td>
+              <td>Elaa Hadj Amor</td>
+              <td><span class="status done">Termine</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@11.4.1/dist/mermaid.min.js"></script>
+    <script>
+      mermaid.initialize({ startOnLoad: true });
+function renderBurndownChart(canvasId, labels, totalStoryPoints, completedPerDay) {
+        const cumulativeCompleted = completedPerDay.reduce((acc, val, index) => {
+          const prev = index === 0 ? 0 : acc[index - 1];
+          acc.push(prev + val);
+          return acc;
+        }, []);
+
+        const remainingReal = cumulativeCompleted.map((value) => totalStoryPoints - value);
+
+        const remainingIdeal = labels.map((_, index) => {
+          const progress = index / (labels.length - 1);
+          return Math.round(totalStoryPoints * (1 - progress));
+        });
+
+        const ctx = document.getElementById(canvasId).getContext("2d");
+
+        new Chart(ctx, {
+          type: "bar",
+          data: {
+            labels,
+            datasets: [
+              {
+                type: "line",
+                label: "Ligne Ideale",
+                data: remainingIdeal,
+                borderColor: getComputedStyle(document.documentElement).getPropertyValue("--ideal").trim(),
+                borderDash: [6, 6],
+                borderWidth: 2,
+                pointBackgroundColor: "#ffffff",
+                pointBorderColor: getComputedStyle(document.documentElement).getPropertyValue("--ideal").trim(),
+                pointRadius: 4,
+                yAxisID: "y"
+              },
+              {
+                type: "line",
+                label: "Progression Reelle",
+                data: remainingReal,
+                borderColor: getComputedStyle(document.documentElement).getPropertyValue("--real").trim(),
+                backgroundColor: "rgba(59, 130, 246, 0.15)",
+                fill: true,
+                borderWidth: 3,
+                pointRadius: 4,
+                pointBackgroundColor: getComputedStyle(document.documentElement).getPropertyValue("--real").trim(),
+                yAxisID: "y"
+              },
+              {
+                label: "SP Completes par Jour",
+                data: completedPerDay,
+                backgroundColor: getComputedStyle(document.documentElement).getPropertyValue("--bar").trim(),
+                borderRadius: 8,
+                yAxisID: "y1"
+              }
+            ]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            interaction: {
+              mode: "index",
+              intersect: false
+            },
+            plugins: {
+              legend: {
+                position: "top",
+                labels: {
+                  usePointStyle: true,
+                  padding: 16
+                }
+              },
+              tooltip: {
+                callbacks: {
+                  label: (context) => {
+                    const label = context.dataset.label || "";
+                    return `${label}: ${context.parsed.y} SP`;
+                  }
+                }
+              }
+            },
+            scales: {
+              x: {
+                grid: {
+                  display: false
+                },
+                title: {
+                  display: true,
+                  text: "Jours du Sprint"
+                }
+              },
+              y: {
+                beginAtZero: true,
+                grid: {
+                  color: getComputedStyle(document.documentElement).getPropertyValue("--grid").trim()
+                },
+                title: {
+                  display: true,
+                  text: "Story Points Restants"
+                }
+              },
+              y1: {
+                beginAtZero: true,
+                position: "right",
+                grid: {
+                  drawOnChartArea: false
+                },
+                title: {
+                  display: true,
+                  text: "SP Completes"
+                }
+              }
+            }
+          }
+        });
+      }
+
+      const labelsWeek1 = [
+  "Lun 16/02",
+  "Mar 17/02",
+  "Mer 18/02",
+  "Jeu 19/02",
+  "Ven 20/02",
+  "Sam 21/02",
+  "Dim 22/02"
+];
+
+      const labelsWeek2 = [
+  "Lun 23/02",
+  "Mar 24/02",
+  "Mer 25/02",
+  "Jeu 26/02",
+  "Ven 27/02",
+  "Sam 28/02",
+  "Dim 01/03"
+];
+
+      renderBurndownChart("burndownChartWeek1", labelsWeek1, 55, [4, 5, 6, 7, 8, 9, 16]);
+      renderBurndownChart("burndownChartWeek2", labelsWeek2, 62, [6, 7, 5, 8, 10, 12, 14]);
+    </script>
+  </body>
+</html>
+
+
+
+
+
+
+
+

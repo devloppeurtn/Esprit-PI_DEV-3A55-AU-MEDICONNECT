@@ -103,9 +103,10 @@ class SchedulerOrderDelayAlertsCommand extends Command
             foreach ($delayedOrders as $item) {
                 $severityCounts[$item['severity']]++;
                 $emoji = match ($item['severity']) {
-                    'HIGH' => '🔴',
-                    'MEDIUM' => '🟠',
-                    'LOW' => '🟡',
+                    'HIGH' => 'HIGH',
+                    'MEDIUM' => 'MEDIUM',
+                    'LOW' => 'LOW',
+                    default => 'LOW',
                 };
 
                 $tableRows[] = [
@@ -241,6 +242,7 @@ class SchedulerOrderDelayAlertsCommand extends Command
                 'HIGH' => 'high',
                 'MEDIUM' => 'medium',
                 'LOW' => 'low',
+                default => 'low',
             };
 
             $html .= <<<HTML
@@ -283,3 +285,8 @@ class SchedulerOrderDelayAlertsCommand extends Command
         return count(array_unique(array_map(fn($item) => $item['order']->getId(), $delayedOrders)));
     }
 }
+
+
+
+
+

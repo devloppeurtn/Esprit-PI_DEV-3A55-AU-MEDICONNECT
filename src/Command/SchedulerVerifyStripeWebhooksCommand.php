@@ -2,8 +2,6 @@
 
 namespace App\Command;
 
-use App\Enum\StatutCommande;
-use App\Repository\CommandeProduitRepository;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
@@ -18,7 +16,6 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 class SchedulerVerifyStripeWebhooksCommand extends Command
 {
     public function __construct(
-        private CommandeProduitRepository $commandes,
         private LoggerInterface $logger,
         private ?string $stripeSecretKey = null,
     ) {

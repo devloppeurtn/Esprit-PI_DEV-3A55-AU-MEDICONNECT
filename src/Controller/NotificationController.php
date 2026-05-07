@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Entity\Notification;
+use App\Entity\Utilisateur;
 use App\Service\NotificationService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -27,6 +28,9 @@ class NotificationController extends AbstractController
     public function apiList(): JsonResponse
     {
         $user = $this->getUser();
+        if (!$user instanceof Utilisateur) {
+            return $this->json(['error' => 'Unauthorized'], 401);
+        }
         $notifications = $this->notificationService->getNotifications($user, 20);
         $unreadCount = $this->notificationService->compterNotificationsNonLues($user);
 
@@ -61,8 +65,13 @@ class NotificationController extends AbstractController
                 return $this->json(['error' => 'Notification non trouvée'], 404);
             }
 
+            $user = $this->getUser();
+            if (!$user instanceof Utilisateur) {
+                return $this->json(['error' => 'Unauthorized'], 401);
+            }
+
             // Check ownership
-            if ($notification->getDestinataire() !== $this->getUser()) {
+            if ($notification->getDestinataire() !== $user) {
                 return $this->json(['error' => 'Accès refusé'], 403);
             }
 
@@ -81,6 +90,9 @@ class NotificationController extends AbstractController
     public function markAllAsRead(): JsonResponse
     {
         $user = $this->getUser();
+        if (!$user instanceof Utilisateur) {
+            return $this->json(['error' => 'Unauthorized'], 401);
+        }
         $this->notificationService->marquerToutCommeLu($user);
 
         return $this->json(['success' => true]);
@@ -93,6 +105,9 @@ class NotificationController extends AbstractController
     public function unreadCount(): JsonResponse
     {
         $user = $this->getUser();
+        if (!$user instanceof Utilisateur) {
+            return $this->json(['count' => 0]);
+        }
         $count = $this->notificationService->compterNotificationsNonLues($user);
 
         return $this->json(['count' => $count]);
@@ -105,6 +120,9 @@ class NotificationController extends AbstractController
     public function index(): Response
     {
         $user = $this->getUser();
+        if (!$user instanceof Utilisateur) {
+            throw $this->createAccessDeniedException();
+        }
         $notifications = $this->notificationService->getNotifications($user, 50);
 
         return $this->render('notifications/index.html.twig', [
@@ -112,3 +130,4 @@ class NotificationController extends AbstractController
         ]);
     }
 }
+

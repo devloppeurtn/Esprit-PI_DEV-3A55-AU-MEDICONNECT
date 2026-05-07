@@ -7,11 +7,16 @@ use App\Entity\CommandeProduit;
 use App\Entity\DocumentPatient;
 use App\Entity\DossierMedical;
 use App\Entity\Evenement;
+use App\Entity\Admin;
+use App\Entity\Medecin;
 use App\Entity\MedicamentActuel;
 use App\Entity\Ordonnance;
+use App\Entity\Participation;
 use App\Entity\Participant;
+use App\Entity\Patient;
 use App\Entity\RapportMedical;
 use App\Entity\RendezVous;
+use App\Entity\Secretaire;
 use App\Entity\RoleUtilisateur;
 use App\Entity\StatutCompte;
 use App\Entity\StatutRendezVous;
@@ -363,7 +368,11 @@ class AdminController extends AbstractController
             return $this->redirectToRoute('app_admin_evenements');
         }
         $evenement->setStatut(StatutEvenement::VALIDE);
-        $evenement->setApprouvePar($this->getUser());
+        $admin = $this->getUser();
+        if (!$admin instanceof Admin) {
+            throw $this->createAccessDeniedException();
+        }
+        $evenement->setApprouvePar($admin);
         $evenement->setApprouveAt(new \DateTimeImmutable());
         $this->entityManager->flush();
         if ($request->isXmlHttpRequest() || $request->headers->get('Accept') === 'application/json') {
@@ -390,7 +399,11 @@ class AdminController extends AbstractController
             return $this->redirectToRoute('app_admin_evenements');
         }
         $evenement->setStatut(StatutEvenement::REFUSE);
-        $evenement->setApprouvePar($this->getUser());
+        $admin = $this->getUser();
+        if (!$admin instanceof Admin) {
+            throw $this->createAccessDeniedException();
+        }
+        $evenement->setApprouvePar($admin);
         $evenement->setApprouveAt(new \DateTimeImmutable());
         $this->entityManager->flush();
         if ($request->isXmlHttpRequest() || $request->headers->get('Accept') === 'application/json') {
@@ -832,6 +845,7 @@ class AdminController extends AbstractController
             RoleUtilisateur::MEDECIN => new \App\Entity\Medecin(),
             RoleUtilisateur::SECRETAIRE => new \App\Entity\Secretaire(),
             RoleUtilisateur::PARTICIPATION => new \App\Entity\Participation(),
+            RoleUtilisateur::ORGANISATEUR => new \App\Entity\Organisateur(),
         };
 
         $user->setEmail($email);

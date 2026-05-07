@@ -25,7 +25,10 @@ class LoginFailureHandler extends DefaultAuthenticationFailureHandler
             : (($prev = $exception->getPrevious()) instanceof AccountStatusException ? $prev : null);
 
         if ($accountStatusException) {
-            $request->getSession()->getFlashBag()->add('error', $accountStatusException->getMessage());
+            $session = $request->getSession();
+            if (method_exists($session, 'getFlashBag')) {
+                $session->getFlashBag()->add('error', $accountStatusException->getMessage());
+            }
             // Stocker l'exception d'origine pour que getLastAuthenticationError() la retourne
             $exception = $accountStatusException;
         }

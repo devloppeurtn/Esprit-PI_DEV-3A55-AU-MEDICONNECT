@@ -4,8 +4,6 @@ namespace App\Service;
 
 use App\Entity\Produit;
 use App\Entity\Utilisateur;
-use App\Repository\LigneCommandeRepository;
-use App\Repository\ProduitRepository;
 use Doctrine\ORM\EntityManagerInterface;
 
 /**
@@ -15,8 +13,6 @@ use Doctrine\ORM\EntityManagerInterface;
 class ProductRecommendationService
 {
     public function __construct(
-        private LigneCommandeRepository $ligneCommandeRepository,
-        private ProduitRepository $produitRepository,
         private EntityManagerInterface $entityManager,
     ) {}
 

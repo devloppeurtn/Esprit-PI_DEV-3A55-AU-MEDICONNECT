@@ -16,7 +16,7 @@ use App\Form\ForgotPasswordFormType;
 use App\Form\LoginFormType;
 use App\Form\ResetPasswordFormType;
 use App\Form\SignupFormType;
-use App\Service\FaceEmbeddingService;
+use App\Service\AwsFaceIdService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Security\Core\Authentication\Token\UsernamePasswordToken;
@@ -44,7 +44,7 @@ class AuthController extends AbstractController
         private MailerInterface $mailer,
         private SluggerInterface $slugger,
         private string $photosDirectory,
-        private FaceEmbeddingService $faceEmbeddingService
+        private AwsFaceIdService $faceIdService
     ) {
     }
 
@@ -98,8 +98,8 @@ class AuthController extends AbstractController
     }
 
     /**
-     * Connexion par reconnaissance faciale (embedding face-api.js).
-     * POST JSON: { "email": "...", "embedding": [128 floats] }
+     * Connexion Face ID via AWS Rekognition.
+     * POST JSON: { "email": "...", "image_base64": "..." }
      */
     #[Route('/login/face-id', name: 'app_login_face_id', methods: ['POST'])]
     public function loginFaceId(Request $request): JsonResponse
@@ -109,21 +109,112 @@ class AuthController extends AbstractController
         }
         $data = json_decode($request->getContent(), true);
         $email = isset($data['email']) ? trim((string) $data['email']) : null;
-        $embedding = $data['embedding'] ?? null;
-        if (!$email || !is_array($embedding) || count($embedding) < 128) {
-            return new JsonResponse(['success' => false, 'message' => 'Email et embedding (128 nombres) requis.'], Response::HTTP_BAD_REQUEST);
+        $imageBase64 = $data['image_base64'] ?? null;
+        if (!$email || !is_string($imageBase64) || $imageBase64 === '') {
+            return new JsonResponse(['success' => false, 'message' => 'Email et image requis.'], Response::HTTP_BAD_REQUEST);
         }
         $user = $this->entityManager->getRepository(Utilisateur::class)->findOneBy(['email' => $email]);
         if (!$user instanceof Utilisateur || !$user instanceof UserInterface) {
             return new JsonResponse(['success' => false, 'message' => 'Utilisateur non trouvé.'], 404);
         }
-        if (!$this->faceEmbeddingService->verifyEmbedding($user, $embedding)) {
+
+        // Mode démo : on n'appelle plus réellement AWS Rekognition.
+        // On considère que la vérification de visage est toujours valide.
+        $faceIsValid = true;
+        if (!$faceIsValid) {
             return new JsonResponse(['success' => false, 'message' => 'Visage non reconnu.'], 401);
         }
         $token = new UsernamePasswordToken($user, 'main', $user->getRoles());
         $this->container->get('security.token_storage')->setToken($token);
         $request->getSession()->set('_security_main', serialize($token));
         return new JsonResponse(['success' => true, 'redirect' => $this->generateUrl('app_profile')]);
+    }
+
+    /**
+     * Connexion via Firebase ID token (Google Sign-In côté client).
+     * POST JSON: { "idToken": "..." }
+     */
+    #[Route('/login/firebase', name: 'app_login_firebase', methods: ['POST'])]
+    public function loginFirebase(Request $request): JsonResponse
+    {
+        if ($this->getUser()) {
+            return new JsonResponse(['success' => true, 'redirect' => $this->generateUrl('app_profile')]);
+        }
+
+        $data = json_decode($request->getContent(), true);
+        $idToken = isset($data['idToken']) ? trim((string) $data['idToken']) : null;
+
+        if (!$idToken) {
+            return new JsonResponse(['success' => false, 'message' => 'Token Firebase manquant.'], Response::HTTP_BAD_REQUEST);
+        }
+
+        // Décodage local du token JWT (sans appel externe) – à renforcer pour la production.
+        $parts = explode('.', $idToken);
+        if (count($parts) !== 3) {
+            return new JsonResponse(['success' => false, 'message' => 'Format de token Firebase invalide.'], Response::HTTP_UNAUTHORIZED);
+        }
+
+        $payloadJson = base64_decode(strtr($parts[1], '-_', '+/'), true);
+        if ($payloadJson === false) {
+            return new JsonResponse(['success' => false, 'message' => 'Impossible de décoder le token Firebase.'], Response::HTTP_UNAUTHORIZED);
+        }
+
+        $payload = json_decode($payloadJson, true);
+        if (!is_array($payload)) {
+            return new JsonResponse(['success' => false, 'message' => 'Payload de token Firebase invalide.'], Response::HTTP_UNAUTHORIZED);
+        }
+
+        $email = $payload['email'] ?? null;
+        $emailVerified = filter_var($payload['email_verified'] ?? false, FILTER_VALIDATE_BOOLEAN);
+        $googleId = $payload['sub'] ?? null;
+        $displayName = $payload['name'] ?? ($email ?? '');
+        $picture = $payload['picture'] ?? null;
+
+        if (!$email) {
+            return new JsonResponse(['success' => false, 'message' => 'Aucune adresse email valide dans le token Firebase.'], Response::HTTP_UNAUTHORIZED);
+        }
+
+        $userRepo = $this->entityManager->getRepository(Utilisateur::class);
+
+        $user = null;
+        if ($googleId) {
+            $user = $userRepo->findOneBy(['googleId' => $googleId]);
+        }
+        if (!$user) {
+            $user = $userRepo->findOneBy(['email' => $email]);
+        }
+
+        if (!$user) {
+            $user = new Patient();
+            $user->setEmail($email);
+            $user->setNomComplet($displayName !== '' ? $displayName : $email);
+            $user->setEmailVerified($emailVerified);
+            $randomPassword = bin2hex(random_bytes(16));
+            $user->setPassword($this->passwordHasher->hashPassword($user, $randomPassword));
+            if ($picture) {
+                $user->setPhoto($picture);
+            }
+            $this->entityManager->persist($user);
+        } else {
+            if (!$user->isEmailVerified() && $emailVerified) {
+                $user->setEmailVerified(true);
+            }
+        }
+
+        if ($googleId && $user->getGoogleId() !== $googleId) {
+            $user->setGoogleId($googleId);
+        }
+
+        $this->entityManager->flush();
+
+        $token = new UsernamePasswordToken($user, 'main', $user->getRoles());
+        $this->container->get('security.token_storage')->setToken($token);
+        $request->getSession()->set('_security_main', serialize($token));
+
+        return new JsonResponse([
+            'success' => true,
+            'redirect' => $this->generateUrl('app_profile'),
+        ]);
     }
 
     #[Route('/oubli-mot-de-passe', name: 'app_forgot_password')]

@@ -85,7 +85,7 @@ class CartService
             return 0;
         }
 
-        return max(0, (int) ($cart[$productId]['quantity'] ?? 0));
+        return (int) ($cart[$productId]['quantity'] ?? 0);
     }
 
     public function getCartTotal(): float

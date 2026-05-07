@@ -2,7 +2,49 @@
 
 {% block title %}{{ item.title }} - Événement{% endblock %}
 
-{% block body %}
+{% block body %}\n<style>
+#weather-card.weather-card {
+  background: #f2f7ff;
+  border-left: 4px solid #6c63ff;
+}
+#weather-card .weather-main {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+#weather-card .weather-icon {
+  width: 64px;
+  height: 64px;
+  border-radius: 18px;
+  background: #e7efff;
+  color: #5c6ad4;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 32px;
+}
+#weather-card .weather-temp {
+  font-size: 2.4rem;
+}
+#weather-card .weather-metrics {
+  display: flex;
+  gap: 18px;
+  flex-wrap: wrap;
+}
+#weather-card .metric { min-width: 90px; }
+#weather-card .metric .label {
+  font-size: 0.75rem;
+  color: #6c757d;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+#weather-card .metric .value { font-weight: 600; }
+#weather-card .weather-note {
+  background: #e6f4ff;
+  border: 0;
+  color: #0b5ed7;
+}
+</style>
 {% set canSeeParticipants = is_granted('ROLE_ADMIN') or ((is_granted('ROLE_ORGANISATEUR') or is_granted('ROLE_SECRETAIRE')) and app.user and item.organisateur and item.organisateur.id == app.user.id) %}
 
 <div class="container mt-4">
@@ -93,31 +135,32 @@
                     </div>
 
                     {% if item.location and item.eventDate %}
-                        <div id="weather-card" class="card border-0 shadow-sm mb-4" data-location="{{ item.location|e('html_attr') }}" data-date="{{ item.eventDate|date('Y-m-d') }}">
+                        <div id="weather-card" class="card border-0 shadow-sm mb-4 weather-card" data-location="{{ item.location|e('html_attr') }}" data-date="{{ item.eventDate|date('Y-m-d') }}">
                             <div class="card-body">
-                                <div class="d-flex align-items-center justify-content-between">
-                                    <div>
-                                        <strong><i class="bi bi-cloud-sun me-1"></i>Meteo du jour de l'evenement</strong>
-                                        <div id="weather-condition" class="small mt-1">Chargement...</div>
+                                <div class="weather-main">
+                                    <div class="weather-icon"><i class="bi bi-cloud-sun"></i></div>
+                                    <div class="weather-info">
+                                        <div class="fw-semibold">Meteo du jour de l'evenement</div>
+                                        <div id="weather-condition" class="small text-muted">Chargement...</div>
                                         <div id="weather-locality" class="text-muted small"></div>
                                     </div>
-                                    <div class="display-6 fw-bold" id="weather-temp">--</div>
+                                    <div class="weather-temp fw-bold ms-auto" id="weather-temp">--</div>
                                 </div>
-                                <div class="row mt-3">
-                                    <div class="col-6 col-md-4">
-                                        <div class="small text-muted">Humidite</div>
-                                        <div id="weather-humidity" class="fw-semibold">--</div>
+                                <div class="weather-metrics mt-3">
+                                    <div class="metric">
+                                        <div class="label">Humidite</div>
+                                        <div id="weather-humidity" class="value">--</div>
                                     </div>
-                                    <div class="col-6 col-md-4">
-                                        <div class="small text-muted">Vent</div>
-                                        <div id="weather-wind" class="fw-semibold">--</div>
+                                    <div class="metric">
+                                        <div class="label">Vent</div>
+                                        <div id="weather-wind" class="value">--</div>
                                     </div>
-                                    <div class="col-12 col-md-4">
-                                        <div class="small text-muted">Pluie</div>
-                                        <div id="weather-rain" class="fw-semibold">--</div>
+                                    <div class="metric">
+                                        <div class="label">Pluie</div>
+                                        <div id="weather-rain" class="value">--</div>
                                     </div>
                                 </div>
-                                <div class="alert alert-info mt-3 small mb-0">
+                                <div class="alert alert-info weather-note mt-3 small mb-0">
                                     Ces informations sont fournies par Open-Meteo.
                                 </div>
                             </div>
@@ -302,6 +345,8 @@
 })();
 </script>
 {% endblock %}
+
+
 
 
 

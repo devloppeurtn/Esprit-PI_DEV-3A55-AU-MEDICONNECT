@@ -57,7 +57,7 @@ class SchedulerRecalculatePricesCommand extends Command
             foreach ($products as $product) {
                 try {
                     // Get previous price
-                    $oldPrice = $product->getPrixUnitaire();
+                    $oldPrice = (float) ($product->getPrixUnitaire() ?? 0);
 
                     // Calculate new AI-powered price
                     $newPrice = $this->pricingService->calculateDynamicPrice($product);
@@ -112,7 +112,8 @@ class SchedulerRecalculatePricesCommand extends Command
                 $io->section('💰 Price Changes Detail');
 
                 // Sort by percent change (largest increases first)
-                usort($priceChanges, fn($a, $b) => $b['percent_change'] <=> $a['percent_change']);
+                /** @var array<int, array<string, mixed>> $priceChanges */
+                usort($priceChanges, fn(array $a, array $b) => $b['percent_change'] <=> $a['percent_change']);
 
                 // Show top 10 changes
                 $topChanges = array_slice($priceChanges, 0, 10);

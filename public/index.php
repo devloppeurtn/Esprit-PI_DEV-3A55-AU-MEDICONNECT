@@ -8,6 +8,9 @@ if (\PHP_SAPI !== 'cli') {
     @set_time_limit(120);
 }
 
+$appTimezone = $_SERVER['APP_TIMEZONE'] ?? getenv('APP_TIMEZONE') ?: 'UTC';
+date_default_timezone_set($appTimezone);
+
 require_once dirname(__DIR__).'/vendor/autoload_runtime.php';
 
 return function (array $context) {

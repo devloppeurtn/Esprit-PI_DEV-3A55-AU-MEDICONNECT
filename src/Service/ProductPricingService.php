@@ -78,6 +78,11 @@ class ProductPricingService
         ];
     }
 
+    public function calculateDynamicPrice(Produit $produit): float
+    {
+        return $this->getFinalPrice($produit);
+    }
+
     public function getFinalPrice(Produit $produit): float
     {
         return $this->calculateForProduct($produit)['final'];

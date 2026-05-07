@@ -6,6 +6,7 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Scheb\TwoFactorBundle\Model\Google\TwoFactorInterface as GoogleTwoFactorInterface;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 
@@ -22,7 +23,7 @@ use Symfony\Component\Security\Core\User\UserInterface;
     'participation' => Participation::class,
     'organisateur' => Organisateur::class,
 ])]
-class Utilisateur implements UserInterface, PasswordAuthenticatedUserInterface
+class Utilisateur implements UserInterface, PasswordAuthenticatedUserInterface, GoogleTwoFactorInterface
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
@@ -69,17 +70,23 @@ class Utilisateur implements UserInterface, PasswordAuthenticatedUserInterface
     private bool $biometricEnabled = false;
 
     #[ORM\Column(type: Types::STRING, length: 255, nullable: true)]
+    private ?string $googleId = null;
+
+    #[ORM\Column(type: Types::STRING, length: 255, nullable: true)]
     private ?string $photo = null;
 
     /** Embedding facial 128-d (face-api.js / faceRecognitionNet), stocké en JSON. */
     #[ORM\Column(type: Types::JSON, nullable: true)]
     private ?array $faceEmbedding = null;
 
+    #[ORM\Column(type: Types::STRING, length: 64, nullable: true)]
+    private ?string $googleAuthenticatorSecret = null;
+
     #[ORM\OneToMany(mappedBy: 'utilisateur', targetEntity: CommandeProduit::class, cascade: ['persist'])]
     private Collection $commandes;
 
     /** @var Collection<int, Notification> */
-    #[ORM\OneToMany(mappedBy: 'utilisateur', targetEntity: Notification::class, cascade: ['persist', 'remove'])]
+    #[ORM\OneToMany(mappedBy: 'utilisateur', targetEntity: Notification::class, cascade: ['persist'], orphanRemoval: true)]
     private Collection $notifications;
 
     public function __construct()
@@ -298,6 +305,38 @@ class Utilisateur implements UserInterface, PasswordAuthenticatedUserInterface
     public function clearFaceEmbedding(): static
     {
         $this->faceEmbedding = null;
+        return $this;
+    }
+
+    public function getGoogleId(): ?string
+    {
+        return $this->googleId;
+    }
+
+    public function setGoogleId(?string $googleId): static
+    {
+        $this->googleId = $googleId;
+        return $this;
+    }
+
+    public function isGoogleAuthenticatorEnabled(): bool
+    {
+        return $this->googleAuthenticatorSecret !== null && $this->googleAuthenticatorSecret !== '';
+    }
+
+    public function getGoogleAuthenticatorUsername(): string
+    {
+        return (string) ($this->email ?? '');
+    }
+
+    public function getGoogleAuthenticatorSecret(): ?string
+    {
+        return $this->googleAuthenticatorSecret;
+    }
+
+    public function setGoogleAuthenticatorSecret(?string $googleAuthenticatorSecret): static
+    {
+        $this->googleAuthenticatorSecret = $googleAuthenticatorSecret ?: null;
         return $this;
     }
 

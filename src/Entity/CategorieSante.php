@@ -41,7 +41,7 @@ class CategorieSante
     #[ORM\JoinColumn(nullable: true)]
     private ?Admin $approuvePar = null;
 
-    #[ORM\OneToMany(mappedBy: 'categorieSante', targetEntity: CoursEducatif::class, cascade: ['persist', 'remove'])]
+    #[ORM\OneToMany(mappedBy: 'categorieSante', targetEntity: CoursEducatif::class, cascade: ['persist'], orphanRemoval: true)]
     private Collection $coursEducatifs;
 
     #[ORM\OneToMany(mappedBy: 'categorieSante', targetEntity: ProgressionUtilisateur::class)]

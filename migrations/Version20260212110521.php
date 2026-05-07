@@ -19,7 +19,22 @@ final class Version20260212110521 extends AbstractMigration
 
     public function up(Schema $schema): void
     {
-        // this up() migration is auto-generated, please modify it to your needs
+        // Rendre la migration idempotente : si les FK principaux existent déjà, on considère la migration appliquée.
+        $sm = $this->connection->createSchemaManager();
+        $tables = $sm->listTableNames();
+
+        if (in_array('consultation', $tables, true)) {
+            $existingFks = array_map(
+                static fn ($fk) => strtoupper($fk->getName()),
+                $sm->listTableForeignKeys('consultation')
+            );
+
+            // Si cette contrainte existe déjà, on suppose que la migration a déjà été appliquée manuellement.
+            if (in_array('FK_964685A67750B79F', $existingFks, true)) {
+                return;
+            }
+        }
+
         $this->addSql('ALTER TABLE consultation ADD CONSTRAINT FK_964685A67750B79F FOREIGN KEY (dossier_medical_id) REFERENCES dossier_medical (id) ON DELETE CASCADE');
         $this->addSql('ALTER TABLE consultation ADD CONSTRAINT FK_964685A691EF7EAA FOREIGN KEY (rendez_vous_id) REFERENCES rendez_vous (id) ON DELETE SET NULL');
         $this->addSql('ALTER TABLE consultation ADD CONSTRAINT FK_964685A64F31A84 FOREIGN KEY (medecin_id) REFERENCES utilisateur (id) ON DELETE CASCADE');

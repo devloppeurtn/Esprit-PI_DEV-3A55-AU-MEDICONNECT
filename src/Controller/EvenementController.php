@@ -5,6 +5,7 @@ namespace App\Controller;
 use App\Entity\Evenement;
 use App\Entity\Patient;
 use App\Entity\Participant;
+use App\Entity\Utilisateur;
 use App\Enum\StatutEvenement;
 use App\Enum\TypeEvenement;
 use App\Form\EvenementFormType;
@@ -91,11 +92,12 @@ class EvenementController extends AbstractController
         $items = $qb->getQuery()->getResult();
 
         $mesEvenements = [];
-        if ($this->isGranted('ROLE_ORGANISATEUR') || $this->isGranted('ROLE_SECRETAIRE')) {
-            $mesEvenements = $this->evenementRepository->findByOrganisateur($this->getUser());
+        $user = $this->getUser();
+        if ($user instanceof Utilisateur && ($this->isGranted('ROLE_ORGANISATEUR') || $this->isGranted('ROLE_SECRETAIRE'))) {
+            $mesEvenements = $this->evenementRepository->findByOrganisateur($user);
         }
 
-        $aiRecommendations = $this->buildAiRecommendations($items, $this->getUser());
+        $aiRecommendations = $this->buildAiRecommendations($items, $user instanceof Utilisateur ? $user : null);
 
         return $this->render('evenement/index.html.twig', [
             'items' => $items,
@@ -115,7 +117,11 @@ class EvenementController extends AbstractController
     #[IsGranted('ROLE_ORGANISATEUR')]
     public function stats(): Response
     {
-        $mesEvenements = $this->evenementRepository->findByOrganisateur($this->getUser());
+        $user = $this->getUser();
+        if (!$user instanceof Utilisateur) {
+            throw $this->createAccessDeniedException();
+        }
+        $mesEvenements = $this->evenementRepository->findByOrganisateur($user);
         $totalParticipants = 0;
         $parStatut = [
             'en_attente' => 0,
@@ -124,11 +130,10 @@ class EvenementController extends AbstractController
         ];
 
         foreach ($mesEvenements as $e) {
-            $parStatut[match ($e->getStatut()->value) {
-                'EN_ATTENTE' => 'en_attente',
-                'VALIDE' => 'valide',
-                'REFUSE' => 'refuse',
-                default => 'valide',
+            $parStatut[match ($e->getStatut()) {
+                StatutEvenement::EN_ATTENTE => 'en_attente',
+                StatutEvenement::VALIDE => 'valide',
+                StatutEvenement::REFUSE => 'refuse',
             }]++;
             $totalParticipants += count($this->participantRepository->findByEvenement($e));
         }
@@ -146,8 +151,12 @@ class EvenementController extends AbstractController
     {
         $this->denyUnlessEventManager();
 
+        $user = $this->getUser();
+        if (!$user instanceof Utilisateur) {
+            throw $this->createAccessDeniedException();
+        }
         $item = new Evenement();
-        $item->setOrganisateur($this->getUser());
+        $item->setOrganisateur($user);
         $item->setStatut(StatutEvenement::EN_ATTENTE);
 
         $form = $this->createForm(EvenementFormType::class, $item);
@@ -364,7 +373,11 @@ class EvenementController extends AbstractController
         $item->setContent($payload['content'] ?? null);
         $item->setLocation($payload['location'] ?? null);
         $item->setIsActive(isset($payload['isActive']) ? (bool) $payload['isActive'] : true);
-        $item->setOrganisateur($this->getUser());
+        $user = $this->getUser();
+        if (!$user instanceof Utilisateur) {
+            return $this->json(['error' => 'Acces refuse'], 403);
+        }
+        $item->setOrganisateur($user);
         $item->setStatut(StatutEvenement::EN_ATTENTE);
 
         if (!empty($payload['typeEvenement'])) {

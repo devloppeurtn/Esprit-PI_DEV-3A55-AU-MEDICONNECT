@@ -22,7 +22,7 @@ class DisponibiliteService
         // Protection contre les jours non travaillés
         $dayNum = (int)$d->format('N'); 
         $map = [1=>'lundi', 2=>'mardi', 3=>'mercredi', 4=>'jeudi', 5=>'vendredi', 6=>'samedi', 7=>'dimanche'];
-        $currentDayFr = $map[$dayNum] ?? '';
+        $currentDayFr = $map[$dayNum];
         
         $joursOuverts = array_map('strtolower', $p->getJoursOuverture());
         if (!in_array($currentDayFr, $joursOuverts)) {
@@ -73,9 +73,9 @@ class DisponibiliteService
 
     private function fill(array &$c, \DateTimeInterface $d, \DateTimeInterface $start, \DateTimeInterface $end, int $dur): void
     {
-        $baseDate = clone $d;
-        $curr = (clone $baseDate)->setTime((int)$start->format('H'), (int)$start->format('i'), 0);
-        $limit = (clone $baseDate)->setTime((int)$end->format('H'), (int)$end->format('i'), 0);
+        $baseDate = \DateTimeImmutable::createFromInterface($d);
+        $curr = $baseDate->setTime((int)$start->format('H'), (int)$start->format('i'), 0);
+        $limit = $baseDate->setTime((int)$end->format('H'), (int)$end->format('i'), 0);
 
         while ($curr < $limit) {
             $next = (clone $curr)->modify("+$dur minutes");

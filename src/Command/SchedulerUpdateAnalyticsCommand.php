@@ -129,7 +129,8 @@ class SchedulerUpdateAnalyticsCommand extends Command
 
             // Display top customers
             $io->section('⭐ Top 10 Customers by Total Spent');
-            usort($analyticsData, fn($a, $b) => $b['total_spent'] <=> $a['total_spent']);
+            /** @var array<int, array<string, mixed>> $analyticsData */
+            usort($analyticsData, fn(array $a, array $b) => $b['total_spent'] <=> $a['total_spent']);
 
             $topCustomers = array_slice($analyticsData, 0, 10);
             $tableRows = array_map(fn($data) => [
@@ -195,7 +196,7 @@ class SchedulerUpdateAnalyticsCommand extends Command
         int $orderCount,
         float $totalSpent,
         float $avgOrderValue,
-        ?\DateTime $lastOrderDate
+        ?\DateTimeInterface $lastOrderDate
     ): string
     {
         // Check if inactive (no orders in 6 months and orderCount = 0)

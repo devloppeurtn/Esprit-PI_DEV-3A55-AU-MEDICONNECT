@@ -30,15 +30,15 @@ class DossierMedical
     private ?Patient $patient = null;
 
     /** @var Collection<int, Consultation> */
-    #[ORM\OneToMany(targetEntity: Consultation::class, mappedBy: 'dossierMedical', cascade: ['persist', 'remove'])]
+    #[ORM\OneToMany(targetEntity: Consultation::class, mappedBy: 'dossierMedical', cascade: ['persist'], orphanRemoval: true)]
     private Collection $consultations;
 
     /** @var Collection<int, DocumentPatient> */
-    #[ORM\OneToMany(targetEntity: DocumentPatient::class, mappedBy: 'dossierMedical', cascade: ['persist', 'remove'])]
+    #[ORM\OneToMany(targetEntity: DocumentPatient::class, mappedBy: 'dossierMedical', cascade: ['persist'], orphanRemoval: true)]
     private Collection $documents;
 
     /** @var Collection<int, MedicamentActuel> */
-    #[ORM\OneToMany(targetEntity: MedicamentActuel::class, mappedBy: 'dossierMedical', cascade: ['persist', 'remove'], orphanRemoval: true)]
+    #[ORM\OneToMany(targetEntity: MedicamentActuel::class, mappedBy: 'dossierMedical', cascade: ['persist'], orphanRemoval: true)]
     private Collection $medicamentsActuels;
 
     public function __construct()

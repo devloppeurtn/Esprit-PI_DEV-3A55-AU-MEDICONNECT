@@ -1,0 +1,29 @@
+parameters:
+  level: 5
+  paths:
+    - src
+  excludePaths:
+    analyse:
+      - var
+      - vendor
+  treatPhpDocTypesAsCertain: false
+  reportUnmatchedIgnoredErrors: false
+  ignoreErrors:
+    - identifier: property.unusedType
+    - identifier: property.onlyWritten
+    - identifier: instanceof.alwaysTrue
+    - identifier: instanceof.alwaysFalse
+    - identifier: function.alreadyNarrowedType
+    - identifier: nullCoalesce.offset
+    - identifier: nullCoalesce.expr
+    - identifier: booleanNot.alwaysFalse
+    - identifier: booleanAnd.rightAlwaysTrue
+    - identifier: booleanAnd.rightAlwaysFalse
+    - identifier: booleanOr.alwaysFalse
+    - identifier: notIdentical.alwaysTrue
+    - identifier: greater.alwaysTrue
+    - identifier: ternary.alwaysTrue
+    - identifier: return.unusedType
+    - identifier: method.unused
+    - identifier: classConstant.unused
+    - identifier: nullsafe.neverNull

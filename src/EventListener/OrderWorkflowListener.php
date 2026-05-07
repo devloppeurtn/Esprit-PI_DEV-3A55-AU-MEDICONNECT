@@ -5,7 +5,9 @@ namespace App\EventListener;
 use App\Entity\CommandeProduit;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\EventDispatcher\Attribute\AsEventListener;
+use Symfony\Component\Workflow\Event\EnterEvent;
 use Symfony\Component\Workflow\Event\Event;
+use Symfony\Component\Workflow\Event\LeaveEvent;
 use Symfony\Component\Workflow\Event\GuardEvent;
 
 /**
@@ -77,14 +79,15 @@ class OrderWorkflowListener
     /**
      * Execute actions when entering a new place (state).
      */
-    public function onEnterPlace(Event $event): void
+    public function onEnterPlace(EnterEvent $event): void
     {
         $order = $event->getSubject();
         if (!$order instanceof CommandeProduit) {
             return;
         }
 
-        $placeName = $event->getPlace()->getName();
+        $transition = $event->getTransition();
+        $placeName = $transition?->getTos()[0] ?? '';
 
         // Action: When entering VALIDEE - lock stock
         if ($placeName === 'VALIDEE') {
@@ -125,14 +128,15 @@ class OrderWorkflowListener
     /**
      * Audit logging when leaving a state.
      */
-    public function onLeavePlace(Event $event): void
+    public function onLeavePlace(LeaveEvent $event): void
     {
         $order = $event->getSubject();
         if (!$order instanceof CommandeProduit) {
             return;
         }
 
-        $placeName = $event->getPlace()->getName();
+        $transition = $event->getTransition();
+        $placeName = $transition?->getFroms()[0] ?? '';
 
         $this->logger->info('Order state transition - leaving place', [
             'order_id' => $order->getId(),

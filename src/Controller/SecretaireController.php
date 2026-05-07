@@ -9,7 +9,6 @@ use App\Entity\RendezVous;
 use App\Entity\Secretaire;
 use App\Entity\StatutRendezVous;
 use App\Form\PlanningMedecinType;
-use App\Repository\PlanningMedecinRepository;
 use App\Repository\RendezVousRepository;
 use App\Service\DisponibiliteService;
 use App\Service\RendezVousBookingValidator;
@@ -28,7 +27,6 @@ class SecretaireController extends AbstractController
     public function __construct(
         private EntityManagerInterface $em,
         private RendezVousRepository $rdvRepo,
-        private PlanningMedecinRepository $planningRepo,
         private DisponibiliteService $dispoService,
         private RendezVousBookingValidator $rdvBookingValidator,
     ) {

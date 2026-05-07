@@ -82,11 +82,24 @@ class Produit
         return $this->prix;
     }
 
-    public function setPrix(string $prix): static
+    public function setPrix(string|float|int $prix): static
     {
-        $this->prix = $prix;
+        if (is_float($prix) || is_int($prix)) {
+            $prix = number_format((float) $prix, 2, '.', '');
+        }
+        $this->prix = (string) $prix;
 
         return $this;
+    }
+
+    public function getPrixUnitaire(): ?string
+    {
+        return $this->getPrix();
+    }
+
+    public function setPrixUnitaire(string|float|int $prixUnitaire): static
+    {
+        return $this->setPrix($prixUnitaire);
     }
 
     public function getStock(): ?int

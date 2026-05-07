@@ -8,6 +8,27 @@ class PhpStockModelTrainerService
      * @param list<array<string, int|float|string>> $rows
      * @return array<string, mixed>
      */
+    public function trainModel(array $rows): array
+    {
+        $configured = $_ENV['AI_STOCK_MODEL_PATH'] ?? $_SERVER['AI_STOCK_MODEL_PATH'] ?? getenv('AI_STOCK_MODEL_PATH') ?: 'var/ml/stock_model.json';
+        $relative = trim((string) $configured);
+        $projectDir = dirname(__DIR__, 3);
+        $outputPath = $relative;
+        if ($relative === '' || $relative === '.' || $relative === './') {
+            $outputPath = $projectDir . DIRECTORY_SEPARATOR . 'var' . DIRECTORY_SEPARATOR . 'ml' . DIRECTORY_SEPARATOR . 'stock_model.json';
+        } elseif (!preg_match('/^[A-Za-z]:\\\\|^\//', $relative)) {
+            $outputPath = $projectDir . DIRECTORY_SEPARATOR . $relative;
+        }
+
+        $model = $this->trainAndSave($rows, $outputPath);
+
+        return $model['metrics'] ?? [];
+    }
+
+    /**
+     * @param list<array<string, int|float|string>> $rows
+     * @return array<string, mixed>
+     */
     public function trainAndSave(array $rows, string $outputPath): array
     {
         if (count($rows) < 50) {
@@ -248,4 +269,3 @@ class PhpStockModelTrainerService
         return sqrt($sum / count($yTrue));
     }
 }
-

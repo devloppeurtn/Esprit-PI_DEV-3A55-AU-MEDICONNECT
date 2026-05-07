@@ -8,16 +8,31 @@
 .weather-pill {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
   padding: 6px 12px;
-  border-radius: 999px;
-  background: linear-gradient(135deg, #6b7bd6 0%, #7a4aa5 100%);
+  border-radius: 18px;
+  background: linear-gradient(135deg, #5e6ad2 0%, #7b4aa8 100%);
   color: #fff;
   font-size: 0.9rem;
-  box-shadow: 0 6px 16px rgba(0,0,0,0.12);
+  box-shadow: 0 10px 22px rgba(54, 64, 118, 0.28);
 }
-.weather-pill .weather-temp { font-weight: 700; }
-.weather-pill .weather-cond { text-transform: lowercase; opacity: 0.9; }
+.weather-pill .weather-icon {
+  width: 28px;
+  height: 28px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.2);
+  font-size: 0.95rem;
+}
+.weather-pill .weather-text {
+  display: inline-flex;
+  flex-direction: column;
+  line-height: 1.1;
+}
+.weather-pill .weather-temp { font-weight: 700; font-size: 0.95rem; }
+.weather-pill .weather-cond { text-transform: lowercase; opacity: 0.85; font-size: 0.75rem; }
 </style>
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
@@ -158,10 +173,12 @@
                                 {% endif %}
                                 {% if item.location and item.eventDate %}
                                     <div class="event-weather weather-pill" data-location="{{ item.location|e('html_attr') }}" data-date="{{ item.eventDate|date('Y-m-d') }}">
-  <i class="bi bi-cloud"></i>
-  <span class="weather-temp">--°C</span>
-  <span class="weather-cond">Chargement...</span>
-</div>
+                                        <span class="weather-icon"><i class="bi bi-cloud"></i></span>
+                                        <span class="weather-text">
+                                            <span class="weather-temp">--°C</span>
+                                            <span class="weather-cond">Chargement...</span>
+                                        </span>
+                                    </div>
                                 {% endif %}
                                 {% if item.attachmentPath %}
                                     <a class="badge bg-secondary text-decoration-none" href="{{ asset(item.attachmentPath) }}" target="_blank" rel="noopener"><i class="bi bi-paperclip me-1"></i>{{ item.attachmentOriginalName ?: 'Document' }}</a>
@@ -247,6 +264,8 @@
 })();
 </script>
 {% endblock %}
+
+
 
 
 

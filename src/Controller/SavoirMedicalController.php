@@ -48,10 +48,20 @@ class SavoirMedicalController extends AbstractController
         return $this->isGranted('ROLE_MEDECIN') || $this->isGranted('ROLE_ADMIN');
     }
 
+    private function getUtilisateurOrThrow(): Utilisateur
+    {
+        $user = $this->getUser();
+        if (!$user instanceof Utilisateur) {
+            throw $this->createAccessDeniedException('Utilisateur non authentifié.');
+        }
+
+        return $user;
+    }
+
     #[Route('/', name: 'app_savoir_medical_index')]
     public function index(): Response
     {
-        $user = $this->getUser();
+        $user = $this->getUtilisateurOrThrow();
         
         // Filter categories based on user role
         if ($this->isGranted('ROLE_ADMIN')) {
@@ -99,7 +109,7 @@ class SavoirMedicalController extends AbstractController
 
         if ($form->isSubmitted() && $form->isValid()) {
             // Set creator if médecin
-            $user = $this->getUser();
+            $user = $this->getUtilisateurOrThrow();
             if ($user instanceof \App\Entity\Medecin) {
                 $categorie->setCreePar($user);
             }
@@ -140,7 +150,7 @@ class SavoirMedicalController extends AbstractController
     #[Route('/categorie/{id}', name: 'app_savoir_medical_categorie')]
     public function categorie(CategorieSante $categorie): Response
     {
-        $user = $this->getUser();
+        $user = $this->getUtilisateurOrThrow();
         
         // Récupérer les cours de cette catégorie
         $cours = $this->coursRepository->findByCategorie($categorie);
@@ -162,7 +172,7 @@ class SavoirMedicalController extends AbstractController
     #[IsGranted('ROLE_PATIENT')]
     public function progression(): Response
     {
-        $user = $this->getUser();
+        $user = $this->getUtilisateurOrThrow();
         
         // Récupérer toutes les progressions de l'utilisateur
         $progressions = $this->progressionRepository->findByUtilisateur($user);
@@ -208,7 +218,7 @@ class SavoirMedicalController extends AbstractController
     #[Route('/cours/{id}', name: 'app_savoir_medical_cours')]
     public function cours(CoursEducatif $cours): Response
     {
-        $user = $this->getUser();
+        $user = $this->getUtilisateurOrThrow();
         
         // Récupérer la progression pour cette catégorie (uniquement pour les patients)
         $progression = null;
@@ -664,10 +674,7 @@ class SavoirMedicalController extends AbstractController
             throw $this->createNotFoundException('Cours non trouvé');
         }
 
-        $user = $this->getUser();
-        if (!$user instanceof Utilisateur) {
-            throw $this->createAccessDeniedException('Vous devez être connecté pour soumettre un quiz');
-        }
+        $user = $this->getUtilisateurOrThrow();
 
         // Get submitted answers
         $reponsesJson = $request->request->get('reponses');
@@ -865,7 +872,10 @@ class SavoirMedicalController extends AbstractController
             throw $this->createNotFoundException('Catégorie non trouvée');
         }
 
-        $admin = $this->getUser();
+        $admin = $this->getUtilisateurOrThrow();
+        if (!$admin instanceof Admin) {
+            throw $this->createAccessDeniedException('Action réservée à un administrateur.');
+        }
         $categorie->setStatut(\App\Enum\StatutCategorie::APPROUVE);
         $categorie->setApprouvePar($admin);
         $categorie->setDateApprobation(new \DateTime());
@@ -897,7 +907,10 @@ class SavoirMedicalController extends AbstractController
             throw $this->createNotFoundException('Catégorie non trouvée');
         }
 
-        $admin = $this->getUser();
+        $admin = $this->getUtilisateurOrThrow();
+        if (!$admin instanceof Admin) {
+            throw $this->createAccessDeniedException('Action réservée à un administrateur.');
+        }
         $categorie->setStatut(\App\Enum\StatutCategorie::REJETE);
         $categorie->setApprouvePar($admin);
         $categorie->setDateApprobation(new \DateTime());

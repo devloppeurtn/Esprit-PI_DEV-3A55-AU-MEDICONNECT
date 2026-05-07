@@ -38,11 +38,11 @@ class Consultation
     private ?Medecin $medecin = null;
 
     /** @var Collection<int, Ordonnance> */
-    #[ORM\OneToMany(targetEntity: Ordonnance::class, mappedBy: 'consultation', cascade: ['persist', 'remove'])]
+    #[ORM\OneToMany(targetEntity: Ordonnance::class, mappedBy: 'consultation', cascade: ['persist'], orphanRemoval: true)]
     private Collection $ordonnances;
 
     /** @var Collection<int, RapportMedical> */
-    #[ORM\OneToMany(targetEntity: RapportMedical::class, mappedBy: 'consultation', cascade: ['persist', 'remove'])]
+    #[ORM\OneToMany(targetEntity: RapportMedical::class, mappedBy: 'consultation', cascade: ['persist'], orphanRemoval: true)]
     private Collection $rapportsMedicaux;
 
     public function __construct()

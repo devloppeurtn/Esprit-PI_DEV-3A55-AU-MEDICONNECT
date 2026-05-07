@@ -6,10 +6,10 @@ use App\Entity\Produit;
 use App\Entity\Utilisateur;
 use App\Repository\ProduitRepository;
 use App\Repository\UtilisateurRepository;
-use App\Service\OrderAnalyticsService;
 use App\Service\ProductRecommendationService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 
@@ -24,7 +24,6 @@ class RecommendationController extends AbstractController
 {
     public function __construct(
         private ProductRecommendationService $recommendationService,
-        private OrderAnalyticsService $analyticsService,
         private ProduitRepository $produitRepository,
         private UtilisateurRepository $utilisateurRepository,
     ) {}
@@ -141,9 +140,9 @@ class RecommendationController extends AbstractController
      * Example: /api/recommendations/trending?days=7
      */
     #[Route('/trending', name: 'app_trending_products', methods: ['GET'])]
-    public function getTrendingProducts(): JsonResponse
+    public function getTrendingProducts(Request $request): JsonResponse
     {
-        $daysBack = $this->getRequest()->query->getInt('days', 7);
+        $daysBack = $request->query->getInt('days', 7);
         $trending = $this->recommendationService->getTrendingProducts(5, $daysBack);
 
         return new JsonResponse([
@@ -168,7 +167,7 @@ class RecommendationController extends AbstractController
             return new JsonResponse(['error' => 'Customer not found'], Response::HTTP_NOT_FOUND);
         }
 
-        $highRated = $this->recommendationService->getHighRatedProducts($customer, 5, 4.0);
+        $highRated = $this->recommendationService->getHighRatedProducts($customer, 4.0, 5);
 
         return new JsonResponse([
             'customer' => ['id' => $customer->getId()],

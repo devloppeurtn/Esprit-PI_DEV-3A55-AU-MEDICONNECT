@@ -3,8 +3,8 @@
 namespace App\Controller;
 
 use App\Entity\AvisProduit;
-use App\Entity\Produit;
 use App\Entity\Utilisateur;
+use App\Entity\Produit;
 use App\Repository\AvisProduitRepository;
 use App\Repository\CategorieProduitRepository;
 use App\Repository\ProduitRepository;
@@ -222,7 +222,8 @@ class ProductController extends AbstractController
         }
 
         $user = $this->getUser();
-        $isOwner = $avis->getUtilisateur()?->getId() === $user?->getId();
+        $userId = $user instanceof Utilisateur ? $user->getId() : null;
+        $isOwner = $avis->getUtilisateur()?->getId() === $userId;
         $isAdmin = $this->isGranted('ROLE_ADMIN');
 
         if (!$isOwner && !$isAdmin) {

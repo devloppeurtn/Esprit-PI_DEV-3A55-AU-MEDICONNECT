@@ -11,6 +11,14 @@ parameters:
     face_id_threshold: '%env(float:default:face_id_threshold_default:FACE_ID_THRESHOLD)%'
     face_id_service_url_default: 'http://localhost:8001'
     face_id_service_url: '%env(default:face_id_service_url_default:FACE_ID_SERVICE_URL)%'
+    aws_rekognition_region_default: 'us-east-1'
+    aws_rekognition_region: '%env(default:aws_rekognition_region_default:AWS_REGION)%'
+    aws_rekognition_collection_default: 'mediconnect-face'
+    aws_rekognition_collection: '%env(default:aws_rekognition_collection_default:AWS_REKOGNITION_COLLECTION_ID)%'
+    aws_rekognition_threshold_default: 90
+    aws_rekognition_threshold: '%env(float:default:aws_rekognition_threshold_default:AWS_REKOGNITION_MATCH_THRESHOLD)%'
+    aws_ca_bundle_default: '%kernel.project_dir%/config/cacert.pem'
+    aws_ca_bundle: '%env(default:aws_ca_bundle_default:AWS_CA_BUNDLE)%'
 
 services:
     # default configuration for services in *this* file
@@ -45,6 +53,17 @@ services:
     App\Service\FaceIdClient:
         arguments:
             $faceIdServiceUrl: '%face_id_service_url%'
+
+    App\Service\AwsFaceIdService:
+        arguments:
+            $region: '%aws_rekognition_region%'
+            $accessKeyId: '%env(AWS_ACCESS_KEY_ID)%'
+            $secretAccessKey: '%env(AWS_SECRET_ACCESS_KEY)%'
+            $collectionId: '%aws_rekognition_collection%'
+            $sessionToken: '%env(default::AWS_SESSION_TOKEN)%'
+            $matchThreshold: '%aws_rekognition_threshold%'
+            $endpoint: '%env(default::AWS_REKOGNITION_ENDPOINT)%'
+            $caBundle: '%aws_ca_bundle%'
 
     Webauthn\Bundle\Security\Guesser\CurrentUserEntityGuesser:
         arguments:

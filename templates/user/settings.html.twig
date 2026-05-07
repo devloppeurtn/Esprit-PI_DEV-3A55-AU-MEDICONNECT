@@ -1,6 +1,6 @@
 {% extends 'admin/base_admin.html.twig' %}
 
-{% block title %}Paramùtres - MediConnect{% endblock %}
+{% block title %}Param√®tres - MediConnect{% endblock %}
 
 {% block stylesheets %}
     <link href="{{ asset('assets/css/profile.css') }}" rel="stylesheet">
@@ -34,8 +34,8 @@
         <div class="col-lg-10 col-xl-9 mx-auto">
             <div class="d-flex justify-content-between align-items-center mb-4">
                 <div>
-                    <h2 class="mb-1" style="color: #112344; font-weight: 700;"><i class="bi bi-gear-fill me-2"></i>Paramùtres du compte</h2>
-                    <p class="text-muted mb-0">Complùtez et gùrez les informations de votre profil</p>
+                    <h2 class="mb-1" style="color: #112344; font-weight: 700;"><i class="bi bi-gear-fill me-2"></i>Param√®tres du compte</h2>
+                    <p class="text-muted mb-0">Compl√©tez et g√©rez les informations de votre profil</p>
                 </div>
                 <a href="{{ path('app_profile') }}" class="btn btn-outline-secondary">
                     <i class="bi bi-person me-1"></i>Voir mon profil
@@ -50,8 +50,8 @@
                         </div>
                     </div>
                     <div>
-                        <h6 class="mb-1" style="color: #112344;">Complùter votre profil</h6>
-                        <p class="mb-0 small text-muted">Remplissez les champs ci-dessous pour complùter vos informations personnelles. Ces donnùes seront visibles sur votre profil.</p>
+                        <h6 class="mb-1" style="color: #112344;">Compl√©ter votre profil</h6>
+                        <p class="mb-0 small text-muted">Remplissez les champs ci-dessous pour compl√©ter vos informations personnelles. Ces donn√©es seront visibles sur votre profil.</p>
                     </div>
                 </div>
             </div>
@@ -61,8 +61,8 @@
                     {{ form_start(form, {'attr': {'class': 'settings-form', 'novalidate': 'novalidate'}}) }}
 
                     <div class="settings-section">
-                        <h5><i class="bi bi-person-fill me-2"></i>Informations gùnùrales</h5>
-                        <p class="text-muted small">Vos informations de base utilisùes sur la plateforme</p>
+                        <h5><i class="bi bi-person-fill me-2"></i>Informations g√©n√©rales</h5>
+                        <p class="text-muted small">Vos informations de base utilis√©es sur la plateforme</p>
                         
                         {# Photo de profil #}
                         <div class="mb-4">
@@ -82,8 +82,8 @@
                                 </div>
                                 <div class="flex-grow-1">
                                     {{ form_widget(form.photo, {'attr': {'class': 'form-control d-none photo-input-field', 'accept': 'image/*', 'onchange': 'previewPhoto(this)'}}) }}
-                                    <small class="form-text text-muted d-block">Cliquez sur la photo ou le bouton camùra pour ajouter/modifier votre photo de profil</small>
-                                    <small class="form-text text-muted d-block">Formats acceptùs: JPEG, PNG, GIF, WebP (max 5 Mo)</small>
+                                    <small class="form-text text-muted d-block">Cliquez sur la photo ou le bouton cam√©ra pour ajouter/modifier votre photo de profil</small>
+                                    <small class="form-text text-muted d-block">Formats accept√©s: JPEG, PNG, GIF, WebP (max 5 Mo)</small>
                                     {% if user.photo %}
                                         <button type="button" class="btn btn-sm btn-outline-danger mt-2" onclick="removePhoto()">
                                             <i class="bi bi-trash me-1"></i>Supprimer la photo
@@ -107,7 +107,7 @@
                     <hr class="my-4">
                     <div class="settings-section">
                         <h5><i class="bi bi-person-vcard me-2"></i>Informations patient</h5>
-                        <p class="text-muted small">Vos coordonnùes et informations mùdicales</p>
+                        <p class="text-muted small">Vos coordonn√©es et informations m√©dicales</p>
                         <div class="row g-3">
                             <div class="col-md-6">{{ form_row(form.telephone) }}</div>
                             <div class="col-md-6">{{ form_row(form.dateNaissance) }}</div>
@@ -118,7 +118,7 @@
                     <hr class="my-4">
                     <div class="settings-section">
                         <h5><i class="bi bi-heart-pulse me-2"></i>Informations professionnelles</h5>
-                        <p class="text-muted small">Vos informations en tant que mùdecin</p>
+                        <p class="text-muted small">Vos informations en tant que m√©decin</p>
                         <div class="row g-3">
                             <div class="col-md-6">{{ form_row(form.specialite) }}</div>
                             <div class="col-md-6">{{ form_row(form.numeroLicence) }}</div>
@@ -128,8 +128,8 @@
                     {% elseif user.role.value == 'SECRETAIRE' %}
                     <hr class="my-4">
                     <div class="settings-section">
-                        <h5><i class="bi bi-person-badge me-2"></i>Informations secrùtaire</h5>
-                        <p class="text-muted small">Vos coordonnùes</p>
+                        <h5><i class="bi bi-person-badge me-2"></i>Informations secr√©taire</h5>
+                        <p class="text-muted small">Vos coordonn√©es</p>
                         <div class="row g-3">
                             <div class="col-md-6">{{ form_row(form.telephone) }}</div>
                         </div>
@@ -138,7 +138,7 @@
                     <hr class="my-4">
                     <div class="settings-section">
                         <h5><i class="bi bi-people me-2"></i>Informations participation</h5>
-                        <p class="text-muted small">Votre rùle dans l'ùvùnement</p>
+                        <p class="text-muted small">Votre r√¥le dans l'√©v√©nement</p>
                         <div class="row g-3">
                             <div class="col-md-6">{{ form_row(form.roleDansEvenement) }}</div>
                             <div class="col-md-6">{{ form_row(form.presenceConfirmee) }}</div>
@@ -148,21 +148,10 @@
 
                     <hr class="my-4">
                     <div class="settings-section">
-                        <h5><i class="bi bi-lock-fill me-2"></i>Sùcuritù</h5>
-                        <p class="text-muted small">Modifiez votre mot de passe si nùcessaire. Laissez vide pour le conserver.</p>
-                        <div class="row g-3 mb-3">
+                        <h5><i class="bi bi-lock-fill me-2"></i>S√©curit√©</h5>
+                        <p class="text-muted small">Modifiez votre mot de passe si n√©cessaire. Laissez vide pour le conserver.</p>
+                        <div class="row g-3">
                             <div class="col-md-6">{{ form_row(form.plainPassword) }}</div>
-                        </div>
-
-                        <div class="mt-3 p-3 border rounded-3 bg-light">
-                            <h6 class="mb-2"><i class="bi bi-phone text-primary me-2"></i>Connexion biomùtrique (Face ID / empreinte)</h6>
-                            <p class="text-muted small mb-3">
-                                Activez la connexion biomùtrique sur cet appareil pour vous connecter plus rapidement avec Face ID, empreinte digitale ou Windows Hello.
-                            </p>
-                            <p class="text-muted small mb-2 d-none"><strong>Erreur 401 ?</strong> Utilisez toujours la mùme adresse (127.0.0.1:8000 ou localhost:8000). Dùconnectez-vous, reconnectez-vous, puis rùessayez.</p>
-                            <button type="button" class="btn btn-outline-primary btn-sm" id="faceIdRegisterBtn" data-bs-toggle="modal" data-bs-target="#faceIdWebcamModal">
-                                <i class="bi bi-camera me-1"></i>Enregistrer mon visage (webcam)ùtrique sur cet appareil
-                            </button>
                         </div>
                     </div>
 
@@ -174,6 +163,56 @@
                     </div>
 
                     {{ form_end(form) }}
+
+                    <div class="mt-4 p-3 border rounded-3 bg-light">
+                        <h6 class="mb-2"><i class="bi bi-camera text-primary me-2"></i>Connexion biometrie (Face ID)</h6>
+                        <p class="text-muted small mb-3">Activez la connexion Face ID sur cet appareil pour vous connecter plus rapidement.</p>
+                        <div class="d-flex flex-wrap gap-2">
+                            <button type="button" class="btn btn-outline-primary btn-sm" id="faceIdRegisterBtn" data-bs-toggle="modal" data-bs-target="#faceIdWebcamModal">
+                                <i class="bi bi-camera me-1"></i>Enregistrer mon visage
+                            </button>
+                            {% if user.isBiometricEnabled %}
+                                <button type="button" class="btn btn-outline-danger btn-sm" id="faceIdDisableBtn">Desactiver Face ID</button>
+                            {% endif %}
+                        </div>
+                        <p id="faceIdSettingsStatus" class="small text-muted mt-2"></p>
+                    </div>
+
+                    <div class="mt-4 p-3 border rounded-3 bg-light">
+                        <h6 class="mb-2"><i class="bi bi-shield-lock text-primary me-2"></i>Double authentification (Google Authenticator)</h6>
+                        {% if user.isGoogleAuthenticatorEnabled %}
+                            <p class="text-success small mb-2">Activ√©e</p>
+                            {% if twoFactorJustEnabled %}
+                                <div class="alert alert-success py-2 mb-3">
+                                    <i class="bi bi-shield-lock-fill me-1"></i> La double authentification a bien √©t√© activ√©e pour ce compte.
+                                </div>
+                            {% elseif twoFactorJustDisabled %}
+                                <div class="alert alert-info py-2 mb-3">
+                                    <i class="bi bi-info-circle me-1"></i> La double authentification a √©t√© d√©sactiv√©e pour ce compte.
+                                </div>
+                            {% endif %}
+                            <form method="post" action="{{ path('app_2fa_disable') }}">
+                                <input type="hidden" name="_csrf_token" value="{{ csrf_token('2fa_disable') }}">
+                                <button type="submit" class="btn btn-outline-danger btn-sm">D√©sactiver</button>
+                            </form>
+                        {% else %}
+                            <p class="text-muted small mb-2">Scannez le QR code avec Google Authenticator puis saisissez le code.</p>
+                            {% if twoFactorQr %}
+                                <div class="mb-2">
+                                    <img src="{{ twoFactorQr }}" alt="QR Code 2FA" style="max-width: 220px; height: auto;">
+                                </div>
+                                <p class="small text-muted">Cle manuelle: <code>{{ twoFactorSecret }}</code></p>
+                            {% endif %}
+                            <form method="post" action="{{ path('app_2fa_enable') }}" class="d-flex flex-wrap gap-2 align-items-end">
+                                <div>
+                                    <label class="form-label small mb-1" for="authCode">Code</label>
+                                    <input type="text" id="authCode" name="auth_code" class="form-control form-control-sm" placeholder="123456" required>
+                                </div>
+                                <input type="hidden" name="_csrf_token" value="{{ csrf_token('2fa_enable') }}">
+                                <button type="submit" class="btn btn-outline-primary btn-sm">Activer</button>
+                            </form>
+                        {% endif %}
+                    </div>
                 </div>
             </div>
         </div>
@@ -206,7 +245,7 @@
                 </div>
                 <div class="d-flex justify-content-center" style="height: 450px; align-items: center; background: #f8f9fa; border-radius: 6px; padding: 10px; overflow: hidden;">
                     <div style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center;">
-                        <img id="photoCropImage" src="" alt="Photo ù rogner" style="max-width: 100%; max-height: 100%; display: block;">
+                        <img id="photoCropImage" src="" alt="Photo √† rogner" style="max-width: 100%; max-height: 100%; display: block;">
                     </div>
                 </div>
             </div>
@@ -220,17 +259,17 @@
     </div>
 </div>
 
-<!-- Modal webcam pour enregistrement visage (face-api.js) -->
-<div class="modal fade" id="faceIdWebcamModal" tabindex="-1" aria-labelledby="faceIdWebcamModalLabel" aria-hidden="true" data-bs-backdrop="static">
+<!-- Modal webcam pour enregistrement visage -->
+<div class="modal fade" id="faceIdWebcamModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="static">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
             <div class="modal-header py-2">
-                <h6 class="modal-title" id="faceIdWebcamModalLabel"><i class="bi bi-camera me-1"></i>Enregistrer mon visage</h6>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer" id="faceIdWebcamModalClose"></button>
+                <h6 class="modal-title"><i class="bi bi-camera me-1"></i>Enregistrer mon visage</h6>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
             </div>
             <div class="modal-body text-center">
-                <p class="text-muted small mb-2">Positionnez votre visage face ù la camùra, puis cliquez sur Capturer.</p>
-                <div class="position-relative d-inline-block bg-dark rounded overflow-hidden" style="max-width: 100%;">
+                <p class="text-muted small mb-2">Positionnez votre visage face a la camera, puis cliquez sur Capturer.</p>
+                <div class="position-relative d-inline-block bg-dark rounded overflow-hidden">
                     <video id="faceIdVideo" autoplay playsinline muted width="320" height="240"></video>
                     <canvas id="faceIdCanvas" class="d-none"></canvas>
                 </div>
@@ -244,19 +283,49 @@
     </div>
 </div>
 
+<!-- Modal de feedback Face ID -->
+<div class="modal fade" id="faceIdFeedbackModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header py-2">
+                <h6 class="modal-title" id="faceIdFeedbackTitle">
+                    <i class="bi bi-info-circle me-1"></i>Information
+                </h6>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
+            </div>
+            <div class="modal-body">
+                <p id="faceIdFeedbackMessage" class="mb-0"></p>
+            </div>
+            <div class="modal-footer py-2">
+                <button type="button" class="btn btn-primary btn-sm" data-bs-dismiss="modal">OK</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
-{# TensorFlow.js + face-api.js : en local pour eviter "Tracking Prevention" (Edge) #}
-<script src="{{ asset('assets/js/tf.min.js') }}"></script>
-<script src="{{ asset('assets/js/face-api.min.js') }}"></script>
 <script>
 (function() {
-    var videoEl, modalEl, statusEl, captureBtn, stream = null, modelsLoaded = false;
+    var videoEl, canvasEl, modalEl, statusEl, captureBtn, stream = null;
     var registerUrl = '{{ path('app_face_id_register') }}';
-    function setStatus(t) { if (statusEl) statusEl.textContent = t || ''; }
-    function stopWebcam() {
-        if (stream) { stream.getTracks().forEach(function(t) { t.stop(); }); stream = null; }
-        if (videoEl && videoEl.srcObject) { videoEl.srcObject = null; }
+    var unregisterUrl = '{{ path('app_face_id_unregister') }}';
+
+    function setStatus(t) {
+        if (statusEl) statusEl.textContent = t || '';
+        var inline = document.getElementById('faceIdSettingsStatus');
+        if (inline) inline.textContent = t || '';
     }
+
+    function stopWebcam() {
+        if (stream) {
+            stream.getTracks().forEach(function(t) { t.stop(); });
+            stream = null;
+        }
+        if (videoEl && videoEl.srcObject) {
+            videoEl.srcObject = null;
+        }
+    }
+
     function startWebcam() {
         if (!videoEl) return;
         stopWebcam();
@@ -266,154 +335,155 @@
                 videoEl.srcObject = s;
                 return videoEl.play();
             })
-            .then(function() { setStatus('Camera OK. Positionnez votre visage.'); })
+            .then(function() { setStatus('Camera OK.'); })
             .catch(function(e) {
                 console.error(e);
-                setStatus('Erreur webcam: autorisez l\'acces ou utilisez HTTPS/localhost.');
+                setStatus('Erreur webcam.');
             });
     }
-    function getApi() {
-        if (typeof faceapi === 'undefined') return null;
-        return faceapi.default || faceapi;
+
+    function captureBase64() {
+        if (!canvasEl || !videoEl) return null;
+        var w = videoEl.videoWidth || 320;
+        var h = videoEl.videoHeight || 240;
+        canvasEl.width = w;
+        canvasEl.height = h;
+        var ctx = canvasEl.getContext('2d');
+        ctx.drawImage(videoEl, 0, 0, w, h);
+        var dataUrl = canvasEl.toDataURL('image/jpeg', 0.9);
+        if (!dataUrl || dataUrl.indexOf('base64,') === -1) return null;
+        return dataUrl.split('base64,')[1];
     }
-    function getNets() {
-        var api = getApi();
-        if (!api || !api.nets) return null;
-        var n = api.nets;
-        return {
-            tiny: n.tinyFaceDetector || n.TinyFaceDetector,
-            landmarks: n.faceLandmark68Net || n.faceLandmarks68Net || n.FaceLandmarks68Net,
-            recognition: n.faceRecognitionNet || n.FaceRecognitionNet
-        };
-    }
-    function loadModels() {
-        if (modelsLoaded) return Promise.resolve();
-        var base = '{{ asset('models') }}'.replace(/\/?$/, '/');
-        setStatus('Chargement des modeles...');
-        function tryLoad(retries) {
-            var nets = getNets();
-            if (nets && nets.tiny && nets.landmarks && nets.recognition) {
-                return Promise.all([
-                    nets.tiny.loadFromUri(base + 'tiny_face_detector'),
-                    nets.landmarks.loadFromUri(base + 'face_landmark_68'),
-                    nets.recognition.loadFromUri(base + 'face_recognition')
-                ]).then(function() { modelsLoaded = true; setStatus('Camera OK. Positionnez votre visage.'); })
-                  .catch(function(e) { console.error(e); setStatus('Erreur modeles. Verifiez public/models/'); throw e; });
-            }
-            if (retries <= 0) {
-                var api = getApi();
-                if (api) console.log('face-api present. Keys:', Object.keys(api), 'nets:', api.nets ? Object.keys(api.nets) : 'absent');
-                setStatus('Erreur: face-api.js non initialise. Rechargez la page (Ctrl+F5).');
-                return Promise.reject(new Error('face-api nets not available'));
-            }
-            return new Promise(function(r) { setTimeout(r, 150); }).then(function() { return tryLoad(retries - 1); });
+
+    function showFaceIdPopup(message, isSuccess) {
+        var modalEl = document.getElementById('faceIdFeedbackModal');
+        var msgEl = document.getElementById('faceIdFeedbackMessage');
+        var titleEl = document.getElementById('faceIdFeedbackTitle');
+        if (!modalEl || !msgEl || !titleEl || typeof bootstrap === 'undefined') {
+            alert(message);
+            return;
         }
-        return tryLoad(20);
+
+        msgEl.textContent = message;
+        msgEl.classList.remove('text-success', 'text-danger');
+        titleEl.classList.remove('text-success', 'text-danger');
+
+        if (isSuccess) {
+            msgEl.classList.add('text-success');
+            titleEl.classList.add('text-success');
+        } else {
+            msgEl.classList.add('text-danger');
+            titleEl.classList.add('text-danger');
+        }
+
+        var modal = bootstrap.Modal.getOrCreateInstance(modalEl);
+        modal.show();
     }
+
     function init() {
         videoEl = document.getElementById('faceIdVideo');
+        canvasEl = document.getElementById('faceIdCanvas');
         modalEl = document.getElementById('faceIdWebcamModal');
         statusEl = document.getElementById('faceIdWebcamStatus');
         captureBtn = document.getElementById('faceIdCaptureBtn');
+
         if (modalEl) {
             modalEl.addEventListener('shown.bs.modal', startWebcam);
             modalEl.addEventListener('hidden.bs.modal', function() { stopWebcam(); setStatus(''); });
         }
+
         if (captureBtn && videoEl) {
-            captureBtn.addEventListener('click', onCaptureClick);
-        }
-    }
-    function onCaptureClick() {
-            captureBtn.disabled = true;
-            setStatus('Detection...');
-            loadModels().then(function() {
-                var api = getApi();
-                if (!api) return Promise.reject(new Error('face-api not loaded'));
-                return api.detectSingleFace(videoEl, new api.TinyFaceDetectorOptions())
-                    .withFaceLandmarks()
-                    .withFaceDescriptor();
-            }).then(function(detection) {
-                if (!detection) {
-                    setStatus('Aucun visage detecte. Reessayez.');
+            captureBtn.addEventListener('click', function() {
+                captureBtn.disabled = true;
+                setStatus('Capture...');
+
+                var imageBase64 = captureBase64();
+                if (!imageBase64) {
+                    setStatus('Capture invalide.');
                     captureBtn.disabled = false;
                     return;
                 }
-                var embedding = Array.from(detection.descriptor);
+
                 setStatus('Envoi...');
-                return fetch(registerUrl, {
+                fetch(registerUrl, {
                     method: 'POST',
                     credentials: 'include',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ embedding: embedding })
-                });
-            }).then(function(res) {
-                if (!res) return;
-                return res.json().catch(function() { return {}; }).then(function(data) {
-                    if (res.ok && data.success) {
-                        setStatus('Visage enregistre.');
-                        if (typeof bootstrap !== 'undefined' && modalEl) {
-                            var m = bootstrap.Modal.getInstance(modalEl);
-                            if (m) m.hide();
+                    body: JSON.stringify({ image_base64: imageBase64 })
+                }).then(function(res) {
+                    return res.json().catch(function() { return {}; }).then(function(data) {
+                        if (res.ok && data.success) {
+                            var successMsg = data.message || 'Visage enregistr√© avec succ√®s. Vous pourrez utiliser la connexion par visage depuis l\'√©cran de connexion.';
+                            var inline = document.getElementById('faceIdSettingsStatus');
+                            if (inline) {
+                                inline.textContent = successMsg;
+                                inline.classList.remove('text-muted', 'text-danger');
+                                inline.classList.add('text-success', 'fw-semibold');
+                            }
+                            setStatus('');
+
+                            if (typeof bootstrap !== 'undefined' && modalEl) {
+                                var m = bootstrap.Modal.getInstance(modalEl);
+                                if (m) m.hide();
+                            }
+
+                            showFaceIdPopup(successMsg, true);
+                            return;
                         }
-                        alert('Visage enregistre. Vous pouvez vous connecter avec la reconnaissance faciale.');
-                    } else {
-                        setStatus(data.message || 'Erreur');
-                        alert(data.message || 'Erreur lors de l\'enregistrement.');
+                        var errorMsg = data.message || 'Erreur lors de l\'enregistrement du visage.';
+                        var inlineErr = document.getElementById('faceIdSettingsStatus');
+                        if (inlineErr) {
+                            inlineErr.textContent = errorMsg;
+                            inlineErr.classList.remove('text-muted', 'text-success');
+                            inlineErr.classList.add('text-danger', 'fw-semibold');
+                        }
+                        setStatus(errorMsg);
+                        showFaceIdPopup(errorMsg, false);
+                    });
+                }).catch(function(err) {
+                    console.error(err);
+                    var inlineErr = document.getElementById('faceIdSettingsStatus');
+                    var netMsg = 'Erreur r√©seau lors de l\'enregistrement du visage.';
+                    if (inlineErr) {
+                        inlineErr.textContent = netMsg;
+                        inlineErr.classList.remove('text-muted', 'text-success');
+                        inlineErr.classList.add('text-danger', 'fw-semibold');
                     }
+                    setStatus('Erreur reseau.');
+                    showFaceIdPopup(netMsg, false);
+                }).finally(function() {
+                    captureBtn.disabled = false;
                 });
-            }).catch(function(err) {
-                console.error(err);
-                setStatus('Erreur');
-                alert('Erreur detection ou reseau. Verifiez la console (F12).');
-            }).finally(function() { captureBtn.disabled = false; });
+            });
+        }
+
+        var disableBtn = document.getElementById('faceIdDisableBtn');
+        if (disableBtn) {
+            disableBtn.addEventListener('click', function() {
+                if (!confirm('Desactiver Face ID ?')) return;
+                fetch(unregisterUrl, { method: 'POST', credentials: 'include' })
+                    .then(function(res) {
+                        return res.json().catch(function() { return {}; }).then(function(data) {
+                            if (res.ok && data.success) {
+                                alert('Face ID desactive.');
+                                window.location.reload();
+                                return;
+                            }
+                            alert(data.message || 'Erreur lors de la desactivation.');
+                        });
+                    }).catch(function(err) {
+                        console.error(err);
+                        alert('Erreur reseau.');
+                    });
+            });
+        }
     }
+
     if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', init);
     } else {
         init();
     }
-})();
-async function activerFaceIdDepuisParametres() {
-    try {
-        alert('Utilisez le bouton "Enregistrer mon visage" pour choisir une photo de votre visage.');
-    } catch (e) {
-        console.error(e);
-    }
-}
-(function() {
-    var input = document.getElementById('faceIdRegisterInput');
-    if (!input) return;
-    input.addEventListener('change', async function(e) {
-        var file = e.target.files && e.target.files[0];
-        if (!file) return;
-        var btn = document.getElementById('faceIdRegisterBtn');
-        if (btn) btn.disabled = true;
-        try {
-            var base64 = await new Promise(function(resolve, reject) {
-                var r = new FileReader();
-                r.onload = function() { var d = r.result; if (d.indexOf('base64,') !== -1) d = d.split('base64,')[1]; resolve(d); };
-                r.onerror = reject;
-                r.readAsDataURL(file);
-            });
-            var res = await fetch('{{ path('app_face_id_register') }}', {
-                method: 'POST',
-                credentials: 'include',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ image_base64: base64 })
-            });
-            var data = await res.json().catch(function() { return {}; });
-            if (res.ok && data.success) {
-                alert('Visage enregistrù. Vous pouvez vous connecter avec la reconnaissance faciale.');
-            } else {
-                alert(data.message || 'Erreur lors de l\'enregistrement du visage.');
-            }
-        } catch (err) {
-            console.error(err);
-            alert('Erreur rùseau ou service Face ID indisponible. Dùmarrez le serveur Python (face_id_service).');
-        }
-        if (btn) btn.disabled = false;
-        e.target.value = '';
-    });
 })();
 let cropper = null;
 let currentPhotoFile = null;
@@ -428,23 +498,23 @@ function openPhotoSelector() {
         photoInput.click();
     } else {
         console.error('Champ de fichier photo introuvable');
-        alert('Erreur : Impossible de trouver le champ de sùlection de fichier. Veuillez recharger la page.');
+        alert('Erreur : Impossible de trouver le champ de s√©lection de fichier. Veuillez recharger la page.');
     }
 }
 
 function previewPhoto(input) {
     if (input.files && input.files[0]) {
-        // Vùrifier la taille du fichier (5 Mo max)
+        // V√©rifier la taille du fichier (5 Mo max)
         if (input.files[0].size > 5 * 1024 * 1024) {
-            alert('Le fichier est trop volumineux. La taille maximale autorisùe est de 5 Mo.');
+            alert('Le fichier est trop volumineux. La taille maximale autoris√©e est de 5 Mo.');
             input.value = '';
             return;
         }
         
-        // Vùrifier le type de fichier
+        // V√©rifier le type de fichier
         const allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
         if (!allowedTypes.includes(input.files[0].type)) {
-            alert('Type de fichier non autorisù. Veuillez sùlectionner une image (JPEG, PNG, GIF ou WebP).');
+            alert('Type de fichier non autoris√©. Veuillez s√©lectionner une image (JPEG, PNG, GIF ou WebP).');
             input.value = '';
             return;
         }
@@ -458,7 +528,7 @@ function previewPhoto(input) {
             const cropImage = document.getElementById('photoCropImage');
             const modal = new bootstrap.Modal(document.getElementById('photoCropModal'));
             
-            // Dùtruire l'instance cropper prùcùdente si elle existe
+            // D√©truire l'instance cropper pr√©c√©dente si elle existe
             if (cropper) {
                 cropper.destroy();
                 cropper = null;
@@ -467,10 +537,10 @@ function previewPhoto(input) {
             cropImage.src = e.target.result;
             modal.show();
             
-                        // Initialiser Cropper.js aprùs l'ouverture de la modal
+                        // Initialiser Cropper.js apr√®s l'ouverture de la modal
                         cropImage.onload = function() {
                             cropper = new Cropper(cropImage, {
-                                aspectRatio: 1, // Format carrù pour photo de profil circulaire
+                                aspectRatio: 1, // Format carr√© pour photo de profil circulaire
                                 viewMode: 1,
                                 dragMode: 'move',
                                 autoCropArea: 0.9,
@@ -492,7 +562,7 @@ function previewPhoto(input) {
                                     const containerData = this.cropper.getContainerData();
                                     const imageData = this.cropper.getImageData();
                                     
-                                    // Calculer le zoom pour que l'image remplisse complùtement le conteneur
+                                    // Calculer le zoom pour que l'image remplisse compl√®tement le conteneur
                                     // On prend la dimension la plus grande pour remplir tout l'espace
                                     const containerWidth = containerData.width;
                                     const containerHeight = containerData.height;
@@ -502,13 +572,13 @@ function previewPhoto(input) {
                                     // Calculer le ratio pour remplir le conteneur (avec un peu de marge)
                                     const scaleX = containerWidth / imageWidth;
                                     const scaleY = containerHeight / imageHeight;
-                                    // Prendre le plus grand pour remplir complùtement
+                                    // Prendre le plus grand pour remplir compl√®tement
                                     let scale = Math.max(scaleX, scaleY) * 1.1; // 1.1 pour agrandir encore plus
                                     
                                     // Appliquer le zoom pour agrandir l'image
                                     this.cropper.zoomTo(scale);
                                     
-                                    // Ajuster la zone de rognage pour qu'elle soit trùs grande
+                                    // Ajuster la zone de rognage pour qu'elle soit tr√®s grande
                                     const containerSize = Math.min(containerWidth, containerHeight);
                                     const cropSize = containerSize * 0.85;
                                     this.cropper.setCropBoxData({
@@ -518,7 +588,7 @@ function previewPhoto(input) {
                                 }
                             });
                             
-                            // Boutons de contrùle du zoom
+                            // Boutons de contr√¥le du zoom
                             document.getElementById('zoomInBtn').addEventListener('click', function() {
                                 cropper.zoom(0.2);
                             });
@@ -553,7 +623,7 @@ function previewPhoto(input) {
 }
 
 function removePhoto() {
-    if (confirm('ùtes-vous sùr de vouloir supprimer votre photo de profil ?')) {
+    if (confirm('√ätes-vous s√ªr de vouloir supprimer votre photo de profil ?')) {
         const input = document.querySelector('input[type="file"].photo-input-field') || 
                      document.querySelector('input[type="file"][accept="image/*"]') ||
                      document.querySelector('input[name*="photo"]');
@@ -567,7 +637,7 @@ function removePhoto() {
     }
 }
 
-// Gùrer le bouton de validation du rognage
+// G√©rer le bouton de validation du rognage
 document.addEventListener('DOMContentLoaded', function() {
     const photoInput = document.querySelector('input[type="file"].photo-input-field') || 
                       document.querySelector('input[type="file"][accept="image/*"]') ||
@@ -584,7 +654,7 @@ document.addEventListener('DOMContentLoaded', function() {
         cropPhotoBtn.addEventListener('click', function() {
             if (cropper) {
                 try {
-                    // Obtenir l'image rognùe
+                    // Obtenir l'image rogn√©e
                     const canvas = cropper.getCroppedCanvas({
                         width: 400,
                         height: 400,
@@ -595,23 +665,23 @@ document.addEventListener('DOMContentLoaded', function() {
                     // Convertir en blob puis en File
                     canvas.toBlob(function(blob) {
                         if (!blob) {
-                            console.error('Erreur lors de la crùation du blob');
-                            alert('Erreur lors du rognage de l\'image. Veuillez rùessayer.');
+                            console.error('Erreur lors de la cr√©ation du blob');
+                            alert('Erreur lors du rognage de l\'image. Veuillez r√©essayer.');
                             return;
                         }
                         
-                        // Crùer un nouveau File ù partir du blob
+                        // Cr√©er un nouveau File √† partir du blob
                         const croppedFile = new File([blob], currentPhotoFile.name, {
                             type: currentPhotoFile.type,
                             lastModified: Date.now()
                         });
                         
-                        // Crùer un DataTransfer pour remplacer le fichier dans l'input
+                        // Cr√©er un DataTransfer pour remplacer le fichier dans l'input
                         const dataTransfer = new DataTransfer();
                         dataTransfer.items.add(croppedFile);
                         photoInput.files = dataTransfer.files;
                         
-                        // Afficher la prùvisualisation
+                        // Afficher la pr√©visualisation
                         const preview = document.getElementById('photoPreview');
                         const container = document.querySelector('.photo-preview-circle');
                         const previewUrl = canvas.toDataURL();
@@ -622,7 +692,7 @@ document.addEventListener('DOMContentLoaded', function() {
                             container.innerHTML = '<img src="' + previewUrl + '" id="photoPreview" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">';
                         }
                         
-                        // Dùtruire l'instance cropper AVANT de fermer la modal
+                        // D√©truire l'instance cropper AVANT de fermer la modal
                         if (cropper) {
                             cropper.destroy();
                             cropper = null;
@@ -635,7 +705,7 @@ document.addEventListener('DOMContentLoaded', function() {
                             modal.hide();
                         }
                         
-                        // Forcer la suppression du backdrop si nùcessaire
+                        // Forcer la suppression du backdrop si n√©cessaire
                         setTimeout(function() {
                             const backdrops = document.querySelectorAll('.modal-backdrop');
                             backdrops.forEach(function(backdrop) {
@@ -648,13 +718,13 @@ document.addEventListener('DOMContentLoaded', function() {
                     }, currentPhotoFile.type, 0.9);
                 } catch (error) {
                     console.error('Erreur lors du rognage:', error);
-                    alert('Erreur lors du rognage de l\'image. Veuillez rùessayer.');
+                    alert('Erreur lors du rognage de l\'image. Veuillez r√©essayer.');
                 }
             }
         });
     }
     
-    // Nettoyer cropper quand la modal est fermùe
+    // Nettoyer cropper quand la modal est ferm√©e
     const photoCropModal = document.getElementById('photoCropModal');
     if (photoCropModal) {
         photoCropModal.addEventListener('hidden.bs.modal', function() {
@@ -662,7 +732,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 cropper.destroy();
                 cropper = null;
             }
-            // S'assurer que le backdrop est supprimù
+            // S'assurer que le backdrop est supprim√©
             const backdrops = document.querySelectorAll('.modal-backdrop');
             backdrops.forEach(function(backdrop) {
                 backdrop.remove();
@@ -673,7 +743,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
     
-    // Gùrer aussi la fermeture avec le bouton Annuler
+    // G√©rer aussi la fermeture avec le bouton Annuler
     const photoCropModalCancel = photoCropModal?.querySelector('[data-bs-dismiss="modal"]');
     if (photoCropModalCancel) {
         photoCropModalCancel.addEventListener('click', function() {
@@ -691,3 +761,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 {% endblock %}
+
+
+
+

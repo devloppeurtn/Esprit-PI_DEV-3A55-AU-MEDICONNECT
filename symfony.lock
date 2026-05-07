@@ -1,4 +1,13 @@
 {
+    "ahmed-bhs/doctrine-doctor": {
+        "version": "1.0",
+        "recipe": {
+            "repo": "github.com/symfony/recipes-contrib",
+            "branch": "main",
+            "version": "0.1",
+            "ref": "0a0c0e3972f784e628c4f759d2fb446e9eeb4959"
+        }
+    },
     "doctrine/deprecations": {
         "version": "1.1",
         "recipe": {
@@ -35,6 +44,15 @@
             "./migrations/.gitignore"
         ]
     },
+    "knpuniversity/oauth2-client-bundle": {
+        "version": "2.20",
+        "recipe": {
+            "repo": "github.com/symfony/recipes-contrib",
+            "branch": "main",
+            "version": "1.20",
+            "ref": "1ff300d8c030f55c99219cc55050b97a695af3f6"
+        }
+    },
     "nyholm/psr7": {
         "version": "1.8",
         "recipe": {
@@ -46,6 +64,15 @@
         "files": [
             "./config/packages/nyholm_psr7.yaml"
         ]
+    },
+    "phpstan/phpstan": {
+        "version": "2.1",
+        "recipe": {
+            "repo": "github.com/symfony/recipes-contrib",
+            "branch": "main",
+            "version": "1.0",
+            "ref": "5e490cc197fb6bb1ae22e5abbc531ddc633b6767"
+        }
     },
     "phpunit/phpunit": {
         "version": "11.5",
@@ -60,6 +87,19 @@
             "./phpunit.dist.xml",
             "./tests/bootstrap.php",
             "./bin/phpunit"
+        ]
+    },
+    "scheb/2fa-bundle": {
+        "version": "7.13",
+        "recipe": {
+            "repo": "github.com/symfony/recipes",
+            "branch": "main",
+            "version": "6.0",
+            "ref": "1e6f68089146853a790b5da9946fc5974f6fcd49"
+        },
+        "files": [
+            "./config/packages/scheb_2fa.yaml",
+            "./config/routes/scheb_2fa.yaml"
         ]
     },
     "spomky-labs/cbor-bundle": {
@@ -291,6 +331,21 @@
         "files": [
             "./config/packages/uid.yaml"
         ]
+    },
+    "symfony/ux-autocomplete": {
+        "version": "2.32",
+        "recipe": {
+            "repo": "github.com/symfony/recipes",
+            "branch": "main",
+            "version": "2.6",
+            "ref": "07d9602b7231ba355f484305d6cea58310c01741"
+        },
+        "files": [
+            "./config/routes/ux_autocomplete.yaml"
+        ]
+    },
+    "symfony/ux-chartjs": {
+        "version": "v2.32.0"
     },
     "symfony/ux-turbo": {
         "version": "2.32",

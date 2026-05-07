@@ -33,7 +33,7 @@ class CoursEducatif
     #[ORM\JoinColumn(nullable: false)]
     private ?CategorieSante $categorieSante = null;
 
-    #[ORM\OneToMany(mappedBy: 'coursEducatif', targetEntity: QuestionQuiz::class, cascade: ['persist', 'remove'])]
+    #[ORM\OneToMany(mappedBy: 'coursEducatif', targetEntity: QuestionQuiz::class, cascade: ['persist'], orphanRemoval: true)]
     private Collection $questions;
 
     #[ORM\ManyToOne(targetEntity: Medecin::class)]
