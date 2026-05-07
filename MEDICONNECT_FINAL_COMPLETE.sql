@@ -64,6 +64,9 @@ CREATE TABLE utilisateur (
     notif_commande_enabled TINYINT(1) NOT NULL DEFAULT 1,
     notif_promo_enabled TINYINT(1) NOT NULL DEFAULT 1,
     
+    -- Discriminateur pour l'héritage Doctrine (IMPORTANT!)
+    discr VARCHAR(255) NOT NULL DEFAULT 'patient',
+    
     UNIQUE INDEX UNIQ_1D1C63B3E7927C74 (email),
     INDEX IDX_1D1C63B34F31A84 (medecin_id),
     INDEX idx_email (email),
