@@ -30,11 +30,14 @@ class PromoAdminController extends AbstractController
         if ($request->isMethod('POST')) {
             $promo->setCode($request->request->get('code', ''));
             $promo->setRate($request->request->get('rate', '0'));
+            $promo->setDescription($request->request->get('description') ?: null);
+            $promo->setTypeReduction($request->request->get('typeReduction', $promo->getTypeReduction()));
+            $promo->setMontantMinimum($request->request->get('montantMinimum', $promo->getMontantMinimum() ?? '0.00'));
 
             $start = $request->request->get('startAt');
             $end = $request->request->get('endAt');
-            $promo->setStartAt($start ? new \DateTime($start) : null);
-            $promo->setEndAt($end ? new \DateTime($end) : null);
+            $promo->setStartAt($start ? new \DateTime($start) : new \DateTime());
+            $promo->setEndAt($end ? new \DateTime($end) : new \DateTime('+1 year'));
 
             $usage = $request->request->get('usageLimit');
             $promo->setUsageLimit($usage !== '' ? (int)$usage : null);

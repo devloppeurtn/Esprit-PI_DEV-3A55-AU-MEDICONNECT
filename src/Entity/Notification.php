@@ -31,7 +31,7 @@ class Notification
     #[ORM\Column(type: Types::STRING, length: 255, nullable: true)]
     private ?string $lien = null;
 
-    #[ORM\Column]
+    #[ORM\Column(name: 'lue')]
     private ?bool $estLu = false;
 
     #[ORM\Column]

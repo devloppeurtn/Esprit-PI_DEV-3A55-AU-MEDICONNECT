@@ -45,9 +45,9 @@ class EvenementController extends AbstractController
         $dateFin = (string) $request->query->get('date_fin', '');
 
         $qb = $this->evenementRepository->createQueryBuilder('e')
-            ->andWhere('e.statut = :statut')
+            ->andWhere('e.statut IN (:statuts)')
             ->andWhere('e.isActive = :active')
-            ->setParameter('statut', StatutEvenement::VALIDE)
+            ->setParameter('statuts', [StatutEvenement::VALIDE, StatutEvenement::OUVERT])
             ->setParameter('active', true)
             ->orderBy('e.eventDate', 'ASC');
 
@@ -181,7 +181,7 @@ class EvenementController extends AbstractController
     #[Route('/{id}', name: 'app_evenement_show', requirements: ['id' => '[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}'])]
     public function show(Evenement $item): Response
     {
-        if ($item->getStatut() !== StatutEvenement::VALIDE && !$this->canManageEvent($item)) {
+        if (!in_array($item->getStatut(), [StatutEvenement::VALIDE, StatutEvenement::OUVERT], true) && !$this->canManageEvent($item)) {
             throw $this->createAccessDeniedException('Cet événement n\'est pas encore publié.');
         }
 
@@ -196,7 +196,7 @@ class EvenementController extends AbstractController
     #[Route('/{id}/participer-page', name: 'app_evenement_participer_form', methods: ['GET'], requirements: ['id' => '[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}'])]
     public function participerPage(Evenement $item): Response
     {
-        if ($item->getStatut() !== StatutEvenement::VALIDE && !$this->canManageEvent($item)) {
+        if (!in_array($item->getStatut(), [StatutEvenement::VALIDE, StatutEvenement::OUVERT], true) && !$this->canManageEvent($item)) {
             throw $this->createAccessDeniedException('Cet événement n\'est pas encore publié.');
         }
 

@@ -54,7 +54,7 @@ class InvitationController extends AbstractController
                 $secretaire->setResetToken(null);
                 $secretaire->setResetTokenExpiresAt(null);
                 $secretaire->setMedecin($medecin);
-                $invitation->setStatut(StatutInvitation::ACCEPTEE);
+                $invitation->setStatut(StatutInvitation::ACCEPTE);
                 $this->entityManager->flush();
 
                 $this->sendNotificationMedecin($medecin, $secretaire, accepted: true);
@@ -64,7 +64,7 @@ class InvitationController extends AbstractController
         } else {
             if ($request->isMethod('POST')) {
                 $secretaire->setMedecin($medecin);
-                $invitation->setStatut(StatutInvitation::ACCEPTEE);
+                $invitation->setStatut(StatutInvitation::ACCEPTE);
                 $this->entityManager->flush();
 
                 $this->sendNotificationMedecin($medecin, $secretaire, accepted: true);
@@ -93,7 +93,7 @@ class InvitationController extends AbstractController
         $secretaire = $invitation->getSecretaire();
         $medecin = $invitation->getMedecin();
 
-        $invitation->setStatut(StatutInvitation::REFUSEE);
+        $invitation->setStatut(StatutInvitation::REFUSE);
         $this->entityManager->flush();
 
         $this->sendNotificationMedecin($medecin, $secretaire, accepted: false);

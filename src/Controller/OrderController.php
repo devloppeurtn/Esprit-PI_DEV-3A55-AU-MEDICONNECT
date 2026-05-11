@@ -7,6 +7,7 @@ use App\Entity\LigneCommande;
 use App\Entity\Utilisateur;
 use App\Enum\StatutCommande;
 use App\Repository\CommandeProduitRepository;
+use App\Repository\PromoCodeRepository;
 use App\Repository\ProduitRepository;
 use App\Service\CartService;
 use App\Service\DeliverySlaService;
@@ -69,6 +70,7 @@ class OrderController extends AbstractController
         Request $request,
         CartService $cartService,
         ProduitRepository $produitRepo,
+        PromoCodeRepository $promoRepo,
         EntityManagerInterface $em,
         SmsNotifier $smsNotifier,
         StockReservationService $stockReservationService,
@@ -181,8 +183,20 @@ class OrderController extends AbstractController
 
             // Apply promo/discount if any
             $totals = $cartService->getTotals();
+            $subtotal = $cartService->getCartTotal();
+            $discount = $cartService->getDiscountAmount($subtotal);
+            $promoData = $cartService->getPromo();
             $totalAmount = $totals['total'] ?? $totalAmount;
 
+            $commande->setMontantAvantReduction(number_format($subtotal, 2, '.', ''));
+            $commande->setMontantReduction(number_format($discount, 2, '.', ''));
+            if (!empty($promoData['code'])) {
+                $promo = $promoRepo->findActiveByCode((string) $promoData['code']);
+                if ($promo !== null) {
+                    $commande->setCodePromo($promo);
+                    $promo->setUsedCount($promo->getUsedCount() + 1);
+                }
+            }
             $commande->setMontantTotal(number_format($totalAmount, 2, '.', ''));
             $em->persist($commande);
             $em->flush();

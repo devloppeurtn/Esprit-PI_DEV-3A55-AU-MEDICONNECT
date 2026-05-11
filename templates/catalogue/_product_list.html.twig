@@ -10,7 +10,7 @@
             <div class="col-md-6 col-lg-4">
                 <div class="card h-100 shadow-sm">
                     {% if produit.image %}
-                        {% set imgPath = (produit.image is not empty and (produit.image starts with('http') or produit.image starts with('/') or produit.image starts with('assets') or produit.image starts with('uploads'))) ? produit.image : ('assets/img/' ~ produit.image) %}
+                        {% set imgPath = (produit.image is not empty and (produit.image starts with('http') or produit.image starts with('/') or produit.image starts with('assets') or produit.image starts with('uploads'))) ? produit.image : ('assets/img/products/' ~ produit.image) %}
                         <img src="{{ imgPath starts with('http') ? imgPath : asset(imgPath) }}" class="card-img-top" alt="{{ produit.nom }}" style="height: 200px; object-fit: cover;">
                     {% else %}
                         <div class="card-img-top bg-light d-flex align-items-center justify-content-center" style="height: 200px;">

@@ -628,8 +628,8 @@ class PatientController extends AbstractController
             return $this->redirectToRoute('app_patient_dossier');
         }
 
-        $chemin = $this->getParameter('documents_directory') . '/' . $document->getCheminFichier();
-        if (file_exists($chemin)) {
+        $chemin = $this->resolveDocumentPath((string) $document->getCheminFichier());
+        if ($chemin !== null && file_exists($chemin)) {
             unlink($chemin);
         }
         $this->em->remove($document);
@@ -660,8 +660,8 @@ class PatientController extends AbstractController
         }
 
         $safeStoredName = basename(str_replace('\\', '/', $storedName));
-        $absolutePath = rtrim((string) $this->getParameter('documents_directory'), '/\\') . DIRECTORY_SEPARATOR . $safeStoredName;
-        if (!is_file($absolutePath)) {
+        $absolutePath = $this->resolveDocumentPath($storedName);
+        if ($absolutePath === null || !is_file($absolutePath)) {
             $this->addFlash('error', 'Le fichier est manquant sur le serveur.');
             return $this->redirectToRoute('app_patient_dossier');
         }
@@ -673,6 +673,21 @@ class PatientController extends AbstractController
         $response->headers->set('Content-Type', 'application/octet-stream');
 
         return $response;
+    }
+
+    private function resolveDocumentPath(string $storedName): ?string
+    {
+        $storedName = trim($storedName);
+        if ($storedName === '') {
+            return null;
+        }
+
+        if (preg_match('/^[A-Za-z]:[\\\\\\/]/', $storedName) === 1 && is_file($storedName)) {
+            return $storedName;
+        }
+
+        $safeStoredName = basename(str_replace('\\', '/', $storedName));
+        return rtrim((string) $this->getParameter('documents_directory'), '/\\') . DIRECTORY_SEPARATOR . $safeStoredName;
     }
 
     #[Route('/rendez-vous/ajax', name: 'app_patient_rdv_ajax', methods: ['POST'])]

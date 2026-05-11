@@ -71,7 +71,7 @@
     <div class="row">
         <div class="col-lg-6">
             {% if produit.image %}
-                {% set imgPath = (produit.image is not empty and (produit.image starts with('http') or produit.image starts with('/') or produit.image starts with('assets') or produit.image starts with('uploads'))) ? produit.image : ('assets/img/' ~ produit.image) %}
+                {% set imgPath = (produit.image is not empty and (produit.image starts with('http') or produit.image starts with('/') or produit.image starts with('assets') or produit.image starts with('uploads'))) ? produit.image : ('assets/img/products/' ~ produit.image) %}
                 <img src="{{ asset(imgPath) }}" class="img-fluid rounded w-100" style="height: 400px; object-fit: cover;" alt="{{ produit.nom }}">
             {% else %}
                 <div class="bg-light rounded d-flex align-items-center justify-content-center" style="height: 400px;">
@@ -375,7 +375,7 @@
                         html += `
                             <div class="col-lg-3 col-md-6 mb-4">
                                 <div class="card h-100 shadow-sm">
-                                    <img src="${product.image ? (product.image.startsWith('http') ? product.image : '/assets/img/' + product.image) : '/assets/img/placeholder.png'}" 
+                                    <img src="${product.image ? (product.image.startsWith('http') ? product.image : (product.image.startsWith('/') || product.image.startsWith('assets') || product.image.startsWith('uploads') ? '/' + product.image.replace(/^\\//, '') : '/assets/img/products/' + product.image)) : '/assets/img/placeholder.png'}" 
                                          class="card-img-top" style="height: 200px; object-fit: cover;" alt="${product.nom}">
                                     <div class="card-body">
                                         <h5 class="card-title">${product.nom}</h5>

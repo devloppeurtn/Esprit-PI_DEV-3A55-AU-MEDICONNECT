@@ -114,10 +114,19 @@ class CartService
                 $this->clearPromo();
                 return false;
             }
-            $rate = (float) $promo->getRate() / 100; // stored as percent
+            $subtotal = $this->getCartTotal();
+            if ($subtotal < (float) $promo->getMontantMinimum()) {
+                $this->clearPromo();
+                return false;
+            }
+
+            $type = $promo->getTypeReduction();
+            $value = (float) $promo->getRate();
             $this->requestStack->getSession()->set(self::PROMO_SESSION_KEY, [
                 'code' => $promo->getCode(),
-                'rate' => $rate,
+                'type' => $type,
+                'value' => $value,
+                'rate' => $type === 'POURCENTAGE' ? $value / 100 : 0,
             ]);
             return true;
         }
@@ -143,6 +152,9 @@ class CartService
             return 0.0;
         }
         $subtotal = $subtotal ?? $this->getCartTotal();
+        if (($promo['type'] ?? 'POURCENTAGE') === 'MONTANT_FIXE') {
+            return round(min((float) ($promo['value'] ?? 0), $subtotal), 2);
+        }
         return round($subtotal * ($promo['rate'] ?? 0), 2);
     }
 

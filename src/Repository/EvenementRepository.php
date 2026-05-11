@@ -23,9 +23,9 @@ class EvenementRepository extends ServiceEntityRepository
     {
         return $this->createQueryBuilder('e')
             ->andWhere('e.isActive = :active')
-            ->andWhere('e.statut = :statut')
+            ->andWhere('e.statut IN (:statuts)')
             ->setParameter('active', true)
-            ->setParameter('statut', StatutEvenement::VALIDE)
+            ->setParameter('statuts', [StatutEvenement::VALIDE, StatutEvenement::OUVERT])
             ->orderBy('e.createdAt', 'DESC')
             ->getQuery()
             ->getResult();
@@ -54,9 +54,9 @@ class EvenementRepository extends ServiceEntityRepository
     public function findValides(): array
     {
         return $this->createQueryBuilder('e')
-            ->andWhere('e.statut = :statut')
+            ->andWhere('e.statut IN (:statuts)')
             ->andWhere('e.isActive = :active')
-            ->setParameter('statut', StatutEvenement::VALIDE)
+            ->setParameter('statuts', [StatutEvenement::VALIDE, StatutEvenement::OUVERT])
             ->setParameter('active', true)
             ->orderBy('e.eventDate', 'ASC')
             ->getQuery()

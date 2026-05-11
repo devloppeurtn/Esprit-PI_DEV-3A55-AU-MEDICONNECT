@@ -31,6 +31,16 @@ class CommandeProduit
     #[ORM\Column(type: Types::DECIMAL, precision: 10, scale: 2, nullable: true)]
     private ?string $montantTotal = null;
 
+    #[ORM\Column(name: 'montant_avant_reduction', type: Types::DECIMAL, precision: 10, scale: 2, nullable: true)]
+    private ?string $montantAvantReduction = null;
+
+    #[ORM\Column(name: 'montant_reduction', type: Types::DECIMAL, precision: 10, scale: 2, nullable: true)]
+    private ?string $montantReduction = '0.00';
+
+    #[ORM\ManyToOne(targetEntity: PromoCode::class)]
+    #[ORM\JoinColumn(name: 'code_promo_id', referencedColumnName: 'id', nullable: true, onDelete: 'SET NULL')]
+    private ?PromoCode $codePromo = null;
+
     #[ORM\OneToMany(mappedBy: 'commande', targetEntity: LigneCommande::class, cascade: ['persist', 'remove'], orphanRemoval: true)]
     private Collection $lignesCommande;
 
@@ -127,6 +137,42 @@ class CommandeProduit
     public function setMontantTotal(?string $montantTotal): static
     {
         $this->montantTotal = $montantTotal;
+
+        return $this;
+    }
+
+    public function getMontantAvantReduction(): ?string
+    {
+        return $this->montantAvantReduction;
+    }
+
+    public function setMontantAvantReduction(?string $montantAvantReduction): static
+    {
+        $this->montantAvantReduction = $montantAvantReduction;
+
+        return $this;
+    }
+
+    public function getMontantReduction(): ?string
+    {
+        return $this->montantReduction;
+    }
+
+    public function setMontantReduction(?string $montantReduction): static
+    {
+        $this->montantReduction = $montantReduction;
+
+        return $this;
+    }
+
+    public function getCodePromo(): ?PromoCode
+    {
+        return $this->codePromo;
+    }
+
+    public function setCodePromo(?PromoCode $codePromo): static
+    {
+        $this->codePromo = $codePromo;
 
         return $this;
     }
