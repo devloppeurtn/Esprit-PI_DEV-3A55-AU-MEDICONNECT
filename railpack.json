@@ -2,5 +2,6 @@
   "packages": {
     "php": "8.2"
   },
-  "start": "php -S 0.0.0.0:$PORT -t public"
+  "start": "php -S 0.0.0.0:$PORT -t public",
+  "build": "composer install --no-dev --optimize-autoloader"
 }
