@@ -7,6 +7,8 @@ framework:
 
     # Hosts de confiance (localhost + ngrok pour accès mobile)
     trusted_hosts:
+        - '^.*\.railway\.app$'
+        - '^.*\.up\.railway\.app$'
         - '^localhost$'
         - '^127\.0\.0\.1$'
         - '^.*\.ngrok-free\.dev$'
