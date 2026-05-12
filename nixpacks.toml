@@ -1,5 +1,0 @@
-[phases.setup]
-nixPkgs = ["php82", "php82Packages.composer"]
-
-[phases.install]
-cmds = ["install-php-extensions intl ctype iconv pdo pdo_mysql mbstring xml curl zip"]
