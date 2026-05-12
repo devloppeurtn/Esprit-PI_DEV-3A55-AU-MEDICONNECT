@@ -1,16 +1,5 @@
 [phases.setup]
-nixPkgs = ["php82", "php82Packages.composer", "php82Extensions.pdo", "php82Extensions.pdo_mysql", "php82Extensions.intl", "php82Extensions.mbstring", "php82Extensions.xml", "php82Extensions.curl", "php82Extensions.zip"]
+nixPkgs = ["php82", "php82Packages.composer"]
 
 [phases.install]
-cmds = [
-  "composer install --no-dev --optimize-autoloader --no-interaction --no-progress"
-]
-
-[phases.build]
-cmds = [
-  "APP_ENV=prod php bin/console cache:clear --no-warmup",
-  "APP_ENV=prod php bin/console cache:warmup"
-]
-
-[start]
-cmd = "APP_ENV=prod php -S 0.0.0.0:$PORT -t public"
+cmds = ["install-php-extensions intl ctype iconv pdo pdo_mysql mbstring xml curl zip"]
