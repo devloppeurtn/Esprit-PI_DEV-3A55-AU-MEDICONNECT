@@ -1,6 +1,7 @@
 {
   "packages": {
-    "php": "8.2"
+    "php": "8.2",
+    "php-extensions": ["pdo_mysql", "intl", "mbstring", "xml", "curl", "zip", "ctype", "iconv"]
   },
   "deploy": {
     "startCommand": "composer install --no-dev --optimize-autoloader --no-interaction && APP_ENV=prod php bin/console cache:clear && php -S 0.0.0.0:$PORT -t public"
