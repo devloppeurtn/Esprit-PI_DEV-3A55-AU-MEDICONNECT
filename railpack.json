@@ -1,0 +1,6 @@
+{
+  "packages": {
+    "php": "8.2",
+    "php-extensions": ["pdo_mysql", "intl", "mbstring", "opcache", "zip"]
+  }
+}
