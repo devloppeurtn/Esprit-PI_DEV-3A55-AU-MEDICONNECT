@@ -2,6 +2,7 @@
   "packages": {
     "php": "8.2"
   },
-  "build": "composer install --no-dev --optimize-autoloader --no-interaction --no-progress && APP_ENV=prod php bin/console cache:clear --no-warmup && APP_ENV=prod php bin/console cache:warmup",
-  "start": "APP_ENV=prod php -S 0.0.0.0:$PORT -t public"
+  "deploy": {
+    "startCommand": "composer install --no-dev --optimize-autoloader --no-interaction && APP_ENV=prod php bin/console cache:clear && php -S 0.0.0.0:$PORT -t public"
+  }
 }
