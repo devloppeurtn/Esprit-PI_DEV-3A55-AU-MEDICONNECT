@@ -1,18 +1,7 @@
-FROM php:8.2-cli
+FROM dunglas/frankenphp:php8.2-bookworm
 
-# Install system dependencies
-RUN apt-get update && apt-get install -y \
-    git \
-    curl \
-    libpng-dev \
-    libonig-dev \
-    libxml2-dev \
-    libzip-dev \
-    libicu-dev \
-    zip \
-    unzip \
-    && docker-php-ext-install pdo pdo_mysql mbstring exif pcntl bcmath gd zip intl \
-    && apt-get clean && rm -rf /var/lib/apt/lists/*
+# Install pdo_mysql and intl extensions
+RUN install-php-extensions pdo_mysql intl mbstring zip gd opcache
 
 # Install Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
