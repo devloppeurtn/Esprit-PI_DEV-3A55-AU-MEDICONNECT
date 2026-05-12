@@ -1,6 +1,6 @@
 [build]
 builder = "RAILPACK"
-buildCommand = "composer install --no-dev --optimize-autoloader --no-interaction --no-scripts && composer dump-autoload --no-dev --optimize --no-interaction"
+buildCommand = "COMPOSER_ALLOW_SUPERUSER=1 composer install --no-dev --optimize-autoloader --no-interaction"
 
 [deploy]
 startCommand = "APP_ENV=prod php bin/console cache:clear && php -S 0.0.0.0:$PORT -t public"
