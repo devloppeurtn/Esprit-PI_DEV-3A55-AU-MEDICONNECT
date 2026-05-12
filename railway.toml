@@ -1,7 +1,7 @@
 [build]
-builder = "DOCKERFILE"
-dockerfilePath = "Dockerfile"
+builder = "RAILPACK"
+buildCommand = "apt-get install -y php8.2-mysql 2>/dev/null || docker-php-ext-install pdo_mysql 2>/dev/null || install-php-extensions pdo_mysql; COMPOSER_ALLOW_SUPERUSER=1 composer install --no-dev --optimize-autoloader --no-interaction"
 
 [deploy]
-startCommand = "APP_ENV=prod php bin/console doctrine:migrations:migrate --no-interaction && APP_ENV=prod php bin/console cache:clear && php -S 0.0.0.0:$PORT -t public"
+startCommand = "APP_ENV=prod php bin/console doctrine:migrations:migrate --no-interaction; APP_ENV=prod php bin/console cache:clear && php -S 0.0.0.0:$PORT -t public"
 restartPolicyType = "ON_FAILURE"
