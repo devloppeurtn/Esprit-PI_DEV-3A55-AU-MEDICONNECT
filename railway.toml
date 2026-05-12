@@ -5,3 +5,4 @@ buildCommand = "install-php-extensions pdo_mysql intl && COMPOSER_ALLOW_SUPERUSE
 [deploy]
 startCommand = "APP_ENV=prod php bin/console cache:clear && php -S 0.0.0.0:$PORT -t public"
 restartPolicyType = "ON_FAILURE"
+# force cache invalidation
